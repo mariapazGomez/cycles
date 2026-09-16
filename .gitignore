@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+*.log
+.DS_Store
+coverage/
+
+# Prisma
+apps/api/prisma/*.db
+
+# Obsidian (config local del vault de docs/prds)
+.obsidian/

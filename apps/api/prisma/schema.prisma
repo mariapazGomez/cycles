@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  coach
+  athlete
+  admin
+}
+
+enum AuthProvider {
+  local
+  google
+  apple
+}
+
+enum CoachAthleteStatus {
+  pending
+  active
+  inactive
+}
+
+enum CycleStatus {
+  draft
+  active
+  completed
+  archived
+}
+
+enum SessionStatus {
+  pending
+  completed
+  skipped
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  name          String
+  passwordHash  String?
+  role          UserRole
+  authProvider  AuthProvider @default(local)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  coachRelations   CoachAthlete[] @relation("CoachRelations")
+  athleteRelations CoachAthlete[] @relation("AthleteRelations")
+  cyclesAsCoach    TrainingCycle[] @relation("CyclesAsCoach")
+  cyclesAsAthlete  TrainingCycle[] @relation("CyclesAsAthlete")
+  exerciseLogs     ExerciseLog[]
+}
+
+model CoachAthlete {
+  id        String              @id @default(uuid())
+  coachId   String
+  athleteId String
+  status    CoachAthleteStatus  @default(pending)
+  createdAt DateTime            @default(now())
+
+  coach   User @relation("CoachRelations", fields: [coachId], references: [id])
+  athlete User @relation("AthleteRelations", fields: [athleteId], references: [id])
+
+  @@unique([coachId, athleteId])
+}
+
+model TrainingCycle {
+  id        String      @id @default(uuid())
+  coachId   String
+  athleteId String
+  name      String
+  objective String?
+  startDate DateTime
+  endDate   DateTime
+  status    CycleStatus @default(draft)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  coach    User              @relation("CyclesAsCoach", fields: [coachId], references: [id])
+  athlete  User              @relation("CyclesAsAthlete", fields: [athleteId], references: [id])
+  sessions TrainingSession[]
+}
+
+model TrainingSession {
+  id             String        @id @default(uuid())
+  cycleId        String
+  name           String
+  orderIndex     Int
+  scheduledDate  DateTime?
+  status         SessionStatus @default(pending)
+
+  cycle             TrainingCycle      @relation(fields: [cycleId], references: [id])
+  sessionExercises  SessionExercise[]
+}
+
+model Exercise {
+  id          String  @id @default(uuid())
+  name        String
+  muscleGroup String?
+  description String?
+  videoUrl    String?
+  createdAt   DateTime @default(now())
+
+  sessionExercises SessionExercise[]
+}
+
+model SessionExercise {
+  id                 String  @id @default(uuid())
+  sessionId          String
+  exerciseId         String
+  orderIndex         Int
+  targetSets         Int
+  targetReps         Int
+  targetWeight       Float?
+  targetRestSeconds  Int?
+
+  session  TrainingSession @relation(fields: [sessionId], references: [id])
+  exercise Exercise        @relation(fields: [exerciseId], references: [id])
+  logs     ExerciseLog[]
+}
+
+model ExerciseLog {
+  id                String   @id @default(uuid())
+  sessionExerciseId String
+  athleteId         String
+  actualSets        Int?
+  actualReps         Int?
+  actualWeight       Float?
+  rpe                Int?
+  notes              String?
+  loggedAt           DateTime @default(now())
+
+  sessionExercise SessionExercise @relation(fields: [sessionExerciseId], references: [id])
+  athlete         User            @relation(fields: [athleteId], references: [id])
+}

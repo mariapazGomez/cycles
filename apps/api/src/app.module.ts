@@ -1,0 +1,23 @@
+import { Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
+import { PrismaModule } from "./prisma/prisma.module";
+import { AuthModule } from "./auth/auth.module";
+import { UsersModule } from "./users/users.module";
+import { AthletesModule } from "./athletes/athletes.module";
+import { CyclesModule } from "./cycles/cycles.module";
+import { SessionsModule } from "./sessions/sessions.module";
+import { ExercisesModule } from "./exercises/exercises.module";
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    PrismaModule,
+    AuthModule,
+    UsersModule,
+    AthletesModule,
+    CyclesModule,
+    SessionsModule,
+    ExercisesModule,
+  ],
+})
+export class AppModule {}

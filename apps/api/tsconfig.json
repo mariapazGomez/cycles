@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "ES2021",
+    "lib": ["ES2021"],
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strict": true,
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "sourceMap": true,
+    "declaration": true,
+    "paths": {
+      "@cycles/shared": ["../../packages/shared/src"]
+    }
+  },
+  "include": ["src"]
+}
