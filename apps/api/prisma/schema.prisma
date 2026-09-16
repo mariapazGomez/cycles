@@ -25,6 +25,11 @@ enum CoachAthleteStatus {
   inactive
 }
 
+enum WeightUnit {
+  kg
+  lb
+}
+
 enum CycleStatus {
   draft
   active
@@ -39,22 +44,31 @@ enum SessionStatus {
 }
 
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
-  name          String
-  passwordHash  String?
-  role          UserRole
-  authProvider  AuthProvider @default(local)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                 String       @id @default(uuid())
+  email              String       @unique
+  name               String
+  passwordHash       String?
+  role               UserRole
+  authProvider       AuthProvider @default(local)
+  weightUnit         WeightUnit   @default(kg)
+  emailVerifiedAt    DateTime?
+  dataConsentAt      DateTime?
+  dataConsentVersion String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
 
   coachRelations   CoachAthlete[] @relation("CoachRelations")
   athleteRelations CoachAthlete[] @relation("AthleteRelations")
   cyclesAsCoach    TrainingCycle[] @relation("CyclesAsCoach")
   cyclesAsAthlete  TrainingCycle[] @relation("CyclesAsAthlete")
   exerciseLogs     ExerciseLog[]
+  createdExercises Exercise[]
 }
 
+// Regla de negocio: un atleta tiene como máximo una relación con status=active
+// a la vez. No se modela como constraint de DB (requeriría un unique índex
+// parcial vía SQL crudo); se aplica en la capa de servicio antes de crear
+// o reactivar una relación. Ver docs/prds/PRD-General.md, sección 4.
 model CoachAthlete {
   id        String              @id @default(uuid())
   coachId   String
@@ -69,19 +83,23 @@ model CoachAthlete {
 }
 
 model TrainingCycle {
-  id        String      @id @default(uuid())
-  coachId   String
-  athleteId String
-  name      String
-  objective String?
-  startDate DateTime
-  endDate   DateTime
-  status    CycleStatus @default(draft)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  id         String      @id @default(uuid())
+  coachId    String
+  athleteId  String
+  name       String
+  objective  String?
+  startDate  DateTime
+  endDate    DateTime
+  status     CycleStatus @default(draft)
+  isTemplate Boolean     @default(false)
+  templateId String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
 
   coach    User              @relation("CyclesAsCoach", fields: [coachId], references: [id])
   athlete  User              @relation("CyclesAsAthlete", fields: [athleteId], references: [id])
+  template TrainingCycle?    @relation("CycleTemplate", fields: [templateId], references: [id])
+  copies   TrainingCycle[]   @relation("CycleTemplate")
   sessions TrainingSession[]
 }
 
@@ -98,13 +116,16 @@ model TrainingSession {
 }
 
 model Exercise {
-  id          String  @id @default(uuid())
+  id          String   @id @default(uuid())
   name        String
   muscleGroup String?
   description String?
   videoUrl    String?
+  // null = catálogo global (seed); no-null = ejercicio propio de ese coach.
+  createdBy   String?
   createdAt   DateTime @default(now())
 
+  creator          User?             @relation(fields: [createdBy], references: [id])
   sessionExercises SessionExercise[]
 }
 

@@ -10,6 +10,8 @@ export interface TrainingCycle {
   startDate: string;
   endDate: string;
   status: CycleStatus;
+  isTemplate: boolean;
+  templateId?: string;
 }
 
 export interface TrainingSession {
@@ -26,6 +28,7 @@ export interface Exercise {
   name: string;
   muscleGroup?: string;
   videoUrl?: string;
+  createdBy?: string;
 }
 
 export interface SessionExercise {

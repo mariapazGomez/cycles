@@ -54,7 +54,7 @@ Se usa un **monorepo con npm workspaces** para poder compartir tipos (DTOs, enum
 
 - **Stack:** Node.js, TypeScript, NestJS, Prisma ORM, PostgreSQL.
 - **Organización modular por dominio** (patrón estándar de NestJS): cada carpeta bajo `src/` es un módulo con su `controller`, `service`, `dto` y `module`.
-  - `auth/` — login manual, OAuth Google/Apple, emisión y refresh de JWT.
+  - `auth/` — login manual (con verificación de email), OAuth Google, emisión y refresh de JWT. Apple queda pospuesto (ver `docs/prds/features/PRD-Autenticacion.md`).
   - `users/` — perfil de usuario, roles.
   - `athletes/` — relación coach–atleta (invitación, aceptación, listado).
   - `cycles/` — CRUD de ciclos de entrenamiento.
@@ -62,7 +62,7 @@ Se usa un **monorepo con npm workspaces** para poder compartir tipos (DTOs, enum
   - `exercises/` — catálogo de ejercicios y registro de ejecución (`ExerciseLog`).
   - `common/` — guards (roles, auth), decoradores, filtros de excepción, pipes de validación.
   - `prisma/` — `PrismaService` (cliente inyectable) y el schema del ORM.
-- **Autenticación:** Passport.js dentro de NestJS con tres estrategias: `local` (email/contraseña), `google-oauth20`, `apple`. Emisión de JWT de acceso (corta duración) + refresh token (rotativo, almacenado hasheado).
+- **Autenticación:** Passport.js dentro de NestJS con dos estrategias en el MVP: `local` (email/contraseña, con verificación de email obligatoria) y `google-oauth20` (con vinculación automática por email si ya existe una cuenta manual). `apple` queda documentada como estrategia futura, no implementada aún. Emisión de JWT de acceso (corta duración) + refresh token (rotativo, almacenado hasheado).
 - **Autorización:** guards basados en rol (`coach`, `athlete`, `admin`) y en pertenencia (un coach solo accede a sus atletas/ciclos).
 - **Validación:** DTOs con `class-validator` en cada endpoint de entrada.
 - **Documentación de API:** Swagger/OpenAPI autogenerado (`@nestjs/swagger`).
@@ -79,14 +79,14 @@ Contiene tipos TypeScript e interfaces de DTOs de dominio (por ejemplo, la forma
 
 ## 7. Autenticación — flujo resumido
 
-1. **Manual:** registro con email/contraseña → hash con bcrypt → login valida credenciales → emite JWT + refresh token.
-2. **Google/Apple (OAuth 2.0):** el frontend inicia el flujo OAuth; el backend recibe el callback, crea o vincula el `User` por email, y emite JWT + refresh token igual que en el flujo manual — de modo que el resto de la app no distingue el método de login una vez autenticado.
+1. **Manual:** registro con email/contraseña → hash con bcrypt → email de verificación → login solo permitido tras verificar → emite JWT + refresh token.
+2. **Google (OAuth 2.0):** el frontend inicia el flujo OAuth; el backend recibe el callback y busca un `User` por email — si existe (creado manualmente), lo vincula; si no, lo crea — y emite JWT + refresh token igual que en el flujo manual, de modo que el resto de la app no distingue el método de login una vez autenticado. Apple seguiría este mismo patrón cuando se implemente.
 3. Todas las rutas protegidas de la API validan el JWT vía guard; el rol embebido en el token determina el acceso.
 
 ## 8. Próximos pasos técnicos (no incluidos en este scaffolding)
 
 - Definir librería de estado de servidor y ruteo en frontend.
 - Configurar Prisma con una base de datos real y primera migración.
-- Implementar los tres flujos de autenticación (`auth` module).
+- Implementar los flujos de autenticación del MVP: manual (con verificación de email) y Google (`auth` module) — ver [[PRD-Autenticacion]].
 - Definir estrategia de despliegue (ver "Decisiones abiertas" en el PRD).
 - Configurar CI (lint, typecheck, tests) para el monorepo.

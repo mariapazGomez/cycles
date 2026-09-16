@@ -12,12 +12,17 @@ Este directorio es un **vault de Obsidian** (abrir `docs/` o `docs/prds/` direct
 ```
 docs/prds/
 ├── README.md                       # este archivo
-├── PRD-General.md                  # PRD padre — visión completa del producto
+├── VISION.md                       # visión de compañía — nivel más alto, por encima de cualquier producto
+├── PRD-General.md                  # PRD padre del producto Cycles (hijo de VISION)
+├── _discovery/
+│   └── PRD-General-Preguntas.md    # cuestionarios de decisiones fundacionales
 ├── _templates/
 │   └── PRD-Feature-Template.md     # plantilla para crear un PRD hijo nuevo
 └── features/
-    └── PRD-<Funcionalidad>.md      # un archivo por funcionalidad
+    └── PRD-<Funcionalidad>.md      # un archivo por funcionalidad de Cycles
 ```
+
+Si en el futuro nace un segundo producto además de Cycles, tendría su propio `PRD-General` (o nombre equivalente) enlazado a `VISION.md`, igual que Cycles.
 
 ## Cómo crear un PRD hijo nuevo
 
