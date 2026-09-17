@@ -2,7 +2,7 @@
 type: prd
 level: feature
 parent: "[[PRD-General]]"
-status: draft
+status: in-progress
 phase: "Fase 1 — Auth & onboarding"
 created: 2026-09-16
 updated: 2026-09-16
@@ -16,7 +16,7 @@ related: []
 
 ## 1. Resumen
 
-Permite a coaches y atletas registrarse e iniciar sesión mediante email/contraseña o Google, con verificación de email y vinculación automática de cuentas por email, y acceder a la plataforma con un rol asociado. Apple queda fuera del MVP (ver sección 3).
+Permite a coaches registrarse libremente e iniciar sesión mediante email/contraseña o Google, con verificación de email y vinculación automática de cuentas por email. Los atletas no se auto-registran (ver [[PRD-General]], sección 4): completan su cuenta a partir de una invitación, a través del mismo mecanismo de creación de usuario pero fuera del endpoint público de registro. Apple queda fuera del MVP (ver sección 3).
 
 ## 2. Problema / motivación
 
@@ -26,15 +26,15 @@ Sin autenticación no hay identidad de usuario, por lo que ninguna otra funciona
 
 ### Dentro de alcance
 
-- Registro manual con email + contraseña.
+- Registro manual con email + contraseña — **solo rol `coach`** (`POST /auth/register` rechaza `role: athlete` con 403; ver [[PRD-General]], sección 4).
 - Login manual, bloqueado hasta que el email esté verificado.
 - Verificación de email obligatoria (link enviado al registrarse).
-- Login/registro con Google OAuth 2.0.
-- **Vinculación automática de cuentas por email:** si un usuario ya registrado manualmente (o vía Google) inicia sesión con el otro método usando el mismo email, se asocia al mismo `User` en vez de crear una cuenta duplicada.
-- Emisión y refresh de JWT.
+- Login/registro con Google OAuth 2.0 — también crea cuentas sin rol asignado (`role: null`) hasta completar onboarding; el registro por Google tampoco permite auto-asignarse `athlete`.
+- `POST /auth/complete-profile`: asigna el rol tras un login por Google (solo acepta `coach`; solo se puede ejecutar una vez).
+- **Vinculación automática de cuentas por email:** si un usuario ya registrado manualmente inicia sesión con Google usando el mismo email, se asocia al mismo `User` en vez de crear una cuenta duplicada (y de paso se marca el email como verificado, ya que Google lo garantiza).
+- Emisión, refresh (rotativo, con detección de reuso) y revocación (`logout`) de JWT.
 - Recuperación de contraseña (flujo manual únicamente; no aplica a cuentas que solo usan Google).
-- Asignación de rol (`coach` | `athlete`, excluyentes) en el registro manual. En registro vía Google, el rol se pregunta en un paso de onboarding posterior al primer login (Google no lo provee).
-- Consentimiento de datos (`dataConsentAt`) capturado como checkbox obligatorio en el registro de todo atleta (ver [[VISION]]).
+- Consentimiento de datos (`dataConsentAt`) capturado como checkbox opcional en el registro/onboarding (ver [[VISION]]); obligatorio solo cuando se implemente la creación de cuentas de atleta vía invitación.
 
 ### Fuera de alcance
 
@@ -45,7 +45,7 @@ Sin autenticación no hay identidad de usuario, por lo que ninguna otra funciona
 
 ## 4. Historias de usuario
 
-1. Como **usuario nuevo**, quiero registrarme con email y contraseña indicando si soy coach o atleta, para crear mi cuenta.
+1. Como **coach nuevo**, quiero registrarme con email y contraseña, para crear mi cuenta.
 2. Como **usuario registrado manualmente**, quiero confirmar mi email mediante un link, para poder iniciar sesión.
 3. Como **usuario**, quiero iniciar sesión con Google, para no tener que crear ni recordar una contraseña.
 4. Como **usuario que ya tenía cuenta manual**, quiero que si inicio sesión con Google usando el mismo email se reconozca como mi misma cuenta, para no terminar con cuentas duplicadas.
@@ -55,25 +55,26 @@ Sin autenticación no hay identidad de usuario, por lo que ninguna otra funciona
 
 ## 5. Modelo de datos (delta)
 
-Usa directamente `User` (`passwordHash`, `authProvider`, `role`, `emailVerifiedAt`, `dataConsentAt`, `dataConsentVersion`) definido en `apps/api/prisma/schema.prisma` — estos tres últimos campos se agregaron al modelo general como resultado de este PRD y de [[VISION]]. Se añaden dos tablas no cubiertas en el modelo general:
+Usa directamente `User` (`passwordHash`, `authProvider`, `role` ahora nullable, `emailVerifiedAt`, `dataConsentAt`, `dataConsentVersion`) definido en `apps/api/prisma/schema.prisma`. Se añaden tres tablas no cubiertas en el modelo general, ya implementadas:
 
 - `PasswordResetToken`: `id`, `userId`, `tokenHash`, `expiresAt`, `usedAt?`.
 - `EmailVerificationToken`: `id`, `userId`, `tokenHash`, `expiresAt`.
+- `RefreshToken`: `id`, `userId`, `tokenHash`, `expiresAt`, `revokedAt?` — persistido para poder rotar y revocar sesiones (no solo confiar en la expiración del JWT).
 
-(Ambas pendientes de agregar al `schema.prisma` cuando se implemente esta fase.)
+## 6. Diseño de API (delta) — implementado en `apps/api/src/auth`
 
-## 6. Diseño de API (delta)
-
-- `POST /auth/register` — registro manual (email, password, name, role, aceptación de consentimiento de datos).
+- `POST /auth/register` — registro manual (email, password, name, role, consentimiento opcional). Rechaza `role: athlete` con 403.
 - `POST /auth/verify-email` — confirma el email con el token recibido.
-- `POST /auth/verify-email/resend` — reenvía el link de verificación.
+- `POST /auth/verify-email/resend` — reenvía el link de verificación (respuesta genérica, no revela si el email existe).
 - `POST /auth/login` — login manual (bloqueado si el email no está verificado), devuelve access + refresh token.
-- `POST /auth/refresh` — intercambia refresh token por nuevo access token.
-- `GET /auth/google` / `GET /auth/google/callback` — flujo OAuth Google; si el email ya existe como cuenta manual, se vincula en vez de crear un usuario nuevo.
-- `POST /auth/password-reset/request` — solicita email de recuperación.
-- `POST /auth/password-reset/confirm` — establece nueva contraseña con el token recibido.
+- `POST /auth/refresh` — rota el refresh token (revoca el anterior, emite un par nuevo); si detecta reuso de un token ya rotado, revoca todas las sesiones del usuario.
+- `POST /auth/logout` — revoca el refresh token recibido.
+- `POST /auth/complete-profile` (protegido) — asigna `role: coach` a una cuenta creada vía Google sin rol; falla si ya tiene rol asignado.
+- `GET /auth/google` / `GET /auth/google/callback` — flujo OAuth Google; si el email ya existe (cuenta manual), se vincula en vez de crear un usuario nuevo; si no existe, crea la cuenta con `role: null` pendiente de `complete-profile`.
+- `POST /auth/password-reset/request` — solicita email de recuperación (respuesta genérica).
+- `POST /auth/password-reset/confirm` — establece nueva contraseña con el token recibido y revoca todas las sesiones activas del usuario.
 
-> Endpoints de Apple (`GET /auth/apple`, callback) quedan fuera del MVP — ver sección 3.
+> Endpoints de Apple (`GET /auth/apple`, callback) quedan fuera del MVP — ver sección 3. El módulo `auth` solo registra la estrategia de Google si `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` están configurados en el entorno; si no, esas dos rutas responden con error al invocarse pero el resto de la API funciona con normalidad.
 
 ## 7. UI/UX
 

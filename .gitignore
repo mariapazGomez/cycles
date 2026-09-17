@@ -6,6 +6,7 @@ build/
 *.log
 .DS_Store
 coverage/
+*.tsbuildinfo
 
 # Prisma
 apps/api/prisma/*.db

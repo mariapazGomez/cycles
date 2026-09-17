@@ -48,7 +48,8 @@ model User {
   email              String       @unique
   name               String
   passwordHash       String?
-  role               UserRole
+  // Nulo hasta completar onboarding (ej. tras registro vía Google, que no provee rol).
+  role               UserRole?
   authProvider       AuthProvider @default(local)
   weightUnit         WeightUnit   @default(kg)
   emailVerifiedAt    DateTime?
@@ -63,6 +64,43 @@ model User {
   cyclesAsAthlete  TrainingCycle[] @relation("CyclesAsAthlete")
   exerciseLogs     ExerciseLog[]
   createdExercises Exercise[]
+  passwordResetTokens      PasswordResetToken[]
+  emailVerificationTokens  EmailVerificationToken[]
+  refreshTokens            RefreshToken[]
+}
+
+// Refresh tokens persistidos (hasheados) para poder rotarlos y revocarlos,
+// no solo confiar en la expiración del JWT. Ver docs/ARCHITECTURE.md, sección 7.
+model RefreshToken {
+  id         String    @id @default(uuid())
+  userId     String
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(uuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 // Regla de negocio: un atleta tiene como máximo una relación con status=active

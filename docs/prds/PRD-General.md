@@ -15,7 +15,7 @@ tags: [prd, general]
 
 | Funcionalidad | Fase | Estado | PRD |
 |---|---|---|---|
-| Autenticación (manual + Google, verificación de email) | Fase 1 | draft | [[PRD-Autenticacion]] |
+| Autenticación (manual + Google, verificación de email) | Fase 1 | in-progress | [[PRD-Autenticacion]] |
 
 > Esta tabla se actualiza a mano cada vez que se crea un PRD hijo nuevo (ver plantilla en `_templates/PRD-Feature-Template.md`). Además, como cada PRD hijo enlaza de vuelta a `[[PRD-General]]` en su frontmatter, el panel de **Linked mentions / Backlinks** de Obsidian en esta nota mostrará automáticamente todos los hijos, aunque se te olvide actualizar la tabla.
 
