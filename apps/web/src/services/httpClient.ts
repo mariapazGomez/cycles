@@ -1,0 +1,101 @@
+import { tokenStore } from "./tokenStore";
+
+export const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+
+export class ApiError extends Error {
+  constructor(
+    public readonly status: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
+interface RequestOptions {
+  method?: "GET" | "POST" | "PATCH" | "DELETE";
+  body?: unknown;
+  // false para endpoints públicos (login, register, ...): no adjunta el
+  // access token ni intenta refrescar sesión ante un 401.
+  auth?: boolean;
+}
+
+async function extractErrorMessage(response: Response): Promise<string> {
+  try {
+    const data = await response.json();
+    if (Array.isArray(data?.message)) {
+      return data.message.join(" ");
+    }
+    if (typeof data?.message === "string") {
+      return data.message;
+    }
+  } catch {
+    // Respuesta sin cuerpo JSON: se usa el mensaje genérico de abajo.
+  }
+  return "Ocurrió un error inesperado. Intenta de nuevo.";
+}
+
+// Evita disparar varios refresh en paralelo si varias requests reciben 401 a la vez.
+let refreshInFlight: Promise<void> | null = null;
+
+async function refreshSession(): Promise<void> {
+  const refreshToken = tokenStore.getRefreshToken();
+  if (!refreshToken) {
+    throw new ApiError(401, "Sesión expirada");
+  }
+
+  const response = await fetch(`${API_URL}/auth/refresh`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refreshToken }),
+  });
+
+  if (!response.ok) {
+    tokenStore.clear();
+    throw new ApiError(401, "Sesión expirada");
+  }
+
+  tokenStore.setTokens(await response.json());
+}
+
+export async function apiRequest<T>(
+  path: string,
+  options: RequestOptions = {},
+  isRetry = false,
+): Promise<T> {
+  const { method = "GET", body, auth = true } = options;
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+
+  if (auth) {
+    const accessToken = tokenStore.getAccessToken();
+    if (accessToken) {
+      headers.Authorization = `Bearer ${accessToken}`;
+    }
+  }
+
+  const response = await fetch(`${API_URL}${path}`, {
+    method,
+    headers,
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+
+  if (response.status === 401 && auth && !isRetry) {
+    if (!refreshInFlight) {
+      refreshInFlight = refreshSession().finally(() => {
+        refreshInFlight = null;
+      });
+    }
+    await refreshInFlight;
+    return apiRequest<T>(path, options, true);
+  }
+
+  if (!response.ok) {
+    throw new ApiError(response.status, await extractErrorMessage(response));
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  return (await response.json()) as T;
+}

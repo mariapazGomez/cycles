@@ -201,10 +201,15 @@ Estos son los NFR de plataforma. Un PRD hijo solo debe listar NFR **adicionales 
 
 ## 11. Decisiones abiertas
 
-- **Hosting/infraestructura:** no definido aún, pero con criterio ya fijado: empezar minimalista (una instancia de Postgres administrada, ej. Railway/Supabase/RDS básico) y escalar infraestructura cuando haya tracción real, sin necesidad de rediseñar el modelo de datos (ver [[VISION]]). Proveedor concreto se decide al iniciar Fase 1.
-- **Proveedor de email transaccional** (invitaciones, verificación de email, recuperación de contraseña): pendiente (p. ej. Resend, SendGrid). Es dependencia directa de [[PRD-Autenticacion]].
-- **Gestión de estado en frontend:** por definir al iniciar implementación (React Query para estado de servidor es la opción por defecto; Zustand/Context para estado de UI si hace falta).
-- **Estrategia de versión de API:** por definir cuando exista consumo externo (móvil nativo, integraciones).
-- **Cumplimiento normativo específico** (GDPR u otra ley local de datos de salud/deporte): pendiente de definir según mercado geográfico objetivo; el consentimiento explícito (`dataConsentAt`) es la base mínima ya adoptada, pero puede no ser suficiente según jurisdicción.
-- **Presupuesto de infraestructura:** sin definir todavía.
-- **Naming:** "Cycles" (y "InProgress Co." como compañía) son nombres candidatos, no confirmados — pendiente búsqueda de marca registrada antes de invertir en identidad visual. Ver [[VISION]], sección 6. El código sigue usando "Cycles" como nombre de trabajo mientras tanto.
+Decisiones resueltas el 2026-09-19:
+
+- **Hosting/infraestructura:** **Supabase** (Postgres administrado). Se usa su base de datos administrada; el resto de servicios de auth/storage de Supabase no se usan porque ya hay auth propio implementado.
+- **Proveedor de email transaccional:** **Resend**. Reemplaza el `MailService` de desarrollo (que solo loguea el link) en `apps/api/src/mail/mail.service.ts`.
+- **Gestión de estado en frontend:** **React Query** (estado de servidor) + **Context** (estado de UI simple). No se suma Zustand por ahora.
+- **Cumplimiento normativo específico:** mercado objetivo inicial **LATAM / España**; no se asume GDPR pleno de entrada. El consentimiento explícito (`dataConsentAt`) ya implementado es la base mínima suficiente para este alcance. Se reevalúa si se expande a UE/EE.UU.
+- **Presupuesto de infraestructura:** tier gratuito / **<$25 USD/mes** para el MVP (cubierto por el free tier de Supabase + Resend).
+- **Naming:** **"Cycles"** e **"InProgress Co."** quedan confirmados como nombres definitivos (se asume el riesgo de marca sin búsqueda previa).
+
+Pendiente:
+
+- **Estrategia de versión de API:** por definir cuando exista consumo externo (móvil nativo, integraciones). Se deja deliberadamente sin decidir hasta que sea necesario.

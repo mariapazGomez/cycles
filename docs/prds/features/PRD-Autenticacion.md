@@ -79,7 +79,7 @@ Usa directamente `User` (`passwordHash`, `authProvider`, `role` ahora nullable, 
 ## 7. UI/UX
 
 - Pantalla de login con dos opciones visibles: "Continuar con Google" y formulario de email/contraseña.
-- Pantalla de registro: mismos dos métodos + selector de rol (coach/atleta) y checkbox de consentimiento de datos, obligatorio, en el flujo manual (en Google se pregunta el rol y el consentimiento en un paso posterior de onboarding, ya que el proveedor no los provee).
+- Pantalla de registro: mismos dos métodos, sin selector de rol (el registro público solo crea cuentas `coach`; `POST /auth/register` rechaza `athlete` con 403) + checkbox de consentimiento de datos, opcional (ver [[PRD-General]], sección 3). En Google, el consentimiento se pregunta en un paso posterior de onboarding (`/auth/complete-profile`), que tampoco pide rol porque solo acepta `coach`.
 - Pantalla de "revisa tu email" tras registro manual, y de confirmación tras hacer clic en el link de verificación.
 - Pantalla "Olvidé mi contraseña" y pantalla de definir nueva contraseña (accedida vía link del email).
 
@@ -102,6 +102,6 @@ Usa directamente `User` (`passwordHash`, `authProvider`, `role` ahora nullable, 
 
 ## 11. Estado y decisiones abiertas
 
-- Pendiente decidir proveedor de email transaccional para verificación de email y recuperación de contraseña (ver decisiones abiertas del [[PRD-General]]).
+- **Proveedor de email transaccional: resuelto — Resend** (ver decisiones del [[PRD-General]], sección 11, 2026-09-19). Pendiente de implementación: reemplazar el `MailService` de desarrollo en `apps/api/src/mail/mail.service.ts` (actualmente solo loguea el link) por la integración real.
 - Apple Sign In postergado deliberadamente (ver sección 3); se reevalúa si se publica app nativa en App Store o si hay demanda explícita.
 - Texto legal exacto del consentimiento de datos (`dataConsentVersion`) pendiente de redactar junto con la política de privacidad.

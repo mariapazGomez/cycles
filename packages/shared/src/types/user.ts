@@ -8,7 +8,8 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: UserRole;
+  // null: cuenta creada vía Google que aún no pasó por POST /auth/complete-profile.
+  role: UserRole | null;
   authProvider: AuthProvider;
   weightUnit: WeightUnit;
   emailVerified: boolean;
