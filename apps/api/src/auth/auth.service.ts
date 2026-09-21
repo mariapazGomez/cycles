@@ -14,7 +14,7 @@ import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
 import { CompleteProfileDto } from "./dto/complete-profile.dto";
 import { GoogleProfile } from "./strategies/google.strategy";
-import { generateRawToken, hashToken } from "./token.util";
+import { generateJti, generateRawToken, hashToken } from "./token.util";
 
 const ACCESS_TOKEN_TTL = "15m";
 const REFRESH_TOKEN_TTL_MS = 1000 * 60 * 60 * 24 * 30; // 30 días
@@ -137,15 +137,17 @@ export class AuthService {
     const tokenHash = hashToken(rawRefreshToken);
     const stored = await this.prisma.refreshToken.findUnique({ where: { tokenHash } });
 
-    if (!stored || stored.revokedAt || stored.expiresAt < new Date() || stored.userId !== payload.sub) {
-      if (stored && !stored.revokedAt) {
-        // Reuso de un token ya rotado: posible robo, se revocan todas las
-        // sesiones activas del usuario por precaución.
-        await this.prisma.refreshToken.updateMany({
-          where: { userId: stored.userId, revokedAt: null },
-          data: { revokedAt: new Date() },
-        });
-      }
+    if (stored?.revokedAt) {
+      // Reuso de un token ya rotado (fue consumido en un refresh anterior):
+      // posible robo, se revocan todas las sesiones activas del usuario.
+      await this.prisma.refreshToken.updateMany({
+        where: { userId: stored.userId, revokedAt: null },
+        data: { revokedAt: new Date() },
+      });
+      throw new UnauthorizedException("Refresh token inválido");
+    }
+
+    if (!stored || stored.expiresAt < new Date() || stored.userId !== payload.sub) {
       throw new UnauthorizedException("Refresh token inválido");
     }
 
@@ -252,8 +254,11 @@ export class AuthService {
       { secret: this.config.get<string>("JWT_ACCESS_SECRET"), expiresIn: ACCESS_TOKEN_TTL },
     );
 
+    // 'jti' evita que dos refresh tokens emitidos el mismo segundo para el
+    // mismo usuario resulten en el mismo JWT (firma determinística), lo que
+    // violaría la unicidad de tokenHash en RefreshToken.
     const refreshToken = this.jwt.sign(
-      { sub: user.id },
+      { sub: user.id, jti: generateJti() },
       {
         secret: this.config.get<string>("JWT_REFRESH_SECRET"),
         expiresIn: Math.floor(REFRESH_TOKEN_TTL_MS / 1000),
