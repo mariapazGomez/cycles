@@ -1,4 +1,5 @@
 import { useAuth } from "../hooks/useAuth";
+import { AthletesPanel } from "../components/AthletesPanel";
 
 export function HomePage() {
   const { user, logout } = useAuth();
@@ -13,6 +14,8 @@ export function HomePage() {
       <button type="button" className="button-secondary" style={{ width: "auto" }} onClick={() => logout()}>
         Cerrar sesión
       </button>
+
+      {user?.role === "coach" && <AthletesPanel />}
     </main>
   );
 }

@@ -248,7 +248,9 @@ export class AuthService {
     await this.mail.sendVerificationEmail(user.email, rawToken);
   }
 
-  private async issueTokenPair(user: User): Promise<AuthTokens> {
+  // Público: también lo usa AthletesService para loguear automáticamente
+  // al atleta al aceptar una invitación.
+  async issueTokenPair(user: User): Promise<AuthTokens> {
     const accessToken = this.jwt.sign(
       { sub: user.id, email: user.email, role: user.role },
       { secret: this.config.get<string>("JWT_ACCESS_SECRET"), expiresIn: ACCESS_TOKEN_TTL },

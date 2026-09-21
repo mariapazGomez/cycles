@@ -19,5 +19,6 @@ if (!googleConfigured) {
   imports: [PassportModule, JwtModule.register({})],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, ...(googleConfigured ? [GoogleStrategy] : [])],
+  exports: [AuthService],
 })
 export class AuthModule {}

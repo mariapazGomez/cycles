@@ -114,10 +114,25 @@ model CoachAthlete {
   status    CoachAthleteStatus  @default(pending)
   createdAt DateTime            @default(now())
 
-  coach   User @relation("CoachRelations", fields: [coachId], references: [id])
-  athlete User @relation("AthleteRelations", fields: [athleteId], references: [id])
+  coach            User                    @relation("CoachRelations", fields: [coachId], references: [id])
+  athlete          User                    @relation("AthleteRelations", fields: [athleteId], references: [id])
+  invitationToken  AthleteInvitationToken?
 
   @@unique([coachId, athleteId])
+}
+
+// Token de un solo uso para que el atleta invitado active su cuenta
+// (defina contraseña) y la relación pase de 'pending' a 'active'.
+// Ver docs/prds/features/PRD-InvitacionAtletas.md.
+model AthleteInvitationToken {
+  id             String    @id @default(uuid())
+  coachAthleteId String    @unique
+  tokenHash      String    @unique
+  expiresAt      DateTime
+  usedAt         DateTime?
+  createdAt      DateTime  @default(now())
+
+  coachAthlete CoachAthlete @relation(fields: [coachAthleteId], references: [id])
 }
 
 model TrainingCycle {

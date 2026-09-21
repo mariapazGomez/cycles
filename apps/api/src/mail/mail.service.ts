@@ -20,4 +20,9 @@ export class MailService {
     const url = `${this.config.get("FRONTEND_URL")}/reset-password?token=${token}`;
     this.logger.log(`[DEV] Recuperación de contraseña para ${to}: ${url}`);
   }
+
+  async sendAthleteInvitationEmail(to: string, token: string): Promise<void> {
+    const url = `${this.config.get("FRONTEND_URL")}/accept-invitation?token=${token}`;
+    this.logger.log(`[DEV] Invitación de coach para ${to}: ${url}`);
+  }
 }

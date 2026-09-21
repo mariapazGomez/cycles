@@ -9,6 +9,7 @@ import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { OAuthCallbackPage } from "./pages/OAuthCallbackPage";
 import { CompleteProfilePage } from "./pages/CompleteProfilePage";
+import { AcceptInvitationPage } from "./pages/AcceptInvitationPage";
 import { HomePage } from "./pages/HomePage";
 
 export function App() {
@@ -42,6 +43,7 @@ export function App() {
       <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/oauth-callback" element={<OAuthCallbackPage />} />
+      <Route path="/accept-invitation" element={<AcceptInvitationPage />} />
       <Route
         path="/complete-profile"
         element={
