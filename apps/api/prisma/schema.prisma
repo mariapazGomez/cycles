@@ -43,6 +43,18 @@ enum SessionStatus {
   skipped
 }
 
+enum MuscleGroup {
+  chest
+  back
+  legs
+  glutes
+  shoulders
+  arms
+  core
+  cardio
+  other
+}
+
 model User {
   id                 String       @id @default(uuid())
   email              String       @unique
@@ -169,14 +181,18 @@ model TrainingSession {
 }
 
 model Exercise {
-  id          String   @id @default(uuid())
+  id          String       @id @default(uuid())
   name        String
-  muscleGroup String?
+  muscleGroup MuscleGroup?
   description String?
   videoUrl    String?
   // null = catálogo global (seed); no-null = ejercicio propio de ese coach.
   createdBy   String?
-  createdAt   DateTime @default(now())
+  // Permite ocultar un ejercicio propio sin borrarlo (protege el historial
+  // de SessionExercise/ExerciseLog que ya lo referencian). No aplica al
+  // catálogo global en esta iteración.
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
 
   creator          User?             @relation(fields: [createdBy], references: [id])
   sessionExercises SessionExercise[]
