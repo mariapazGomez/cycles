@@ -17,6 +17,7 @@ tags: [prd, general]
 |---|---|---|---|
 | Autenticación (manual + Google, verificación de email) | Fase 1 | in-progress | [[PRD-Autenticacion]] |
 | Invitación de atletas | Fase 2 | in-progress | [[PRD-InvitacionAtletas]] |
+| Catálogo de ejercicios | Fase 2 | in-progress | [[PRD-CatalogoEjercicios]] |
 
 > Esta tabla se actualiza a mano cada vez que se crea un PRD hijo nuevo (ver plantilla en `_templates/PRD-Feature-Template.md`). Además, como cada PRD hijo enlaza de vuelta a `[[PRD-General]]` en su frontmatter, el panel de **Linked mentions / Backlinks** de Obsidian en esta nota mostrará automáticamente todos los hijos, aunque se te olvide actualizar la tabla.
 
@@ -76,80 +77,134 @@ Roles excluyentes: un usuario es coach **o** atleta, nunca ambos con la misma cu
 
 ## 6. Modelo de datos (alto nivel)
 
+> Actualizado el 2026-09-22 para reflejar el estado real de `apps/api/prisma/schema.prisma` (incluye las tablas de autenticación de [[PRD-Autenticacion]] y el token de invitación de [[PRD-InvitacionAtletas]], que antes no estaban en este diagrama).
+
 ```mermaid
 erDiagram
-    USER ||--o{ COACH_ATHLETE : "coach"
-    USER ||--o{ COACH_ATHLETE : "athlete"
+    USER ||--o{ REFRESH_TOKEN : tiene
+    USER ||--o{ PASSWORD_RESET_TOKEN : tiene
+    USER ||--o{ EMAIL_VERIFICATION_TOKEN : tiene
+    USER ||--o{ COACH_ATHLETE : "es coach en"
+    USER ||--o{ COACH_ATHLETE : "es athlete en"
     USER ||--o{ TRAINING_CYCLE : "coach crea"
+    USER ||--o{ TRAINING_CYCLE : "athlete asignado"
+    USER ||--o{ EXERCISE : "coach crea (propio)"
     USER ||--o{ EXERCISE_LOG : "atleta registra"
+    COACH_ATHLETE |o--o| ATHLETE_INVITATION_TOKEN : invitación
     TRAINING_CYCLE ||--o{ TRAINING_SESSION : contiene
+    TRAINING_CYCLE |o--o{ TRAINING_CYCLE : "plantilla → copias"
     TRAINING_SESSION ||--o{ SESSION_EXERCISE : contiene
     EXERCISE ||--o{ SESSION_EXERCISE : usado_en
     SESSION_EXERCISE ||--o{ EXERCISE_LOG : registrado_en
 
     USER {
-        uuid id
-        string email
+        uuid id PK
+        string email UK
         string name
-        string passwordHash
-        enum authProvider
-        enum role
-        enum weightUnit
-        datetime emailVerifiedAt
-        datetime dataConsentAt
+        string passwordHash "nullable: null si es solo-Google"
+        enum role "nullable: coach|athlete|admin"
+        enum authProvider "local|google|apple"
+        enum weightUnit "kg|lb"
+        datetime emailVerifiedAt "nullable"
+        datetime dataConsentAt "nullable"
+        string dataConsentVersion "nullable"
+        datetime createdAt
+        datetime updatedAt
+    }
+    REFRESH_TOKEN {
+        uuid id PK
+        uuid userId FK
+        string tokenHash UK
+        datetime expiresAt
+        datetime revokedAt "nullable"
+        datetime createdAt
+    }
+    PASSWORD_RESET_TOKEN {
+        uuid id PK
+        uuid userId FK
+        string tokenHash UK
+        datetime expiresAt
+        datetime usedAt "nullable"
+        datetime createdAt
+    }
+    EMAIL_VERIFICATION_TOKEN {
+        uuid id PK
+        uuid userId FK
+        string tokenHash UK
+        datetime expiresAt
+        datetime createdAt
     }
     COACH_ATHLETE {
-        uuid id
-        uuid coachId
-        uuid athleteId
-        enum status
+        uuid id PK
+        uuid coachId FK
+        uuid athleteId FK
+        enum status "pending|active|inactive"
+        datetime createdAt
+    }
+    ATHLETE_INVITATION_TOKEN {
+        uuid id PK
+        uuid coachAthleteId FK "UK, 1 invitación activa por relación"
+        string tokenHash UK
+        datetime expiresAt
+        datetime usedAt "nullable"
+        datetime createdAt
     }
     TRAINING_CYCLE {
-        uuid id
-        uuid coachId
-        uuid athleteId
+        uuid id PK
+        uuid coachId FK
+        uuid athleteId FK
         string name
+        string objective "nullable"
         date startDate
         date endDate
-        enum status
+        enum status "draft|active|completed|archived"
         boolean isTemplate
-        uuid templateId
+        uuid templateId FK "nullable, auto-relación"
+        datetime createdAt
+        datetime updatedAt
     }
     TRAINING_SESSION {
-        uuid id
-        uuid cycleId
+        uuid id PK
+        uuid cycleId FK
         string name
         int orderIndex
-        date scheduledDate
-        enum status
+        date scheduledDate "nullable"
+        enum status "pending|completed|skipped"
     }
     EXERCISE {
-        uuid id
+        uuid id PK
         string name
-        string muscleGroup
-        string videoUrl
-        uuid createdBy "null = catálogo global"
+        enum muscleGroup "nullable: chest|back|legs|glutes|shoulders|arms|core|cardio|other"
+        string description "nullable"
+        string videoUrl "nullable"
+        uuid createdBy FK "nullable = catálogo global"
+        boolean isActive
+        datetime createdAt
     }
     SESSION_EXERCISE {
-        uuid id
-        uuid sessionId
-        uuid exerciseId
+        uuid id PK
+        uuid sessionId FK
+        uuid exerciseId FK
+        int orderIndex
         int targetSets
         int targetReps
-        float targetWeight
+        float targetWeight "nullable"
+        int targetRestSeconds "nullable"
     }
     EXERCISE_LOG {
-        uuid id
-        uuid sessionExerciseId
-        uuid athleteId
-        int actualSets
-        int actualReps
-        float actualWeight
-        int rpe
+        uuid id PK
+        uuid sessionExerciseId FK
+        uuid athleteId FK
+        int actualSets "nullable"
+        int actualReps "nullable"
+        float actualWeight "nullable"
+        int rpe "nullable"
+        string notes "nullable"
+        datetime loggedAt
     }
 ```
 
-Ver el esquema completo (Prisma) en `apps/api/prisma/schema.prisma`. El modelo de datos completo es propiedad de este PRD general; los PRDs hijos solo documentan **deltas** (campos o tablas nuevas) cuando aplica, no lo repiten.
+Ver el esquema completo (Prisma) en `apps/api/prisma/schema.prisma`. El modelo de datos completo es propiedad de este PRD general; los PRDs hijos solo documentan **deltas** (campos o tablas nuevas) cuando aplica, no lo repiten — el detalle de por qué existe cada tabla nueva vive en su PRD hijo ([[PRD-Autenticacion]] para las de token, [[PRD-InvitacionAtletas]] para `AthleteInvitationToken`, [[PRD-CatalogoEjercicios]] para `MuscleGroup`/`isActive`).
 
 Notas sobre campos agregados tras la definición de [[VISION]]:
 
@@ -196,7 +251,7 @@ Estos son los NFR de plataforma. Un PRD hijo solo debe listar NFR **adicionales 
 |---|---|---|
 | **Fase 0 — Fundacional (actual)** | PRD, arquitectura, scaffolding del monorepo, modelo de datos base. | — |
 | **Fase 1 — Auth & onboarding** | Registro/login manual + Google, verificación de email, invitación coach→atleta. | [[PRD-Autenticacion]] |
-| **Fase 2 — Planificación** | Invitación de atletas; CRUD de ciclos, sesiones y ejercicios; catálogo de ejercicios. | [[PRD-InvitacionAtletas]] |
+| **Fase 2 — Planificación** | Invitación de atletas; catálogo de ejercicios; CRUD de ciclos y sesiones. | [[PRD-InvitacionAtletas]], [[PRD-CatalogoEjercicios]] |
 | **Fase 3 — Ejecución y seguimiento** | Registro de ejecución real (`ExerciseLog`), vista de progreso/adherencia para el coach. | *(pendiente)* |
 | **Fase 4 — Evolución** | Multi-tenant (gimnasios/academias), notificaciones, métricas avanzadas, app móvil nativa. | *(pendiente)* |
 

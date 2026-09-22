@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cycles — Modelo Relacional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg: #f5f4f1;
+    --surface: #ffffff;
+    --surface-2: #faf9f6;
+    --border: #e2ded5;
+    --ink: #1d1c1a;
+    --muted: #716c62;
+    --accent: #336791; /* azul oficial de Postgres */
+    --accent-soft: #e8eef3;
+    --accent-ink: #1f4a68;
+    --tag-auth: #8a5cf6;
+    --tag-people: #c2410c;
+    --tag-plan: #336791;
+    --tag-exec: #0f766e;
+    --shadow: 0 1px 2px rgba(29,28,26,0.04), 0 8px 24px -12px rgba(29,28,26,0.12);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16181b;
+      --surface: #1d2024;
+      --surface-2: #202428;
+      --border: #2e3339;
+      --ink: #eef0f2;
+      --muted: #9aa1a9;
+      --accent: #5b9bd0;
+      --accent-soft: #223140;
+      --accent-ink: #bcdcf5;
+      --tag-auth: #b298f5;
+      --tag-people: #f2a06e;
+      --tag-plan: #5b9bd0;
+      --tag-exec: #4fd1c0;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    margin: 0;
+    padding-inline: 20px;
+    padding-block: 28px 48px;
+  }
+
+  main {
+    max-width: 980px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    background: var(--accent-soft);
+    width: fit-content;
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+
+  h1 {
+    font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.1rem);
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.98rem;
+    max-width: 62ch;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .meta-row code {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 2px 7px;
+    border-radius: 5px;
+    color: var(--ink);
+  }
+
+  .legend {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 10px;
+  }
+
+  .legend-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: var(--shadow);
+  }
+
+  .legend-item .dot-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex: none;
+  }
+
+  .legend-item .name {
+    font-weight: 600;
+    font-size: 0.92rem;
+  }
+
+  .legend-item .tables {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.74rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Panel del diagrama: fondo blanco fijo (no sigue el tema) para que el
+     SVG de Mermaid, con su paleta clara por defecto, siempre sea legible
+     tanto en modo claro como oscuro. */
+  .diagram-panel {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 18px;
+    overflow-x: auto;
+  }
+
+  .diagram-panel .mermaid {
+    min-width: 880px;
+  }
+
+  footer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-top: 1px solid var(--border);
+    padding-top: 18px;
+  }
+
+  footer p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    max-width: 68ch;
+  }
+
+  footer code {
+    font-family: "IBM Plex Mono", monospace;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 5px;
+    color: var(--ink);
+    font-size: 0.82em;
+  }
+
+  @media (max-width: 480px) {
+    .diagram-panel { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <span class="eyebrow">Cycles · apps/api/prisma/schema.prisma</span>
+    <h1>Modelo relacional</h1>
+    <p class="subtitle">
+      Estado real de la base al 22 de septiembre de 2026 — 11 tablas, generadas incrementalmente
+      a lo largo de Fase 1 (auth) y las dos primeras piezas de Fase 2 (invitación de atletas,
+      catálogo de ejercicios). El modelo completo de ciclos/sesiones ya está migrado desde el
+      scaffold inicial, aunque su API todavía no existe.
+    </p>
+    <div class="meta-row">
+      <span>Postgres</span>
+      <code>cycles_dev</code>
+      <span>·</span>
+      <span>ORM</span>
+      <code>Prisma</code>
+      <span>·</span>
+      <span>11 tablas</span>
+      <span>·</span>
+      <span>9 enums</span>
+    </div>
+  </header>
+
+  <section class="legend">
+    <div class="legend-item">
+      <div class="dot-row">
+        <span class="dot" style="background: var(--tag-auth)"></span>
+        <span class="name">Autenticación</span>
+      </div>
+      <span class="tables">User, RefreshToken, PasswordResetToken, EmailVerificationToken</span>
+    </div>
+    <div class="legend-item">
+      <div class="dot-row">
+        <span class="dot" style="background: var(--tag-people)"></span>
+        <span class="name">Coach ↔ Atleta</span>
+      </div>
+      <span class="tables">CoachAthlete, AthleteInvitationToken</span>
+    </div>
+    <div class="legend-item">
+      <div class="dot-row">
+        <span class="dot" style="background: var(--tag-plan)"></span>
+        <span class="name">Planificación</span>
+      </div>
+      <span class="tables">TrainingCycle, TrainingSession, Exercise, SessionExercise</span>
+    </div>
+    <div class="legend-item">
+      <div class="dot-row">
+        <span class="dot" style="background: var(--tag-exec)"></span>
+        <span class="name">Ejecución (Fase 3)</span>
+      </div>
+      <span class="tables">ExerciseLog — modelo listo, sin API todavía</span>
+    </div>
+  </section>
+
+  <div class="diagram-panel">
+    <pre class="mermaid">
+erDiagram
+    USER ||--o{ REFRESH_TOKEN : tiene
+    USER ||--o{ PASSWORD_RESET_TOKEN : tiene
+    USER ||--o{ EMAIL_VERIFICATION_TOKEN : tiene
+    USER ||--o{ COACH_ATHLETE : "es coach en"
+    USER ||--o{ COACH_ATHLETE : "es athlete en"
+    USER ||--o{ TRAINING_CYCLE : "coach crea"
+    USER ||--o{ TRAINING_CYCLE : "athlete asignado"
+    USER ||--o{ EXERCISE : "coach crea (propio)"
+    USER ||--o{ EXERCISE_LOG : "atleta registra"
+    COACH_ATHLETE |o--o| ATHLETE_INVITATION_TOKEN : invitacion
+    TRAINING_CYCLE ||--o{ TRAINING_SESSION : contiene
+    TRAINING_CYCLE |o--o{ TRAINING_CYCLE : "plantilla to copias"
+    TRAINING_SESSION ||--o{ SESSION_EXERCISE : contiene
+    EXERCISE ||--o{ SESSION_EXERCISE : usado_en
+    SESSION_EXERCISE ||--o{ EXERCISE_LOG : registrado_en
+
+    USER {
+        uuid id PK
+        string email UK
+        string name
+        string passwordHash "nullable"
+        enum role "nullable coach athlete admin"
+        enum authProvider "local google apple"
+        enum weightUnit "kg lb"
+        datetime emailVerifiedAt "nullable"
+        datetime dataConsentAt "nullable"
+        string dataConsentVersion "nullable"
+        datetime createdAt
+        datetime updatedAt
+    }
+    REFRESH_TOKEN {
+        uuid id PK
+        uuid userId FK
+        string tokenHash UK
+        datetime expiresAt
+        datetime revokedAt "nullable"
+        datetime createdAt
+    }
+    PASSWORD_RESET_TOKEN {
+        uuid id PK
+        uuid userId FK
+        string tokenHash UK
+        datetime expiresAt
+        datetime usedAt "nullable"
+        datetime createdAt
+    }
+    EMAIL_VERIFICATION_TOKEN {
+        uuid id PK
+        uuid userId FK
+        string tokenHash UK
+        datetime expiresAt
+        datetime createdAt
+    }
+    COACH_ATHLETE {
+        uuid id PK
+        uuid coachId FK
+        uuid athleteId FK
+        enum status "pending active inactive"
+        datetime createdAt
+    }
+    ATHLETE_INVITATION_TOKEN {
+        uuid id PK
+        uuid coachAthleteId FK "UK"
+        string tokenHash UK
+        datetime expiresAt
+        datetime usedAt "nullable"
+        datetime createdAt
+    }
+    TRAINING_CYCLE {
+        uuid id PK
+        uuid coachId FK
+        uuid athleteId FK
+        string name
+        string objective "nullable"
+        date startDate
+        date endDate
+        enum status "draft active completed archived"
+        boolean isTemplate
+        uuid templateId FK "nullable"
+        datetime createdAt
+        datetime updatedAt
+    }
+    TRAINING_SESSION {
+        uuid id PK
+        uuid cycleId FK
+        string name
+        int orderIndex
+        date scheduledDate "nullable"
+        enum status "pending completed skipped"
+    }
+    EXERCISE {
+        uuid id PK
+        string name
+        enum muscleGroup "nullable chest back legs glutes shoulders arms core cardio other"
+        string description "nullable"
+        string videoUrl "nullable"
+        uuid createdBy FK "nullable = catalogo global"
+        boolean isActive
+        datetime createdAt
+    }
+    SESSION_EXERCISE {
+        uuid id PK
+        uuid sessionId FK
+        uuid exerciseId FK
+        int orderIndex
+        int targetSets
+        int targetReps
+        float targetWeight "nullable"
+        int targetRestSeconds "nullable"
+    }
+    EXERCISE_LOG {
+        uuid id PK
+        uuid sessionExerciseId FK
+        uuid athleteId FK
+        int actualSets "nullable"
+        int actualReps "nullable"
+        float actualWeight "nullable"
+        int rpe "nullable"
+        string notes "nullable"
+        datetime loggedAt
+    }
+    </pre>
+  </div>
+
+  <footer>
+    <p>
+      Fuente de verdad: <code>apps/api/prisma/schema.prisma</code>. Este diagrama también vive,
+      versionado, en <code>docs/prds/PRD-General.md</code> (sección 6) — ahí se actualiza cada vez
+      que cambia el schema real. Regenerar este archivo cuando el schema cambie significativamente.
+    </p>
+    <p>
+      <code>TrainingCycle</code>, <code>TrainingSession</code>, <code>SessionExercise</code> y
+      <code>ExerciseLog</code> ya están migrados desde el scaffold inicial del proyecto, pero
+      todavía no tienen endpoints de API — son la próxima pieza de Fase 2.
+    </p>
+  </footer>
+</main>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+</script>
+</body>
+</html>
