@@ -268,6 +268,10 @@ Decisiones resueltas el 2026-09-19:
 - **Presupuesto de infraestructura:** tier gratuito / **<$25 USD/mes** para el MVP (cubierto por el free tier de Supabase + Resend).
 - **Naming:** **"Cycles"** e **"InProgress Co."** quedan confirmados como nombres definitivos (se asume el riesgo de marca sin búsqueda previa).
 
+Decisiones resueltas el 2026-09-22:
+
+- **Hosting de la aplicación** (distinto de Supabase, que solo aloja la base de datos): **Vercel** para el frontend (`apps/web`, build de Vite servido como estático) y **Render** para la API (`apps/api`, proceso NestJS de larga duración). Falta configurar ambos servicios y las variables de entorno de producción (secrets de JWT, `DATABASE_URL` de Supabase, `RESEND_API_KEY`, credenciales de Google OAuth, CORS restringido al dominio de Vercel).
+
 Pendiente:
 
 - **Estrategia de versión de API:** por definir cuando exista consumo externo (móvil nativo, integraciones). Se deja deliberadamente sin decidir hasta que sea necesario.

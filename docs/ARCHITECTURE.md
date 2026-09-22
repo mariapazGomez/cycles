@@ -85,8 +85,8 @@ Contiene tipos TypeScript e interfaces de DTOs de dominio (por ejemplo, la forma
 
 ## 8. Próximos pasos técnicos (no incluidos en este scaffolding)
 
-- Definir librería de estado de servidor y ruteo en frontend.
-- Configurar Prisma con una base de datos real y primera migración.
-- Implementar los flujos de autenticación del MVP: manual (con verificación de email) y Google (`auth` module) — ver [[PRD-Autenticacion]].
-- Definir estrategia de despliegue (ver "Decisiones abiertas" en el PRD).
+- ~~Definir librería de estado de servidor y ruteo en frontend.~~ Resuelto: React Query + Context, react-router (ver `PRD-General.md`, sección 11).
+- ~~Configurar Prisma con una base de datos real y primera migración.~~ Hecho.
+- ~~Implementar los flujos de autenticación del MVP.~~ Hecho — ver [[PRD-Autenticacion]].
+- ~~Definir estrategia de despliegue.~~ Resuelto: **Vercel** (frontend) + **Render** (API) + **Supabase** (Postgres) — ver `PRD-General.md`, sección 11. Falta configurar los servicios y las variables de entorno de producción.
 - Configurar CI (lint, typecheck, tests) para el monorepo.
