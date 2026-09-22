@@ -18,6 +18,7 @@ tags: [prd, general]
 | Autenticación (manual + Google, verificación de email) | Fase 1 | in-progress | [[PRD-Autenticacion]] |
 | Invitación de atletas | Fase 2 | in-progress | [[PRD-InvitacionAtletas]] |
 | Catálogo de ejercicios | Fase 2 | in-progress | [[PRD-CatalogoEjercicios]] |
+| CRUD de ciclos de entrenamiento | Fase 2 | in-progress | [[PRD-CRUDCiclos]] |
 
 > Esta tabla se actualiza a mano cada vez que se crea un PRD hijo nuevo (ver plantilla en `_templates/PRD-Feature-Template.md`). Además, como cada PRD hijo enlaza de vuelta a `[[PRD-General]]` en su frontmatter, el panel de **Linked mentions / Backlinks** de Obsidian en esta nota mostrará automáticamente todos los hijos, aunque se te olvide actualizar la tabla.
 
@@ -66,7 +67,7 @@ Roles excluyentes: un usuario es coach **o** atleta, nunca ambos con la misma cu
 
 1. Como **coach**, quiero registrarme e iniciar sesión con Google o email/contraseña, para acceder a la plataforma con el método que prefiera. → detalle en [[PRD-Autenticacion]]
 2. Como **coach**, quiero invitar a un atleta por email, para vincularlo a mi cuenta. → detalle en [[PRD-InvitacionAtletas]]
-3. Como **coach**, quiero crear un ciclo de entrenamiento con nombre, objetivo, fechas de inicio/fin y sesiones, para planificar el trabajo de un atleta.
+3. Como **coach**, quiero crear un ciclo de entrenamiento con nombre, objetivo, fechas de inicio/fin y sesiones, para planificar el trabajo de un atleta. → detalle en [[PRD-CRUDCiclos]]
 4. Como **coach**, quiero agregar ejercicios a cada sesión con series/repeticiones/peso objetivo, para dejar instrucciones claras.
 5. Como **atleta**, quiero ver mi ciclo activo y las sesiones de la semana, para saber qué entrenar.
 6. Como **atleta**, quiero registrar lo que realmente hice en cada ejercicio (series, reps, peso, RPE), para dejar constancia de mi progreso.
@@ -251,7 +252,7 @@ Estos son los NFR de plataforma. Un PRD hijo solo debe listar NFR **adicionales 
 |---|---|---|
 | **Fase 0 — Fundacional (actual)** | PRD, arquitectura, scaffolding del monorepo, modelo de datos base. | — |
 | **Fase 1 — Auth & onboarding** | Registro/login manual + Google, verificación de email, invitación coach→atleta. | [[PRD-Autenticacion]] |
-| **Fase 2 — Planificación** | Invitación de atletas; catálogo de ejercicios; CRUD de ciclos y sesiones. | [[PRD-InvitacionAtletas]], [[PRD-CatalogoEjercicios]] |
+| **Fase 2 — Planificación** | Invitación de atletas; catálogo de ejercicios; CRUD de ciclos y sesiones. | [[PRD-InvitacionAtletas]], [[PRD-CatalogoEjercicios]], [[PRD-CRUDCiclos]] |
 | **Fase 3 — Ejecución y seguimiento** | Registro de ejecución real (`ExerciseLog`), vista de progreso/adherencia para el coach. | *(pendiente)* |
 | **Fase 4 — Evolución** | Multi-tenant (gimnasios/academias), notificaciones, métricas avanzadas, app móvil nativa. | *(pendiente)* |
 
