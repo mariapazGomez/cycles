@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { PublicOnlyRoute } from "./components/PublicOnlyRoute";
+import { AppLayout } from "./components/AppLayout";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { CheckEmailPage } from "./pages/CheckEmailPage";
@@ -11,6 +12,8 @@ import { OAuthCallbackPage } from "./pages/OAuthCallbackPage";
 import { CompleteProfilePage } from "./pages/CompleteProfilePage";
 import { AcceptInvitationPage } from "./pages/AcceptInvitationPage";
 import { HomePage } from "./pages/HomePage";
+import { AthletesPage } from "./pages/AthletesPage";
+import { CyclesPage } from "./pages/CyclesPage";
 
 export function App() {
   return (
@@ -56,10 +59,14 @@ export function App() {
         path="/"
         element={
           <ProtectedRoute>
-            <HomePage />
+            <AppLayout />
           </ProtectedRoute>
         }
-      />
+      >
+        <Route index element={<HomePage />} />
+        <Route path="athletes" element={<AthletesPage />} />
+        <Route path="cycles" element={<CyclesPage />} />
+      </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

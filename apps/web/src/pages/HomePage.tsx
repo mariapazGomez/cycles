@@ -1,21 +1,16 @@
 import { useAuth } from "../hooks/useAuth";
-import { AthletesPanel } from "../components/AthletesPanel";
 
 export function HomePage() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   return (
-    <main style={{ padding: "32px 24px", maxWidth: 640, margin: "0 auto" }}>
-      <h1>Cycles</h1>
-      <p>
-        Bienvenido, {user?.name} ({user?.role}).
+    <div>
+      <h1 style={{ fontFamily: "var(--font-display)" }}>Hola, {user?.name}</h1>
+      <p style={{ color: "var(--color-ink-secondary)" }}>
+        {user?.role === "coach"
+          ? "Gestioná tus atletas y sus planes de entrenamiento desde el menú de arriba."
+          : "Plataforma de ciclos de entrenamiento — en construcción."}
       </p>
-      <p>Plataforma de ciclos de entrenamiento — en construcción.</p>
-      <button type="button" className="button-secondary" style={{ width: "auto" }} onClick={() => logout()}>
-        Cerrar sesión
-      </button>
-
-      {user?.role === "coach" && <AthletesPanel />}
-    </main>
+    </div>
   );
 }

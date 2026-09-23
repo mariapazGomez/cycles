@@ -1,0 +1,173 @@
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-gray-border);
+}
+
+.app-header-left {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.app-logo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--color-ink);
+}
+
+.app-nav {
+  display: flex;
+  gap: 20px;
+}
+
+.app-nav-link {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--color-ink-secondary);
+  text-decoration: none;
+  padding: 6px 2px;
+  border-bottom: 2px solid transparent;
+}
+
+.app-nav-link:hover {
+  color: var(--color-ink);
+}
+
+.app-nav-link-active {
+  color: var(--color-blue);
+  border-bottom-color: var(--color-blue);
+}
+
+.app-main {
+  flex: 1;
+  padding: 32px 24px;
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.user-menu {
+  position: relative;
+}
+
+.user-menu-trigger {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-blue);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.user-menu-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 220px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-gray-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.18);
+  padding: 8px;
+}
+
+.user-menu-info {
+  padding: 8px 10px 10px;
+  border-bottom: 1px solid var(--color-gray-light);
+  margin-bottom: 6px;
+}
+
+.user-menu-name {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.user-menu-email {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  color: var(--color-ink-secondary);
+}
+
+.user-menu-item {
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.user-menu-item:hover {
+  background: var(--color-gray-light);
+}
+
+@media (prefers-color-scheme: dark) {
+  .app-header {
+    background: #181a20;
+    border-bottom-color: #2a2d35;
+  }
+
+  .app-logo {
+    color: #f2f2f3;
+  }
+
+  .app-nav-link {
+    color: #a2a2a8;
+  }
+
+  .app-nav-link:hover {
+    color: #f2f2f3;
+  }
+
+  .user-menu-panel {
+    background: #181a20;
+    border-color: #2a2d35;
+  }
+
+  .user-menu-info {
+    border-bottom-color: #2a2d35;
+  }
+
+  .user-menu-name {
+    color: #f2f2f3;
+  }
+
+  .user-menu-item {
+    color: #f2f2f3;
+  }
+
+  .user-menu-item:hover {
+    background: #20232b;
+  }
+}

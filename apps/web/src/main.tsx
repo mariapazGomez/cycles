@@ -6,6 +6,7 @@ import { AuthProvider } from "./store/AuthContext";
 import { App } from "./App";
 import "./styles/global.css";
 import "./styles/auth.css";
+import "./styles/layout.css";
 
 const queryClient = new QueryClient();
 
