@@ -2,17 +2,19 @@
 type: prd
 level: feature
 parent: "[[PRD-General]]"
-status: in-progress
+status: superseded-parcial
 phase: "Fase 2 — Planificación"
 created: 2026-09-22
-updated: 2026-09-22
+updated: 2026-09-23
 tags: [prd, feature/crud-ciclos]
-related: ["[[PRD-InvitacionAtletas]]"]
+related: ["[[PRD-InvitacionAtletas]]", "[[PRD-RutinasYProgramacion]]"]
 ---
 
 # PRD — CRUD de ciclos de entrenamiento
 
 > Hijo de [[PRD-General]]. Fase: Fase 2 — Planificación.
+>
+> ⚠️ **Parcialmente superado por [[PRD-RutinasYProgramacion]]** (2026-09-23): la creación de un ciclo ahora requiere `cycleType`, `sessionsPerWeek` y opcionalmente `parentCycleId`. El resto de este documento (autorización, listado scoped por rol, decisión de no-borrado) sigue vigente.
 
 ## 1. Resumen
 

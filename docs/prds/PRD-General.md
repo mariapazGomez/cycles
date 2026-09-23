@@ -18,9 +18,10 @@ tags: [prd, general]
 | Autenticación (manual + Google, verificación de email) | Fase 1 | in-progress | [[PRD-Autenticacion]] |
 | Invitación de atletas | Fase 2 | in-progress | [[PRD-InvitacionAtletas]] |
 | Catálogo de ejercicios | Fase 2 | in-progress | [[PRD-CatalogoEjercicios]] |
-| CRUD de ciclos de entrenamiento | Fase 2 | in-progress | [[PRD-CRUDCiclos]] |
-| CRUD de sesiones y ejercicios de sesión | Fase 2 | in-progress | [[PRD-CRUDSesiones]] |
-| Frontend de planificación (ciclos/sesiones/ejercicios) | Fase 2 | draft | [[PRD-FrontendPlanificacion]] |
+| CRUD de ciclos de entrenamiento | Fase 2 | superseded-parcial | [[PRD-CRUDCiclos]] |
+| CRUD de sesiones y ejercicios de sesión | Fase 2 | superseded-parcial | [[PRD-CRUDSesiones]] |
+| Frontend de planificación (ciclos/sesiones/ejercicios) | Fase 2 | in-progress | [[PRD-FrontendPlanificacion]] |
+| Rutinas y programación en grid | Fase 2 | in-progress | [[PRD-RutinasYProgramacion]] |
 
 > Esta tabla se actualiza a mano cada vez que se crea un PRD hijo nuevo (ver plantilla en `_templates/PRD-Feature-Template.md`). Además, como cada PRD hijo enlaza de vuelta a `[[PRD-General]]` en su frontmatter, el panel de **Linked mentions / Backlinks** de Obsidian en esta nota mostrará automáticamente todos los hijos, aunque se te olvide actualizar la tabla.
 
@@ -254,7 +255,7 @@ Estos son los NFR de plataforma. Un PRD hijo solo debe listar NFR **adicionales 
 |---|---|---|
 | **Fase 0 — Fundacional (actual)** | PRD, arquitectura, scaffolding del monorepo, modelo de datos base. | — |
 | **Fase 1 — Auth & onboarding** | Registro/login manual + Google, verificación de email, invitación coach→atleta. | [[PRD-Autenticacion]] |
-| **Fase 2 — Planificación** | Invitación de atletas; catálogo de ejercicios; CRUD de ciclos y sesiones. | [[PRD-InvitacionAtletas]], [[PRD-CatalogoEjercicios]], [[PRD-CRUDCiclos]], [[PRD-CRUDSesiones]] |
+| **Fase 2 — Planificación** | Invitación de atletas; catálogo de ejercicios; rutinas y programación en grid (ciclos/sesiones). | [[PRD-InvitacionAtletas]], [[PRD-CatalogoEjercicios]], [[PRD-RutinasYProgramacion]] |
 | **Fase 3 — Ejecución y seguimiento** | Registro de ejecución real (`ExerciseLog`), vista de progreso/adherencia para el coach. | *(pendiente)* |
 | **Fase 4 — Evolución** | Multi-tenant (gimnasios/academias), notificaciones, métricas avanzadas, app móvil nativa. | *(pendiente)* |
 

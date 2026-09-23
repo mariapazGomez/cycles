@@ -2,17 +2,19 @@
 type: prd
 level: feature
 parent: "[[PRD-General]]"
-status: in-progress
+status: superseded-parcial
 phase: "Fase 2 — Planificación"
 created: 2026-09-22
-updated: 2026-09-22
+updated: 2026-09-23
 tags: [prd, feature/crud-sesiones]
-related: ["[[PRD-CRUDCiclos]]", "[[PRD-CatalogoEjercicios]]"]
+related: ["[[PRD-CRUDCiclos]]", "[[PRD-CatalogoEjercicios]]", "[[PRD-RutinasYProgramacion]]"]
 ---
 
 # PRD — CRUD de sesiones y ejercicios de sesión
 
 > Hijo de [[PRD-General]]. Fase: Fase 2 — Planificación.
+>
+> ⚠️ **Parcialmente superado por [[PRD-RutinasYProgramacion]]** (2026-09-23): una sesión ya no se crea con `{ name, scheduledDate? }` suelto — se instancia asignando una rutina de la biblioteca a una celda `(weekNumber, slotNumber)` del grid del plan. El CRUD de `session-exercises` (agregar/editar/quitar un ejercicio puntual de una sesión ya asignada) **sigue vigente sin cambios** — es lo que permite ajustar una celda más allá de lo que trajo la rutina.
 
 ## 1. Resumen
 

@@ -55,6 +55,13 @@ enum MuscleGroup {
   other
 }
 
+// Ver docs/prds/features/PRD-RutinasYProgramacion.md.
+enum CycleType {
+  microcycle
+  mesocycle
+  macrocycle
+}
+
 model User {
   id                 String       @id @default(uuid())
   email              String       @unique
@@ -76,6 +83,7 @@ model User {
   cyclesAsAthlete  TrainingCycle[] @relation("CyclesAsAthlete")
   exerciseLogs     ExerciseLog[]
   createdExercises Exercise[]
+  routines         Routine[]
   passwordResetTokens      PasswordResetToken[]
   emailVerificationTokens  EmailVerificationToken[]
   refreshTokens            RefreshToken[]
@@ -147,37 +155,84 @@ model AthleteInvitationToken {
   coachAthlete CoachAthlete @relation(fields: [coachAthleteId], references: [id])
 }
 
+// Ver docs/prds/features/PRD-RutinasYProgramacion.md para el porqué de
+// cycleType/sessionsPerWeek/parentCycleId (pivot del 2026-09-23).
 model TrainingCycle {
-  id         String      @id @default(uuid())
-  coachId    String
-  athleteId  String
-  name       String
-  objective  String?
-  startDate  DateTime
-  endDate    DateTime
-  status     CycleStatus @default(draft)
-  isTemplate Boolean     @default(false)
-  templateId String?
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  id              String      @id @default(uuid())
+  coachId         String
+  athleteId       String
+  name            String
+  objective       String?
+  startDate       DateTime
+  endDate         DateTime
+  status          CycleStatus @default(draft)
+  isTemplate      Boolean     @default(false)
+  templateId      String?
+  cycleType       CycleType   @default(mesocycle)
+  // Frecuencia semanal, define las filas del grid. Null cuando cycleType es
+  // 'macrocycle': un macrociclo no tiene grid propio, es un contenedor.
+  sessionsPerWeek Int?
+  // Si este plan vive dentro de un macrociclo contenedor.
+  parentCycleId   String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 
-  coach    User              @relation("CyclesAsCoach", fields: [coachId], references: [id])
-  athlete  User              @relation("CyclesAsAthlete", fields: [athleteId], references: [id])
-  template TrainingCycle?    @relation("CycleTemplate", fields: [templateId], references: [id])
-  copies   TrainingCycle[]   @relation("CycleTemplate")
-  sessions TrainingSession[]
+  coach       User              @relation("CyclesAsCoach", fields: [coachId], references: [id])
+  athlete     User              @relation("CyclesAsAthlete", fields: [athleteId], references: [id])
+  template    TrainingCycle?    @relation("CycleTemplate", fields: [templateId], references: [id])
+  copies      TrainingCycle[]   @relation("CycleTemplate")
+  parentCycle TrainingCycle?    @relation("CycleContainer", fields: [parentCycleId], references: [id])
+  childCycles TrainingCycle[]   @relation("CycleContainer")
+  sessions    TrainingSession[]
 }
 
-model TrainingSession {
-  id             String        @id @default(uuid())
-  cycleId        String
-  name           String
-  orderIndex     Int
-  scheduledDate  DateTime?
-  status         SessionStatus @default(pending)
+// Biblioteca de rutinas reutilizables del coach — ver PRD-RutinasYProgramacion.
+model Routine {
+  id        String   @id @default(uuid())
+  coachId   String
+  name      String
+  createdAt DateTime @default(now())
 
-  cycle             TrainingCycle      @relation(fields: [cycleId], references: [id])
-  sessionExercises  SessionExercise[]
+  coach            User              @relation(fields: [coachId], references: [id])
+  routineExercises RoutineExercise[]
+  sessions         TrainingSession[]
+}
+
+// La "receta" por defecto de una rutina. Al asignar la rutina a una celda
+// del grid, estas filas se copian como SessionExercise editables — cambiar
+// una copia no afecta esta plantilla.
+model RoutineExercise {
+  id                 String  @id @default(uuid())
+  routineId          String
+  exerciseId         String
+  orderIndex         Int
+  defaultSets        Int
+  defaultReps        Int
+  defaultWeight      Float?
+  defaultRestSeconds Int?
+
+  routine  Routine  @relation(fields: [routineId], references: [id])
+  exercise Exercise @relation(fields: [exerciseId], references: [id])
+}
+
+// Una celda del grid (weekNumber, slotNumber) dentro de un plan.
+model TrainingSession {
+  id            String        @id @default(uuid())
+  cycleId       String
+  name          String
+  weekNumber    Int
+  slotNumber    Int
+  scheduledDate DateTime?
+  status        SessionStatus @default(pending)
+  // De qué rutina de la biblioteca salió — guardado para trazabilidad, no
+  // se muestra en la UI (decisión del 2026-09-23).
+  routineId     String?
+
+  cycle            TrainingCycle     @relation(fields: [cycleId], references: [id])
+  routine          Routine?          @relation(fields: [routineId], references: [id], onDelete: SetNull)
+  sessionExercises SessionExercise[]
+
+  @@unique([cycleId, weekNumber, slotNumber])
 }
 
 model Exercise {
@@ -196,6 +251,7 @@ model Exercise {
 
   creator          User?             @relation(fields: [createdBy], references: [id])
   sessionExercises SessionExercise[]
+  routineExercises RoutineExercise[]
 }
 
 model SessionExercise {
