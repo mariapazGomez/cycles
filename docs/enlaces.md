@@ -24,6 +24,8 @@ updated: 2026-09-23
 | `/` | Home: bienvenida (barra superior con nav para coach) | Autenticado |
 | `/athletes` | Invitar atletas + lista con su estado | Autenticado (coach) |
 | `/cycles` | Planes: lista de ciclos + crear uno nuevo | Autenticado (coach) |
+| `/cycles/:id` | Detalle de un plan: editar, listar/crear sesiones | Autenticado (coach dueño o atleta asignado) |
+| `/sessions/:id` | Detalle de una sesión: editar, agregar/quitar ejercicios del catálogo | Autenticado (coach dueño o atleta asignado) |
 
 > Nota: el link de verificación de email / reset de contraseña / invitación no llega a ningún inbox real todavía (Resend sin implementar) — aparece logueado en `/private/tmp/cycles-api.log` cuando se genera.
 

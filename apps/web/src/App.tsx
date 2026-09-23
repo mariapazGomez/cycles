@@ -14,6 +14,8 @@ import { AcceptInvitationPage } from "./pages/AcceptInvitationPage";
 import { HomePage } from "./pages/HomePage";
 import { AthletesPage } from "./pages/AthletesPage";
 import { CyclesPage } from "./pages/CyclesPage";
+import { CycleDetailPage } from "./pages/CycleDetailPage";
+import { SessionDetailPage } from "./pages/SessionDetailPage";
 
 export function App() {
   return (
@@ -66,6 +68,8 @@ export function App() {
         <Route index element={<HomePage />} />
         <Route path="athletes" element={<AthletesPage />} />
         <Route path="cycles" element={<CyclesPage />} />
+        <Route path="cycles/:id" element={<CycleDetailPage />} />
+        <Route path="sessions/:id" element={<SessionDetailPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

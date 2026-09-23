@@ -1,5 +1,15 @@
 export type CycleStatus = "draft" | "active" | "completed" | "archived";
 export type SessionStatus = "pending" | "completed" | "skipped";
+export type MuscleGroup =
+  | "chest"
+  | "back"
+  | "legs"
+  | "glutes"
+  | "shoulders"
+  | "arms"
+  | "core"
+  | "cardio"
+  | "other";
 
 export interface TrainingCycle {
   id: string;
@@ -26,9 +36,12 @@ export interface TrainingSession {
 export interface Exercise {
   id: string;
   name: string;
-  muscleGroup?: string;
+  muscleGroup?: MuscleGroup;
+  description?: string;
   videoUrl?: string;
+  // null/undefined = catálogo global; id = ejercicio propio de ese coach.
   createdBy?: string;
+  isActive: boolean;
 }
 
 export interface SessionExercise {

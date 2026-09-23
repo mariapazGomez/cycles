@@ -2,10 +2,10 @@
 type: prd
 level: feature
 parent: "[[PRD-General]]"
-status: draft
+status: in-progress
 phase: "Fase 2 — Planificación"
 created: 2026-09-22
-updated: 2026-09-22
+updated: 2026-09-23
 tags: [prd, feature/frontend-planificacion]
 related: ["[[PRD-CRUDCiclos]]", "[[PRD-CRUDSesiones]]", "[[PRD-CatalogoEjercicios]]"]
 ---
@@ -16,7 +16,9 @@ related: ["[[PRD-CRUDCiclos]]", "[[PRD-CRUDSesiones]]", "[[PRD-CatalogoEjercicio
 
 ## 1. Resumen
 
-Plan de construcción del frontend para las tres piezas de Fase 2 que hoy solo existen como API: ciclos ([[PRD-CRUDCiclos]]), sesiones/ejercicios de sesión ([[PRD-CRUDSesiones]]) y catálogo de ejercicios ([[PRD-CatalogoEjercicios]]). Es un **plan**, no una decisión de identidad visual — ver [[investigacion-competitiva]] para el research que lo informó y [[brand]] para la estrategia de marca (ambos deliberadamente sin aplicar todavía a decisiones de color/tipografía concretas, a pedido explícito del usuario el 2026-09-22).
+Plan de construcción del frontend para las tres piezas de Fase 2 que hoy solo existen como API: ciclos ([[PRD-CRUDCiclos]]), sesiones/ejercicios de sesión ([[PRD-CRUDSesiones]]) y catálogo de ejercicios ([[PRD-CatalogoEjercicios]]). Nació como un plan sin decisiones de identidad visual — ver [[investigacion-competitiva]] para el research y [[identidad-visual]] para las decisiones de color/tipografía que se tomaron después (2026-09-23) y ya están aplicadas.
+
+**Estado al 2026-09-23:** pasos 1 a 3 completos y probados (layout+nav, ciclos, sesiones+ejercicios de sesión). Falta el paso 4 (repaso específico de la vista de atleta más allá del control de acceso ya aplicado) y el paso 5 (catálogo de ejercicios propios, opcional).
 
 ## 2. Qué cambia respecto a lo que existe hoy
 
@@ -37,8 +39,7 @@ Dado que la identidad de marca se decide después, el frontend de esta pieza se 
 |---|---|---|
 | `/` (layout con nav) | Reemplaza el `HomePage` actual; header con navegación | — |
 | `/athletes` | Lo que hoy vive en `HomePage` (`AthletesPanel`), movido a su propia ruta | `GET/POST /athletes` |
-| `/cycles` | Lista de ciclos propios, filtro por atleta/estado, botón "Crear ciclo" | `GET /cycles` |
-| `/cycles/new` (o modal) | Formulario: atleta (de sus relaciones `active`), nombre, objetivo, fechas | `POST /cycles`, `GET /athletes` |
+| `/cycles` | Lista de ciclos propios + formulario de creación inline (atleta de sus relaciones `active`, nombre, objetivo, fechas) | `GET/POST /cycles`, `GET /athletes` |
 | `/cycles/:id` | Detalle editable del ciclo + lista de sus sesiones + botón "Agregar sesión" | `GET/PATCH /cycles/:id`, `GET /cycles/:id/sessions` |
 | `/sessions/:id` | Detalle editable de la sesión + lista de ejercicios con sus metas + selector para agregar ejercicios del catálogo | `GET/PATCH/DELETE /sessions/:id`, `POST/PATCH/DELETE /sessions/.../exercises`, `GET /exercises` |
 | `/exercises` (opcional, prioridad baja) | Catálogo completo + formulario para crear un ejercicio propio | `GET/POST /exercises`, `PATCH /exercises/:id/deactivate` |
@@ -65,11 +66,11 @@ Mismo patrón ya establecido en `AthletesPanel`: **React Query** para todo fetch
 
 ## 6. Plan de construcción (orden propuesto)
 
-1. **Layout + navegación** — envolver las rutas protegidas en un `AppLayout` con header/nav; mover `AthletesPanel` a `/athletes`; dejar `/` como landing simple según rol (coach ve accesos a Atletas/Ciclos, atleta ve directo su ciclo activo).
-2. **Ciclos (coach)** — `cyclesApi.ts`, lista (`/cycles`), formulario de creación, detalle editable.
-3. **Sesiones + ejercicios de sesión (coach)** — dentro del detalle de ciclo: crear/listar sesiones; dentro del detalle de sesión: selector de ejercicios del catálogo + editar/quitar.
-4. **Vista de atleta** — reusar los componentes de detalle de ciclo/sesión con `require="any"` en las rutas y ocultar controles de edición.
-5. **(Opcional, después)** pantalla de gestión del catálogo de ejercicios propios — no bloquea nada, el selector de ejercicios del paso 3 puede funcionar solo con el catálogo ya sembrado.
+1. ✅ **Layout + navegación** — `AppLayout` con header/nav (Atletas/Planes para coach, Mis planes para atleta); `AthletesPanel` movido a `/athletes`.
+2. ✅ **Ciclos (coach)** — `cyclesApi.ts`, lista (`/cycles`), formulario de creación, detalle editable (`/cycles/:id`).
+3. ✅ **Sesiones + ejercicios de sesión (coach)** — `sessionsApi.ts`/`exercisesApi.ts`; crear/listar sesiones dentro del detalle de ciclo; en el detalle de sesión (`/sessions/:id`), selector de ejercicios del catálogo + editar/quitar, con los 409 del backend (sesión con ejercicios, ejercicio con `ExerciseLog`) mostrados como error legible.
+4. ✅ **Vista de atleta** — mismos componentes de ciclo/sesión, controles de edición ocultos vía `user.role` (no se armaron pantallas separadas); nav propia ("Mis planes") y `/cycles` gateado por rol para no mostrarle a un atleta el formulario de creación.
+5. **(Opcional, pendiente)** pantalla de gestión del catálogo de ejercicios propios — no bloquea nada, el selector de ejercicios del paso 3 ya funciona con el catálogo sembrado.
 
 ## 7. Fuera de alcance de este plan
 
@@ -79,5 +80,5 @@ Mismo patrón ya establecido en `AthletesPanel`: **React Query** para todo fetch
 
 ## 8. Estado y decisiones abiertas
 
-- Confirmar si `/cycles/new` es una página propia o un modal sobre `/cycles` — decisión de implementación menor, se resuelve al construir.
-- El research de [[investigacion-competitiva]] queda documentado para cuando se trabaje la identidad visual; este plan no lo aplica todavía.
+- Resuelto: la creación de un ciclo es un formulario inline en `/cycles` (toggle), no una ruta ni modal separado.
+- Pendiente (opcional, baja prioridad): pantalla de gestión del catálogo de ejercicios propios (paso 5).

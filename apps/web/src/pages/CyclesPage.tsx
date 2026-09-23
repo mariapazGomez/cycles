@@ -5,6 +5,7 @@ import type { CycleStatus } from "@cycles/shared";
 import * as cyclesApi from "../services/cyclesApi";
 import * as athletesApi from "../services/athletesApi";
 import { ApiError } from "../services/httpClient";
+import { useAuth } from "../hooks/useAuth";
 
 const STATUS_LABEL: Record<CycleStatus, string> = {
   draft: "Borrador",
@@ -18,6 +19,8 @@ function formatDate(iso: string): string {
 }
 
 export function CyclesPage() {
+  const { user } = useAuth();
+  const isCoach = user?.role === "coach";
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [athleteId, setAthleteId] = useState("");
@@ -28,7 +31,11 @@ export function CyclesPage() {
   const [formError, setFormError] = useState<string | null>(null);
 
   const cyclesQuery = useQuery({ queryKey: ["cycles"], queryFn: cyclesApi.listCycles });
-  const athletesQuery = useQuery({ queryKey: ["athletes"], queryFn: athletesApi.listAthletes });
+  const athletesQuery = useQuery({
+    queryKey: ["athletes"],
+    queryFn: athletesApi.listAthletes,
+    enabled: isCoach,
+  });
   const activeAthletes = (athletesQuery.data ?? []).filter((relation) => relation.status === "active");
 
   const createMutation = useMutation({
@@ -65,20 +72,24 @@ export function CyclesPage() {
         <div>
           <h1 style={{ fontFamily: "var(--font-display)", marginBottom: 4 }}>Planes</h1>
           <p style={{ color: "var(--color-ink-secondary)", marginTop: 0 }}>
-            Ciclos de entrenamiento que armaste para tus atletas.
+            {isCoach
+              ? "Ciclos de entrenamiento que armaste para tus atletas."
+              : "Tus ciclos de entrenamiento asignados."}
           </p>
         </div>
-        <button
-          type="button"
-          className="button-primary"
-          style={{ width: "auto" }}
-          onClick={() => setShowForm((v) => !v)}
-        >
-          {showForm ? "Cancelar" : "Crear plan"}
-        </button>
+        {isCoach && (
+          <button
+            type="button"
+            className="button-primary"
+            style={{ width: "auto" }}
+            onClick={() => setShowForm((v) => !v)}
+          >
+            {showForm ? "Cancelar" : "Crear plan"}
+          </button>
+        )}
       </div>
 
-      {showForm && (
+      {isCoach && showForm && (
         <form onSubmit={handleSubmit} noValidate style={{ maxWidth: 420, marginTop: 24 }}>
           {formError && <div className="error-banner">{formError}</div>}
 
@@ -169,23 +180,28 @@ export function CyclesPage() {
         {cyclesQuery.data && cyclesQuery.data.length > 0 && (
           <ul style={{ listStyle: "none", padding: 0 }}>
             {cyclesQuery.data.map((cycle) => (
-              <li
-                key={cycle.id}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "12px 0",
-                  borderBottom: "1px solid var(--color-gray-border)",
-                }}
-              >
-                <span>
-                  <strong>{cycle.name}</strong>{" "}
-                  <span style={{ color: "var(--color-ink-secondary)" }}>
-                    ({formatDate(cycle.startDate)} – {formatDate(cycle.endDate)})
+              <li key={cycle.id} style={{ borderBottom: "1px solid var(--color-gray-border)" }}>
+                <Link
+                  to={`/cycles/${cycle.id}`}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "12px 4px",
+                    color: "var(--color-ink)",
+                    textDecoration: "none",
+                  }}
+                >
+                  <span>
+                    <strong>{cycle.name}</strong>{" "}
+                    <span style={{ color: "var(--color-ink-secondary)" }}>
+                      ({formatDate(cycle.startDate)} – {formatDate(cycle.endDate)})
+                    </span>
                   </span>
-                </span>
-                <span>{STATUS_LABEL[cycle.status]}</span>
+                  <span style={{ color: "var(--color-ink-secondary)" }}>
+                    {STATUS_LABEL[cycle.status]} →
+                  </span>
+                </Link>
               </li>
             ))}
           </ul>

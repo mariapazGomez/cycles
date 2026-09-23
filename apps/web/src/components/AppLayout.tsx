@@ -24,6 +24,13 @@ export function AppLayout() {
               </NavLink>
             </nav>
           )}
+          {user?.role === "athlete" && (
+            <nav className="app-nav">
+              <NavLink to="/cycles" className={navLinkClass}>
+                Mis planes
+              </NavLink>
+            </nav>
+          )}
         </div>
         <UserMenu />
       </header>
