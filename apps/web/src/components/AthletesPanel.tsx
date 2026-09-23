@@ -97,11 +97,12 @@ export function AthletesPanel() {
                 display: "flex",
                 justifyContent: "space-between",
                 padding: "10px 0",
-                borderBottom: "1px solid #e2e2e5",
+                borderBottom: "1px solid var(--color-gray-border)",
               }}
             >
               <span>
-                {relation.athlete.name} <span style={{ color: "#6b6b70" }}>({relation.athlete.email})</span>
+                {relation.athlete.name}{" "}
+                <span style={{ color: "var(--color-ink-secondary)" }}>({relation.athlete.email})</span>
               </span>
               <span>{STATUS_LABEL[relation.status]}</span>
             </li>

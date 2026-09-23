@@ -1,8 +1,22 @@
 :root {
   color-scheme: light dark;
-  font-family: system-ui, sans-serif;
+  font-family: "Inter", system-ui, sans-serif;
+
+  /* Identidad visual — ver docs/brand/identidad-visual.md */
+  --font-display: "Bricolage Grotesque", "Inter", system-ui, sans-serif;
+  --font-mono: "Victor Mono", ui-monospace, monospace;
+
+  --color-blue: #0066ee;
+  --color-bg: #ffffff;
+  --color-ink: rgba(0, 0, 0, 0.87);
+  --color-ink-secondary: #6c6c70;
+  --color-gray-light: #f6f6f8;
+  --color-gray-border: #bcbcc0;
+  --color-gray-mid: #8e8e93;
 }
 
 body {
   margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
 }
