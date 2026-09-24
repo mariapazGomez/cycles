@@ -39,7 +39,9 @@ Sin Swagger/OpenAPI activado todavía (pendiente, ver `docs/prds/PRD-General.md`
 | Atletas / invitaciones | `/athletes*` | [[PRD-InvitacionAtletas]] |
 | Ejercicios (catálogo) | `/exercises*` | [[PRD-CatalogoEjercicios]] |
 | Ciclos | `/cycles*` | [[PRD-CRUDCiclos]] |
-| Sesiones / ejercicios de sesión | `/cycles/:id/sessions`, `/sessions*`, `/session-exercises/:id` | [[PRD-CRUDSesiones]] |
+| Sesiones / ejercicios de sesión (celdas del grid) | `/cycles/:id/sessions`, `/sessions*`, `/session-exercises/:id` | [[PRD-RutinasYProgramacion]] |
+| Rutinas (biblioteca del coach) | `/routines*` | [[PRD-RutinasYProgramacion]] |
+| Hijos de un macrociclo | `/cycles/:id/children` | [[PRD-RutinasYProgramacion]] |
 
 ## Base de datos
 

@@ -150,6 +150,10 @@ Ninguno adicional a los del PRD general.
 
 ## 11. Estado y decisiones abiertas
 
+**Backend completo y probado (2026-09-24)**: migración aplicada, `RoutinesModule` nuevo, `cycles`/`sessions` reescritos. Probado end-to-end: crear/editar/borrar rutina (borrar no rompe sesiones ya asignadas, `routineId` queda en null), crear meso/microciclo con `sessionsPerWeek`, asignar rutina a una celda, ajustar peso de esa instancia sin afectar la rutina original, reusar la misma rutina en otra semana con progresión, celda duplicada (409), slot fuera de rango (400), macrociclo sin `sessionsPerWeek`, crear hijo bajo un macrociclo, rechazar hijo bajo un no-macrociclo (400), macrociclo no acepta sesiones propias (400), listado principal excluye hijos, atleta con acceso de lectura a macrociclo + hijos.
+
+**Pendiente: todo el frontend.** El de Fase 2 anterior (`/cycles`, `/cycles/:id`, `/sessions/:id`) quedó desactualizado (asumía el modelo viejo de sesiones sueltas) y necesita reescritura: selector de `cycleType`/`sessionsPerWeek` al crear un plan, biblioteca de rutinas (nueva pantalla), vista de grid, vista de macrociclo como lista de hijos.
+
 - **Armar rutina directo en una celda del grid**: pedido explícitamente para el futuro, no ahora.
 - **Redimensionar el grid** (cambiar `sessionsPerWeek` con sesiones ya asignadas): sin resolver, se deja para cuando haya un caso real.
 - **Validación de fechas hijo-dentro-de-padre en macrociclos**: no implementada todavía.

@@ -30,6 +30,11 @@ export class CyclesController {
     return this.cyclesService.getOne(user, id);
   }
 
+  @Get(":id/children")
+  getChildren(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string) {
+    return this.cyclesService.getChildren(user, id);
+  }
+
   @UseGuards(RolesGuard)
   @Roles("coach")
   @Patch(":id")

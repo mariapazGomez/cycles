@@ -25,6 +25,25 @@ export class CyclesService {
       throw new BadRequestException("La fecha de fin debe ser posterior a la fecha de inicio.");
     }
 
+    const isContainer = dto.cycleType === "macrocycle";
+    if (!isContainer && !dto.sessionsPerWeek) {
+      throw new BadRequestException("Definí cuántas sesiones por semana tiene este plan.");
+    }
+
+    let parentCycle = null;
+    if (dto.parentCycleId) {
+      parentCycle = await this.prisma.trainingCycle.findUnique({ where: { id: dto.parentCycleId } });
+      if (!parentCycle || parentCycle.coachId !== coachId) {
+        throw new BadRequestException("El macrociclo indicado no existe o no es tuyo.");
+      }
+      if (parentCycle.cycleType !== "macrocycle") {
+        throw new BadRequestException("Un plan solo puede vivir dentro de un macrociclo.");
+      }
+      if (parentCycle.athleteId !== dto.athleteId) {
+        throw new BadRequestException("El macrociclo es de otro atleta.");
+      }
+    }
+
     return this.prisma.trainingCycle.create({
       data: {
         coachId,
@@ -33,16 +52,22 @@ export class CyclesService {
         objective: dto.objective,
         startDate,
         endDate,
+        cycleType: dto.cycleType,
+        sessionsPerWeek: isContainer ? null : dto.sessionsPerWeek,
+        parentCycleId: dto.parentCycleId,
       },
     });
   }
 
   // Un coach ve los ciclos que creó; un atleta ve los que le asignaron.
+  // Por defecto no incluye planes que viven dentro de un macrociclo — esos
+  // se consultan vía getChildren(), anidados bajo su contenedor.
   async list(user: AuthenticatedUser, query: ListCyclesQueryDto) {
     if (user.role === "coach") {
       return this.prisma.trainingCycle.findMany({
         where: {
           coachId: user.id,
+          parentCycleId: null,
           ...(query.athleteId ? { athleteId: query.athleteId } : {}),
           ...(query.status ? { status: query.status } : {}),
         },
@@ -53,9 +78,26 @@ export class CyclesService {
     return this.prisma.trainingCycle.findMany({
       where: {
         athleteId: user.id,
+        parentCycleId: null,
         ...(query.status ? { status: query.status } : {}),
       },
       orderBy: { createdAt: "desc" },
+    });
+  }
+
+  async getChildren(user: AuthenticatedUser, id: string) {
+    const parent = await this.prisma.trainingCycle.findUnique({ where: { id } });
+    if (!parent) {
+      throw new NotFoundException("Ciclo no encontrado.");
+    }
+    this.assertAccess(user, parent);
+    if (parent.cycleType !== "macrocycle") {
+      throw new BadRequestException("Este plan no es un macrociclo, no tiene hijos.");
+    }
+
+    return this.prisma.trainingCycle.findMany({
+      where: { parentCycleId: id },
+      orderBy: { startDate: "asc" },
     });
   }
 
@@ -64,13 +106,16 @@ export class CyclesService {
     if (!cycle) {
       throw new NotFoundException("Ciclo no encontrado.");
     }
+    this.assertAccess(user, cycle);
 
+    return cycle;
+  }
+
+  private assertAccess(user: AuthenticatedUser, cycle: { coachId: string; athleteId: string }): void {
     const isOwner = user.role === "coach" ? cycle.coachId === user.id : cycle.athleteId === user.id;
     if (!isOwner) {
       throw new ForbiddenException("No tenés acceso a este ciclo.");
     }
-
-    return cycle;
   }
 
   async update(coachId: string, id: string, dto: UpdateCycleDto) {

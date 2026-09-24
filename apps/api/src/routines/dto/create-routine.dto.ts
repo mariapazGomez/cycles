@@ -1,0 +1,15 @@
+import { Type } from "class-transformer";
+import { ArrayMinSize, IsArray, IsString, MinLength, ValidateNested } from "class-validator";
+import { RoutineExerciseInputDto } from "./routine-exercise-input.dto";
+
+export class CreateRoutineDto {
+  @IsString()
+  @MinLength(1)
+  name!: string;
+
+  @IsArray()
+  @ArrayMinSize(1)
+  @ValidateNested({ each: true })
+  @Type(() => RoutineExerciseInputDto)
+  exercises!: RoutineExerciseInputDto[];
+}
