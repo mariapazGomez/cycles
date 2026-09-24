@@ -1,5 +1,6 @@
 export type CycleStatus = "draft" | "active" | "completed" | "archived";
 export type SessionStatus = "pending" | "completed" | "skipped";
+export type CycleType = "microcycle" | "mesocycle" | "macrocycle";
 export type MuscleGroup =
   | "chest"
   | "back"
@@ -22,15 +23,43 @@ export interface TrainingCycle {
   status: CycleStatus;
   isTemplate: boolean;
   templateId?: string;
+  cycleType: CycleType;
+  // null cuando cycleType = 'macrocycle' (un macrociclo es un contenedor,
+  // no tiene grid propio).
+  sessionsPerWeek?: number;
+  // Si este plan vive dentro de un macrociclo contenedor.
+  parentCycleId?: string;
 }
 
 export interface TrainingSession {
   id: string;
   cycleId: string;
   name: string;
-  orderIndex: number;
+  weekNumber: number;
+  slotNumber: number;
   scheduledDate?: string;
   status: SessionStatus;
+  // De qué rutina de la biblioteca salió — trazabilidad interna, no se
+  // muestra en la UI.
+  routineId?: string;
+}
+
+export interface Routine {
+  id: string;
+  coachId: string;
+  name: string;
+  createdAt: string;
+}
+
+export interface RoutineExercise {
+  id: string;
+  routineId: string;
+  exerciseId: string;
+  orderIndex: number;
+  defaultSets: number;
+  defaultReps: number;
+  defaultWeight?: number;
+  defaultRestSeconds?: number;
 }
 
 export interface Exercise {

@@ -21,7 +21,7 @@ tags: [prd, general]
 | CRUD de ciclos de entrenamiento | Fase 2 | superseded-parcial | [[PRD-CRUDCiclos]] |
 | CRUD de sesiones y ejercicios de sesión | Fase 2 | superseded-parcial | [[PRD-CRUDSesiones]] |
 | Frontend de planificación (ciclos/sesiones/ejercicios) | Fase 2 | in-progress | [[PRD-FrontendPlanificacion]] |
-| Rutinas y programación en grid | Fase 2 | in-progress | [[PRD-RutinasYProgramacion]] |
+| Rutinas y programación en grid | Fase 2 | complete | [[PRD-RutinasYProgramacion]] |
 
 > Esta tabla se actualiza a mano cada vez que se crea un PRD hijo nuevo (ver plantilla en `_templates/PRD-Feature-Template.md`). Además, como cada PRD hijo enlaza de vuelta a `[[PRD-General]]` en su frontmatter, el panel de **Linked mentions / Backlinks** de Obsidian en esta nota mostrará automáticamente todos los hijos, aunque se te olvide actualizar la tabla.
 

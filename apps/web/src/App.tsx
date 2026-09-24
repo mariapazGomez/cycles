@@ -16,6 +16,7 @@ import { AthletesPage } from "./pages/AthletesPage";
 import { CyclesPage } from "./pages/CyclesPage";
 import { CycleDetailPage } from "./pages/CycleDetailPage";
 import { SessionDetailPage } from "./pages/SessionDetailPage";
+import { RoutinesPage } from "./pages/RoutinesPage";
 
 export function App() {
   return (
@@ -68,6 +69,7 @@ export function App() {
         <Route index element={<HomePage />} />
         <Route path="athletes" element={<AthletesPage />} />
         <Route path="cycles" element={<CyclesPage />} />
+        <Route path="routines" element={<RoutinesPage />} />
         <Route path="cycles/:id" element={<CycleDetailPage />} />
         <Route path="sessions/:id" element={<SessionDetailPage />} />
       </Route>

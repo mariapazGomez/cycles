@@ -1,7 +1,7 @@
 import { FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { CycleStatus } from "@cycles/shared";
+import type { CycleStatus, CycleType } from "@cycles/shared";
 import * as cyclesApi from "../services/cyclesApi";
 import * as athletesApi from "../services/athletesApi";
 import { ApiError } from "../services/httpClient";
@@ -12,6 +12,12 @@ const STATUS_LABEL: Record<CycleStatus, string> = {
   active: "Activo",
   completed: "Completado",
   archived: "Archivado",
+};
+
+const CYCLE_TYPE_LABEL: Record<CycleType, string> = {
+  microcycle: "Microciclo",
+  mesocycle: "Mesociclo",
+  macrocycle: "Macrociclo",
 };
 
 function formatDate(iso: string): string {
@@ -28,6 +34,8 @@ export function CyclesPage() {
   const [objective, setObjective] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [cycleType, setCycleType] = useState<CycleType>("mesocycle");
+  const [sessionsPerWeek, setSessionsPerWeek] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
 
   const cyclesQuery = useQuery({ queryKey: ["cycles"], queryFn: cyclesApi.listCycles });
@@ -47,6 +55,8 @@ export function CyclesPage() {
       setObjective("");
       setStartDate("");
       setEndDate("");
+      setCycleType("mesocycle");
+      setSessionsPerWeek("");
       queryClient.invalidateQueries({ queryKey: ["cycles"] });
     },
     onError: (error: unknown) => {
@@ -63,6 +73,8 @@ export function CyclesPage() {
       objective: objective || undefined,
       startDate,
       endDate,
+      cycleType,
+      sessionsPerWeek: cycleType === "macrocycle" ? undefined : Number(sessionsPerWeek),
     });
   }
 
@@ -116,6 +128,40 @@ export function CyclesPage() {
               </p>
             )}
           </div>
+
+          <div className="field">
+            <label htmlFor="cycleType">Tipo de plan</label>
+            <select
+              id="cycleType"
+              value={cycleType}
+              onChange={(e) => setCycleType(e.target.value as CycleType)}
+            >
+              {Object.entries(CYCLE_TYPE_LABEL).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {cycleType === "macrocycle" ? (
+            <p style={{ fontSize: "0.85rem", color: "var(--color-ink-secondary)" }}>
+              Un macrociclo es un contenedor: agrupa varios mesociclos/microciclos, no tiene sesiones
+              propias.
+            </p>
+          ) : (
+            <div className="field">
+              <label htmlFor="sessionsPerWeek">Sesiones por semana</label>
+              <input
+                id="sessionsPerWeek"
+                type="number"
+                min={1}
+                required
+                value={sessionsPerWeek}
+                onChange={(e) => setSessionsPerWeek(e.target.value)}
+              />
+            </div>
+          )}
 
           <div className="field">
             <label htmlFor="cycleName">Nombre</label>
@@ -195,7 +241,8 @@ export function CyclesPage() {
                   <span>
                     <strong>{cycle.name}</strong>{" "}
                     <span style={{ color: "var(--color-ink-secondary)" }}>
-                      ({formatDate(cycle.startDate)} – {formatDate(cycle.endDate)})
+                      ({CYCLE_TYPE_LABEL[cycle.cycleType]} · {formatDate(cycle.startDate)} –{" "}
+                      {formatDate(cycle.endDate)})
                     </span>
                   </span>
                   <span style={{ color: "var(--color-ink-secondary)" }}>

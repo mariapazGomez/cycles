@@ -22,6 +22,9 @@ export function AppLayout() {
               <NavLink to="/cycles" className={navLinkClass}>
                 Planes
               </NavLink>
+              <NavLink to="/routines" className={navLinkClass}>
+                Rutinas
+              </NavLink>
             </nav>
           )}
           {user?.role === "athlete" && (

@@ -14,8 +14,11 @@ export function listSessions(cycleId: string) {
   return apiRequest<TrainingSession[]>(`/cycles/${cycleId}/sessions`);
 }
 
-export function createSession(cycleId: string, data: { name: string; scheduledDate?: string }) {
-  return apiRequest<TrainingSession>(`/cycles/${cycleId}/sessions`, {
+export function createSession(
+  cycleId: string,
+  data: { weekNumber: number; slotNumber: number; routineId: string; scheduledDate?: string },
+) {
+  return apiRequest<SessionDetail>(`/cycles/${cycleId}/sessions`, {
     method: "POST",
     body: data,
   });

@@ -1,4 +1,4 @@
-import type { TrainingCycle } from "@cycles/shared";
+import type { CycleType, TrainingCycle } from "@cycles/shared";
 import { apiRequest } from "./httpClient";
 
 export function listCycles() {
@@ -9,12 +9,19 @@ export function getCycle(id: string) {
   return apiRequest<TrainingCycle>(`/cycles/${id}`);
 }
 
+export function getChildren(id: string) {
+  return apiRequest<TrainingCycle[]>(`/cycles/${id}/children`);
+}
+
 export function createCycle(data: {
   athleteId: string;
   name: string;
   objective?: string;
   startDate: string;
   endDate: string;
+  cycleType: CycleType;
+  sessionsPerWeek?: number;
+  parentCycleId?: string;
 }) {
   return apiRequest<TrainingCycle>("/cycles", {
     method: "POST",
