@@ -13,6 +13,7 @@ import {
 import type { SessionOutcome } from '@cycles/shared';
 import { submitFeedback } from '../services/executionApi';
 import type { AppStackParamList } from '../navigation/types';
+import { colors } from '../theme/colors';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'SessionFeedback'>;
 
@@ -114,7 +115,7 @@ export function SessionFeedbackScreen({ route, navigation }: Props) {
         <TextInput
           style={styles.textArea}
           placeholder="¿Dónde y cómo fue el dolor?"
-          placeholderTextColor="#8e8e93"
+          placeholderTextColor={colors.grayMid}
           multiline
           value={painNotes}
           onChangeText={setPainNotes}
@@ -125,7 +126,7 @@ export function SessionFeedbackScreen({ route, navigation }: Props) {
       <TextInput
         style={styles.textArea}
         placeholder={outcome === 'skipped' ? 'Motivo por el que no la hiciste' : 'Algo que quieras contarle a tu coach'}
-        placeholderTextColor="#8e8e93"
+        placeholderTextColor={colors.grayMid}
         multiline
         value={notes}
         onChangeText={setNotes}
@@ -138,7 +139,7 @@ export function SessionFeedbackScreen({ route, navigation }: Props) {
         onPress={handleSubmit}
         disabled={submitting}>
         {submitting ? (
-          <ActivityIndicator color="#ffffff" />
+          <ActivityIndicator color={colors.onBlue} />
         ) : (
           <Text style={styles.submitButtonText}>Enviar</Text>
         )}
@@ -150,7 +151,7 @@ export function SessionFeedbackScreen({ route, navigation }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.bg,
   },
   content: {
     padding: 20,
@@ -159,13 +160,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1f2228',
+    color: colors.ink,
     marginBottom: 24,
   },
   sectionLabel: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#1f2228',
+    color: colors.ink,
     marginBottom: 10,
   },
   outcomeRow: {
@@ -176,22 +177,22 @@ const styles = StyleSheet.create({
   outcomeOption: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#d8d8dc',
+    borderColor: colors.grayBorder,
     borderRadius: 10,
     paddingVertical: 12,
     alignItems: 'center',
   },
   outcomeOptionSelected: {
-    backgroundColor: '#0066ee',
-    borderColor: '#0066ee',
+    backgroundColor: colors.blue,
+    borderColor: colors.blue,
   },
   outcomeOptionText: {
     fontSize: 15,
-    color: '#1f2228',
+    color: colors.ink,
     fontWeight: '600',
   },
   outcomeOptionTextSelected: {
-    color: '#ffffff',
+    color: colors.onBlue,
   },
   srpeRow: {
     flexDirection: 'row',
@@ -204,21 +205,21 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#d8d8dc',
+    borderColor: colors.grayBorder,
     alignItems: 'center',
     justifyContent: 'center',
   },
   srpeOptionSelected: {
-    backgroundColor: '#0066ee',
-    borderColor: '#0066ee',
+    backgroundColor: colors.blue,
+    borderColor: colors.blue,
   },
   srpeOptionText: {
     fontSize: 15,
-    color: '#1f2228',
+    color: colors.ink,
     fontWeight: '600',
   },
   srpeOptionTextSelected: {
-    color: '#ffffff',
+    color: colors.onBlue,
   },
   painRow: {
     flexDirection: 'row',
@@ -228,23 +229,23 @@ const styles = StyleSheet.create({
   },
   textArea: {
     borderWidth: 1,
-    borderColor: '#d8d8dc',
+    borderColor: colors.grayBorder,
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 15,
-    color: '#1f2228',
+    color: colors.ink,
     minHeight: 80,
     textAlignVertical: 'top',
     marginBottom: 20,
   },
   error: {
-    color: '#d0342c',
+    color: colors.painInk,
     marginBottom: 12,
     fontSize: 14,
   },
   submitButton: {
-    backgroundColor: '#1f2228',
+    backgroundColor: colors.ink,
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: 'center',
@@ -253,7 +254,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   submitButtonText: {
-    color: '#ffffff',
+    color: colors.onBlue,
     fontSize: 16,
     fontWeight: '600',
   },

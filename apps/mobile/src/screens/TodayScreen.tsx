@@ -14,6 +14,7 @@ import type { TodaySession } from '@cycles/shared';
 import { fetchToday } from '../services/executionApi';
 import { useAuth } from '../store/AuthContext';
 import type { AppStackParamList } from '../navigation/types';
+import { colors } from '../theme/colors';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'Today'>;
 
@@ -47,7 +48,7 @@ export function TodayScreen({ navigation }: Props) {
   if (data === undefined && !error) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#0066ee" />
+        <ActivityIndicator size="large" color={colors.blue} />
       </View>
     );
   }
@@ -119,7 +120,7 @@ export function TodayScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.bg,
   },
   content: {
     padding: 20,
@@ -129,7 +130,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.bg,
   },
   header: {
     flexDirection: 'row',
@@ -140,14 +141,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#1f2228',
+    color: colors.ink,
   },
   logout: {
-    color: '#0066ee',
+    color: colors.blue,
     fontSize: 15,
   },
   error: {
-    color: '#d0342c',
+    color: colors.painInk,
     marginBottom: 16,
   },
   emptyState: {
@@ -156,23 +157,23 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#6b6b70',
+    color: colors.inkSecondary,
     textAlign: 'center',
   },
   cycleName: {
     fontSize: 14,
-    color: '#6b6b70',
+    color: colors.inkSecondary,
     marginTop: 12,
   },
   sessionName: {
     fontSize: 22,
     fontWeight: '600',
-    color: '#1f2228',
+    color: colors.ink,
     marginBottom: 20,
   },
   exerciseCard: {
     borderWidth: 1,
-    borderColor: '#e5e5ea',
+    borderColor: colors.grayBorder,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -185,27 +186,27 @@ const styles = StyleSheet.create({
   exerciseName: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#1f2228',
+    color: colors.ink,
   },
   exerciseProgress: {
     fontSize: 15,
-    color: '#0066ee',
+    color: colors.blue,
     fontWeight: '600',
   },
   exerciseTarget: {
     fontSize: 14,
-    color: '#6b6b70',
+    color: colors.inkSecondary,
     marginTop: 4,
   },
   closeButton: {
-    backgroundColor: '#1f2228',
+    backgroundColor: colors.ink,
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: 'center',
     marginTop: 20,
   },
   closeButtonText: {
-    color: '#ffffff',
+    color: colors.onBlue,
     fontSize: 16,
     fontWeight: '600',
   },

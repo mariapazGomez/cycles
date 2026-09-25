@@ -13,6 +13,7 @@ import type { ExerciseLog } from '@cycles/shared';
 import { logSet } from '../services/executionApi';
 import { generateId } from '../utils/uuid';
 import type { AppStackParamList } from '../navigation/types';
+import { colors } from '../theme/colors';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ExerciseLog'>;
 
@@ -192,7 +193,7 @@ export function ExerciseLogScreen({ route }: Props) {
                 onPress={() => handleSave(index)}
                 disabled={row.saving}>
                 {row.saving ? (
-                  <ActivityIndicator color="#ffffff" size="small" />
+                  <ActivityIndicator color={colors.onBlue} size="small" />
                 ) : (
                   <Text style={styles.saveButtonText}>
                     {row.saved ? 'Guardar corrección' : 'Guardar serie'}
@@ -210,7 +211,7 @@ export function ExerciseLogScreen({ route }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.bg,
   },
   content: {
     padding: 20,
@@ -219,16 +220,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1f2228',
+    color: colors.ink,
   },
   subtitle: {
     fontSize: 14,
-    color: '#6b6b70',
+    color: colors.inkSecondary,
     marginBottom: 20,
   },
   setCard: {
     borderWidth: 1,
-    borderColor: '#e5e5ea',
+    borderColor: colors.grayBorder,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -242,10 +243,10 @@ const styles = StyleSheet.create({
   setLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1f2228',
+    color: colors.ink,
   },
   editLink: {
-    color: '#0066ee',
+    color: colors.blue,
     fontSize: 14,
   },
   fieldsRow: {
@@ -257,25 +258,25 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     fontSize: 12,
-    color: '#6b6b70',
+    color: colors.inkSecondary,
     marginBottom: 4,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#d8d8dc',
+    borderColor: colors.grayBorder,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 16,
-    color: '#1f2228',
+    color: colors.ink,
   },
   error: {
-    color: '#d0342c',
+    color: colors.painInk,
     fontSize: 13,
     marginTop: 8,
   },
   saveButton: {
-    backgroundColor: '#0066ee',
+    backgroundColor: colors.blue,
     borderRadius: 8,
     paddingVertical: 10,
     alignItems: 'center',
@@ -285,7 +286,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   saveButtonText: {
-    color: '#ffffff',
+    color: colors.onBlue,
     fontSize: 15,
     fontWeight: '600',
   },

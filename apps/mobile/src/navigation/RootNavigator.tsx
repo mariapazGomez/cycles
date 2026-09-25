@@ -8,6 +8,7 @@ import { TodayScreen } from '../screens/TodayScreen';
 import { ExerciseLogScreen } from '../screens/ExerciseLogScreen';
 import { SessionFeedbackScreen } from '../screens/SessionFeedbackScreen';
 import type { AppStackParamList } from './types';
+import { colors } from '../theme/colors';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -17,7 +18,7 @@ export function RootNavigator() {
   if (status === 'loading') {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#0066ee" />
+        <ActivityIndicator size="large" color={colors.blue} />
       </View>
     );
   }
@@ -27,7 +28,7 @@ export function RootNavigator() {
       {status === 'signedOut' ? (
         <LoginScreen />
       ) : (
-        <Stack.Navigator screenOptions={{ headerTintColor: '#0066ee' }}>
+        <Stack.Navigator screenOptions={{ headerTintColor: colors.blue }}>
           <Stack.Screen name="Today" component={TodayScreen} options={{ headerShown: false }} />
           <Stack.Screen
             name="ExerciseLog"

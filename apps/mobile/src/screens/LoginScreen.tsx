@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useAuth } from '../store/AuthContext';
+import { colors } from '../theme/colors';
 
 export function LoginScreen() {
   const { login } = useAuth();
@@ -34,12 +35,11 @@ export function LoginScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Text style={styles.title}>Cycles</Text>
-      <Text style={styles.subtitle}>Ingresa para ver tu entrenamiento de hoy</Text>
 
       <TextInput
         style={styles.input}
         placeholder="Email"
-        placeholderTextColor="#8e8e93"
+        placeholderTextColor={colors.grayMid}
         autoCapitalize="none"
         autoCorrect={false}
         keyboardType="email-address"
@@ -49,7 +49,7 @@ export function LoginScreen() {
       <TextInput
         style={styles.input}
         placeholder="Contraseña"
-        placeholderTextColor="#8e8e93"
+        placeholderTextColor={colors.grayMid}
         secureTextEntry
         value={password}
         onChangeText={setPassword}
@@ -62,7 +62,7 @@ export function LoginScreen() {
         onPress={handleSubmit}
         disabled={submitting || !email || !password}>
         {submitting ? (
-          <ActivityIndicator color="#ffffff" />
+          <ActivityIndicator color={colors.onBlue} />
         ) : (
           <Text style={styles.buttonText}>Ingresar</Text>
         )}
@@ -76,36 +76,31 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 24,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.bg,
   },
   title: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#1f2228',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 15,
-    color: '#6b6b70',
+    color: colors.ink,
     marginBottom: 32,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#d8d8dc',
+    borderColor: colors.grayBorder,
     borderRadius: 10,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
     marginBottom: 12,
-    color: '#1f2228',
+    color: colors.ink,
   },
   error: {
-    color: '#d0342c',
+    color: colors.painInk,
     marginBottom: 12,
     fontSize: 14,
   },
   button: {
-    backgroundColor: '#0066ee',
+    backgroundColor: colors.blue,
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: 'center',
@@ -115,7 +110,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: '#ffffff',
+    color: colors.onBlue,
     fontSize: 16,
     fontWeight: '600',
   },
