@@ -43,12 +43,15 @@ function buildInitialRows(
     const existing = logs.find(log => log.setNumber === setNumber) ?? null;
     return {
       actualReps: String(existing?.actualReps ?? targetReps),
-      actualWeight: existing?.actualWeight !== undefined
+      // El backend serializa "sin valor" como null, no como campo ausente:
+      // hay que comparar con == null (cubre null y undefined), no
+      // !== undefined, o un peso/RIR realmente vacío se muestra como "null".
+      actualWeight: existing?.actualWeight != null
         ? String(existing.actualWeight)
         : targetWeight !== undefined
           ? String(targetWeight)
           : '',
-      rir: existing?.rir !== undefined ? String(existing.rir) : '',
+      rir: existing?.rir != null ? String(existing.rir) : '',
       saved: existing,
       editing: false,
       saving: false,

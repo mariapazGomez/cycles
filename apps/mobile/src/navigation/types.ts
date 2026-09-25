@@ -7,6 +7,6 @@ export type AppStackParamList = {
   };
   SessionFeedback: {
     sessionId: string;
-    startedAt?: string;
+    startedAt?: string | null;
   };
 };
