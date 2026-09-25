@@ -92,9 +92,12 @@ export async function apiRequest<T>(
     throw new ApiError(response.status, await extractErrorMessage(response));
   }
 
-  if (response.status === 204) {
-    return undefined as T;
+  // GET /me/today responde 200 con body vacío cuando no hay sesión pendiente
+  // (NestJS serializa `null` así, no como 204): response.json() explota con
+  // un body vacío, así que hay que leer como texto primero.
+  const text = await response.text();
+  if (text === '') {
+    return null as T;
   }
-
-  return (await response.json()) as T;
+  return JSON.parse(text) as T;
 }
