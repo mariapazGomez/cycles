@@ -15,7 +15,7 @@ export function CheckEmailPage() {
   });
 
   return (
-    <AuthCard title="Revisa tu email" subtitle={email || undefined}>
+    <AuthCard title="Revisa tu email">
       <p>
         Te enviamos un link de verificación{email ? ` a ${email}` : ""}. Ábrelo para activar tu
         cuenta y poder iniciar sesión.

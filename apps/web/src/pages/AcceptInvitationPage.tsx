@@ -56,10 +56,9 @@ export function AcceptInvitationPage() {
   }
 
   return (
-    <AuthCard
-      title="Activa tu cuenta"
-      subtitle="Tu coach te invitó a Cycles. Define tu contraseña para empezar."
-    >
+    <AuthCard title="Activa tu cuenta">
+      <p>Tu coach te invitó a Cycles. Define tu contraseña para empezar.</p>
+
       {formError && <div className="error-banner">{formError}</div>}
 
       <form onSubmit={handleSubmit} noValidate>

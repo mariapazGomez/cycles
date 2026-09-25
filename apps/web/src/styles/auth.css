@@ -17,16 +17,10 @@
 }
 
 .auth-card h1 {
-  margin: 0 0 4px;
+  margin: 0 0 20px;
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 1.6rem;
-}
-
-.auth-subtitle {
-  margin: 0 0 24px;
-  color: var(--color-ink-secondary);
-  font-size: 0.9rem;
 }
 
 .field {

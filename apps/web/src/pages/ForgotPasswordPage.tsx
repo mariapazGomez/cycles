@@ -27,10 +27,7 @@ export function ForgotPasswordPage() {
   }
 
   return (
-    <AuthCard
-      title="¿Olvidaste tu contraseña?"
-      subtitle="Te enviaremos un link para crear una nueva."
-    >
+    <AuthCard title="¿Olvidaste tu contraseña?">
       <form onSubmit={handleSubmit} noValidate>
         <div className="field">
           <label htmlFor="email">Email</label>
