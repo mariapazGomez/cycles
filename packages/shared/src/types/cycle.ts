@@ -1,7 +1,6 @@
 export type CycleStatus = "draft" | "active" | "completed" | "archived";
 export type SessionStatus = "pending" | "completed" | "skipped";
 export type CycleType = "microcycle" | "mesocycle" | "macrocycle";
-export type SessionOutcome = "completed" | "skipped";
 export type MuscleGroup =
   | "chest"
   | "back"
@@ -43,8 +42,7 @@ export interface TrainingSession {
   // De qué rutina de la biblioteca salió — trazabilidad interna, no se
   // muestra en la UI.
   routineId?: string;
-  // Lo marca el atleta al empezar; base para pre-calcular la duración.
-  startedAt?: string;
+  startedAt?: string | null;
 }
 
 export interface Routine {
@@ -63,6 +61,8 @@ export interface RoutineExercise {
   defaultReps: number;
   defaultWeight?: number;
   defaultRestSeconds?: number;
+  // Repeticiones en reserva objetivo (0–4). Sin valor = sin objetivo de esfuerzo.
+  defaultRir?: number | null;
 }
 
 export interface Exercise {
@@ -85,37 +85,38 @@ export interface SessionExercise {
   targetReps: number;
   targetWeight?: number;
   targetRestSeconds?: number;
+  targetRir?: number | null;
 }
 
+// Un registro por serie. Append-only: una corrección es un registro nuevo
+// con supersedesId. Ver docs/prds/features/PRD-EjecucionYSeguimiento.md.
 export interface ExerciseLog {
   id: string;
   sessionExerciseId: string;
   athleteId: string;
   setNumber: number;
   actualReps: number;
-  // En kg; sin valor = peso corporal.
-  actualWeight?: number;
-  // Repeticiones en reserva: 0-4 (4 = "4 o más").
-  rir?: number;
-  // Presente cuando este registro corrige uno anterior.
-  supersedesId?: string;
+  // En kg; null = peso corporal.
+  actualWeight: number | null;
+  // Repeticiones en reserva (0–4, 4 = "4 o más").
+  rir: number | null;
+  supersedesId: string | null;
   loggedAt: string;
 }
 
-// Cierre de una sesión por parte del atleta. Append-only: una corrección
-// nueva llega con supersedesId apuntando al feedback vigente.
+export type SessionOutcome = "completed" | "skipped";
+
 export interface SessionFeedback {
   id: string;
   sessionId: string;
   athleteId: string;
   outcome: SessionOutcome;
-  // Esfuerzo de la sesión (sRPE, escala CR-10 de Foster). Solo si outcome = completed.
-  srpe?: number;
-  durationMinutes?: number;
+  srpe: number | null;
+  durationMinutes: number | null;
   pain: boolean;
-  painNotes?: string;
-  notes?: string;
-  supersedesId?: string;
+  painNotes: string | null;
+  notes: string | null;
+  supersedesId: string | null;
   submittedAt: string;
 }
 

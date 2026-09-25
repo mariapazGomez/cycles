@@ -262,7 +262,7 @@ export function SessionDetailPage() {
               onChange={(e) => setExerciseId(e.target.value)}
             >
               <option value="" disabled>
-                Elegí un ejercicio del catálogo
+                Elige un ejercicio del catálogo
               </option>
               {(exercisesQuery.data ?? []).map((exercise) => (
                 <option key={exercise.id} value={exercise.id}>

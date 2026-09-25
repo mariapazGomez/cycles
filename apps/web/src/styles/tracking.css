@@ -1,0 +1,595 @@
+/* Componentes de la Fase 3 (ejecución y seguimiento). Ver el lienzo
+   "Cycles — Pantallas web" y docs/prds/features/PRD-EjecucionYSeguimiento.md. */
+
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.page-back {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: var(--color-ink-secondary);
+  text-decoration: none;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.button-inline {
+  width: auto;
+}
+
+.button-compact {
+  width: auto;
+  padding: 7px 14px;
+  font-size: 0.88rem;
+}
+
+.button-ghost {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 10px;
+  border: none;
+  background: none;
+  color: var(--color-blue);
+  font: 600 0.88rem Inter, system-ui, sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ---------- Etiquetas de estado: siempre con texto, nunca solo color ---------- */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  background: var(--color-gray-light);
+  color: var(--color-ink-secondary);
+}
+
+.pill-ok {
+  background: var(--color-ok-bg);
+  color: var(--color-ok-ink);
+}
+
+.pill-warn {
+  background: var(--color-warn-bg);
+  color: var(--color-warn-ink);
+}
+
+.pill-blue {
+  background: var(--color-blue-tint);
+  color: var(--color-blue);
+}
+
+.pill-pain {
+  background: var(--color-pain-bg);
+  color: var(--color-pain-ink);
+}
+
+/* ---------- Necesitan atención ---------- */
+.card {
+  padding: 20px 24px;
+  border: 1px solid var(--color-gray-border);
+  border-radius: 16px;
+  background: var(--color-bg);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding-bottom: 12px;
+}
+
+.alert-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.alert-row {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 0;
+  border-top: 1px solid var(--color-gray-border);
+}
+
+.alert-row p {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.alert-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.plan-alert {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px 24px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  background: var(--color-warn-bg);
+}
+
+@media (max-width: 720px) {
+  .alert-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .alert-actions {
+    justify-content: flex-start;
+  }
+}
+
+/* ---------- Resumen del atleta ---------- */
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 40px;
+  margin: 0;
+  padding: 16px 20px;
+  border: 1px solid var(--color-gray-border);
+  border-radius: 12px;
+}
+
+.stats dt {
+  font-size: 0.82rem;
+  color: var(--color-ink-secondary);
+}
+
+.stats dd {
+  margin: 2px 0 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.chart-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px 24px;
+  border: 1px solid var(--color-gray-border);
+  border-radius: 16px;
+  min-width: 0;
+}
+
+.chart-card svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.chart-card text {
+  font-family: Inter, system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 0.82rem;
+  color: var(--color-ink-secondary);
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.data-table th {
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-ink-secondary);
+  border-bottom: 1px solid var(--color-gray-border);
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--color-gray-border);
+  vertical-align: middle;
+}
+
+.rir-chip {
+  display: inline-block;
+  min-width: 28px;
+  padding: 3px 6px;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 0.82rem;
+  font-weight: 600;
+  background: var(--color-gray-light);
+}
+
+/* ---------- Grid del plan con progreso ---------- */
+.grid-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-gray-border);
+  border-radius: 10px;
+  color: var(--color-ink);
+  text-decoration: none;
+  font-size: 0.88rem;
+}
+
+.grid-cell strong {
+  font-size: 0.95rem;
+}
+
+.grid-cell-meta {
+  color: var(--color-ink-secondary);
+  font-size: 0.82rem;
+}
+
+.grid-week-current {
+  color: var(--color-blue);
+}
+
+/* ---------- Registro del atleta (pensado para el celular) ---------- */
+.log-shell {
+  max-width: 520px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.log-progress {
+  display: flex;
+  gap: 4px;
+}
+
+.log-progress span {
+  flex-grow: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-gray-border);
+}
+
+.log-progress span[data-done="true"] {
+  background: var(--color-brand);
+}
+
+.target-values {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.target-values div {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--color-gray-light);
+}
+
+.target-values dt {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-ink-secondary);
+}
+
+.target-values dd {
+  margin: 2px 0 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.set-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--color-gray-border);
+}
+
+.set-row {
+  display: grid;
+  grid-template-columns: 72px 1fr 1fr 36px;
+  gap: 8px;
+  align-items: center;
+  min-height: 52px;
+  border-bottom: 1px solid var(--color-gray-border);
+  font-variant-numeric: tabular-nums;
+}
+
+.set-done {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-ok-bg);
+  color: var(--color-ok-ink);
+  font-weight: 700;
+}
+
+.current-set {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border: 2px solid var(--color-brand);
+  border-radius: 16px;
+}
+
+.stepper-row {
+  display: flex;
+  gap: 12px;
+}
+
+.stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.stepper label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-ink-secondary);
+}
+
+.stepper-control {
+  display: flex;
+  align-items: center;
+  height: 52px;
+  border: 1px solid var(--color-control-border);
+  border-radius: 12px;
+}
+
+.stepper-control button {
+  width: 48px;
+  height: 52px;
+  border: none;
+  background: none;
+  font-size: 1.4rem;
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.stepper-control input {
+  width: 100%;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  text-align: center;
+  font: 600 1.25rem Inter, system-ui, sans-serif;
+  color: var(--color-ink);
+}
+
+.choice-fieldset {
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.choice-fieldset legend {
+  padding: 0 0 8px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.choice-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.choice-grid button {
+  min-height: 48px;
+  border-radius: 12px;
+  border: 1px solid var(--color-control-border);
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font: 700 1.1rem Inter, system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.choice-grid button[aria-pressed="true"] {
+  border: 2px solid var(--color-blue);
+  background: var(--color-blue-tint);
+  color: var(--color-blue);
+}
+
+.choice-hint {
+  font-size: 0.82rem;
+  color: var(--color-ink-secondary);
+}
+
+.button-big {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 52px;
+  font-size: 1.05rem;
+}
+
+.today-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--color-gray-border);
+}
+
+.today-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-gray-border);
+}
+
+.today-list li span:last-child {
+  color: var(--color-ink-secondary);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.field textarea {
+  padding: 10px 12px;
+  border: 1px solid var(--color-control-border);
+  border-radius: 8px;
+  font: 400 0.95rem Inter, system-ui, sans-serif;
+  color: var(--color-ink);
+  resize: vertical;
+}
+
+/* ---------- Descanso entre series ---------- */
+.rest-timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 16px;
+  border-radius: 16px;
+  background: var(--color-gray-light);
+}
+
+.rest-timer .button-big {
+  width: 100%;
+}
+
+.rest-ring {
+  position: relative;
+  width: min(232px, 70vw);
+  aspect-ratio: 1;
+}
+
+.rest-ring svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.rest-ring circle {
+  fill: none;
+  stroke-width: 14;
+}
+
+.rest-ring-track {
+  stroke: var(--color-gray-border);
+}
+
+.rest-ring-progress {
+  stroke: var(--color-brand);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.25s linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rest-ring-progress {
+    transition: none;
+  }
+}
+
+.rest-ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.rest-ring-time {
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.rest-ring-total {
+  font-size: 0.88rem;
+  color: var(--color-ink-secondary);
+}
+
+.rest-adjust {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+}

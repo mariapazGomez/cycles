@@ -15,6 +15,7 @@ export interface RoutineExerciseInput {
   defaultReps: number;
   defaultWeight?: number;
   defaultRestSeconds?: number;
+  defaultRir?: number;
 }
 
 export function listRoutines() {

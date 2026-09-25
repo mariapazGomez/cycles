@@ -246,7 +246,8 @@ export class TrackingService {
           const deviation = rirDeviation(entry.execution);
           if (deviation !== null) summary.deviations.push(deviation);
           summary.lastTargetRir = entry.execution.targetRir;
-          summary.lastRir = reportedRir(entry.execution.logs);
+          // La última respuesta disponible: una sesión sin RIR reportado no la borra.
+          summary.lastRir = reportedRir(entry.execution.logs) ?? summary.lastRir;
         }
         exercises.set(exerciseId, summary);
       }

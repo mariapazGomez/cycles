@@ -6,6 +6,8 @@ tags: [brand, vision]
 ---
 
 > Fuente de la sección "Marca" de [[VISION]]. Nombres ("Cycles", "InProgress Co.") son candidatos — ver sección 27, pendiente búsqueda de marca registrada antes de invertir en identidad visual.
+>
+> **Actualización 2026-09-24**: ya existen decisiones y assets concretos que ejecutan parte de este documento estratégico — ver [[identidad-visual]] (tipografía, color, y los primeros logos en `docs/brand/img/`). El isotipo (loop circular) coincide con el territorio visual de la sección 14 de abajo.
 
 INPROGRESS CO. + CYCLES
 Estrategia de compañía, producto y oportunidades YC 2026

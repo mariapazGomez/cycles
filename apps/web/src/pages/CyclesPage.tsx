@@ -82,12 +82,7 @@ export function CyclesPage() {
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
-          <h1 style={{ fontFamily: "var(--font-display)", marginBottom: 4 }}>Planes</h1>
-          <p style={{ color: "var(--color-ink-secondary)", marginTop: 0 }}>
-            {isCoach
-              ? "Ciclos de entrenamiento que armaste para tus atletas."
-              : "Tus ciclos de entrenamiento asignados."}
-          </p>
+          <h1 className="page-title">{isCoach ? "Planes" : "Mis planes"}</h1>
         </div>
         {isCoach && (
           <button
@@ -114,7 +109,7 @@ export function CyclesPage() {
               onChange={(e) => setAthleteId(e.target.value)}
             >
               <option value="" disabled>
-                Elegí un atleta
+                Elige un atleta
               </option>
               {activeAthletes.map((relation) => (
                 <option key={relation.athlete.id} value={relation.athlete.id}>
@@ -124,7 +119,7 @@ export function CyclesPage() {
             </select>
             {activeAthletes.length === 0 && (
               <p style={{ fontSize: "0.8rem", color: "var(--color-ink-secondary)" }}>
-                Todavía no tenés atletas activos. <Link to="/athletes">Invitá uno primero</Link>.
+                Todavía no tienes atletas activos. <Link to="/athletes">Invita uno primero</Link>.
               </p>
             )}
           </div>
