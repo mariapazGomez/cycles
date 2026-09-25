@@ -13,8 +13,23 @@ Cada issue se trabaja como una solución separada cuando se pida, no todas junta
 
 **Qué se espera:** que el flujo refleje con claridad que el plan quedó cerrado/asignado — no un simple guardado silencioso más. A definir en la solución: podría ser un paso explícito de "confirmar asignación" al final, un cambio de estado visible del plan (ej. de `draft` a `active` con indicación clara en la UI), un mensaje de confirmación al terminar de armar la última sesión, o alguna combinación.
 
-**Lo que ya existe (y por qué no alcanza):** un plan nuevo se crea con `status: "draft"` por default (`schema.prisma`). El mecanismo para pasarlo a `active` sí existe, pero está escondido: hay que abrir "Editar plan" en `/cycles/:id`, que despliega un formulario genérico (nombre, objetivo, fechas, y ahí sí un `<select>` de estado) — nada en el flujo de armar sesiones/ejercicios te lleva ahí ni te avisa que hace falta. Un plan en `draft` probablemente ni siquiera le aparece al atleta (`GET /me/today` filtra `status: "active"`), así que hoy es fácil terminar de armar un plan entero y que nunca le llegue a nadie, sin ningún error ni aviso.
+**Lo que ya existe (y por qué no alcanza):** un plan nuevo se crea con `status: "draft"` por default (`schema.prisma`). El mecanismo para pasarlo a `active` sí existe, pero está escondido: hay que abrir "Editar plan" en `/cycles/:id`, que despliega un formulario genérico (nombre, objetivo, fechas, y ahí sí un `<select>` de estado) — nada en el flujo de armar sesiones/ejercicios te lleva ahí ni te avisa que hace falta.
 
-**Dónde:** `apps/web/src/pages/CyclesPage.tsx`, `CycleDetailPage.tsx` (el `<select>` de estado ya está ahí, dentro de "Editar plan"), `SessionDetailPage.tsx` (el flujo de agregar ejercicios termina sin nada). Modelo: `TrainingCycle.status` (`draft | active | completed | archived`).
+**Agravante confirmado (revisando el backend):** `GET /cycles` (`CyclesService.list()`) no filtra por status para el atleta salvo que se pase el query param explícito — por default le devuelve **todos** sus planes asignados, incluidos los que están en `draft`. Es decir, el atleta ya puede ver (y entrar a) un plan a medio armar, sin terminar, en su lista de planes — el estado `draft` hoy no protege nada del lado del atleta en `/cycles`, aunque sí lo excluye de `GET /me/today` (que si filtra `status: "active"`).
+
+**Dónde:** `apps/web/src/pages/CyclesPage.tsx`, `CycleDetailPage.tsx` (el `<select>` de estado ya está ahí, dentro de "Editar plan"), `SessionDetailPage.tsx` (el flujo de agregar ejercicios termina sin nada). Backend: `apps/api/src/cycles/cycles.service.ts` (`list()`, sin filtro de status por default para atleta). Modelo: `TrainingCycle.status` (`draft | active | completed | archived`).
+
+**Estado:** abierto, sin resolver.
+
+### 2. La vista del plan es la misma para coach y atleta — debería diferenciarse
+**Reportado:** 2026-09-25, por la usuaria probando el flujo completo.
+
+**Qué pasa hoy:** `/cycles/:id` usa exactamente el mismo componente (`CycleGrid`, dentro de `CycleDetailPage.tsx`) para coach y atleta. La diferencia entre roles es solo `isCoach` ocultando algunos controles (botones de editar/asignar) — el formato, la densidad de información y el lenguaje visual son idénticos para los dos.
+
+**Qué se espera:** dos experiencias distintas para la misma información:
+- **Coach:** vista más técnica — la grid de semanas × sesiones tal como está hoy (o más densa), pensada para armar y ajustar la programación.
+- **Atleta:** vista más simple y llamativa — pensada para mirar rápido qué le toca hoy/esta semana, no para editar. Menos tabla, más foco en la próxima sesión.
+
+**Dónde:** `apps/web/src/pages/CycleDetailPage.tsx` (`CycleGrid` es un solo componente compartido con un flag `isCoach`, no dos vistas). Relevante: la app móvil (`apps/mobile/src/screens/TodayScreen.tsx`) ya resolvió esto para el caso "atleta ejecutando" con una vista simple centrada en la sesión de hoy — podría ser el punto de partida para cómo se ve una vista de atleta más simple en la web.
 
 **Estado:** abierto, sin resolver.
