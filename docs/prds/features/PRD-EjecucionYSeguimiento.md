@@ -2,7 +2,7 @@
 type: prd
 level: feature
 parent: "[[PRD-General]]"
-status: draft
+status: approved
 phase: "Fase 3 — Ejecución y seguimiento"
 created: 2026-09-25
 updated: 2026-09-25
@@ -167,7 +167,7 @@ Reglas del modelo:
 **Atleta** (solo el atleta asignado, con relación coach–atleta activa y plan `active`)
 - `GET /me/today` — próxima sesión pendiente del plan activo, con sus ejercicios, objetivos y lo ya registrado.
 - `POST /sessions/:id/start` — marca `startedAt` (idempotente: si ya tiene valor, no lo cambia).
-- `POST /session-exercises/:id/logs` — `{ id, setNumber, actualReps, actualWeight?, rir?, supersedesId? }`. `id` lo genera el cliente; si ya existe, responde 200 con el registro existente (reintento seguro).
+- `POST /session-exercises/:id/logs` — `{ id, setNumber, actualReps, actualWeight?, rir?, supersedesId? }`. `id` lo genera el cliente; si ya existe, responde con el registro ya guardado en vez de duplicarlo (reintento seguro). Sin `supersedesId`, registrar una serie que ya tiene registro vigente responde 409.
 - `POST /sessions/:id/feedback` — `{ outcome, srpe?, durationMinutes?, pain, painNotes?, notes?, supersedesId? }`. Valida `srpe` y `durationMinutes` cuando `outcome = completed`. Actualiza `TrainingSession.status`.
 - `GET /sessions/:id` — incluye `targetRir`, los registros vigentes por serie y el feedback vigente.
 
@@ -196,8 +196,8 @@ Mockups: lienzo de pantallas web de Cycles (Design artifact), a completar en la 
 
 | Alerta | Condición | Sugerencia |
 |---|---|---|
-| Carga alta | En las **2 últimas sesiones** con ese ejercicio: RIR real ≤ RIR objetivo − 1 (o no completó las reps objetivo) | Bajar 5 % desde la próxima semana pendiente |
-| Carga baja | En las **2 últimas sesiones** con ese ejercicio: RIR real ≥ RIR objetivo + 2 y completó todas las reps | Subir 2,5 % desde la próxima semana pendiente |
+| Carga alta | En las **2 últimas sesiones** con ese ejercicio: RIR real ≤ RIR objetivo − 1 (o no completó las series o reps objetivo) | Bajar 5 % desde la primera semana pendiente a partir de la actual |
+| Carga baja | En las **2 últimas sesiones** con ese ejercicio: RIR real ≥ RIR objetivo + 2 y completó todas las reps | Subir 2,5 % desde la primera semana pendiente a partir de la actual |
 | Dolor reportado | `pain = true` en los últimos 7 días | Ver sesión |
 | Adherencia baja | Alguna sesión de una semana ya terminada sin feedback, o 2+ omitidas en los últimos 14 días | Ver atleta |
 
@@ -229,9 +229,9 @@ Mockups: lienzo de pantallas web de Cycles (Design artifact), a completar en la 
 
 ## 11. Estado y decisiones abiertas
 
-**Borrador (2026-09-25).** Listo para empezar el backend una vez confirmadas las decisiones marcadas con *por confirmar*.
+**Backend implementado y probado (2026-09-25)** en la rama `feat/fase-3-backend`: migración `execution_and_tracking`, módulos `ExecutionModule` (atleta) y `TrackingModule` (coach), `defaultRir`/`targetRir` en rutinas y sesiones. Probado end-to-end contra la base local: registro por serie, reintento con el mismo id (no duplica), serie repetida sin corrección (409), corrección con `supersedesId` y corrección de una fila ya corregida (409), cierre con duración calculada desde `startedAt`, cierre repetido (409) y su corrección, sesión omitida, registro bloqueado con el plan en `draft` (400) y para el coach (403); alertas de dolor, carga alta, carga baja y adherencia; progreso del plan; resumen con e1RM y desvío de RIR; ajuste de carga (80 → 76 kg en 3 sesiones pendientes) y la alerta de carga alta que desaparece después; endpoints del coach prohibidos para el atleta y viceversa. Frontend: pendiente.
 
-Decisiones tomadas en esta versión (recomendación de diseño, **por confirmar** con el usuario):
+**Aprobado (2026-09-25).** Decisiones confirmadas por la usuaria el 2026-09-25:
 - **Escala de esfuerzo del atleta = RIR** ("¿cuántas reps más podías hacer?") en vez de RPE 1–10 directo. El coach puede verlo como RPE.
 - **Registro por serie**, no un valor por ejercicio. Es lo que permite estimar fuerza y ajustar cargas con precisión.
 - **Esfuerzo objetivo por ejercicio** (`targetRir`) definido por el coach en la rutina. Opcional: sin él no hay alertas de carga para ese ejercicio.
