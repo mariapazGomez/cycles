@@ -9,6 +9,8 @@ import { CyclesModule } from "./cycles/cycles.module";
 import { SessionsModule } from "./sessions/sessions.module";
 import { ExercisesModule } from "./exercises/exercises.module";
 import { RoutinesModule } from "./routines/routines.module";
+import { ExecutionModule } from "./execution/execution.module";
+import { TrackingModule } from "./tracking/tracking.module";
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { RoutinesModule } from "./routines/routines.module";
     SessionsModule,
     ExercisesModule,
     RoutinesModule,
+    ExecutionModule,
+    TrackingModule,
   ],
 })
 export class AppModule {}

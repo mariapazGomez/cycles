@@ -43,6 +43,12 @@ enum SessionStatus {
   skipped
 }
 
+// Ver docs/prds/features/PRD-EjecucionYSeguimiento.md.
+enum SessionOutcome {
+  completed
+  skipped
+}
+
 enum MuscleGroup {
   chest
   back
@@ -77,27 +83,29 @@ model User {
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
 
-  coachRelations   CoachAthlete[] @relation("CoachRelations")
-  athleteRelations CoachAthlete[] @relation("AthleteRelations")
-  cyclesAsCoach    TrainingCycle[] @relation("CyclesAsCoach")
-  cyclesAsAthlete  TrainingCycle[] @relation("CyclesAsAthlete")
-  exerciseLogs     ExerciseLog[]
-  createdExercises Exercise[]
-  routines         Routine[]
-  passwordResetTokens      PasswordResetToken[]
-  emailVerificationTokens  EmailVerificationToken[]
-  refreshTokens            RefreshToken[]
+  coachRelations          CoachAthlete[]           @relation("CoachRelations")
+  athleteRelations        CoachAthlete[]           @relation("AthleteRelations")
+  cyclesAsCoach           TrainingCycle[]          @relation("CyclesAsCoach")
+  cyclesAsAthlete         TrainingCycle[]          @relation("CyclesAsAthlete")
+  exerciseLogs            ExerciseLog[]
+  sessionFeedback         SessionFeedback[]
+  loadAdjustments         LoadAdjustment[]
+  createdExercises        Exercise[]
+  routines                Routine[]
+  passwordResetTokens     PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
+  refreshTokens           RefreshToken[]
 }
 
 // Refresh tokens persistidos (hasheados) para poder rotarlos y revocarlos,
 // no solo confiar en la expiración del JWT. Ver docs/ARCHITECTURE.md, sección 7.
 model RefreshToken {
-  id         String    @id @default(uuid())
-  userId     String
-  tokenHash  String    @unique
-  expiresAt  DateTime
-  revokedAt  DateTime?
-  createdAt  DateTime  @default(now())
+  id        String    @id @default(uuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id])
 }
@@ -128,15 +136,15 @@ model EmailVerificationToken {
 // parcial vía SQL crudo); se aplica en la capa de servicio antes de crear
 // o reactivar una relación. Ver docs/prds/PRD-General.md, sección 4.
 model CoachAthlete {
-  id        String              @id @default(uuid())
+  id        String             @id @default(uuid())
   coachId   String
   athleteId String
-  status    CoachAthleteStatus  @default(pending)
-  createdAt DateTime            @default(now())
+  status    CoachAthleteStatus @default(pending)
+  createdAt DateTime           @default(now())
 
-  coach            User                    @relation("CoachRelations", fields: [coachId], references: [id])
-  athlete          User                    @relation("AthleteRelations", fields: [athleteId], references: [id])
-  invitationToken  AthleteInvitationToken?
+  coach           User                    @relation("CoachRelations", fields: [coachId], references: [id])
+  athlete         User                    @relation("AthleteRelations", fields: [athleteId], references: [id])
+  invitationToken AthleteInvitationToken?
 
   @@unique([coachId, athleteId])
 }
@@ -177,13 +185,14 @@ model TrainingCycle {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
-  coach       User              @relation("CyclesAsCoach", fields: [coachId], references: [id])
-  athlete     User              @relation("CyclesAsAthlete", fields: [athleteId], references: [id])
-  template    TrainingCycle?    @relation("CycleTemplate", fields: [templateId], references: [id])
-  copies      TrainingCycle[]   @relation("CycleTemplate")
-  parentCycle TrainingCycle?    @relation("CycleContainer", fields: [parentCycleId], references: [id])
-  childCycles TrainingCycle[]   @relation("CycleContainer")
-  sessions    TrainingSession[]
+  coach           User              @relation("CyclesAsCoach", fields: [coachId], references: [id])
+  athlete         User              @relation("CyclesAsAthlete", fields: [athleteId], references: [id])
+  template        TrainingCycle?    @relation("CycleTemplate", fields: [templateId], references: [id])
+  copies          TrainingCycle[]   @relation("CycleTemplate")
+  parentCycle     TrainingCycle?    @relation("CycleContainer", fields: [parentCycleId], references: [id])
+  childCycles     TrainingCycle[]   @relation("CycleContainer")
+  sessions        TrainingSession[]
+  loadAdjustments LoadAdjustment[]
 }
 
 // Biblioteca de rutinas reutilizables del coach — ver PRD-RutinasYProgramacion.
@@ -202,7 +211,7 @@ model Routine {
 // del grid, estas filas se copian como SessionExercise editables — cambiar
 // una copia no afecta esta plantilla.
 model RoutineExercise {
-  id                 String  @id @default(uuid())
+  id                 String @id @default(uuid())
   routineId          String
   exerciseId         String
   orderIndex         Int
@@ -210,6 +219,9 @@ model RoutineExercise {
   defaultReps        Int
   defaultWeight      Float?
   defaultRestSeconds Int?
+  // Esfuerzo objetivo en repeticiones en reserva (0–4). Null = sin objetivo:
+  // ese ejercicio no genera alertas de carga.
+  defaultRir         Int?
 
   routine  Routine  @relation(fields: [routineId], references: [id])
   exercise Exercise @relation(fields: [exerciseId], references: [id])
@@ -227,10 +239,13 @@ model TrainingSession {
   // De qué rutina de la biblioteca salió — guardado para trazabilidad, no
   // se muestra en la UI (decisión del 2026-09-23).
   routineId     String?
+  // Lo marca el atleta al empezar; base para pre-calcular la duración.
+  startedAt     DateTime?
 
   cycle            TrainingCycle     @relation(fields: [cycleId], references: [id])
   routine          Routine?          @relation(fields: [routineId], references: [id], onDelete: SetNull)
   sessionExercises SessionExercise[]
+  feedback         SessionFeedback[]
 
   @@unique([cycleId, weekNumber, slotNumber])
 }
@@ -252,34 +267,91 @@ model Exercise {
   creator          User?             @relation(fields: [createdBy], references: [id])
   sessionExercises SessionExercise[]
   routineExercises RoutineExercise[]
+  loadAdjustments  LoadAdjustment[]
 }
 
 model SessionExercise {
-  id                 String  @id @default(uuid())
-  sessionId          String
-  exerciseId         String
-  orderIndex         Int
-  targetSets         Int
-  targetReps         Int
-  targetWeight       Float?
-  targetRestSeconds  Int?
+  id                String @id @default(uuid())
+  sessionId         String
+  exerciseId        String
+  orderIndex        Int
+  targetSets        Int
+  targetReps        Int
+  targetWeight      Float?
+  targetRestSeconds Int?
+  // Copiado de RoutineExercise.defaultRir al asignar; editable por celda.
+  targetRir         Int?
 
   session  TrainingSession @relation(fields: [sessionId], references: [id])
   exercise Exercise        @relation(fields: [exerciseId], references: [id])
   logs     ExerciseLog[]
 }
 
+// Un registro por serie. Append-only: nunca se actualiza ni se borra; una
+// corrección es una fila nueva con supersedesId apuntando a la anterior, y el
+// dato vigente es la fila que nadie reemplazó. El id lo genera el cliente para
+// que un reintento no duplique la serie. Ver PRD-EjecucionYSeguimiento.
 model ExerciseLog {
   id                String   @id @default(uuid())
   sessionExerciseId String
   athleteId         String
-  actualSets        Int?
-  actualReps         Int?
-  actualWeight       Float?
-  rpe                Int?
-  notes              String?
-  loggedAt           DateTime @default(now())
+  setNumber         Int
+  actualReps        Int
+  // Siempre en kg; null = peso corporal.
+  actualWeight      Float?
+  // Repeticiones en reserva (0–4, 4 = "4 o más"). Se pide en la última serie.
+  rir               Int?
+  supersedesId      String?  @unique
+  loggedAt          DateTime @default(now())
 
   sessionExercise SessionExercise @relation(fields: [sessionExerciseId], references: [id])
   athlete         User            @relation(fields: [athleteId], references: [id])
+  supersedes      ExerciseLog?    @relation("LogCorrection", fields: [supersedesId], references: [id])
+  supersededBy    ExerciseLog?    @relation("LogCorrection")
+
+  @@index([sessionExerciseId])
+}
+
+// Cierre de una sesión por parte del atleta. Append-only, igual que ExerciseLog.
+// TrainingSession.status se deriva del feedback vigente.
+model SessionFeedback {
+  id              String         @id @default(uuid())
+  sessionId       String
+  athleteId       String
+  outcome         SessionOutcome
+  // Esfuerzo de la sesión (sRPE, escala CR-10 de Foster). Obligatorio si completed.
+  srpe            Int?
+  durationMinutes Int?
+  pain            Boolean        @default(false)
+  painNotes       String?
+  // Nota libre, o el motivo si outcome = skipped.
+  notes           String?
+  supersedesId    String?        @unique
+  submittedAt     DateTime       @default(now())
+
+  session      TrainingSession  @relation(fields: [sessionId], references: [id])
+  athlete      User             @relation(fields: [athleteId], references: [id])
+  supersedes   SessionFeedback? @relation("FeedbackCorrection", fields: [supersedesId], references: [id])
+  supersededBy SessionFeedback? @relation("FeedbackCorrection")
+
+  @@index([sessionId])
+}
+
+// Ajuste de carga aceptado por el coach: qué cambió, desde cuándo y por qué.
+// Se guarda para poder medir después si los ajustes funcionaron.
+model LoadAdjustment {
+  id            String   @id @default(uuid())
+  coachId       String
+  cycleId       String
+  exerciseId    String
+  fromWeek      Int
+  percentChange Float
+  // Regla que la originó (high_load, low_load) o "manual".
+  reason        String
+  affectedCount Int
+  createdAt     DateTime @default(now())
+
+  coach    User          @relation(fields: [coachId], references: [id])
+  cycle    TrainingCycle @relation(fields: [cycleId], references: [id])
+  exercise Exercise      @relation(fields: [exerciseId], references: [id])
 }

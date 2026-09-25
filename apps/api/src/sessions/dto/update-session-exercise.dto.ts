@@ -1,4 +1,4 @@
-import { IsInt, IsOptional, IsPositive, Min } from "class-validator";
+import { IsInt, IsOptional, IsPositive, Max, Min } from "class-validator";
 
 export class UpdateSessionExerciseDto {
   @IsOptional()
@@ -19,4 +19,11 @@ export class UpdateSessionExerciseDto {
   @IsInt()
   @Min(0)
   targetRestSeconds?: number;
+
+  // Repeticiones en reserva objetivo (0–4). Ver PRD-EjecucionYSeguimiento.
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(4)
+  targetRir?: number;
 }

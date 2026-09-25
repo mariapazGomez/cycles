@@ -85,6 +85,7 @@ export class RoutinesService {
       defaultReps: ex.defaultReps,
       defaultWeight: ex.defaultWeight,
       defaultRestSeconds: ex.defaultRestSeconds,
+      defaultRir: ex.defaultRir,
     }));
   }
 

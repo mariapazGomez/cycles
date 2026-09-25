@@ -1,4 +1,4 @@
-import { IsInt, IsOptional, IsPositive, IsString, Min } from "class-validator";
+import { IsInt, IsOptional, IsPositive, IsString, Max, Min } from "class-validator";
 
 export class RoutineExerciseInputDto {
   @IsString()
@@ -20,4 +20,11 @@ export class RoutineExerciseInputDto {
   @IsInt()
   @Min(0)
   defaultRestSeconds?: number;
+
+  // Repeticiones en reserva objetivo (0–4). Ver PRD-EjecucionYSeguimiento.
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(4)
+  defaultRir?: number;
 }

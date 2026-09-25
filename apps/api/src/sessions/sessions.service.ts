@@ -7,6 +7,7 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuthenticatedUser } from "../common/decorators/current-user.decorator";
+import { CURRENT_ONLY } from "../common/training";
 import { CreateSessionDto } from "./dto/create-session.dto";
 import { UpdateSessionDto } from "./dto/update-session.dto";
 import { AddSessionExerciseDto } from "./dto/add-session-exercise.dto";
@@ -74,6 +75,7 @@ export class SessionsService {
             targetReps: re.defaultReps,
             targetWeight: re.defaultWeight,
             targetRestSeconds: re.defaultRestSeconds,
+            targetRir: re.defaultRir,
           })),
         },
       },
@@ -101,8 +103,13 @@ export class SessionsService {
         cycle: true,
         sessionExercises: {
           orderBy: { orderIndex: "asc" },
-          include: { exercise: true },
+          include: {
+            exercise: true,
+            // Solo los registros vigentes (los que ninguna corrección reemplazó).
+            logs: { where: CURRENT_ONLY, orderBy: { setNumber: "asc" } },
+          },
         },
+        feedback: { where: CURRENT_ONLY },
       },
     });
     if (!session) {
@@ -164,6 +171,7 @@ export class SessionsService {
         targetReps: dto.targetReps,
         targetWeight: dto.targetWeight,
         targetRestSeconds: dto.targetRestSeconds,
+        targetRir: dto.targetRir,
       },
       include: { exercise: true },
     });
@@ -179,6 +187,7 @@ export class SessionsService {
         ...(dto.targetReps !== undefined ? { targetReps: dto.targetReps } : {}),
         ...(dto.targetWeight !== undefined ? { targetWeight: dto.targetWeight } : {}),
         ...(dto.targetRestSeconds !== undefined ? { targetRestSeconds: dto.targetRestSeconds } : {}),
+        ...(dto.targetRir !== undefined ? { targetRir: dto.targetRir } : {}),
       },
       include: { exercise: true },
     });
