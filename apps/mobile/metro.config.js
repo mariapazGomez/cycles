@@ -17,6 +17,14 @@ const config = {
       path.resolve(projectRoot, 'node_modules'),
       path.resolve(workspaceRoot, 'node_modules'),
     ],
+    // apps/web usa React 18 y queda hoisteado a la raíz del monorepo; sin
+    // esto, algunos paquetes (ej. @react-navigation/core) podían resolver
+    // esa copia en vez de los 19.x de apps/mobile, dando dos instancias de
+    // React en paralelo (React Navigation fallaba con "useContext of null").
+    extraNodeModules: {
+      react: path.resolve(projectRoot, 'node_modules/react'),
+      'react-native': path.resolve(projectRoot, 'node_modules/react-native'),
+    },
   },
 };
 
