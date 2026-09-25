@@ -3,7 +3,7 @@ type: prd
 level: general
 status: draft
 created: 2026-09-16
-updated: 2026-09-16
+updated: 2026-09-25
 tags: [prd, general]
 ---
 
@@ -22,6 +22,7 @@ tags: [prd, general]
 | CRUD de sesiones y ejercicios de sesión | Fase 2 | superseded-parcial | [[PRD-CRUDSesiones]] |
 | Frontend de planificación (ciclos/sesiones/ejercicios) | Fase 2 | in-progress | [[PRD-FrontendPlanificacion]] |
 | Rutinas y programación en grid | Fase 2 | complete | [[PRD-RutinasYProgramacion]] |
+| Ejecución y seguimiento (registro del atleta + seguimiento del coach) | Fase 3 | draft | [[PRD-EjecucionYSeguimiento]] |
 
 > Esta tabla se actualiza a mano cada vez que se crea un PRD hijo nuevo (ver plantilla en `_templates/PRD-Feature-Template.md`). Además, como cada PRD hijo enlaza de vuelta a `[[PRD-General]]` en su frontmatter, el panel de **Linked mentions / Backlinks** de Obsidian en esta nota mostrará automáticamente todos los hijos, aunque se te olvide actualizar la tabla.
 
@@ -73,8 +74,8 @@ Roles excluyentes: un usuario es coach **o** atleta, nunca ambos con la misma cu
 3. Como **coach**, quiero crear un ciclo de entrenamiento con nombre, objetivo, fechas de inicio/fin y sesiones, para planificar el trabajo de un atleta. → detalle en [[PRD-CRUDCiclos]]
 4. Como **coach**, quiero agregar ejercicios a cada sesión con series/repeticiones/peso objetivo, para dejar instrucciones claras. → detalle en [[PRD-CRUDSesiones]]
 5. Como **atleta**, quiero ver mi ciclo activo y las sesiones de la semana, para saber qué entrenar. → backend en [[PRD-CRUDSesiones]], sin UI todavía
-6. Como **atleta**, quiero registrar lo que realmente hice en cada ejercicio (series, reps, peso, RPE), para dejar constancia de mi progreso.
-7. Como **coach**, quiero ver el historial de registros de un atleta por ciclo, para ajustar la planificación futura.
+6. Como **atleta**, quiero registrar lo que realmente hice en cada ejercicio (series, reps, peso, RPE), para dejar constancia de mi progreso. → detalle en [[PRD-EjecucionYSeguimiento]]
+7. Como **coach**, quiero ver el historial de registros de un atleta por ciclo, para ajustar la planificación futura. → detalle en [[PRD-EjecucionYSeguimiento]]
 8. Como **usuario**, quiero recuperar mi contraseña si me registré manualmente, para no perder acceso a mi cuenta. → detalle en [[PRD-Autenticacion]]
 
 > A medida que se creen PRDs hijos para las historias 2–7 (invitaciones, ciclos, sesiones, registro de progreso), enlázalas aquí igual que se hizo con autenticación.
@@ -256,7 +257,7 @@ Estos son los NFR de plataforma. Un PRD hijo solo debe listar NFR **adicionales 
 | **Fase 0 — Fundacional (actual)** | PRD, arquitectura, scaffolding del monorepo, modelo de datos base. | — |
 | **Fase 1 — Auth & onboarding** | Registro/login manual + Google, verificación de email, invitación coach→atleta. | [[PRD-Autenticacion]] |
 | **Fase 2 — Planificación** | Invitación de atletas; catálogo de ejercicios; rutinas y programación en grid (ciclos/sesiones). | [[PRD-InvitacionAtletas]], [[PRD-CatalogoEjercicios]], [[PRD-RutinasYProgramacion]] |
-| **Fase 3 — Ejecución y seguimiento** | Registro de ejecución real (`ExerciseLog`), vista de progreso/adherencia para el coach. | *(pendiente)* |
+| **Fase 3 — Ejecución y seguimiento** | Registro de ejecución real (`ExerciseLog`), vista de progreso/adherencia para el coach. | [[PRD-EjecucionYSeguimiento]] |
 | **Fase 4 — Evolución** | Multi-tenant (gimnasios/academias), notificaciones, métricas avanzadas, app móvil nativa. | *(pendiente)* |
 
 ## 11. Decisiones abiertas
