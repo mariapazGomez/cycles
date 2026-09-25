@@ -15,7 +15,7 @@ export class CyclesService {
     });
     if (!relation || relation.status !== "active") {
       throw new ForbiddenException(
-        "Solo podés crear ciclos para atletas con una relación activa con vos.",
+        "Solo puedes crear planes para atletas con una relación activa contigo.",
       );
     }
 
@@ -27,7 +27,7 @@ export class CyclesService {
 
     const isContainer = dto.cycleType === "macrocycle";
     if (!isContainer && !dto.sessionsPerWeek) {
-      throw new BadRequestException("Definí cuántas sesiones por semana tiene este plan.");
+      throw new BadRequestException("Define cuántas sesiones por semana tiene este plan.");
     }
 
     let parentCycle = null;
@@ -114,7 +114,7 @@ export class CyclesService {
   private assertAccess(user: AuthenticatedUser, cycle: { coachId: string; athleteId: string }): void {
     const isOwner = user.role === "coach" ? cycle.coachId === user.id : cycle.athleteId === user.id;
     if (!isOwner) {
-      throw new ForbiddenException("No tenés acceso a este ciclo.");
+      throw new ForbiddenException("No tienes acceso a este plan.");
     }
   }
 

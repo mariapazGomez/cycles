@@ -27,7 +27,7 @@ export class SessionsService {
       throw new NotFoundException("Ciclo no encontrado.");
     }
     if (cycle.coachId !== coachId) {
-      throw new ForbiddenException("No sos el coach dueño de este ciclo.");
+      throw new ForbiddenException("No eres el coach de este plan.");
     }
     if (cycle.cycleType === "macrocycle") {
       throw new BadRequestException("Un macrociclo no tiene sesiones propias.");
@@ -139,7 +139,7 @@ export class SessionsService {
       where: { sessionId: session.id },
     });
     if (exerciseCount > 0) {
-      throw new ConflictException("Quitá los ejercicios de la sesión antes de borrarla.");
+      throw new ConflictException("Quita los ejercicios de la sesión antes de borrarla.");
     }
 
     await this.prisma.trainingSession.delete({ where: { id: session.id } });
@@ -214,7 +214,7 @@ export class SessionsService {
     const isOwnerCoach = user.role === "coach" && cycle.coachId === user.id;
     const isAssignedAthlete = user.role === "athlete" && cycle.athleteId === user.id;
     if (!isOwnerCoach && !isAssignedAthlete) {
-      throw new ForbiddenException("No tenés acceso a este ciclo.");
+      throw new ForbiddenException("No tienes acceso a este plan.");
     }
   }
 
@@ -227,7 +227,7 @@ export class SessionsService {
       throw new NotFoundException("Sesión no encontrada.");
     }
     if (session.cycle.coachId !== coachId) {
-      throw new ForbiddenException("No sos el coach dueño de esta sesión.");
+      throw new ForbiddenException("No eres el coach de esta sesión.");
     }
     return session;
   }
@@ -241,7 +241,7 @@ export class SessionsService {
       throw new NotFoundException("Ejercicio de sesión no encontrado.");
     }
     if (sessionExercise.session.cycle.coachId !== coachId) {
-      throw new ForbiddenException("No sos el coach dueño de esta sesión.");
+      throw new ForbiddenException("No eres el coach de esta sesión.");
     }
     return sessionExercise;
   }

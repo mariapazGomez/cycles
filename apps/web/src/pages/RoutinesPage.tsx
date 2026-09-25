@@ -23,15 +23,18 @@ interface ExerciseRow {
   defaultReps: string;
   defaultWeight: string;
   defaultRestSeconds: string;
+  // Reps en reserva objetivo ("" = sin objetivo). Ver PRD-EjecucionYSeguimiento.
+  defaultRir: string;
 }
 
 function emptyRow(): ExerciseRow {
-  return { exerciseId: "", defaultSets: "", defaultReps: "", defaultWeight: "", defaultRestSeconds: "" };
+  return { exerciseId: "", defaultSets: "", defaultReps: "", defaultWeight: "", defaultRestSeconds: "", defaultRir: "" };
 }
 
 function formatDefaults(re: routinesApi.RoutineExerciseWithExercise): string {
   const parts = [`${re.defaultSets}x${re.defaultReps}`];
   if (re.defaultWeight) parts.push(`${re.defaultWeight}kg`);
+  if (re.defaultRir !== null && re.defaultRir !== undefined) parts.push(`${re.defaultRir} en reserva`);
   return parts.join(" · ");
 }
 
@@ -64,6 +67,7 @@ export function RoutinesPage() {
         defaultReps: String(re.defaultReps),
         defaultWeight: re.defaultWeight ? String(re.defaultWeight) : "",
         defaultRestSeconds: re.defaultRestSeconds ? String(re.defaultRestSeconds) : "",
+        defaultRir: re.defaultRir !== null && re.defaultRir !== undefined ? String(re.defaultRir) : "",
       })),
     );
     setShowForm(true);
@@ -79,6 +83,7 @@ export function RoutinesPage() {
           defaultReps: Number(r.defaultReps),
           defaultWeight: r.defaultWeight ? Number(r.defaultWeight) : undefined,
           defaultRestSeconds: r.defaultRestSeconds ? Number(r.defaultRestSeconds) : undefined,
+          defaultRir: r.defaultRir !== "" ? Number(r.defaultRir) : undefined,
         }));
       return editingId
         ? routinesApi.updateRoutine(editingId, { name, exercises })
@@ -102,7 +107,7 @@ export function RoutinesPage() {
     event.preventDefault();
     setFormError(null);
     if (rows.filter((r) => r.exerciseId).length === 0) {
-      setFormError("Agregá al menos un ejercicio.");
+      setFormError("Agrega al menos un ejercicio.");
       return;
     }
     saveMutation.mutate();
@@ -116,11 +121,7 @@ export function RoutinesPage() {
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
-          <h1 style={{ fontFamily: "var(--font-display)", marginBottom: 4 }}>Rutinas</h1>
-          <p style={{ color: "var(--color-ink-secondary)", marginTop: 0 }}>
-            Tu biblioteca de bloques reutilizables — armalos una vez y asignalos en el grid de
-            cualquier plan.
-          </p>
+          <h1 className="page-title">Rutinas</h1>
         </div>
         <button
           type="button"
@@ -166,7 +167,7 @@ export function RoutinesPage() {
                   onChange={(e) => updateRow(index, { exerciseId: e.target.value })}
                 >
                   <option value="" disabled>
-                    Elegí un ejercicio
+                    Elige un ejercicio
                   </option>
                   {(exercisesQuery.data ?? []).map((exercise) => (
                     <option key={exercise.id} value={exercise.id}>
@@ -214,6 +215,22 @@ export function RoutinesPage() {
                   value={row.defaultRestSeconds}
                   onChange={(e) => updateRow(index, { defaultRestSeconds: e.target.value })}
                 />
+              </div>
+              <div className="field" style={{ width: 110, marginBottom: 0 }}>
+                {index === 0 && <label htmlFor={`rir-${index}`}>En reserva</label>}
+                <select
+                  id={`rir-${index}`}
+                  aria-label="Reps en reserva objetivo"
+                  value={row.defaultRir}
+                  onChange={(e) => updateRow(index, { defaultRir: e.target.value })}
+                >
+                  <option value="">Sin objetivo</option>
+                  {[0, 1, 2, 3, 4].map((value) => (
+                    <option key={value} value={value}>
+                      {value === 4 ? "4 o más" : value}
+                    </option>
+                  ))}
+                </select>
               </div>
               <button
                 type="button"

@@ -45,7 +45,7 @@
 .field input,
 .field select {
   padding: 10px 12px;
-  border: 1px solid var(--color-gray-border);
+  border: 1px solid var(--color-control-border);
   border-radius: 8px;
   font-size: 0.95rem;
   font-family: inherit;
@@ -76,6 +76,7 @@
 
 .button-primary {
   width: 100%;
+  box-sizing: border-box;
   padding: 11px;
   border: none;
   border-radius: 999px;
@@ -89,7 +90,7 @@
 }
 
 .button-primary:hover {
-  background: #0052bd;
+  background: var(--color-blue-hover);
 }
 
 .button-primary:disabled {
@@ -99,8 +100,9 @@
 
 .button-secondary {
   width: 100%;
+  box-sizing: border-box;
   padding: 11px;
-  border: 1px solid var(--color-gray-border);
+  border: 1px solid var(--color-control-border);
   border-radius: 999px;
   background: var(--color-bg);
   color: var(--color-ink);
@@ -175,67 +177,4 @@
 
 .auth-footer a:hover {
   text-decoration: underline;
-}
-
-@media (prefers-color-scheme: dark) {
-  .auth-shell {
-    background: #0f1115;
-  }
-
-  .auth-card {
-    background: #181a20;
-    border-color: #2a2d35;
-  }
-
-  .auth-card h1 {
-    color: #f2f2f3;
-  }
-
-  .auth-subtitle,
-  .auth-footer,
-  .checkbox-field {
-    color: #a2a2a8;
-  }
-
-  .field label {
-    color: #d5d5d8;
-  }
-
-  .field input {
-    background: #0f1115;
-    border-color: #2a2d35;
-    color: #f2f2f3;
-  }
-
-  .field input:focus-visible {
-    outline-color: #4d94ff;
-    border-color: #4d94ff;
-  }
-
-  .button-primary {
-    background: #4d94ff;
-  }
-
-  .button-primary:hover {
-    background: #75aeff;
-  }
-
-  .button-secondary {
-    background: #181a20;
-    border-color: #2a2d35;
-    color: #f2f2f3;
-  }
-
-  .button-secondary:hover {
-    background: #20232b;
-  }
-
-  .divider::before,
-  .divider::after {
-    background: #2a2d35;
-  }
-
-  .auth-footer a {
-    color: #4d94ff;
-  }
 }

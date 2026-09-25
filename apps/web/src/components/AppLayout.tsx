@@ -16,6 +16,9 @@ export function AppLayout() {
           <span className="app-logo">Cycles</span>
           {user?.role === "coach" && (
             <nav className="app-nav">
+              <NavLink to="/" end className={navLinkClass}>
+                Inicio
+              </NavLink>
               <NavLink to="/athletes" className={navLinkClass}>
                 Atletas
               </NavLink>
@@ -29,6 +32,9 @@ export function AppLayout() {
           )}
           {user?.role === "athlete" && (
             <nav className="app-nav">
+              <NavLink to="/" end className={navLinkClass}>
+                Hoy
+              </NavLink>
               <NavLink to="/cycles" className={navLinkClass}>
                 Mis planes
               </NavLink>

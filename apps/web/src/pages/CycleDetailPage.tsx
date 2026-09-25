@@ -5,6 +5,9 @@ import type { CycleStatus, CycleType } from "@cycles/shared";
 import * as cyclesApi from "../services/cyclesApi";
 import * as sessionsApi from "../services/sessionsApi";
 import * as routinesApi from "../services/routinesApi";
+import * as trackingApi from "../services/trackingApi";
+import { AttentionList, useDismissedAlerts } from "../components/AttentionList";
+import { planWeekOf } from "../lib/format";
 import { useAuth } from "../hooks/useAuth";
 import { ApiError } from "../services/httpClient";
 import { LoadingScreen } from "../components/LoadingScreen";
@@ -87,15 +90,16 @@ export function CycleDetailPage() {
       </p>
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-        <div>
-          <h1 style={{ fontFamily: "var(--font-display)", marginBottom: 4 }}>{cycle.name}</h1>
-          {cycle.objective && (
-            <p style={{ color: "var(--color-ink-secondary)", marginTop: 0 }}>{cycle.objective}</p>
-          )}
-          <p style={{ color: "var(--color-ink-secondary)", fontSize: "0.9rem" }}>
-            {CYCLE_TYPE_LABEL[cycle.cycleType]} · {formatDate(cycle.startDate)} – {formatDate(cycle.endDate)}{" "}
-            · {CYCLE_STATUS_LABEL[cycle.status]}
-          </p>
+        <div className="stack" style={{ gap: 10 }}>
+          <h1 className="page-title">{cycle.name}</h1>
+          <div className="row">
+            <span className={cycle.status === "active" ? "pill pill-blue" : "pill"}>{CYCLE_STATUS_LABEL[cycle.status]}</span>
+            <span className="pill">{CYCLE_TYPE_LABEL[cycle.cycleType]}</span>
+            <span className="pill">
+              {formatDate(cycle.startDate)} – {formatDate(cycle.endDate)}
+            </span>
+          </div>
+          {cycle.objective && <p style={{ margin: 0 }}>{cycle.objective}</p>}
         </div>
         {isCoach && (
           <button
@@ -320,7 +324,7 @@ function MacrocycleChildren({
       )}
 
       <div style={{ marginTop: 16 }}>
-        {childrenQuery.data && childrenQuery.data.length === 0 && <p>Todavía no hay planes acá.</p>}
+        {childrenQuery.data && childrenQuery.data.length === 0 && <p>Todavía no hay planes aquí.</p>}
         {childrenQuery.data && childrenQuery.data.length > 0 && (
           <ul style={{ listStyle: "none", padding: 0 }}>
             {childrenQuery.data.map((child) => (
@@ -352,6 +356,39 @@ function MacrocycleChildren({
   );
 }
 
+const SESSION_STATUS_PILL: Record<string, { label: string; className: string }> = {
+  pending: { label: "Pendiente", className: "pill" },
+  completed: { label: "Completada", className: "pill pill-ok" },
+  skipped: { label: "Omitida", className: "pill pill-warn" },
+};
+
+function GridCell({
+  session,
+  progress,
+}: {
+  session: { id: string; name: string; status: string };
+  progress?: trackingApi.CycleProgress["sessions"][number];
+}) {
+  const feedback = progress?.feedback;
+  const status = SESSION_STATUS_PILL[session.status] ?? SESSION_STATUS_PILL.pending;
+  let meta: string | null = null;
+  if (feedback?.outcome === "completed" && feedback.srpe !== null) {
+    meta = `Esfuerzo ${feedback.srpe} · ${feedback.durationMinutes} min`;
+  } else if (feedback?.outcome === "skipped" && feedback.notes) {
+    meta = feedback.notes;
+  }
+  return (
+    <Link to={`/sessions/${session.id}`} className="grid-cell">
+      <strong>{session.name}</strong>
+      {meta && <span className="grid-cell-meta">{meta}</span>}
+      <span className="row" style={{ gap: 6 }}>
+        <span className={status.className}>{status.label}</span>
+        {feedback?.pain && <span className="pill pill-pain">Dolor</span>}
+      </span>
+    </Link>
+  );
+}
+
 function CycleGrid({
   cycle,
   isCoach,
@@ -369,6 +406,21 @@ function CycleGrid({
     queryFn: routinesApi.listRoutines,
     enabled: isCoach,
   });
+  // Lo que el atleta registró en cada celda (esfuerzo, minutos, dolor) y los
+  // avisos de este plan. Solo el coach los ve.
+  const progressQuery = useQuery({
+    queryKey: ["cycles", cycle.id, "progress"],
+    queryFn: () => trackingApi.getCycleProgress(cycle.id),
+    enabled: isCoach,
+  });
+  const attentionQuery = useQuery({ queryKey: ["attention"], queryFn: trackingApi.getAttention, enabled: isCoach });
+  const { isDismissed, dismiss } = useDismissedAlerts();
+  const [applied, setApplied] = useState<string | null>(null);
+  const planAlerts = (attentionQuery.data ?? []).filter(
+    (item) => item.cycle.id === cycle.id && item.kind !== "low_adherence" && !isDismissed(item),
+  );
+  const progressById = new Map((progressQuery.data?.sessions ?? []).map((p) => [p.id, p]));
+  const currentWeek = planWeekOf(cycle.startDate);
 
   const [assigningCell, setAssigningCell] = useState<{ week: number; slot: number } | null>(null);
   const [routineId, setRoutineId] = useState("");
@@ -403,9 +455,27 @@ function CycleGrid({
     <div style={{ marginTop: 32 }}>
       <h2 style={{ fontSize: "1.1rem" }}>Grid del plan</h2>
 
+      {applied && (
+        <div className="success-banner" role="status">
+          <strong>Ajuste aplicado.</strong> {applied}
+        </div>
+      )}
+      {planAlerts.length > 0 && (
+        <section className="card" style={{ marginBottom: 16 }}>
+          <AttentionList
+            items={planAlerts}
+            onDismiss={dismiss}
+            onApplied={(message) => {
+              setApplied(message);
+              queryClient.invalidateQueries({ queryKey: ["cycles", cycle.id, "progress"] });
+            }}
+          />
+        </section>
+      )}
+
       {isCoach && routinesQuery.data && routinesQuery.data.length === 0 && (
         <p style={{ color: "var(--color-ink-secondary)" }}>
-          Todavía no tenés rutinas. <Link to="/routines">Armá una primero</Link> para poder asignarla acá.
+          Todavía no tienes rutinas. <Link to="/routines">Arma una primero</Link> para poder asignarla aquí.
         </p>
       )}
 
@@ -432,7 +502,7 @@ function CycleGrid({
               onChange={(e) => setRoutineId(e.target.value)}
             >
               <option value="" disabled>
-                Elegí una rutina
+                Elige una rutina
               </option>
               {(routinesQuery.data ?? []).map((routine) => (
                 <option key={routine.id} value={routine.id}>
@@ -465,9 +535,16 @@ function CycleGrid({
               {Array.from({ length: weeks }, (_, i) => i + 1).map((week) => (
                 <th
                   key={week}
-                  style={{ padding: 8, fontSize: "0.82rem", color: "var(--color-ink-secondary)" }}
+                  className={week === currentWeek ? "grid-week-current" : undefined}
+                  style={{ padding: 8, fontSize: "0.82rem", color: week === currentWeek ? undefined : "var(--color-ink-secondary)" }}
                 >
                   Semana {week}
+                  {week === currentWeek && (
+                    <>
+                      {" "}
+                      <span className="pill pill-blue">Esta semana</span>
+                    </>
+                  )}
                 </th>
               ))}
             </tr>
@@ -483,20 +560,7 @@ function CycleGrid({
                   return (
                     <td key={week} style={{ padding: 4, minWidth: 140 }}>
                       {session ? (
-                        <Link
-                          to={`/sessions/${session.id}`}
-                          style={{
-                            display: "block",
-                            padding: "8px 10px",
-                            border: "1px solid var(--color-gray-border)",
-                            borderRadius: 8,
-                            color: "var(--color-ink)",
-                            textDecoration: "none",
-                            fontSize: "0.85rem",
-                          }}
-                        >
-                          {session.name}
-                        </Link>
+                        <GridCell session={session} progress={progressById.get(session.id)} />
                       ) : isCoach ? (
                         <button
                           type="button"

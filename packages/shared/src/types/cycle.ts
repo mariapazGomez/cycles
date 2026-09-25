@@ -42,6 +42,7 @@ export interface TrainingSession {
   // De qué rutina de la biblioteca salió — trazabilidad interna, no se
   // muestra en la UI.
   routineId?: string;
+  startedAt?: string | null;
 }
 
 export interface Routine {
@@ -60,6 +61,8 @@ export interface RoutineExercise {
   defaultReps: number;
   defaultWeight?: number;
   defaultRestSeconds?: number;
+  // Repeticiones en reserva objetivo (0–4). Sin valor = sin objetivo de esfuerzo.
+  defaultRir?: number | null;
 }
 
 export interface Exercise {
@@ -82,16 +85,37 @@ export interface SessionExercise {
   targetReps: number;
   targetWeight?: number;
   targetRestSeconds?: number;
+  targetRir?: number | null;
 }
 
+// Un registro por serie. Append-only: una corrección es un registro nuevo
+// con supersedesId. Ver docs/prds/features/PRD-EjecucionYSeguimiento.md.
 export interface ExerciseLog {
   id: string;
   sessionExerciseId: string;
   athleteId: string;
-  actualSets?: number;
-  actualReps?: number;
-  actualWeight?: number;
-  rpe?: number;
-  notes?: string;
+  setNumber: number;
+  actualReps: number;
+  // En kg; null = peso corporal.
+  actualWeight: number | null;
+  // Repeticiones en reserva (0–4, 4 = "4 o más").
+  rir: number | null;
+  supersedesId: string | null;
   loggedAt: string;
+}
+
+export type SessionOutcome = "completed" | "skipped";
+
+export interface SessionFeedback {
+  id: string;
+  sessionId: string;
+  athleteId: string;
+  outcome: SessionOutcome;
+  srpe: number | null;
+  durationMinutes: number | null;
+  pain: boolean;
+  painNotes: string | null;
+  notes: string | null;
+  supersedesId: string | null;
+  submittedAt: string;
 }
