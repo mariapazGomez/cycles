@@ -34,7 +34,7 @@ export class ExercisesService {
       throw new NotFoundException("Ejercicio no encontrado.");
     }
     if (exercise.createdBy !== coachId) {
-      throw new ForbiddenException("Solo podés desactivar ejercicios que vos creaste.");
+      throw new ForbiddenException("Solo puedes desactivar ejercicios que creaste tú.");
     }
 
     return this.prisma.exercise.update({

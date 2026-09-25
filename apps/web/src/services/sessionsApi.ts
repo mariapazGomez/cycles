@@ -1,13 +1,25 @@
-import type { Exercise, SessionExercise, SessionStatus, TrainingCycle, TrainingSession } from "@cycles/shared";
+import type {
+  Exercise,
+  ExerciseLog,
+  SessionExercise,
+  SessionFeedback,
+  SessionStatus,
+  TrainingCycle,
+  TrainingSession,
+} from "@cycles/shared";
 import { apiRequest } from "./httpClient";
 
 export interface SessionExerciseWithExercise extends SessionExercise {
   exercise: Exercise;
+  // Solo los registros vigentes (sin los reemplazados por una corrección).
+  logs?: ExerciseLog[];
 }
 
 export interface SessionDetail extends TrainingSession {
   cycle: TrainingCycle;
   sessionExercises: SessionExerciseWithExercise[];
+  // Cierre vigente de la sesión: vacío o un elemento.
+  feedback?: SessionFeedback[];
 }
 
 export function listSessions(cycleId: string) {

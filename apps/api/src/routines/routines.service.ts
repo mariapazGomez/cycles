@@ -98,7 +98,7 @@ export class RoutinesService {
       throw new NotFoundException("Rutina no encontrada.");
     }
     if (routine.coachId !== coachId) {
-      throw new ForbiddenException("No sos el dueño de esta rutina.");
+      throw new ForbiddenException("No eres el dueño de esta rutina.");
     }
     return routine;
   }

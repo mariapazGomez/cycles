@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react";
+import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as athletesApi from "../services/athletesApi";
 import { ApiError } from "../services/httpClient";
@@ -101,7 +102,13 @@ export function AthletesPanel() {
               }}
             >
               <span>
-                {relation.athlete.name}{" "}
+                {relation.status === "active" ? (
+                  <Link to={`/athletes/${relation.athlete.id}`} style={{ fontWeight: 600, textDecoration: "none" }}>
+                    {relation.athlete.name}
+                  </Link>
+                ) : (
+                  relation.athlete.name
+                )}{" "}
                 <span style={{ color: "var(--color-ink-secondary)" }}>({relation.athlete.email})</span>
               </span>
               <span>{STATUS_LABEL[relation.status]}</span>

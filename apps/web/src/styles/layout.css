@@ -48,14 +48,14 @@
 }
 
 .app-nav-link-active {
-  color: var(--color-blue);
-  border-bottom-color: var(--color-blue);
+  color: var(--color-ink);
+  border-bottom-color: var(--color-brand);
 }
 
 .app-main {
   flex: 1;
   padding: 32px 24px;
-  max-width: 960px;
+  max-width: 1120px;
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
@@ -79,7 +79,7 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--color-blue);
+  background: var(--color-ink);
   color: #ffffff;
   font-size: 0.8rem;
   font-weight: 700;
@@ -132,42 +132,21 @@
   background: var(--color-gray-light);
 }
 
-@media (prefers-color-scheme: dark) {
+/* Celular: el atleta registra desde el gimnasio. */
+@media (max-width: 640px) {
   .app-header {
-    background: #181a20;
-    border-bottom-color: #2a2d35;
+    padding: 12px 16px;
   }
 
-  .app-logo {
-    color: #f2f2f3;
+  .app-header-left {
+    gap: 16px;
   }
 
-  .app-nav-link {
-    color: #a2a2a8;
+  .app-nav {
+    gap: 14px;
   }
 
-  .app-nav-link:hover {
-    color: #f2f2f3;
-  }
-
-  .user-menu-panel {
-    background: #181a20;
-    border-color: #2a2d35;
-  }
-
-  .user-menu-info {
-    border-bottom-color: #2a2d35;
-  }
-
-  .user-menu-name {
-    color: #f2f2f3;
-  }
-
-  .user-menu-item {
-    color: #f2f2f3;
-  }
-
-  .user-menu-item:hover {
-    background: #20232b;
+  .app-main {
+    padding: 20px 16px 32px;
   }
 }

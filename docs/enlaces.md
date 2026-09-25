@@ -1,7 +1,7 @@
 ---
 type: reference
 tags: [reference, dev]
-updated: 2026-09-23
+updated: 2026-09-25
 ---
 
 > Acceso rápido a todo lo que vamos generando: pantallas del frontend, API, y artifacts publicados. Se actualiza a mano cada vez que agregamos algo nuevo.
@@ -21,10 +21,13 @@ updated: 2026-09-23
 | `/accept-invitation?token=...` | Atleta activa su cuenta a partir de la invitación del coach | Pública |
 | `/oauth-callback` | Callback interno del login con Google (no se visita a mano) | — |
 | `/complete-profile` | Último paso de onboarding para cuentas creadas por Google sin rol | Autenticado, sin rol |
-| `/` | Home: bienvenida (barra superior con nav para coach) | Autenticado |
+| `/` | Inicio. Coach: "Necesitan atención" (avisos por atleta con ajuste de carga). Atleta: su próxima sesión, empezarla u omitirla | Autenticado |
+| `/athletes/:athleteId` | Resumen del atleta: avisos, carga semanal, adherencia, fuerza estimada por ejercicio | Autenticado (coach, relación activa) |
+| `/routines` | Biblioteca de rutinas, con reps en reserva objetivo por ejercicio | Autenticado (coach) |
+| `/sessions/:id/registro` | Registro de una sesión por serie + cierre (esfuerzo, duración, dolor), pensado para el celular | Autenticado (atleta asignado) |
 | `/athletes` | Invitar atletas + lista con su estado | Autenticado (coach) |
 | `/cycles` | Planes: lista de ciclos + crear uno nuevo | Autenticado (coach) |
-| `/cycles/:id` | Detalle de un plan: editar, listar/crear sesiones | Autenticado (coach dueño o atleta asignado) |
+| `/cycles/:id` | Detalle de un plan: grid con el progreso real por celda y los avisos del plan | Autenticado (coach dueño o atleta asignado) |
 | `/sessions/:id` | Detalle de una sesión: editar, agregar/quitar ejercicios del catálogo | Autenticado (coach dueño o atleta asignado) |
 
 > Nota: el link de verificación de email / reset de contraseña / invitación no llega a ningún inbox real todavía (Resend sin implementar) — aparece logueado en `/private/tmp/cycles-api.log` cuando se genera.
@@ -42,6 +45,8 @@ Sin Swagger/OpenAPI activado todavía (pendiente, ver `docs/prds/PRD-General.md`
 | Sesiones / ejercicios de sesión (celdas del grid) | `/cycles/:id/sessions`, `/sessions*`, `/session-exercises/:id` | [[PRD-RutinasYProgramacion]] |
 | Rutinas (biblioteca del coach) | `/routines*` | [[PRD-RutinasYProgramacion]] |
 | Hijos de un macrociclo | `/cycles/:id/children` | [[PRD-RutinasYProgramacion]] |
+| Registro del atleta | `/me/today`, `/sessions/:id/start`, `/session-exercises/:id/logs`, `/sessions/:id/feedback` | [[PRD-EjecucionYSeguimiento]] |
+| Seguimiento del coach | `/coach/attention`, `/athletes/:id/summary`, `/cycles/:id/progress`, `/cycles/:id/load-adjustments` | [[PRD-EjecucionYSeguimiento]] |
 
 ## Base de datos
 
