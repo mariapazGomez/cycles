@@ -71,6 +71,7 @@ Sin Swagger/OpenAPI activado todavía (pendiente, ver `docs/prds/PRD-General.md`
 | Visión de compañía | `docs/prds/VISION.md` |
 | Arquitectura técnica | `docs/ARCHITECTURE.md` |
 | Deuda técnica conocida | `docs/DEUDA-TECNICA.md` |
+| Issues de UX/producto (para resolver una por una) | `docs/ISSUES.md` |
 | Estrategia de marca | `docs/brand/brand.md` |
 | Identidad visual (decisiones de color/tipografía) | `docs/brand/identidad-visual.md` |
 | Investigación competitiva | `docs/brand/investigacion-competitiva.md` |
