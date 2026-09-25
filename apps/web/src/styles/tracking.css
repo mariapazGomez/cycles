@@ -515,3 +515,81 @@
   color: var(--color-ink);
   resize: vertical;
 }
+
+/* ---------- Descanso entre series ---------- */
+.rest-timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 16px;
+  border-radius: 16px;
+  background: var(--color-gray-light);
+}
+
+.rest-timer .button-big {
+  width: 100%;
+}
+
+.rest-ring {
+  position: relative;
+  width: min(232px, 70vw);
+  aspect-ratio: 1;
+}
+
+.rest-ring svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.rest-ring circle {
+  fill: none;
+  stroke-width: 14;
+}
+
+.rest-ring-track {
+  stroke: var(--color-gray-border);
+}
+
+.rest-ring-progress {
+  stroke: var(--color-brand);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.25s linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rest-ring-progress {
+    transition: none;
+  }
+}
+
+.rest-ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.rest-ring-time {
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.rest-ring-total {
+  font-size: 0.88rem;
+  color: var(--color-ink-secondary);
+}
+
+.rest-adjust {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+}

@@ -1,10 +1,11 @@
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as sessionsApi from "../services/sessionsApi";
 import * as executionApi from "../services/executionApi";
 import { ApiError } from "../services/httpClient";
 import { LoadingScreen } from "../components/LoadingScreen";
+import { RestTimer } from "../components/RestTimer";
 import { formatKg, formatNumber, formatRir } from "../lib/format";
 import { newId } from "../lib/uuid";
 
@@ -14,6 +15,43 @@ import { newId } from "../lib/uuid";
 // docs/prds/features/PRD-EjecucionYSeguimiento.md, §7.1.
 
 const RIR_OPTIONS = [0, 1, 2, 3, 4];
+
+// Descanso por defecto cuando la rutina no define uno para el ejercicio.
+const DEFAULT_REST_SECONDS = 90;
+
+interface Rest {
+  endsAt: number;
+  totalSeconds: number;
+  label: string;
+  // Índice del ejercicio al que se pasa al terminar (descanso entre ejercicios).
+  advanceTo: number | null;
+  // Qué sigue, para el aviso al terminar.
+  next: string;
+}
+
+// El descanso en curso se guarda en la sesión del navegador: sobrevive a una
+// recarga o a que el celular bloquee la pantalla.
+function restKey(sessionId: string) {
+  return `cycles.rest.${sessionId}`;
+}
+
+function readRest(sessionId: string): Rest | null {
+  try {
+    const raw = sessionStorage.getItem(restKey(sessionId));
+    return raw ? (JSON.parse(raw) as Rest) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeRest(sessionId: string, rest: Rest | null) {
+  try {
+    if (rest) sessionStorage.setItem(restKey(sessionId), JSON.stringify(rest));
+    else sessionStorage.removeItem(restKey(sessionId));
+  } catch {
+    // Sin almacenamiento: el descanso solo vive en memoria.
+  }
+}
 
 // Escala CR-10 de Foster, con palabras en los puntos de referencia.
 const SRPE_WORDS: Record<number, string> = {
@@ -87,10 +125,17 @@ function ExerciseStep({
   exercise,
   isLast,
   onNext,
+  onSetLogged,
+  restSlot,
+  notice,
 }: {
   exercise: Exercise;
   isLast: boolean;
   onNext: () => void;
+  onSetLogged: (setNumber: number) => void;
+  // Mientras hay un descanso en curso, ocupa el lugar de la serie siguiente.
+  restSlot: ReactNode | null;
+  notice: string | null;
 }) {
   const queryClient = useQueryClient();
   const logs = exercise.logs ?? [];
@@ -109,10 +154,11 @@ function ExerciseStep({
     mutationFn: (input: executionApi.LogSetInput) => executionApi.logSet(exercise.id, input),
     // El id lo genera el cliente: reintentar nunca duplica la serie.
     retry: 2,
-    onSuccess: () => {
+    onSuccess: (_, input) => {
       setRir(null);
       setError(null);
       queryClient.invalidateQueries({ queryKey: ["sessions", exercise.sessionId] });
+      onSetLogged(input.setNumber);
     },
     onError: (err: unknown) => setError(err instanceof ApiError ? err.message : "No se pudo registrar la serie."),
   });
@@ -170,8 +216,15 @@ function ExerciseStep({
       )}
 
       {error && <div className="error-banner">{error}</div>}
+      {notice && !restSlot && (
+        <div className="success-banner" role="status">
+          {notice}
+        </div>
+      )}
 
-      {done ? (
+      {restSlot ? (
+        restSlot
+      ) : done ? (
         <button type="button" className="button-primary button-big" onClick={onNext}>
           {isLast ? "Terminar sesión" : "Siguiente ejercicio"}
         </button>
@@ -209,7 +262,7 @@ function ExerciseStep({
         </form>
       )}
 
-      {!done && (
+      {!done && !restSlot && (
         <button type="button" className="button-ghost" style={{ justifyContent: "center" }} onClick={onNext}>
           {isLast ? "Pasar al cierre" : "Pasar al siguiente ejercicio"}
         </button>
@@ -332,9 +385,29 @@ export function SessionLogPage() {
   const { id = "" } = useParams();
   const sessionQuery = useQuery({ queryKey: ["sessions", id], queryFn: () => sessionsApi.getSession(id) });
   const [index, setIndex] = useState<number | null>(null);
+  const [rest, setRestState] = useState<Rest | null>(() => readRest(id));
+  const [notice, setNotice] = useState<string | null>(null);
   const started = useRef(false);
 
   const session = sessionQuery.data;
+
+  const setRest = useCallback(
+    (next: Rest | null) => {
+      writeRest(id, next);
+      setRestState(next);
+    },
+    [id],
+  );
+
+  const endRest = useCallback(
+    (finished: boolean) => {
+      if (!rest) return;
+      if (rest.advanceTo !== null) setIndex(rest.advanceTo);
+      setNotice(finished ? `Descanso terminado. Sigue con ${rest.next}.` : null);
+      setRest(null);
+    },
+    [rest, setRest],
+  );
 
   // Abrir el registro directo (sin pasar por "Empezar") también marca el inicio.
   useEffect(() => {
@@ -401,6 +474,42 @@ export function SessionLogPage() {
           exercise={exercises[current]}
           isLast={current === exercises.length - 1}
           onNext={() => setIndex(current + 1)}
+          notice={notice}
+          onSetLogged={(setNumber) => {
+            setNotice(null);
+            const exercise = exercises[current];
+            const nextExercise = exercises[current + 1];
+            const finalSet = setNumber >= exercise.targetSets;
+            // Tras la última serie del último ejercicio no hay descanso: sigue el cierre.
+            if (finalSet && !nextExercise) return;
+            const seconds = exercise.targetRestSeconds ?? DEFAULT_REST_SECONDS;
+            setRest({
+              endsAt: Date.now() + seconds * 1000,
+              totalSeconds: seconds,
+              label: finalSet ? `Descanso antes de ${nextExercise.exercise.name}` : `Descanso antes de la serie ${setNumber + 1}`,
+              advanceTo: finalSet ? current + 1 : null,
+              next: finalSet ? nextExercise.exercise.name : `la serie ${setNumber + 1}`,
+            });
+          }}
+          restSlot={
+            rest ? (
+              <RestTimer
+                key={rest.label}
+                endsAt={rest.endsAt}
+                totalSeconds={rest.totalSeconds}
+                label={rest.label}
+                onAdjust={(delta) =>
+                  setRest({
+                    ...rest,
+                    endsAt: Math.max(Date.now(), rest.endsAt + delta * 1000),
+                    totalSeconds: Math.max(15, rest.totalSeconds + delta),
+                  })
+                }
+                onSkip={() => endRest(false)}
+                onFinish={() => endRest(true)}
+              />
+            ) : null
+          }
         />
       ) : (
         <FinishStep session={session} />

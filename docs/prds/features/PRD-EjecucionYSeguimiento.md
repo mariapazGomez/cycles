@@ -184,6 +184,7 @@ Mockups: lienzo de pantallas web de Cycles (Design artifact), a completar en la 
 ### 7.1 Atleta (mobile-first)
 - **Hoy**: la sesión que toca, con botón "Empezar sesión".
 - **Registro**: un ejercicio a la vez. Cada serie aparece pre-llenada con los objetivos; ✓ la confirma, tocar el número la corrige. Tras la última serie aparece la pregunta de esfuerzo con cinco botones grandes (0, 1, 2, 3, 4+).
+- **Descanso**: después de registrar cada serie arranca una cuenta regresiva con el descanso del ejercicio (`targetRestSeconds`, o 90 s si la rutina no lo define), en un anillo que se llena a medida que pasa el tiempo. El atleta puede sumar o restar 15 s o saltarlo. Al terminar vibra (si el celular lo permite), avisa "Descanso terminado" y muestra la serie siguiente. Tras la última serie de un ejercicio, el descanso lleva al siguiente ejercicio; tras la última serie de la sesión no hay descanso. La cuenta se calcula contra la hora de término y se guarda en la sesión del navegador, así que sobrevive a una recarga o a la pantalla bloqueada.
 - **Cierre**: sRPE con anclas verbales (0 reposo · 3 moderada · 5 dura · 7 muy dura · 10 máximo), duración pre-calculada, dolor sí/no, nota. Botón "Terminar sesión".
 - Todo con controles ≥ 44 px y usable con una mano.
 
