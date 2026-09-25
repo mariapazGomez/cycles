@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { User } from '@cycles/shared';
 import * as authApi from '../services/authApi';
+import { ApiError } from '../services/httpClient';
 import { tokenStore } from '../services/tokenStore';
 
 interface AuthContextValue {
@@ -27,8 +28,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const currentUser = await authApi.fetchCurrentUser();
         setUser(currentUser);
         setStatus('signedIn');
-      } catch {
-        await tokenStore.clear();
+      } catch (err) {
+        // Solo se borra la sesión guardada si el servidor la rechazó de
+        // verdad (ApiError con status real). Un fallo de red (status 0,
+        // ver httpClient.safeFetch) no debe deslogear: sin esto, abrir la
+        // app sin conexión borraba el refresh token y obligaba a
+        // reingresar credenciales aunque la sesión siguiera siendo válida.
+        if (err instanceof ApiError && err.status !== 0) {
+          await tokenStore.clear();
+        }
         setStatus('signedOut');
       }
     })();

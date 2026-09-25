@@ -37,13 +37,25 @@ async function extractErrorMessage(response: Response): Promise<string> {
 // Evita disparar varios refresh en paralelo si varias requests reciben 401 a la vez.
 let refreshInFlight: Promise<void> | null = null;
 
+// Sin conexión / servidor inalcanzable: fetch() rechaza con un TypeError
+// críptico ("Network request failed"). Se normaliza a un ApiError con
+// status 0 para que el resto del código (y la UI) lo distinga de un
+// rechazo real del servidor y muestre un mensaje entendible.
+async function safeFetch(url: string, init: RequestInit): Promise<Response> {
+  try {
+    return await fetch(url, init);
+  } catch {
+    throw new ApiError(0, 'No pudimos conectar con el servidor. Revisa tu conexión.');
+  }
+}
+
 async function refreshSession(): Promise<void> {
   const refreshToken = tokenStore.getRefreshToken();
   if (!refreshToken) {
     throw new ApiError(401, 'Sesión expirada');
   }
 
-  const response = await fetch(`${API_URL}/auth/refresh`, {
+  const response = await safeFetch(`${API_URL}/auth/refresh`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ refreshToken }),
@@ -72,7 +84,7 @@ export async function apiRequest<T>(
     }
   }
 
-  const response = await fetch(`${API_URL}${path}`, {
+  const response = await safeFetch(`${API_URL}${path}`, {
     method,
     headers,
     body: body !== undefined ? JSON.stringify(body) : undefined,

@@ -24,6 +24,12 @@ interface SetRowState {
   editing: boolean;
   saving: boolean;
   error: string | null;
+  // Id de idempotencia para el próximo intento de guardado de esta fila.
+  // Se genera una sola vez por intento y se reutiliza en los reintentos
+  // (ver handleSave): si se regenerara en cada llamada, un reintento tras
+  // un fallo de red mandaría un id distinto y el backend lo rechazaría
+  // como serie duplicada en vez de devolver el registro ya guardado.
+  pendingId: string;
 }
 
 function buildInitialRows(
@@ -47,6 +53,7 @@ function buildInitialRows(
       editing: false,
       saving: false,
       error: null,
+      pendingId: generateId(),
     };
   });
 }
@@ -68,24 +75,37 @@ export function ExerciseLogScreen({ route }: Props) {
 
   const handleSave = async (index: number) => {
     const row = rows[index];
+    if (row.saving) {
+      return; // Ya hay un guardado en curso para esta serie.
+    }
     const setNumber = index + 1;
     const reps = Number(row.actualReps);
     if (!Number.isFinite(reps) || reps < 0) {
       updateRow(index, { error: 'Ingresa un número de repeticiones válido.' });
       return;
     }
-    const weight = row.actualWeight.trim() === '' ? undefined : Number(row.actualWeight);
-    const rir = row.rir.trim() === '' ? undefined : Number(row.rir);
+    const weightText = row.actualWeight.trim();
+    const weight = weightText === '' ? undefined : Number(weightText);
+    if (weight !== undefined && !Number.isFinite(weight)) {
+      updateRow(index, { error: 'Ingresa un peso válido.' });
+      return;
+    }
+    const rirText = row.rir.trim();
+    const rir = rirText === '' ? undefined : Number(rirText);
+    if (rir !== undefined && !Number.isFinite(rir)) {
+      updateRow(index, { error: 'Ingresa un RIR válido (0 a 4).' });
+      return;
+    }
 
     updateRow(index, { saving: true, error: null });
     try {
       const saved = await logSet(sessionExercise.id, {
-        id: row.saved && row.editing ? generateId() : (row.saved?.id ?? generateId()),
+        id: row.pendingId,
         setNumber,
         actualReps: reps,
         actualWeight: weight,
         rir,
-        supersedesId: row.editing ? row.saved?.id : undefined,
+        supersedesId: row.editing ? (row.saved?.id ?? undefined) : undefined,
       });
       updateRow(index, { saved: saved as ExerciseLog, editing: false, saving: false });
     } catch (err) {
@@ -94,6 +114,12 @@ export function ExerciseLogScreen({ route }: Props) {
         error: err instanceof Error ? err.message : 'No pudimos guardar la serie.',
       });
     }
+  };
+
+  const startEditing = (index: number) => {
+    // Nuevo intento de corrección: se genera un id fresco, distinto del que
+    // ya se usó (y consumió) para el registro original.
+    updateRow(index, { editing: true, error: null, pendingId: generateId() });
   };
 
   const isLastSet = (index: number) => index === rows.length - 1;
@@ -113,7 +139,7 @@ export function ExerciseLogScreen({ route }: Props) {
             <View style={styles.setHeader}>
               <Text style={styles.setLabel}>Serie {index + 1}</Text>
               {locked && (
-                <TouchableOpacity onPress={() => updateRow(index, { editing: true })}>
+                <TouchableOpacity onPress={() => startEditing(index)}>
                   <Text style={styles.editLink}>Editar</Text>
                 </TouchableOpacity>
               )}

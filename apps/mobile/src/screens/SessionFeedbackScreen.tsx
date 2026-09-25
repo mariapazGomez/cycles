@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   ActivityIndicator,
@@ -27,12 +27,22 @@ export function SessionFeedbackScreen({ route, navigation }: Props) {
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Guarda sincrónica contra doble-tap: `submitting` (estado) recién se
+  // refleja en el próximo render, así que un segundo toque en el mismo
+  // frame podría colarse antes de que el botón se deshabilite. A
+  // diferencia de logSet, el feedback no tiene id de idempotencia en el
+  // backend, así que un envío duplicado real generaría un 409.
+  const submittingRef = useRef(false);
 
   const handleSubmit = async () => {
+    if (submittingRef.current) {
+      return;
+    }
     if (outcome === 'completed' && srpe === null) {
       setError('Indica qué tan dura fue la sesión.');
       return;
     }
+    submittingRef.current = true;
     setSubmitting(true);
     setError(null);
     try {
@@ -45,6 +55,7 @@ export function SessionFeedbackScreen({ route, navigation }: Props) {
       });
       navigation.goBack();
     } catch (err) {
+      submittingRef.current = false;
       setError(err instanceof Error ? err.message : 'No pudimos cerrar la sesión.');
       setSubmitting(false);
     }
