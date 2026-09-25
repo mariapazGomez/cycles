@@ -1,6 +1,7 @@
 export type CycleStatus = "draft" | "active" | "completed" | "archived";
 export type SessionStatus = "pending" | "completed" | "skipped";
 export type CycleType = "microcycle" | "mesocycle" | "macrocycle";
+export type SessionOutcome = "completed" | "skipped";
 export type MuscleGroup =
   | "chest"
   | "back"
@@ -42,6 +43,8 @@ export interface TrainingSession {
   // De qué rutina de la biblioteca salió — trazabilidad interna, no se
   // muestra en la UI.
   routineId?: string;
+  // Lo marca el atleta al empezar; base para pre-calcular la duración.
+  startedAt?: string;
 }
 
 export interface Routine {
@@ -88,10 +91,42 @@ export interface ExerciseLog {
   id: string;
   sessionExerciseId: string;
   athleteId: string;
-  actualSets?: number;
-  actualReps?: number;
+  setNumber: number;
+  actualReps: number;
+  // En kg; sin valor = peso corporal.
   actualWeight?: number;
-  rpe?: number;
-  notes?: string;
+  // Repeticiones en reserva: 0-4 (4 = "4 o más").
+  rir?: number;
+  // Presente cuando este registro corrige uno anterior.
+  supersedesId?: string;
   loggedAt: string;
+}
+
+// Cierre de una sesión por parte del atleta. Append-only: una corrección
+// nueva llega con supersedesId apuntando al feedback vigente.
+export interface SessionFeedback {
+  id: string;
+  sessionId: string;
+  athleteId: string;
+  outcome: SessionOutcome;
+  // Esfuerzo de la sesión (sRPE, escala CR-10 de Foster). Solo si outcome = completed.
+  srpe?: number;
+  durationMinutes?: number;
+  pain: boolean;
+  painNotes?: string;
+  notes?: string;
+  supersedesId?: string;
+  submittedAt: string;
+}
+
+// Lo que devuelve GET /me/today: la próxima sesión pendiente del atleta,
+// con sus ejercicios y los logs ya registrados en cada uno.
+export interface TodaySession {
+  cycle: { id: string; name: string; currentWeek: number };
+  session: TrainingSession & {
+    sessionExercises: (SessionExercise & {
+      exercise: Exercise;
+      logs: ExerciseLog[];
+    })[];
+  };
 }
