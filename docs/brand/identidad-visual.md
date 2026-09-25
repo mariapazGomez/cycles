@@ -4,7 +4,7 @@ parent: "[[brand]]"
 status: decided
 tags: [brand, design-tokens]
 created: 2026-09-23
-updated: 2026-09-24
+updated: 2026-09-25
 ---
 
 > Hijo de [[brand]]. A diferencia de [[investigacion-competitiva]] (puramente informativo), este documento **sí contiene decisiones tomadas** por el usuario el 2026-09-23, a partir de esa investigación.
@@ -64,9 +64,9 @@ Archivos en [`docs/brand/img/`](img/). Isotipo: un loop/flecha circular — coin
 > | `brand-blue` | `#3080fc` | El anillo del isotipo |
 > | `brand-ink` | `#1f2228` | El wordmark "Cycles" |
 >
-> **Registrado, todavía NO aplicado al código** — la app sigue usando `--color-blue` (`#0066ee`, el de MyFitnessPal) hasta que se haga el rediseño. Ojo con `brand-blue`: da 3.74:1 de contraste contra blanco, insuficiente para texto chico (sirve para texto ≥24px o bold ≥19px, íconos y rellenos) — hace falta un tono más oscuro para texto chico cuando se aplique.
->
-> Ese Design System documenta bastante más de lo que hay en este archivo: cada color/tipografía/spacing/radio ya usado en `apps/web` con su contraste calculado, componentes (`AppHeader`, `AuthCard`, `Button`, `Field`, `ListRow`, `ProgramGrid`, `UserMenu`, etc.), y una guía de voz/contenido (español latino neutro con "tú", sentence case, patrones de copy). Decidido el 2026-09-24: la regla es "tú", no voseo; el copy actual de la app todavía usa voseo y se reescribe al actualizar cada pantalla. También señala gaps reales: `color-gray-border` da menos de 3:1 como borde de control en ambos temas, y en modo oscuro el texto blanco sobre el botón primario (`#4d94ff`) da 3.0:1 (insuficiente para AA). Ninguno de los dos se corrigió todavía en el código.
+> Ese Design System documenta bastante más de lo que hay en este archivo: cada color/tipografía/spacing/radio ya usado en `apps/web` con su contraste calculado, componentes (`AppHeader`, `AuthCard`, `Button`, `Field`, `ListRow`, `ProgramGrid`, `UserMenu`, etc.), y una guía de voz/contenido (español latino neutro con "tú", sentence case, patrones de copy).
+
+> **Actualización 2026-09-25 (rediseño aplicado + re-sync del Design System):** `brand-blue`/`brand-ink` ya están en el código, no solo registrados. `--color-brand` (`#3080fc`) marca estado/selección; `--color-ink` (`#1f2228`) es la tinta única de la app. Para el hueco de contraste que se señalaba arriba (`brand-blue` insuficiente en texto chico) se agregó `--color-blue` (`#1a66dd`, un paso derivado que sí da 4.5:1+) para botones/links/texto chico. La app móvil (`apps/mobile/src/theme/colors.ts`) espeja esta misma paleta. El copy ya no tiene voseo en ningún lado (verificado en `apps/web` y `apps/mobile`). Se quitaron los subtítulos de las 6 pantallas de auth. El modo oscuro se descartó explícitamente para esta fase (no es un gap pendiente, es alcance pospuesto) — los estilos oscuros parciales que existían se sacaron en vez de extenderse a medias. El Design System se re-sincronizó reflejando todo esto.
 
 ## Fuera de esta decisión
 
