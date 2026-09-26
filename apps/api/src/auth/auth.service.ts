@@ -210,7 +210,9 @@ export class AuthService {
         expiresAt: new Date(Date.now() + PASSWORD_RESET_TTL_MS),
       },
     });
-    await this.mail.sendPasswordResetEmail(user.email, rawToken);
+    // Si el envío falla, la respuesta sigue siendo la misma (no revela si la
+    // cuenta existe); el error queda en el log del MailService.
+    await this.mail.sendPasswordResetEmail(user.email, rawToken).catch(() => undefined);
   }
 
   async confirmPasswordReset(rawToken: string, newPassword: string): Promise<void> {
@@ -245,7 +247,9 @@ export class AuthService {
         expiresAt: new Date(Date.now() + EMAIL_VERIFICATION_TTL_MS),
       },
     });
-    await this.mail.sendVerificationEmail(user.email, rawToken);
+    // El registro no falla por el email: el usuario puede pedir otro desde
+    // "Revisa tu email" (POST /auth/verify-email/resend). Ver PLAN-Deploy §1.5.
+    await this.mail.sendVerificationEmail(user.email, rawToken).catch(() => undefined);
   }
 
   // Público: también lo usa AthletesService para loguear automáticamente
