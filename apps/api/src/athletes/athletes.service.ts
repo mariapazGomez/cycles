@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { ConflictException, Injectable, ServiceUnavailableException, UnauthorizedException } from "@nestjs/common";
 import * as bcrypt from "bcrypt";
 import { PrismaService } from "../prisma/prisma.service";
 import { MailService } from "../mail/mail.service";
@@ -47,7 +47,19 @@ export class AthletesService {
       },
     });
 
-    await this.mail.sendAthleteInvitationEmail(athlete.email, rawToken);
+    const coach = await this.prisma.user.findUniqueOrThrow({ where: { id: coachId }, select: { name: true } });
+    try {
+      await this.mail.sendAthleteInvitationEmail(athlete.email, rawToken, coach.name);
+    } catch {
+      // Si el email no salió, se deshace lo creado: si no, el email quedaría
+      // tomado y no se podría volver a invitar. Ver PLAN-Deploy §1.5.
+      await this.prisma.$transaction([
+        this.prisma.athleteInvitationToken.deleteMany({ where: { coachAthleteId: coachAthlete.id } }),
+        this.prisma.coachAthlete.delete({ where: { id: coachAthlete.id } }),
+        this.prisma.user.delete({ where: { id: athlete.id } }),
+      ]);
+      throw new ServiceUnavailableException("No pudimos enviar la invitación. Intenta de nuevo en unos minutos.");
+    }
 
     return { id: coachAthlete.id, email: athlete.email };
   }
