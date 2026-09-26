@@ -216,7 +216,13 @@ export function CyclesPage() {
       <div style={{ marginTop: 32 }}>
         {cyclesQuery.isLoading && <p>Cargando…</p>}
         {cyclesQuery.isError && <div className="error-banner">No se pudo cargar la lista.</div>}
-        {cyclesQuery.data && cyclesQuery.data.length === 0 && <p>Todavía no creaste ningún plan.</p>}
+        {cyclesQuery.data && cyclesQuery.data.length === 0 && (
+          <p>
+            {isCoach
+              ? "Todavía no creaste ningún plan."
+              : "Todavía no tienes planes. Cuando tu coach te asigne uno, aparecerá aquí."}
+          </p>
+        )}
 
         {cyclesQuery.data && cyclesQuery.data.length > 0 && (
           <ul style={{ listStyle: "none", padding: 0 }}>

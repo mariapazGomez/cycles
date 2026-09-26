@@ -97,5 +97,12 @@ export async function apiRequest<T>(
     return undefined as T;
   }
 
-  return (await response.json()) as T;
+  // NestJS responde 200 con el cuerpo vacío cuando el handler devuelve null
+  // (p. ej. GET /me/today sin sesiones pendientes): response.json() fallaría,
+  // así que se lee como texto primero. Mismo arreglo que la app móvil.
+  const text = await response.text();
+  if (text === "") {
+    return null as T;
+  }
+  return JSON.parse(text) as T;
 }
