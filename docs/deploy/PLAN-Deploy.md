@@ -221,8 +221,8 @@ Si se elige la opción de compañía (`cycles.<dominio>`), la misma idea se adap
 ## Paso 3 · API en Render *(por detallar)*
 
 - Web service desde el repo (monorepo, `apps/api`), con build `prisma generate` + `nest build` y migraciones al desplegar.
-- Variables: `DATABASE_URL`, `JWT_*` nuevos (no reutilizar los de desarrollo), `RESEND_API_KEY`, `MAIL_FROM`, `FRONTEND_URL`, `GOOGLE_*`, `PORT`.
-- Restringir CORS al dominio de la web (hoy `enableCors()` acepta cualquier origen).
+- Variables: `NODE_ENV=production`, `DATABASE_URL`, `JWT_*` nuevos (no reutilizar los de desarrollo; 64+ caracteres y distintos), `RESEND_API_KEY`, `MAIL_FROM`, `FRONTEND_URL`, `CORS_ORIGINS=https://app.getcycles.app`, `TRUST_PROXY=1`, `GOOGLE_*`, `PORT`. Si falta alguna, la API no arranca y el log dice cuál (validación de 1B).
+- CORS ya está restringido a `CORS_ORIGINS` (1B de seguridad).
 - Plan gratuito: la API se duerme sin uso y tarda en despertar. Evaluar el plan pago más barato durante el piloto.
 
 ## Paso 4 · Web en Vercel *(por detallar)*

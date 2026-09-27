@@ -1,5 +1,7 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
+import { LIMITS } from "../common/throttle/throttle";
 import { RolesGuard } from "../common/guards/roles.guard";
 import { Roles } from "../common/decorators/roles.decorator";
 import { CurrentUser, AuthenticatedUser } from "../common/decorators/current-user.decorator";
@@ -13,11 +15,13 @@ export class AthletesController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles("coach")
+  @Throttle(LIMITS.invite)
   @Post("invite")
   invite(@CurrentUser() user: AuthenticatedUser, @Body() dto: InviteAthleteDto) {
     return this.athletesService.invite(user.id, dto);
   }
 
+  @Throttle(LIMITS.tokenUse)
   @Post("invitations/accept")
   @HttpCode(HttpStatus.OK)
   acceptInvitation(@Body() dto: AcceptInvitationDto) {

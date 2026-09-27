@@ -23,6 +23,12 @@ export class MailService {
   constructor(private readonly config: ConfigService) {
     const apiKey = this.config.get<string>("RESEND_API_KEY");
     this.resend = apiKey ? new Resend(apiKey) : null;
+    // En producción nunca se entra en modo desarrollo: los enlaces con token
+    // terminarían en el log (docs/SEGURIDAD.md, S-06). validateEnv ya lo
+    // exige; esto es una segunda barrera.
+    if (!this.resend && this.config.get<string>("NODE_ENV") === "production") {
+      throw new Error("RESEND_API_KEY es obligatoria en producción.");
+    }
     if (!this.resend) {
       this.logger.warn("RESEND_API_KEY no está definida: los emails se escriben en el log en vez de enviarse.");
     }

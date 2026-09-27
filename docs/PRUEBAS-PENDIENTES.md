@@ -27,6 +27,7 @@ updated: 2026-09-26
 | P-07 | **Descanso con la pantalla bloqueada en un celular real** | Registrar una serie, bloquear el celular 30 s y desbloquear: la cuenta debe seguir exacta. Ver si vibra al terminar (Android sí, iPhone no desde la web). | Usuaria | — | PR #4 |
 | P-08 | **"Mis planes" de un atleta sin planes, con datos reales** | Con un atleta recién invitado y sin planes asignados, ver el mensaje "Todavía no tienes planes…". Hoy solo se probó simulando la respuesta en el navegador. | Usuaria o Claude | P-01 (sirve el atleta recién creado) | PR #8 (issue #7) |
 | P-09 | **Login con Google** | Entrar con "Continuar con Google" y verificar que termina en la app. Hoy da error 500 porque faltan las credenciales. | Claude | Plan de deploy, paso 5 (credenciales de Google) | Auditoría (S-02) |
+| P-11 | **Límite de intentos detrás del proxy de Render** | Con la API en Render y `TRUST_PROXY=1`: seis logins fallidos seguidos con el mismo email dan 429 al sexto, y desde otra red se puede seguir entrando. Confirma que se toma la IP real y no la del proxy. | Claude | Plan de deploy, paso 3 | PR 1B de seguridad |
 | P-10 | **Registro de sesión completo en un celular real** | Como atleta, desde el navegador del celular: empezar una sesión, registrar series con los botones −/+, responder las reps en reserva, descansar y cerrar la sesión. | Usuaria | — | PR #4 |
 
 ## Hechas

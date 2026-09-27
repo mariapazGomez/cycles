@@ -8,6 +8,7 @@ import {
 import { PrismaService } from "../prisma/prisma.service";
 import { AuthenticatedUser } from "../common/decorators/current-user.decorator";
 import { CURRENT_ONLY } from "../common/training";
+import { assertActiveRelation } from "../common/access";
 import { CreateSessionDto } from "./dto/create-session.dto";
 import { UpdateSessionDto } from "./dto/update-session.dto";
 import { AddSessionExerciseDto } from "./dto/add-session-exercise.dto";
@@ -29,6 +30,7 @@ export class SessionsService {
     if (cycle.coachId !== coachId) {
       throw new ForbiddenException("No eres el coach de este plan.");
     }
+    await assertActiveRelation(this.prisma, coachId, cycle.athleteId);
     if (cycle.cycleType === "macrocycle") {
       throw new BadRequestException("Un macrociclo no tiene sesiones propias.");
     }
@@ -88,7 +90,7 @@ export class SessionsService {
     if (!cycle) {
       throw new NotFoundException("Ciclo no encontrado.");
     }
-    this.assertCycleAccess(user, cycle);
+    await this.assertCycleAccess(user, cycle);
 
     return this.prisma.trainingSession.findMany({
       where: { cycleId },
@@ -115,7 +117,7 @@ export class SessionsService {
     if (!session) {
       throw new NotFoundException("Sesión no encontrada.");
     }
-    this.assertCycleAccess(user, session.cycle);
+    await this.assertCycleAccess(user, session.cycle);
 
     return session;
   }
@@ -207,14 +209,18 @@ export class SessionsService {
     await this.prisma.sessionExercise.delete({ where: { id: sessionExercise.id } });
   }
 
-  private assertCycleAccess(
+  private async assertCycleAccess(
     user: AuthenticatedUser,
     cycle: { coachId: string; athleteId: string },
-  ): void {
+  ): Promise<void> {
     const isOwnerCoach = user.role === "coach" && cycle.coachId === user.id;
     const isAssignedAthlete = user.role === "athlete" && cycle.athleteId === user.id;
     if (!isOwnerCoach && !isAssignedAthlete) {
       throw new ForbiddenException("No tienes acceso a este plan.");
+    }
+    // El coach además necesita la relación activa; el atleta siempre ve lo suyo.
+    if (isOwnerCoach) {
+      await assertActiveRelation(this.prisma, user.id, cycle.athleteId);
     }
   }
 
@@ -229,6 +235,7 @@ export class SessionsService {
     if (session.cycle.coachId !== coachId) {
       throw new ForbiddenException("No eres el coach de esta sesión.");
     }
+    await assertActiveRelation(this.prisma, coachId, session.cycle.athleteId);
     return session;
   }
 
@@ -243,6 +250,7 @@ export class SessionsService {
     if (sessionExercise.session.cycle.coachId !== coachId) {
       throw new ForbiddenException("No eres el coach de esta sesión.");
     }
+    await assertActiveRelation(this.prisma, coachId, sessionExercise.session.cycle.athleteId);
     return sessionExercise;
   }
 }
