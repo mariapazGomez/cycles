@@ -20,6 +20,8 @@ const ACCESS_TOKEN_TTL = "15m";
 const REFRESH_TOKEN_TTL_MS = 1000 * 60 * 60 * 24 * 30; // 30 días
 const EMAIL_VERIFICATION_TTL_MS = 1000 * 60 * 60 * 24; // 24 horas
 const PASSWORD_RESET_TTL_MS = 1000 * 60 * 30; // 30 minutos
+const OAUTH_CODE_TTL_MS = 1000 * 60; // 60 segundos: la web lo usa apenas llega
+const OAUTH_CODE_RETENTION_MS = 1000 * 60 * 60 * 24; // se borran al día de vencer
 const DATA_CONSENT_VERSION = "v1";
 
 export interface AuthTokens {
@@ -83,7 +85,10 @@ export class AuthService {
     return this.issueTokenPair(user);
   }
 
-  async loginWithGoogle(profile: GoogleProfile): Promise<AuthTokens> {
+  // Login con Google en dos pasos (docs/SEGURIDAD.md, S-02): el callback no
+  // pone tokens en la URL, sino un código de un solo uso que la web cambia
+  // por la sesión con exchangeGoogleCode.
+  async loginWithGoogle(profile: GoogleProfile): Promise<string> {
     let user = await this.prisma.user.findUnique({ where: { email: profile.email } });
 
     if (!user) {
@@ -105,7 +110,46 @@ export class AuthService {
       });
     }
 
-    return this.issueTokenPair(user);
+    return this.createOAuthExchangeCode(user.id);
+  }
+
+  async exchangeGoogleCode(rawCode: string): Promise<AuthTokens> {
+    const now = new Date();
+    const codeHash = hashToken(rawCode);
+    // Marcar como usado en una sola operación: si llegan dos pedidos con el
+    // mismo código, solo uno lo consume.
+    const { count } = await this.prisma.oAuthExchangeCode.updateMany({
+      where: { codeHash, usedAt: null, expiresAt: { gt: now } },
+      data: { usedAt: now },
+    });
+    if (count !== 1) {
+      throw new UnauthorizedException("El inicio de sesión con Google expiró. Vuelve a intentarlo.");
+    }
+
+    const record = await this.prisma.oAuthExchangeCode.findUniqueOrThrow({
+      where: { codeHash },
+      include: { user: true },
+    });
+    return this.issueTokenPair(record.user);
+  }
+
+  private async createOAuthExchangeCode(userId: string): Promise<string> {
+    const rawCode = generateRawToken();
+    const now = Date.now();
+    await this.prisma.$transaction([
+      // Limpieza: los códigos vencidos ya no sirven para nada.
+      this.prisma.oAuthExchangeCode.deleteMany({
+        where: { expiresAt: { lt: new Date(now - OAUTH_CODE_RETENTION_MS) } },
+      }),
+      this.prisma.oAuthExchangeCode.create({
+        data: {
+          userId,
+          codeHash: hashToken(rawCode),
+          expiresAt: new Date(now + OAUTH_CODE_TTL_MS),
+        },
+      }),
+    ]);
+    return rawCode;
   }
 
   async completeProfile(userId: string, dto: CompleteProfileDto): Promise<void> {

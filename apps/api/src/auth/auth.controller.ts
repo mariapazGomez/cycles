@@ -17,7 +17,7 @@ import type { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
-import { RefreshTokenDto, LogoutDto } from "./dto/tokens.dto";
+import { RefreshTokenDto, LogoutDto, GoogleExchangeDto } from "./dto/tokens.dto";
 import { VerifyEmailDto, ResendVerificationDto } from "./dto/email-verification.dto";
 import { RequestPasswordResetDto, ConfirmPasswordResetDto } from "./dto/password-reset.dto";
 import { CompleteProfileDto } from "./dto/complete-profile.dto";
@@ -110,14 +110,19 @@ export class AuthController {
   @UseGuards(AuthGuard("google"))
   @Get("google/callback")
   async googleCallback(@Req() req: Request, @Res() res: Response) {
-    const tokens = await this.authService.loginWithGoogle(req.user as GoogleProfile);
-    const frontendUrl = this.config.get<string>("FRONTEND_URL");
-    const redirectUrl = new URL("/oauth-callback", frontendUrl);
-    redirectUrl.searchParams.set("accessToken", tokens.accessToken);
-    redirectUrl.searchParams.set("refreshToken", tokens.refreshToken);
-    // Nota: pasar tokens por query string es una simplificación de MVP.
-    // Antes de producción, mover a un intercambio vía cookie httpOnly o
-    // código de un solo uso (ver PRD-Autenticacion, decisiones abiertas).
+    // Solo un código de un solo uso (60 s) viaja en la URL; los tokens se
+    // entregan en el cuerpo de POST /auth/google/exchange. Ver
+    // docs/SEGURIDAD.md, hallazgo S-02.
+    const code = await this.authService.loginWithGoogle(req.user as GoogleProfile);
+    const redirectUrl = new URL("/oauth-callback", this.config.get<string>("FRONTEND_URL"));
+    redirectUrl.searchParams.set("code", code);
     res.redirect(redirectUrl.toString());
+  }
+
+  @Throttle(LIMITS.tokenUse)
+  @Post("google/exchange")
+  @HttpCode(HttpStatus.OK)
+  exchangeGoogleCode(@Body() dto: GoogleExchangeDto) {
+    return this.authService.exchangeGoogleCode(dto.code);
   }
 }

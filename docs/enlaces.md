@@ -19,7 +19,7 @@ updated: 2026-09-25
 | `/verify-email?token=...` | Confirma el email a partir del link enviado | Pública |
 | `/reset-password?token=...` | Define nueva contraseña a partir del link enviado | Pública |
 | `/accept-invitation?token=...` | Atleta activa su cuenta a partir de la invitación del coach | Pública |
-| `/oauth-callback` | Callback interno del login con Google (no se visita a mano) | — |
+| `/oauth-callback?code=...` | Callback interno del login con Google: cambia el código de un solo uso por la sesión (no se visita a mano) | — |
 | `/complete-profile` | Último paso de onboarding para cuentas creadas por Google sin rol | Autenticado, sin rol |
 | `/` | Inicio. Coach: "Necesitan atención" (avisos por atleta con ajuste de carga). Atleta: su próxima sesión, empezarla u omitirla | Autenticado |
 | `/athletes/:athleteId` | Resumen del atleta: avisos, carga semanal, adherencia, fuerza estimada por ejercicio | Autenticado (coach, relación activa) |

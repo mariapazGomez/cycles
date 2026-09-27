@@ -95,6 +95,7 @@ model User {
   passwordResetTokens     PasswordResetToken[]
   emailVerificationTokens EmailVerificationToken[]
   refreshTokens           RefreshToken[]
+  oauthExchangeCodes      OAuthExchangeCode[]
 }
 
 // Refresh tokens persistidos (hasheados) para poder rotarlos y revocarlos,
@@ -119,6 +120,23 @@ model PasswordResetToken {
   createdAt DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id])
+}
+
+// Código de un solo uso para el login con Google: el callback redirige a la
+// web con este código (no con los tokens) y la web lo cambia por la sesión
+// con un POST. Vence en 60 s y solo se guarda su hash. Ver
+// docs/SEGURIDAD.md, hallazgo S-02.
+model OAuthExchangeCode {
+  id        String    @id @default(uuid())
+  userId    String
+  codeHash  String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([expiresAt])
 }
 
 model EmailVerificationToken {
