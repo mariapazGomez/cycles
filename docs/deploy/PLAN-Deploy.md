@@ -193,13 +193,15 @@ Si se elige la opción de compañía (`cycles.<dominio>`), la misma idea se adap
 
 ### 1.7 Listo cuando
 
-- [ ] Dominio verificado en Resend, con DKIM y SPF en verde y DMARC cargado.
+- [x] Dominio `mail.getcycles.app` verificado en Resend, con DKIM y SPF publicados (2026-09-26).
+- [ ] DMARC cargado en `_dmarc.getcycles.app`.
 - [ ] API keys de desarrollo y de producción guardadas en el gestor de contraseñas.
 - [x] `MailService` enviando por Resend, con el modo de desarrollo intacto sin key (2026-09-26, rama `feat/email-resend`).
 - [x] Las 3 plantillas en HTML y texto, con "tú" y colores de marca (`apps/api/src/mail/templates.ts`).
 - [x] La invitación ya no deja el email tomado si falla el envío (probado con una key inválida: responde 503 y no queda el usuario).
 - [x] `.env.example` documenta `RESEND_API_KEY`, `MAIL_FROM`, `MAIL_REPLY_TO` y `FRONTEND_URL`.
-- [ ] Probado de punta a punta con emails reales (1.6).
+- [x] Primer envío real: invitación entregada desde `hola@mail.getcycles.app` (2026-09-26), sin errores en el log.
+- [ ] Probado de punta a punta con emails reales (1.6): aceptar la invitación, verificación de registro y recuperación de contraseña.
 
 ### 1.8 Riesgos
 

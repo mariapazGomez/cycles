@@ -302,7 +302,7 @@ Una fase (o un PR grande dentro de ella) no se da por terminada hasta verificar 
 
 **Calidad y proceso**
 - [ ] Typecheck y build de los workspaces tocados, sin errores.
-- [ ] Probado a mano de punta a punta (y con tests automáticos cuando existan: tanda 2 de seguridad).
+- [ ] Probado a mano de punta a punta (y con tests automáticos cuando existan: tanda 2 de seguridad). Lo que quede sin probar se anota en `docs/PRUEBAS-PENDIENTES.md`.
 - [ ] Todo entra a `main` por PR, con una descripción de qué se probó.
 
 ## 11. Decisiones abiertas
