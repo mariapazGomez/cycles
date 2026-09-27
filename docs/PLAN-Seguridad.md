@@ -206,7 +206,7 @@ Migración con un trigger de Postgres que rechace `UPDATE` y `DELETE` sobre `Exe
 | PR | Hallazgos | Estado |
 |---|---|---|
 | 1A Dependencias | S-03 | **Hecho** (2026-09-27): de 16 vulnerabilidades a 1 moderada aceptada (`@nestjs/core`, ver `SEGURIDAD.md` §3.4) |
-| 1B Endurecer la API | S-01, S-04, S-05, S-06, S-07 | Pendiente |
+| 1B Endurecer la API | S-01, S-04, S-05, S-06, S-07 | **Hecho** (2026-09-27). Diferencias con el plan: login con 20/min por IP y 5/min por email (sin el límite por hora); la invitación limita por IP y por email invitado, no por coach, porque el límite se aplica antes de identificar al usuario. `execution` y `tracking` mantienen su propio chequeo de relación. |
 | 1C Google sin tokens en la URL | S-02 | Pendiente |
 | 1D Cabeceras en Vercel | S-07 | Pendiente (con el paso 4 del deploy) |
 | 2A Refresh en cookie | S-08 | Pendiente |

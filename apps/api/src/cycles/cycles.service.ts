@@ -1,5 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { assertActiveRelation } from "../common/access";
 import { AuthenticatedUser } from "../common/decorators/current-user.decorator";
 import { CreateCycleDto } from "./dto/create-cycle.dto";
 import { UpdateCycleDto } from "./dto/update-cycle.dto";
@@ -68,6 +69,8 @@ export class CyclesService {
         where: {
           coachId: user.id,
           parentCycleId: null,
+          // Solo planes de atletas con relación activa (docs/SEGURIDAD.md, R5).
+          athlete: { athleteRelations: { some: { coachId: user.id, status: "active" } } },
           ...(query.athleteId ? { athleteId: query.athleteId } : {}),
           ...(query.status ? { status: query.status } : {}),
         },
@@ -90,7 +93,7 @@ export class CyclesService {
     if (!parent) {
       throw new NotFoundException("Ciclo no encontrado.");
     }
-    this.assertAccess(user, parent);
+    await this.assertAccess(user, parent);
     if (parent.cycleType !== "macrocycle") {
       throw new BadRequestException("Este plan no es un macrociclo, no tiene hijos.");
     }
@@ -106,15 +109,19 @@ export class CyclesService {
     if (!cycle) {
       throw new NotFoundException("Ciclo no encontrado.");
     }
-    this.assertAccess(user, cycle);
+    await this.assertAccess(user, cycle);
 
     return cycle;
   }
 
-  private assertAccess(user: AuthenticatedUser, cycle: { coachId: string; athleteId: string }): void {
+  private async assertAccess(user: AuthenticatedUser, cycle: { coachId: string; athleteId: string }): Promise<void> {
     const isOwner = user.role === "coach" ? cycle.coachId === user.id : cycle.athleteId === user.id;
     if (!isOwner) {
       throw new ForbiddenException("No tienes acceso a este plan.");
+    }
+    // El coach además necesita la relación activa; el atleta siempre ve lo suyo.
+    if (user.role === "coach") {
+      await assertActiveRelation(this.prisma, user.id, cycle.athleteId);
     }
   }
 
@@ -126,6 +133,7 @@ export class CyclesService {
     if (cycle.coachId !== coachId) {
       throw new ForbiddenException("Solo el coach dueño puede editar este ciclo.");
     }
+    await assertActiveRelation(this.prisma, coachId, cycle.athleteId);
 
     const startDate = dto.startDate ? new Date(dto.startDate) : cycle.startDate;
     const endDate = dto.endDate ? new Date(dto.endDate) : cycle.endDate;
