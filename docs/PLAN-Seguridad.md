@@ -205,7 +205,7 @@ Migración con un trigger de Postgres que rechace `UPDATE` y `DELETE` sobre `Exe
 
 | PR | Hallazgos | Estado |
 |---|---|---|
-| 1A Dependencias | S-03 | Pendiente |
+| 1A Dependencias | S-03 | **Hecho** (2026-09-27): de 16 vulnerabilidades a 1 moderada aceptada (`@nestjs/core`, ver `SEGURIDAD.md` §3.4) |
 | 1B Endurecer la API | S-01, S-04, S-05, S-06, S-07 | Pendiente |
 | 1C Google sin tokens en la URL | S-02 | Pendiente |
 | 1D Cabeceras en Vercel | S-07 | Pendiente (con el paso 4 del deploy) |
