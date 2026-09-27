@@ -20,6 +20,7 @@ Tres tandas, de mayor a menor urgencia. Cada PR es chico y se puede revisar solo
 | | | **1B** Endurecer la API | S-01, S-04, S-05, S-06, S-07 (API) | Medio |
 | | | **1C** Login con Google sin tokens en la URL | S-02 | Medio |
 | | | **1D** Cabeceras de la web en Vercel | S-07 (web) | Bajo, junto con el paso 4 del plan de deploy |
+| | | **1E** Alertas de seguridad a Slack | Detección (complementa S-01 y R2) | Medio |
 | **2** | Antes de sumar más usuarios | **2A** Refresh token en cookie `httpOnly` | S-08 | Alto |
 | | | **2B** Tokens de la app móvil en el Keychain | S-09 | Bajo, en la rama de la app móvil |
 | | | **2C** Tests de autorización y CI | S-11 | Medio |
@@ -154,6 +155,47 @@ Va dentro del paso 4 del plan de deploy: un `vercel.json` en `apps/web` con:
 
 ---
 
+### 1E · Alertas de seguridad a Slack (complementa S-01 · R2, R8)
+
+**Objetivo:** enterarse de un ataque o de un comportamiento sospechoso **en el momento**, sin revisar los logs de Render. Las defensas ya existen (límite de intentos, detección de reuso de sesión); 1E avisa cuando se activan de una forma que no parece un usuario equivocándose.
+
+**Canal:** un *incoming webhook* de Slack hacia un canal privado, por ejemplo `#cycles-seguridad`. Slack y no email: llega al instante, no gasta la cuota ni la reputación de Resend (que envía las invitaciones) y sirve para un equipo.
+
+**Qué se alerta.** No cada 429: un usuario que se equivoca de contraseña 6 veces también lo genera, y el canal se volvería ruido.
+
+| Evento | Regla inicial | Nivel |
+|---|---|---|
+| **Reuso de un refresh token ya rotado** (ya se detecta y cierra todas las sesiones) | Cada vez | Alta |
+| **IP que prueba muchos emails distintos** en el login | ≥ 10 emails distintos desde una IP en 10 min | Alta |
+| **Cuenta atacada desde varias IPs** | ≥ 10 logins fallidos contra un mismo email en 15 min, desde ≥ 3 IPs | Alta |
+| **IP bloqueada repetidamente** por el límite de intentos | ≥ 3 bloqueos (429) de la misma IP en 10 min | Media |
+| **Pico de emails no enviados** por Resend | ≥ 5 fallas de envío en 15 min | Media |
+
+Los umbrales son iniciales: van como constantes, igual que los límites de 1B.
+
+**Qué dice cada alerta:** el evento, el nivel, la hora (UTC y hora local), la IP, la cuenta afectada con el email parcialmente oculto (`lu***@gmail.com`), cuántas veces pasó en la ventana y la ruta. **Nunca** contraseñas, tokens ni enlaces con token (R8).
+
+**Cómo se implementa:**
+1. **`SecurityAlertService`** (en `common/`) con un método por evento y un **contador en memoria por ventana de tiempo**, igual que el throttler (alcanza con una instancia). Si algún día hay varias instancias, pasa a Redis.
+2. **Anti-inundación:** como máximo 1 alerta por patrón y por IP o cuenta cada 15 min. Si se repite, la siguiente alerta dice cuántas veces pasó mientras tanto. Así un atacante no puede llenar el canal.
+3. **Puntos de enganche:**
+   - `ThrottlerGuard` (sobrescribir `throwThrottlingException`) para los bloqueos por IP;
+   - `AuthService.login` para los logins fallidos;
+   - `AuthService.refresh` para el reuso;
+   - `MailService.deliver` para las fallas de envío.
+4. **Envío a Slack sin bloquear la respuesta:** la alerta sale en segundo plano, con un timeout corto. Si Slack falla o no está configurado, la alerta queda en el log y la API sigue normal.
+5. **Variable nueva `SLACK_SECURITY_WEBHOOK_URL`:** es un secreto (R1). Va en `.env` y en Render, y se documenta en `.env.example` sin valor. Es opcional incluso en producción, porque sin ella las alertas quedan en el log.
+
+**Lo que haces tú:** crear el canal privado en Slack, agregar la app *Incoming Webhooks* (o una app propia de Slack con esa función) apuntando al canal y guardar la URL en el gestor de contraseñas.
+
+**Se prueba con:**
+- Forzar cada evento en local (logins fallidos con muchos emails desde una IP, reuso de un refresh, key de Resend inválida) y ver que llega una sola alerta por patrón, con el formato esperado y sin datos sensibles.
+- Sin webhook configurado, la API responde igual y la alerta queda en el log.
+
+**Relación con los avisos de actividad:** usa la misma integración con Slack que los avisos de actividad del piloto (`docs/deploy/PLAN-Deploy.md`, paso 8), pero con otro canal y otra variable, para que las alertas de seguridad no se pierdan entre los avisos de actividad.
+
+---
+
 ## Tanda 2 · Antes de sumar más usuarios
 
 ### 2A · Refresh token en cookie `httpOnly` (S-08 · R2)
@@ -209,6 +251,7 @@ Migración con un trigger de Postgres que rechace `UPDATE` y `DELETE` sobre `Exe
 | 1B Endurecer la API | S-01, S-04, S-05, S-06, S-07 | **Hecho** (2026-09-27). Diferencias con el plan: login con 20/min por IP y 5/min por email (sin el límite por hora); la invitación limita por IP y por email invitado, no por coach, porque el límite se aplica antes de identificar al usuario. `execution` y `tracking` mantienen su propio chequeo de relación. |
 | 1C Google sin tokens en la URL | S-02 | Pendiente |
 | 1D Cabeceras en Vercel | S-07 | Pendiente (con el paso 4 del deploy) |
+| 1E Alertas de seguridad a Slack | Detección | Pendiente |
 | 2A Refresh en cookie | S-08 | Pendiente |
 | 2B Keychain en móvil | S-09 | Pendiente (rama móvil) |
 | 2C Tests y CI | S-11 | Pendiente |
