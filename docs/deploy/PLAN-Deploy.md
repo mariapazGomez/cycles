@@ -22,6 +22,7 @@ updated: 2026-09-26
 | 5 | Google OAuth en producción | Necesita las URLs definitivas de la API y de la web. | Por detallar |
 | 6 | DNS de la web y la API | Apunta los subdominios del paso 0 a Vercel y Render. | Por detallar |
 | 7 | Prueba de punta a punta y piloto | Cierra el plan. | Por detallar |
+| 8 | Avisos de actividad del piloto en Slack | Para seguir el piloto sin entrar a la base: quién se suma y qué hace. Comparte la integración con las alertas de seguridad (1E). | Detallado abajo |
 
 **El dominio no bloquea todo.** Mientras se decide, se puede avanzar con el código del paso 1 (probando con el remitente de prueba de Resend, que solo envía a tu propio email) y con los pasos 2 a 4 usando las URLs gratuitas de cada servicio (`*.onrender.com`, `*.vercel.app`). Lo que sí necesita el dominio es enviar emails a los coaches y atletas del piloto.
 
@@ -244,3 +245,54 @@ Si se elige la opción de compañía (`cycles.<dominio>`), la misma idea se adap
 - **Antes de abrir el piloto:** resolver los hallazgos de severidad alta de `docs/SEGURIDAD.md` (S-01 límite de intentos, S-02 tokens de Google en la URL, S-03 dependencias).
 - Recorrer: registro de coach → invitación → atleta acepta → plan con grid → registro de una sesión desde el celular → avisos del coach.
 - Borrar los datos de prueba y dar acceso a los coaches del piloto.
+
+## Paso 8 · Avisos de actividad del piloto en Slack
+
+**Objetivo:** enterarse de lo que pasa en el piloto sin consultar la base: quién se registra, quién invita, quién entrena. Son avisos informativos para el equipo, no para los usuarios, y **no son alertas de seguridad**: esas van por su propio canal (`docs/PLAN-Seguridad.md`, 1E).
+
+**Canal:** un canal de Slack distinto al de seguridad, por ejemplo `#cycles-actividad`, con su propio *incoming webhook*.
+
+### 8.1 Qué se avisa
+
+| Evento | Cuándo | Ejemplo de mensaje |
+|---|---|---|
+| **Coach nuevo** | Al verificar el email (no al registrarse, para no avisar de cuentas abandonadas) | "Nuevo coach: Mariana R. (ma***@gmail.com)" |
+| **Invitación enviada** | Cada vez | "Coach Mariana R. invitó a un atleta" |
+| **Atleta nuevo** | Al aceptar la invitación | "Tomás P. aceptó la invitación de Mariana R." |
+| **Primer plan de un coach** | Una sola vez por coach | "Mariana R. creó su primer plan: Bloque de fuerza (4 semanas)" |
+| **Primera sesión registrada por un atleta** | Una sola vez por atleta | "Tomás P. registró su primera sesión" |
+| **Resumen diario** | Todos los días a una hora fija | "Ayer: 2 coaches nuevos, 5 atletas, 14 sesiones registradas, 3 omitidas, 2 ajustes de carga aplicados" |
+
+**Qué no se avisa:** cada serie, cada sesión (salvo la primera), los cambios de plan ni los inicios de sesión. Eso va solo en el resumen diario, para que el canal no se vuelva ruido.
+
+### 8.2 Privacidad
+
+- **Datos mínimos:** nombre abreviado (nombre + inicial del apellido) y email parcialmente oculto. **Nunca** datos de salud ni de rendimiento de un atleta: ni dolor, ni cargas, ni notas (regla R7). El resumen diario solo lleva totales.
+- El canal es privado y solo para el equipo.
+- Si un coach o atleta pide que no se use su actividad, se agrega una exclusión (anotarlo como decisión abierta si pasa).
+
+### 8.3 Cómo se implementa
+
+1. **`ActivityNotifier`** en `common/`, sobre la misma utilidad de envío a Slack que `SecurityAlertService` (1E): envío en segundo plano, timeout corto y, si falla, se escribe en el log sin afectar la respuesta.
+2. **Puntos de enganche:**
+   - `AuthService.verifyEmail` → coach nuevo;
+   - `AthletesService.invite` → invitación enviada;
+   - `AthletesService.acceptInvitation` → atleta nuevo;
+   - `CyclesService.create` → primer plan del coach, si es el primero;
+   - `ExecutionService.submitFeedback` → primera sesión del atleta, si es la primera.
+3. **Resumen diario:** una tarea programada dentro de la API (`@nestjs/schedule`) que cuenta los eventos del día anterior con consultas a la base. Alternativa: un *cron job* de Render que llame a un endpoint interno protegido. Se decide al implementarlo.
+4. **Variable nueva `SLACK_ACTIVITY_WEBHOOK_URL`:** secreta y opcional, como la de seguridad. Sin ella, los avisos quedan en el log.
+5. **Solo en producción:** en desarrollo y en pruebas no se envían avisos (se loguean), para no mezclar datos de prueba con los del piloto.
+
+### 8.4 Lo que haces tú
+
+- Crear el canal `#cycles-actividad` y su *incoming webhook*.
+- Definir a qué hora llega el resumen diario (propuesta: 8:00, hora de Chile).
+
+### 8.5 Listo cuando
+
+- [ ] Llegan al canal los avisos de 8.1 durante una prueba de punta a punta (paso 7).
+- [ ] El resumen diario llega a la hora definida, con los totales correctos.
+- [ ] Ningún aviso incluye datos de salud o rendimiento, ni emails completos.
+- [ ] Sin webhook configurado, la API funciona igual.
+
