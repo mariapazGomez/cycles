@@ -23,7 +23,7 @@ updated: 2026-09-26
 
 | Archivo | Qué contiene | Regla |
 |---|---|---|
-| `apps/api/.env` | Secretos locales: `DATABASE_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, credenciales de Google, `RESEND_API_KEY` | Nunca se commitea (está en `.gitignore`). Solo desarrollo. |
+| `apps/api/.env` | Secretos locales: `DATABASE_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, credenciales de Google, `RESEND_API_KEY`, `SLACK_SECURITY_WEBHOOK_URL` | Nunca se commitea (está en `.gitignore`). Solo desarrollo. |
 | `apps/api/.env.example` | Los nombres de las variables, sin valores reales | Se actualiza cada vez que se agrega una variable. Nunca lleva un secreto. |
 | `apps/web/.env` / `.env.example` | `VITE_API_URL` | Todo `VITE_*` termina **dentro del JavaScript público**: nunca poner un secreto ahí. |
 | `.gitignore` | Excluye `.env`, `.env.local`, `node_modules`, `dist` | No quitar esas entradas. |
@@ -70,6 +70,13 @@ updated: 2026-09-26
 |---|---|
 | `apps/api/src/mail/mail.service.ts` | Envío por Resend. Sin `RESEND_API_KEY` escribe los enlaces en el log (solo para desarrollo, ver S-06). |
 | `apps/api/src/mail/templates.ts` | Plantillas; escapa el nombre del coach antes de insertarlo en el HTML. |
+
+### Alertas de seguridad
+
+| Archivo | Qué hace |
+|---|---|
+| `apps/api/src/common/alerts/security-alert.service.ts` | Cuenta en memoria los eventos sospechosos (logins fallidos, bloqueos por límite, reuso de refresh, fallas de Resend) y avisa a Slack cuando pasan los umbrales de `ALERT_RULES`. Oculta los emails y nunca incluye tokens ni contraseñas (R8). El webhook (`SLACK_SECURITY_WEBHOOK_URL`) es un secreto (R1). |
+| `apps/api/src/common/throttle/alerting-throttler.guard.ts` | El guard del límite de intentos, que además reporta cada bloqueo (429) a las alertas. |
 
 ---
 

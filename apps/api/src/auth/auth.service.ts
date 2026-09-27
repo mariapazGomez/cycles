@@ -10,6 +10,7 @@ import * as bcrypt from "bcrypt";
 import { User } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { MailService } from "../mail/mail.service";
+import { SecurityAlertService } from "../common/alerts/security-alert.service";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
 import { CompleteProfileDto } from "./dto/complete-profile.dto";
@@ -36,6 +37,7 @@ export class AuthService {
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
     private readonly mail: MailService,
+    private readonly alerts: SecurityAlertService,
   ) {}
 
   async register(dto: RegisterDto): Promise<{ id: string; email: string }> {
@@ -67,14 +69,12 @@ export class AuthService {
     return { id: user.id, email: user.email };
   }
 
-  async login(dto: LoginDto): Promise<AuthTokens> {
+  // `ip` alimenta las alertas de seguridad (docs/PLAN-Seguridad.md, 1E).
+  async login(dto: LoginDto, ip: string): Promise<AuthTokens> {
     const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
-    if (!user || !user.passwordHash) {
-      throw new UnauthorizedException("Credenciales inválidas");
-    }
-
-    const matches = await bcrypt.compare(dto.password, user.passwordHash);
-    if (!matches) {
+    const matches = user?.passwordHash ? await bcrypt.compare(dto.password, user.passwordHash) : false;
+    if (!user || !matches) {
+      this.alerts.failedLogin(ip, dto.email, "POST /auth/login");
       throw new UnauthorizedException("Credenciales inválidas");
     }
 
@@ -168,7 +168,7 @@ export class AuthService {
     });
   }
 
-  async refresh(rawRefreshToken: string): Promise<AuthTokens> {
+  async refresh(rawRefreshToken: string, ip: string): Promise<AuthTokens> {
     let payload: { sub: string };
     try {
       payload = this.jwt.verify(rawRefreshToken, {
@@ -188,6 +188,8 @@ export class AuthService {
         where: { userId: stored.userId, revokedAt: null },
         data: { revokedAt: new Date() },
       });
+      const owner = await this.prisma.user.findUnique({ where: { id: stored.userId } });
+      this.alerts.refreshTokenReused(ip, owner?.email ?? stored.userId, "POST /auth/refresh");
       throw new UnauthorizedException("Refresh token inválido");
     }
 
