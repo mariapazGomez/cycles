@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { AuthCard } from "../components/AuthCard";
+import { exchangeGoogleCode } from "../services/authApi";
 
 export function OAuthCallbackPage() {
   const [searchParams] = useSearchParams();
@@ -14,15 +15,14 @@ export function OAuthCallbackPage() {
     if (startedRef.current) return;
     startedRef.current = true;
 
-    const accessToken = searchParams.get("accessToken");
-    const refreshToken = searchParams.get("refreshToken");
-
-    if (!accessToken || !refreshToken) {
+    const code = searchParams.get("code");
+    if (!code) {
       setError(true);
       return;
     }
 
-    loginWithTokens({ accessToken, refreshToken })
+    exchangeGoogleCode(code)
+      .then((tokens) => loginWithTokens(tokens))
       .then((user) => {
         navigate(user.role ? "/" : "/complete-profile", { replace: true });
       })
