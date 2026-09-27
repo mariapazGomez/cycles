@@ -72,6 +72,7 @@ Sin Swagger/OpenAPI activado todavía (pendiente, ver `docs/prds/PRD-General.md`
 | Arquitectura técnica | `docs/ARCHITECTURE.md` |
 | Seguridad: archivos sensibles, reglas y auditoría | `docs/SEGURIDAD.md` |
 | Plan de correcciones de seguridad | `docs/PLAN-Seguridad.md` |
+| Pruebas manuales pendientes | `docs/PRUEBAS-PENDIENTES.md` |
 | Plan de deploy (dominio, Resend, hosting) | `docs/deploy/PLAN-Deploy.md` |
 | Estrategia de marca | `docs/brand/brand.md` |
 | Identidad visual (decisiones de color/tipografía) | `docs/brand/identidad-visual.md` |
