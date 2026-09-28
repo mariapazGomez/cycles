@@ -18,6 +18,7 @@ import { ExercisesModule } from "./exercises/exercises.module";
 import { RoutinesModule } from "./routines/routines.module";
 import { ExecutionModule } from "./execution/execution.module";
 import { TrackingModule } from "./tracking/tracking.module";
+import { HealthController } from "./health/health.controller";
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { TrackingModule } from "./tracking/tracking.module";
     ExecutionModule,
     TrackingModule,
   ],
+  controllers: [HealthController],
   // Límite de intentos en toda la API (docs/SEGURIDAD.md, S-01), con alertas
   // cuando una IP se bloquea seguido (docs/PLAN-Seguridad.md, 1E).
   providers: [{ provide: APP_GUARD, useClass: AlertingThrottlerGuard }],
