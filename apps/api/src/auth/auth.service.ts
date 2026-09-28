@@ -11,6 +11,7 @@ import { User } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { MailService } from "../mail/mail.service";
 import { SecurityAlertService } from "../common/alerts/security-alert.service";
+import { ActivityNotifier } from "../activity/activity-notifier.service";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
 import { CompleteProfileDto } from "./dto/complete-profile.dto";
@@ -38,6 +39,7 @@ export class AuthService {
     private readonly config: ConfigService,
     private readonly mail: MailService,
     private readonly alerts: SecurityAlertService,
+    private readonly activity: ActivityNotifier,
   ) {}
 
   async register(dto: RegisterDto): Promise<{ id: string; email: string }> {
@@ -166,6 +168,7 @@ export class AuthService {
         dataConsentVersion: dto.dataConsent ? DATA_CONSENT_VERSION : user.dataConsentVersion,
       },
     });
+    this.activity.coachJoined(userId);
   }
 
   async refresh(rawRefreshToken: string, ip: string): Promise<AuthTokens> {
@@ -231,6 +234,7 @@ export class AuthService {
       }),
       this.prisma.emailVerificationToken.deleteMany({ where: { userId: record.userId } }),
     ]);
+    this.activity.coachJoined(record.userId);
   }
 
   async resendVerification(email: string): Promise<void> {

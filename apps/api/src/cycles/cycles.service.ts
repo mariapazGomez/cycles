@@ -1,4 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { ActivityNotifier } from "../activity/activity-notifier.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { assertActiveRelation } from "../common/access";
 import { AuthenticatedUser } from "../common/decorators/current-user.decorator";
@@ -8,7 +9,10 @@ import { ListCyclesQueryDto } from "./dto/list-cycles.query.dto";
 
 @Injectable()
 export class CyclesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly activity: ActivityNotifier,
+  ) {}
 
   async create(coachId: string, dto: CreateCycleDto) {
     const relation = await this.prisma.coachAthlete.findUnique({
@@ -45,7 +49,7 @@ export class CyclesService {
       }
     }
 
-    return this.prisma.trainingCycle.create({
+    const cycle = await this.prisma.trainingCycle.create({
       data: {
         coachId,
         athleteId: dto.athleteId,
@@ -58,6 +62,8 @@ export class CyclesService {
         parentCycleId: dto.parentCycleId,
       },
     });
+    this.activity.planCreated(coachId, cycle);
+    return cycle;
   }
 
   // Un coach ve los ciclos que creó; un atleta ve los que le asignaron.

@@ -6,6 +6,7 @@ import { validateEnv } from "./common/config/env.validation";
 import { throttlerOptions } from "./common/throttle/throttle";
 import { AlertingThrottlerGuard } from "./common/throttle/alerting-throttler.guard";
 import { SecurityAlertModule } from "./common/alerts/security-alert.module";
+import { ActivityModule } from "./activity/activity.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { MailModule } from "./mail/mail.module";
 import { AuthModule } from "./auth/auth.module";
@@ -23,6 +24,7 @@ import { TrackingModule } from "./tracking/tracking.module";
     ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
     ThrottlerModule.forRoot(throttlerOptions),
     SecurityAlertModule,
+    ActivityModule,
     PrismaModule,
     MailModule,
     AuthModule,

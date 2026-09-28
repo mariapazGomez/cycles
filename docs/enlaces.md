@@ -47,6 +47,7 @@ Sin Swagger/OpenAPI activado todavía (pendiente, ver `docs/prds/PRD-General.md`
 | Hijos de un macrociclo | `/cycles/:id/children` | [[PRD-RutinasYProgramacion]] |
 | Registro del atleta | `/me/today`, `/sessions/:id/start`, `/session-exercises/:id/logs`, `/sessions/:id/feedback` | [[PRD-EjecucionYSeguimiento]] |
 | Seguimiento del coach | `/coach/attention`, `/athletes/:id/summary`, `/cycles/:id/progress`, `/cycles/:id/load-adjustments` | [[PRD-EjecucionYSeguimiento]] |
+| Interno: resumen diario de actividad (solo GitHub Actions, con secreto) | `POST /internal/activity/daily-summary` | `docs/deploy/PLAN-Deploy.md`, paso 8 |
 
 ## Base de datos
 

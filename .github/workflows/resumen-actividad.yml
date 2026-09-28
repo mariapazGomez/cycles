@@ -1,0 +1,47 @@
+# Resumen diario de actividad del piloto a Slack, a las 8:00 de Chile.
+# Ver docs/deploy/PLAN-Deploy.md, paso 8.
+#
+# GitHub programa en UTC y Chile cambia de horario (UTC-3 / UTC-4), así que
+# corre a las 11:05 y a las 12:05 UTC y solo llama a la API si en Chile son
+# las 8 o las 9 (margen por si GitHub se atrasa). Si llegan dos llamadas el
+# mismo día, la API envía el resumen una sola vez.
+#
+# Necesita, en Settings → Secrets and variables → Actions:
+# - variable CYCLES_API_URL (ej. https://api.getcycles.app)
+# - secreto ACTIVITY_CRON_SECRET (el mismo valor que en Render)
+# Mientras no existan, el workflow termina sin hacer nada.
+
+name: Resumen de actividad
+
+on:
+  schedule:
+    - cron: "5 11 * * *"
+    - cron: "5 12 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  resumen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Pedir el resumen a la API
+        env:
+          API_URL: ${{ vars.CYCLES_API_URL }}
+          SECRET: ${{ secrets.ACTIVITY_CRON_SECRET }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [ -z "$API_URL" ] || [ -z "$SECRET" ]; then
+            echo "Falta CYCLES_API_URL o ACTIVITY_CRON_SECRET: se omite."
+            exit 0
+          fi
+          HOUR=$(TZ=America/Santiago date +%H)
+          if [ "$EVENT" = "schedule" ] && [ "$HOUR" != "08" ] && [ "$HOUR" != "09" ]; then
+            echo "En Chile son las $HOUR: esta ejecución no corresponde."
+            exit 0
+          fi
+          # La API puede estar dormida (Render gratis): tiempo largo y reintentos.
+          curl --fail --silent --show-error --max-time 120 --retry 3 --retry-delay 30 --retry-all-errors \
+            -X POST -H "Authorization: Bearer $SECRET" \
+            "$API_URL/internal/activity/daily-summary"
