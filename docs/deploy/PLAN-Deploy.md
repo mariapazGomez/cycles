@@ -16,7 +16,7 @@ updated: 2026-09-26
 |---|---|---|---|
 | 0 | Definir y comprar el dominio | Resend necesita un dominio verificado para enviar a cualquier persona, y la web, la API y Google OAuth van a usar ese mismo dominio. | **Hecho** (2026-09-25) |
 | 1 | Email transaccional con Resend | Sin emails nadie puede verificar su cuenta, recuperar la contraseña ni aceptar una invitación. Se puede hacer y probar en local antes de desplegar nada. | **Hecho** (2026-09-26); falta DMARC |
-| 2 | Base de datos en Supabase | La API la necesita para arrancar. | **Hecho** (2026-09-28); faltan el script de respaldo (2.5, antes del piloto) y revisar el *Security Advisor* |
+| 2 | Base de datos en Supabase | La API la necesita para arrancar. | **Hecho** (2026-09-28); falta el script de respaldo (2.5, antes del piloto) |
 | 3 | API en Render | Depende de la base y de las variables de Resend. | Por detallar |
 | 4 | Web en Vercel | Depende de la URL pública de la API. | Por detallar |
 | 5 | Google OAuth en producción | Necesita las URLs definitivas de la API y de la web. | Por detallar |
@@ -269,7 +269,7 @@ Leyendo `SUPABASE_DATABASE_URL` del `.env` sin mostrarla en pantalla:
 - [x] Proyecto creado en North Virginia, con verificación en dos pasos en la cuenta y la contraseña en el gestor.
 - [ ] Data API desactivada.
 - [x] Migraciones aplicadas (`prisma migrate status` sin pendientes) y catálogo de ejercicios cargado.
-- [ ] Sin avisos críticos en el *Security Advisor*.
+- [x] Sin avisos críticos en el *Security Advisor* (2026-09-28: 0 errores, 0 advertencias y 18 avisos informativos *RLS Enabled No Policy*, uno por tabla, esperados: nadie debe entrar por la Data API).
 - [x] Ninguna URL ni contraseña de la base en el repo, en un issue ni en el chat.
 
 ## Paso 3 · API en Render *(por detallar)*
