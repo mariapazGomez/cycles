@@ -15,14 +15,14 @@ updated: 2026-09-26
 | # | Paso | Por qué en este orden | Estado |
 |---|---|---|---|
 | 0 | Definir y comprar el dominio | Resend necesita un dominio verificado para enviar a cualquier persona, y la web, la API y Google OAuth van a usar ese mismo dominio. | **Hecho** (2026-09-25) |
-| 1 | Email transaccional con Resend | Sin emails nadie puede verificar su cuenta, recuperar la contraseña ni aceptar una invitación. Se puede hacer y probar en local antes de desplegar nada. | Código listo; falta la cuenta y el DNS (1.3) |
-| 2 | Base de datos en Supabase | La API la necesita para arrancar. | Por detallar |
+| 1 | Email transaccional con Resend | Sin emails nadie puede verificar su cuenta, recuperar la contraseña ni aceptar una invitación. Se puede hacer y probar en local antes de desplegar nada. | **Hecho** (2026-09-26); falta DMARC |
+| 2 | Base de datos en Supabase | La API la necesita para arrancar. | Detallado abajo |
 | 3 | API en Render | Depende de la base y de las variables de Resend. | Por detallar |
 | 4 | Web en Vercel | Depende de la URL pública de la API. | Por detallar |
 | 5 | Google OAuth en producción | Necesita las URLs definitivas de la API y de la web. | Por detallar |
 | 6 | DNS de la web y la API | Apunta los subdominios del paso 0 a Vercel y Render. | Por detallar |
 | 7 | Prueba de punta a punta y piloto | Cierra el plan. | Por detallar |
-| 8 | Avisos de actividad del piloto en Slack | Para seguir el piloto sin entrar a la base: quién se suma y qué hace. Comparte la integración con las alertas de seguridad (1E). | Detallado abajo |
+| 8 | Avisos de actividad del piloto en Slack | Para seguir el piloto sin entrar a la base: quién se suma y qué hace. Comparte la integración con las alertas de seguridad (1E). | **Hecho en código** (2026-09-28); falta probarlo en producción (P-13) |
 
 **El dominio no bloquea todo.** Mientras se decide, se puede avanzar con el código del paso 1 (probando con el remitente de prueba de Resend, que solo envía a tu propio email) y con los pasos 2 a 4 usando las URLs gratuitas de cada servicio (`*.onrender.com`, `*.vercel.app`). Lo que sí necesita el dominio es enviar emails a los coaches y atletas del piloto.
 
@@ -213,15 +213,65 @@ Si se elige la opción de compañía (`cycles.<dominio>`), la misma idea se adap
 
 ---
 
-## Paso 2 · Base de datos en Supabase *(por detallar)*
+## Paso 2 · Base de datos en Supabase
 
-- Crear el proyecto en la región más cercana y guardar la contraseña de la base en el gestor.
-- Connection string con *pooler* para la API y conexión directa para migraciones (`prisma migrate deploy`).
-- Aplicar las migraciones, cargar el catálogo de ejercicios (seed) y definir los backups.
+**Objetivo:** una base Postgres en internet, con las migraciones aplicadas y el catálogo de ejercicios cargado, lista para que la API de Render se conecte en el paso 3. Supabase se usa **solo como Postgres**: la autenticación, el storage y la API automática de Supabase no se usan (la API de Cycles tiene su propio auth).
+
+### 2.1 Decisiones
+
+| Tema | Decisión | Por qué |
+|---|---|---|
+| **Plan** | Gratuito | 500 MB alcanzan de sobra para un piloto con 2 o 3 coaches. |
+| **Región** | **East US (North Virginia)**, la misma que la API en Render (paso 3) | Render no tiene región en Sudamérica. Cada pedido a la API hace varias consultas a la base, así que importa más que la API y la base estén juntas que cerca del usuario: una base en São Paulo con la API en EE. UU. sumaría ~120 ms por consulta. |
+| **Conexión** | *Session pooler* de Supabase (puerto 5432), para la API y para las migraciones | La conexión directa de Supabase solo funciona por IPv6 y Render no sale por IPv6. El *session pooler* funciona por IPv4, acepta las consultas preparadas de Prisma y sirve también para `prisma migrate deploy`, así que alcanza **una sola** `DATABASE_URL`, sin cambios en el código. El *transaction pooler* (6543) solo conviene con muchas instancias o funciones *serverless*, que no es el caso. |
+| **API automática de Supabase (Data API)** | **Desactivada** | Expone las tablas del esquema `public` por HTTP con una key que Supabase considera pública. No la usamos, y dejarla activa sería una puerta de entrada a los datos que no pasa por los permisos de la API (R5). |
+| **Pausa por inactividad** | Aceptada | El plan gratuito pausa el proyecto tras 7 días sin uso. Durante el piloto no pasa: el resumen diario (paso 8) consulta la base todos los días. |
+| **Backups** | Respaldo manual semanal con `pg_dump` mientras dure el piloto (ver 2.5) | El plan gratuito no incluye backups descargables ni restauración a un punto en el tiempo; el plan Pro (25 USD/mes) sí, pero se sale del presupuesto. Se reevalúa si el piloto crece. |
+
+### 2.2 Lo que haces tú en Supabase
+
+1. Crear la cuenta en supabase.com (con Google o GitHub) y activar la **verificación en dos pasos** (*Account → Security*).
+2. **New project:**
+   - **Name:** `cycles`.
+   - **Database password:** *Generate a password* y guardarla **en ese momento** en el gestor de contraseñas. No se vuelve a mostrar.
+   - **Region:** *East US (North Virginia)*.
+   - En las opciones de seguridad, si aparecen: **desmarcar** *Enable Data API* y **marcar** *Enable automatic RLS*.
+3. Si el proyecto se creó sin esas opciones: *Project Settings → Data API* y desactivarla.
+4. Copiar la conexión: botón **Connect** (arriba) → *Connection string* → método **Session pooler**. Tiene esta forma (sin la contraseña real):
+   `postgresql://postgres.<ref>:[YOUR-PASSWORD]@aws-0-us-east-1.pooler.supabase.com:5432/postgres`
+   Reemplazar `[YOUR-PASSWORD]` por la contraseña, agregar `?sslmode=require` al final y guardarla en el gestor.
+5. Para que Claude aplique las migraciones: agregarla **tú** en `apps/api/.env` como una variable aparte, `SUPABASE_DATABASE_URL=…`. `DATABASE_URL` sigue apuntando a la base local, para no tocar el desarrollo. Nunca pegarla en el chat (R1).
+
+### 2.3 Lo que hace Claude
+
+Leyendo `SUPABASE_DATABASE_URL` del `.env` sin mostrarla en pantalla:
+
+1. `prisma migrate deploy` contra Supabase: aplica las migraciones que ya están en el repo, en orden. Nunca `migrate dev` ni `db push` en producción.
+2. El seed del catálogo de ejercicios (`prisma/seed.ts`). Solo carga ejercicios, no usuarios de prueba, y no duplica si se corre dos veces.
+3. Verificar: `prisma migrate status` sin pendientes, las tablas creadas, el catálogo completo y ningún usuario.
+4. Revisar el *Security Advisor* de Supabase contigo (*Advisors → Security*): no debería quedar ningún aviso crítico.
+
+### 2.4 Qué queda para el paso 3
+
+- En Render, `DATABASE_URL` es la misma URL del *session pooler*. Las migraciones de cada deploy se corren al construir (`prisma migrate deploy`), con la misma variable.
+- Después del paso 3, `SUPABASE_DATABASE_URL` puede quedarse en el `.env` local solo para los respaldos (2.5) o borrarse.
+
+### 2.5 Respaldos durante el piloto
+
+- **Cada semana** (y antes de cada migración nueva): un `pg_dump` de la base de Supabase a un archivo local, guardado fuera del repo (por ejemplo, en una carpeta privada de Google Drive). Contiene datos de personas: nunca en el repo, que es público, ni en un chat.
+- Claude deja un script para hacerlo con un solo comando cuando se abra el piloto (paso 7), y se prueba restaurarlo una vez en la base local.
+
+### 2.6 Listo cuando
+
+- [ ] Proyecto creado en North Virginia, con verificación en dos pasos en la cuenta y la contraseña en el gestor.
+- [ ] Data API desactivada.
+- [ ] Migraciones aplicadas (`prisma migrate status` sin pendientes) y catálogo de ejercicios cargado.
+- [ ] Sin avisos críticos en el *Security Advisor*.
+- [ ] Ninguna URL ni contraseña de la base en el repo, en un issue ni en el chat.
 
 ## Paso 3 · API en Render *(por detallar)*
 
-- Web service desde el repo (monorepo, `apps/api`), con build `prisma generate` + `nest build` y migraciones al desplegar.
+- Web service desde el repo (monorepo, `apps/api`), en la región **Virginia (US East)**, la misma de la base (paso 2). Build: `prisma generate` + `prisma migrate deploy` + `nest build`.
 - Variables: `NODE_ENV=production`, `DATABASE_URL`, `JWT_*` nuevos (no reutilizar los de desarrollo; 64+ caracteres y distintos), `RESEND_API_KEY`, `MAIL_FROM`, `FRONTEND_URL`, `CORS_ORIGINS=https://app.getcycles.app`, `TRUST_PROXY=1`, `GOOGLE_*`, `PORT`, `ACTIVITY_CRON_SECRET` (resumen diario, paso 8) y, opcionales, `SLACK_SECURITY_WEBHOOK_URL` (alertas de seguridad, 1E) y `SLACK_ACTIVITY_WEBHOOK_URL` (avisos de actividad, paso 8). Si falta alguna obligatoria, la API no arranca y el log dice cuál (validación de 1B).
 - CORS ya está restringido a `CORS_ORIGINS` (1B de seguridad).
 - Plan gratuito: la API se duerme sin uso y tarda en despertar. Evaluar el plan pago más barato durante el piloto.
