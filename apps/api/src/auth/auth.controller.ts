@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  Ip,
   HttpStatus,
   Post,
   Req,
@@ -41,15 +42,15 @@ export class AuthController {
   @Throttle(LIMITS.login)
   @Post("login")
   @HttpCode(HttpStatus.OK)
-  login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
+  login(@Body() dto: LoginDto, @Ip() ip: string) {
+    return this.authService.login(dto, ip);
   }
 
   @Throttle(LIMITS.refresh)
   @Post("refresh")
   @HttpCode(HttpStatus.OK)
-  refresh(@Body() dto: RefreshTokenDto) {
-    return this.authService.refresh(dto.refreshToken);
+  refresh(@Body() dto: RefreshTokenDto, @Ip() ip: string) {
+    return this.authService.refresh(dto.refreshToken, ip);
   }
 
   @Post("logout")

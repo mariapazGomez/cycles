@@ -49,6 +49,12 @@ export function validateEnv(config: Record<string, unknown>): Record<string, unk
     }
   }
 
+  // Opcional incluso en producción: sin ella las alertas de seguridad quedan en el log.
+  const slackWebhook = value("SLACK_SECURITY_WEBHOOK_URL");
+  if (slackWebhook && !slackWebhook.startsWith("https://hooks.slack.com/")) {
+    errors.push("SLACK_SECURITY_WEBHOOK_URL debe ser una URL de webhook de Slack (https://hooks.slack.com/…).");
+  }
+
   if (errors.length > 0) {
     throw new Error(`Configuración inválida:\n- ${errors.join("\n- ")}`);
   }

@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Resend } from "resend";
+import { SecurityAlertService } from "../common/alerts/security-alert.service";
 import { EmailContent, athleteInvitationEmail, passwordResetEmail, verificationEmail } from "./templates";
 
 // El envío falló (Resend rechazó el pedido o no respondió). Quien llama
@@ -20,7 +21,10 @@ export class MailService {
   private readonly logger = new Logger(MailService.name);
   private readonly resend: Resend | null;
 
-  constructor(private readonly config: ConfigService) {
+  constructor(
+    private readonly config: ConfigService,
+    private readonly alerts: SecurityAlertService,
+  ) {
     const apiKey = this.config.get<string>("RESEND_API_KEY");
     this.resend = apiKey ? new Resend(apiKey) : null;
     // En producción nunca se entra en modo desarrollo: los enlaces con token
@@ -76,6 +80,7 @@ export class MailService {
       // Nunca loguear el enlace ni el token: con una key real el log podría leerlo otra persona.
       const reason = err instanceof Error ? err.message : String(err);
       this.logger.error(`No se pudo enviar "${content.subject}" a ${to}: ${reason}`);
+      this.alerts.mailFailed();
       throw err instanceof MailDeliveryError ? err : new MailDeliveryError(reason);
     }
   }
