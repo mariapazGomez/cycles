@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnModuleDestroy } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { maskEmail, postToSlack, slackValue } from "../slack/slack";
 
 // Alertas de seguridad a Slack (docs/PLAN-Seguridad.md, 1E). Avisan cuando
 // las defensas se activan de una forma que no parece un usuario
@@ -24,7 +25,6 @@ export const ALERT_RULES = {
 } as const;
 
 const LOCAL_TIME_ZONE = "America/Santiago";
-const SLACK_TIMEOUT_MS = 3_000;
 const SWEEP_EVERY_MS = 5 * MINUTE;
 
 type Level = "Alta" | "Media";
@@ -40,13 +40,6 @@ interface Alert {
 interface Hit {
   at: number;
   value: string;
-}
-
-// Oculta parte del email: "lucia@gmail.com" → "lu***@gmail.com".
-export function maskEmail(email: string): string {
-  const [local, domain] = email.split("@");
-  if (!domain) return "***";
-  return `${local.slice(0, 2)}***@${domain}`;
 }
 
 @Injectable()
@@ -210,27 +203,9 @@ export class SecurityAlertService implements OnModuleDestroy {
     const icon = alert.level === "Alta" ? ":rotating_light:" : ":warning:";
     const slackText = [
       `${icon} *[${alert.level}] ${alert.title}*`,
-      // Entre comillas invertidas si trae "*" (email oculto), para que Slack no lo lea como negrita.
-      ...entries.map(([k, v]) => `• *${k}:* ${String(v).includes("*") ? `\`${v}\`` : v}`),
+      ...entries.map(([k, v]) => `• *${k}:* ${slackValue(v as string | number)}`),
     ].join("\n");
-    void this.post(slackText);
-  }
-
-  // En segundo plano y con timeout: una falla de Slack nunca afecta la respuesta de la API.
-  private async post(text: string): Promise<void> {
-    if (!this.webhookUrl) return;
-    try {
-      const res = await fetch(this.webhookUrl, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ text }),
-        signal: AbortSignal.timeout(SLACK_TIMEOUT_MS),
-      });
-      if (!res.ok) {
-        this.logger.error(`Slack rechazó la alerta de seguridad (HTTP ${res.status}).`);
-      }
-    } catch (err) {
-      this.logger.error(`No se pudo enviar la alerta de seguridad a Slack: ${err instanceof Error ? err.message : err}`);
-    }
+    // En segundo plano: una falla de Slack nunca afecta la respuesta de la API.
+    if (this.webhookUrl) void postToSlack(this.webhookUrl, slackText, this.logger);
   }
 }

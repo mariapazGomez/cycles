@@ -1,3 +1,5 @@
+import { SLACK_WEBHOOK_PREFIX } from "../slack/slack";
+
 // Validación de variables de entorno al arrancar: si falta algo, la API no
 // arranca y el error dice qué falta (nunca muestra valores). Ver
 // docs/SEGURIDAD.md, hallazgo S-06, y docs/PLAN-Seguridad.md, 1B.
@@ -49,10 +51,16 @@ export function validateEnv(config: Record<string, unknown>): Record<string, unk
     }
   }
 
-  // Opcional incluso en producción: sin ella las alertas de seguridad quedan en el log.
-  const slackWebhook = value("SLACK_SECURITY_WEBHOOK_URL");
-  if (slackWebhook && !slackWebhook.startsWith("https://hooks.slack.com/")) {
-    errors.push("SLACK_SECURITY_WEBHOOK_URL debe ser una URL de webhook de Slack (https://hooks.slack.com/…).");
+  // Opcionales incluso en producción: sin ellas, las alertas de seguridad y
+  // los avisos de actividad quedan en el log.
+  for (const key of ["SLACK_SECURITY_WEBHOOK_URL", "SLACK_ACTIVITY_WEBHOOK_URL"]) {
+    if (value(key) && !value(key).startsWith(SLACK_WEBHOOK_PREFIX)) {
+      errors.push(`${key} debe ser una URL de webhook de Slack (${SLACK_WEBHOOK_PREFIX}…).`);
+    }
+  }
+  // Protege el endpoint del resumen diario (docs/deploy/PLAN-Deploy.md, paso 8).
+  if (value("ACTIVITY_CRON_SECRET") && value("ACTIVITY_CRON_SECRET").length < MIN_SECRET_LENGTH) {
+    errors.push(`ACTIVITY_CRON_SECRET debe tener al menos ${MIN_SECRET_LENGTH} caracteres.`);
   }
 
   if (errors.length > 0) {

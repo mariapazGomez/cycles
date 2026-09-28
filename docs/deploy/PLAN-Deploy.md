@@ -222,7 +222,7 @@ Si se elige la opción de compañía (`cycles.<dominio>`), la misma idea se adap
 ## Paso 3 · API en Render *(por detallar)*
 
 - Web service desde el repo (monorepo, `apps/api`), con build `prisma generate` + `nest build` y migraciones al desplegar.
-- Variables: `NODE_ENV=production`, `DATABASE_URL`, `JWT_*` nuevos (no reutilizar los de desarrollo; 64+ caracteres y distintos), `RESEND_API_KEY`, `MAIL_FROM`, `FRONTEND_URL`, `CORS_ORIGINS=https://app.getcycles.app`, `TRUST_PROXY=1`, `GOOGLE_*`, `PORT` y, opcional, `SLACK_SECURITY_WEBHOOK_URL` (alertas de seguridad, 1E). Si falta alguna obligatoria, la API no arranca y el log dice cuál (validación de 1B).
+- Variables: `NODE_ENV=production`, `DATABASE_URL`, `JWT_*` nuevos (no reutilizar los de desarrollo; 64+ caracteres y distintos), `RESEND_API_KEY`, `MAIL_FROM`, `FRONTEND_URL`, `CORS_ORIGINS=https://app.getcycles.app`, `TRUST_PROXY=1`, `GOOGLE_*`, `PORT`, `ACTIVITY_CRON_SECRET` (resumen diario, paso 8) y, opcionales, `SLACK_SECURITY_WEBHOOK_URL` (alertas de seguridad, 1E) y `SLACK_ACTIVITY_WEBHOOK_URL` (avisos de actividad, paso 8). Si falta alguna obligatoria, la API no arranca y el log dice cuál (validación de 1B).
 - CORS ya está restringido a `CORS_ORIGINS` (1B de seguridad).
 - Plan gratuito: la API se duerme sin uso y tarda en despertar. Evaluar el plan pago más barato durante el piloto.
 
@@ -271,28 +271,35 @@ Si se elige la opción de compañía (`cycles.<dominio>`), la misma idea se adap
 - El canal es privado y solo para el equipo.
 - Si un coach o atleta pide que no se use su actividad, se agrega una exclusión (anotarlo como decisión abierta si pasa).
 
-### 8.3 Cómo se implementa
+### 8.3 Cómo se implementó *(2026-09-28)*
 
-1. **`ActivityNotifier`** en `common/`, sobre la misma utilidad de envío a Slack que `SecurityAlertService` (1E): envío en segundo plano, timeout corto y, si falla, se escribe en el log sin afectar la respuesta.
+1. **`ActivityNotifier`** (`apps/api/src/activity/`), sobre la misma utilidad de envío a Slack que `SecurityAlertService` (`common/slack/slack.ts`): envío en segundo plano, timeout corto y, si falla, se escribe en el log sin afectar la respuesta.
 2. **Puntos de enganche:**
-   - `AuthService.verifyEmail` → coach nuevo;
+   - `AuthService.verifyEmail` y `AuthService.completeProfile` → coach nuevo (el segundo cubre a los coaches que entran con Google);
    - `AthletesService.invite` → invitación enviada;
    - `AthletesService.acceptInvitation` → atleta nuevo;
    - `CyclesService.create` → primer plan del coach, si es el primero;
-   - `ExecutionService.submitFeedback` → primera sesión del atleta, si es la primera.
-3. **Resumen diario:** una tarea programada dentro de la API (`@nestjs/schedule`) que cuenta los eventos del día anterior con consultas a la base. Alternativa: un *cron job* de Render que llame a un endpoint interno protegido. Se decide al implementarlo.
-4. **Variable nueva `SLACK_ACTIVITY_WEBHOOK_URL`:** secreta y opcional, como la de seguridad. Sin ella, los avisos quedan en el log.
-5. **Solo en producción:** en desarrollo y en pruebas no se envían avisos (se loguean), para no mezclar datos de prueba con los del piloto.
+   - `ExecutionService.submitFeedback` → primera sesión **completada** del atleta (las correcciones y las omitidas no cuentan).
+3. **Resumen diario: disparador externo.** La API tiene un endpoint interno, `POST /internal/activity/daily-summary`, protegido con `Authorization: Bearer <ACTIVITY_CRON_SECRET>`. Lo llama el workflow `.github/workflows/resumen-actividad.yml` (GitHub Actions, gratis). Se eligió así porque en el plan gratis de Render la API se duerme y una tarea interna no correría a la hora; la llamada externa la despierta.
+   - **Hora:** 8:00 de Chile. GitHub programa en UTC y Chile cambia de horario, así que el workflow corre a las 11:05 y 12:05 UTC y solo llama si en Chile son las 8 o las 9.
+   - **Una sola vez por día:** la tabla `ActivityDigest` guarda los días ya enviados. Si Slack falla, se libera el día y el workflow reintenta.
+   - **Qué cuenta:** el día anterior completo en hora de Chile (con el cambio de horario resuelto): coaches nuevos, invitaciones, atletas nuevos, planes creados, sesiones registradas y omitidas, ajustes de carga.
+   - **El repo es público:** la respuesta del endpoint solo dice si se envió, nunca los totales, porque el log de Actions es visible para cualquiera.
+   - Sin `ACTIVITY_CRON_SECRET` la ruta responde 404; con un secreto equivocado, 401.
+4. **Variables nuevas** (en `.env.example` y validadas al arrancar): `SLACK_ACTIVITY_WEBHOOK_URL` (secreta y opcional) y `ACTIVITY_CRON_SECRET` (secreta, 64+ caracteres; sin ella no hay resumen). Para probar el canal en local: `SLACK_ACTIVITY_SEND_IN_DEV=true`.
+5. **Solo en producción:** con `NODE_ENV` distinto de `production` los avisos quedan en el log, salvo `SLACK_ACTIVITY_SEND_IN_DEV=true`.
 
 ### 8.4 Lo que haces tú
 
-- Crear el canal `#cycles-actividad` y su *incoming webhook*.
-- Definir a qué hora llega el resumen diario (propuesta: 8:00, hora de Chile).
+- [x] Hora del resumen: 8:00 de Chile (decidido el 2026-09-28).
+- [ ] Crear el canal `#cycles-actividad` y su *incoming webhook* (en la misma app de Slack *Cycles Alertas*, otro webhook).
+- [ ] Al hacer el deploy (paso 3): cargar en Render `SLACK_ACTIVITY_WEBHOOK_URL` y `ACTIVITY_CRON_SECRET` (generarlo nuevo, 64+ caracteres).
+- [ ] En GitHub → *Settings → Secrets and variables → Actions*: la variable `CYCLES_API_URL` (la URL pública de la API) y el secreto `ACTIVITY_CRON_SECRET` (el mismo valor que en Render).
 
 ### 8.5 Listo cuando
 
 - [ ] Llegan al canal los avisos de 8.1 durante una prueba de punta a punta (paso 7).
 - [ ] El resumen diario llega a la hora definida, con los totales correctos.
-- [ ] Ningún aviso incluye datos de salud o rendimiento, ni emails completos.
-- [ ] Sin webhook configurado, la API funciona igual.
+- [x] Ningún aviso incluye datos de salud o rendimiento, ni emails completos (probado en local: una sesión con dolor no lo menciona).
+- [x] Sin webhook configurado, la API funciona igual (probado en local el 2026-09-28).
 

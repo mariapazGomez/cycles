@@ -373,3 +373,11 @@ model LoadAdjustment {
   cycle    TrainingCycle @relation(fields: [cycleId], references: [id])
   exercise Exercise      @relation(fields: [exerciseId], references: [id])
 }
+
+// Días cuyo resumen de actividad ya se envió a Slack: evita mandarlo dos
+// veces si el disparador externo llama más de una vez. `day` es la fecha en
+// hora de Chile (AAAA-MM-DD). Ver docs/deploy/PLAN-Deploy.md, paso 8.
+model ActivityDigest {
+  day    String   @id
+  sentAt DateTime @default(now())
+}

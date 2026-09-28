@@ -5,6 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import { ActivityNotifier } from "../activity/activity-notifier.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { CURRENT_ONLY, planWeekAt } from "../common/training";
 import { LogSetDto } from "./dto/log-set.dto";
@@ -15,7 +16,10 @@ import { SessionFeedbackDto } from "./dto/session-feedback.dto";
 // Ver docs/prds/features/PRD-EjecucionYSeguimiento.md.
 @Injectable()
 export class ExecutionService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly activity: ActivityNotifier,
+  ) {}
 
   // La próxima sesión pendiente de los planes activos del atleta, con lo que
   // ya registró. Null si no tiene nada pendiente.
@@ -178,6 +182,9 @@ export class ExecutionService {
         data: { status: dto.outcome },
       }),
     ]);
+    if (dto.outcome === "completed" && !dto.supersedesId) {
+      this.activity.sessionCompleted(athleteId);
+    }
     return feedback;
   }
 
