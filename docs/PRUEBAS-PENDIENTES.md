@@ -38,3 +38,4 @@ updated: 2026-09-26
 |---|---|---|---|
 | — | Primer envío real de una invitación desde `hola@mail.getcycles.app` | 2026-09-26 | Llegó, sin errores en el log |
 | — | Avisos de actividad en local (log): los cinco eventos una sola vez cada uno, sin dolor ni cargas; resumen con totales correctos; endpoint 401/400/404; no duplica el resumen con un Slack falso; Chile con cambio de horario (días de 23 y 25 h) | 2026-09-28 | Todo como se esperaba |
+| — | Avisos de actividad a `#cycles-actividad` con el webhook real: un aviso de ejemplo (coach nuevo) y el resumen de un día | 2026-09-28 | Llegaron los dos, con el formato esperado y el email oculto |

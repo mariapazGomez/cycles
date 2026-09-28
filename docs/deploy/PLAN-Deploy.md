@@ -292,7 +292,7 @@ Si se elige la opción de compañía (`cycles.<dominio>`), la misma idea se adap
 ### 8.4 Lo que haces tú
 
 - [x] Hora del resumen: 8:00 de Chile (decidido el 2026-09-28).
-- [ ] Crear el canal `#cycles-actividad` y su *incoming webhook* (en la misma app de Slack *Cycles Alertas*, otro webhook).
+- [x] Crear el canal `#cycles-actividad` y su *incoming webhook* (hecho el 2026-09-28; el mensaje de prueba llegó).
 - [ ] Al hacer el deploy (paso 3): cargar en Render `SLACK_ACTIVITY_WEBHOOK_URL` y `ACTIVITY_CRON_SECRET` (generarlo nuevo, 64+ caracteres).
 - [ ] En GitHub → *Settings → Secrets and variables → Actions*: la variable `CYCLES_API_URL` (la URL pública de la API) y el secreto `ACTIVITY_CRON_SECRET` (el mismo valor que en Render).
 
