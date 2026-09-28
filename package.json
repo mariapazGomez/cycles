@@ -1,6 +1,9 @@
 {
   "name": "cycles",
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
   "workspaces": [
     "apps/*",
     "packages/*"
