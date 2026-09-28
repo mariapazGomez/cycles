@@ -287,6 +287,7 @@ Leyendo `SUPABASE_DATABASE_URL` del `.env` sin mostrarla en pantalla:
 | **Dominio** | `api.getcycles.app` se conecta **en este paso** (adelanta parte del paso 6) | Así `GOOGLE_CALLBACK_URL` y la URL que usa el resumen diario son definitivas desde el principio. |
 | **Resend** | Una **API key nueva** solo para producción, con permiso de solo envío | Si se filtra la del `.env` local, no compromete producción, y cada una se puede revocar por separado. |
 | **Migraciones** | Al final del build (`prisma migrate deploy`) | El plan gratis no tiene *pre-deploy command*. Si la compilación falla, no se migra. |
+| **IP real del cliente** | `CLIENT_IP_HEADER=true-client-ip` (en `render.yaml`) | Encontrado al probar P-11 en producción: el `X-Forwarded-For` de Render se puede falsear (S-13). `True-Client-IP` lo pone Cloudflare y el cliente no puede pisarlo. |
 
 ### 3.2 Qué deja listo el repo *(hecho)*
 

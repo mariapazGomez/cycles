@@ -32,6 +32,10 @@ services:
         value: production
       - key: TRUST_PROXY
         value: "1"
+      # La IP real la pone Cloudflare en True-Client-IP; X-Forwarded-For en
+      # Render se puede falsear (ver apps/api/src/main.ts).
+      - key: CLIENT_IP_HEADER
+        value: true-client-ip
       - key: FRONTEND_URL
         value: https://app.getcycles.app
       - key: CORS_ORIGINS

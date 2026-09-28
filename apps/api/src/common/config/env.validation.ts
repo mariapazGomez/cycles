@@ -45,6 +45,11 @@ export function validateEnv(config: Record<string, unknown>): Record<string, unk
     errors.push("TRUST_PROXY debe ser un número (cantidad de proxies delante de la API).");
   }
 
+  const clientIpHeader = value("CLIENT_IP_HEADER");
+  if (clientIpHeader && !/^[a-z0-9-]+$/i.test(clientIpHeader)) {
+    errors.push("CLIENT_IP_HEADER debe ser el nombre de un header (por ejemplo, true-client-ip).");
+  }
+
   for (const origin of value("CORS_ORIGINS").split(",").map((o) => o.trim()).filter(Boolean)) {
     if (!/^https?:\/\/[^/]+$/.test(origin)) {
       errors.push(`CORS_ORIGINS tiene un origen inválido: "${origin}" (formato esperado: https://dominio, sin barra final).`);
