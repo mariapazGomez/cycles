@@ -17,7 +17,7 @@ updated: 2026-09-26
 | 0 | Definir y comprar el dominio | Resend necesita un dominio verificado para enviar a cualquier persona, y la web, la API y Google OAuth van a usar ese mismo dominio. | **Hecho** (2026-09-25) |
 | 1 | Email transaccional con Resend | Sin emails nadie puede verificar su cuenta, recuperar la contraseña ni aceptar una invitación. Se puede hacer y probar en local antes de desplegar nada. | **Hecho** (2026-09-26); falta DMARC |
 | 2 | Base de datos en Supabase | La API la necesita para arrancar. | **Hecho** (2026-09-28); falta el script de respaldo (2.5, antes del piloto) |
-| 3 | API en Render | Depende de la base y de las variables de Resend. | Por detallar |
+| 3 | API en Render | Depende de la base y de las variables de Resend. | Detallado abajo (incluye las credenciales de Google del paso 5 y el DNS de `api.`) |
 | 4 | Web en Vercel | Depende de la URL pública de la API. | Por detallar |
 | 5 | Google OAuth en producción | Necesita las URLs definitivas de la API y de la web. | Por detallar |
 | 6 | DNS de la web y la API | Apunta los subdominios del paso 0 a Vercel y Render. | Por detallar |
@@ -272,12 +272,88 @@ Leyendo `SUPABASE_DATABASE_URL` del `.env` sin mostrarla en pantalla:
 - [x] Sin avisos críticos en el *Security Advisor* (2026-09-28: 0 errores, 0 advertencias y 18 avisos informativos *RLS Enabled No Policy*, uno por tabla, esperados: nadie debe entrar por la Data API).
 - [x] Ninguna URL ni contraseña de la base en el repo, en un issue ni en el chat.
 
-## Paso 3 · API en Render *(por detallar)*
+## Paso 3 · API en Render
 
-- Web service desde el repo (monorepo, `apps/api`), en la región **Virginia (US East)**, la misma de la base (paso 2). Build: `prisma generate` + `prisma migrate deploy` + `nest build`.
-- Variables: `NODE_ENV=production`, `DATABASE_URL`, `JWT_*` nuevos (no reutilizar los de desarrollo; 64+ caracteres y distintos), `RESEND_API_KEY`, `MAIL_FROM`, `FRONTEND_URL`, `CORS_ORIGINS=https://app.getcycles.app`, `TRUST_PROXY=1`, `GOOGLE_*`, `PORT`, `ACTIVITY_CRON_SECRET` (resumen diario, paso 8) y, opcionales, `SLACK_SECURITY_WEBHOOK_URL` (alertas de seguridad, 1E) y `SLACK_ACTIVITY_WEBHOOK_URL` (avisos de actividad, paso 8). Si falta alguna obligatoria, la API no arranca y el log dice cuál (validación de 1B).
-- CORS ya está restringido a `CORS_ORIGINS` (1B de seguridad).
-- Plan gratuito: la API se duerme sin uso y tarda en despertar. Evaluar el plan pago más barato durante el piloto.
+**Objetivo:** la API corriendo en `https://api.getcycles.app`, conectada a la base de Supabase, con todas las variables de producción. La web (paso 4) todavía no existe, así que al terminar este paso la API responde pero nadie la usa.
+
+### 3.1 Decisiones *(2026-09-28)*
+
+| Tema | Decisión | Por qué |
+|---|---|---|
+| **Plan** | **Gratis por ahora**; pasar a *Starter* (7 USD/mes) antes de abrir el piloto si la espera molesta | En el plan gratis la API se duerme tras 15 min sin uso: la primera visita tarda ~50 s, y los contadores en memoria (límite de intentos, alertas de 1E) se reinician al dormirse. Para probar alcanza. |
+| **Región** | Virginia (US East) | La misma que la base (paso 2). |
+| **Configuración** | Archivo `render.yaml` en el repo (*Blueprint*) | Build, arranque, región y variables no secretas quedan versionados; en el panel de Render solo se cargan los secretos. |
+| **Google OAuth** | Se crea **en este paso** (adelanta el paso 5) | La API no arranca en producción sin `GOOGLE_*` (validación de 1B), y las URLs definitivas ya se conocen porque el dominio está decidido. |
+| **Dominio** | `api.getcycles.app` se conecta **en este paso** (adelanta parte del paso 6) | Así `GOOGLE_CALLBACK_URL` y la URL que usa el resumen diario son definitivas desde el principio. |
+| **Resend** | Una **API key nueva** solo para producción, con permiso de solo envío | Si se filtra la del `.env` local, no compromete producción, y cada una se puede revocar por separado. |
+| **Migraciones** | Al final del build (`prisma migrate deploy`) | El plan gratis no tiene *pre-deploy command*. Si la compilación falla, no se migra. |
+
+### 3.2 Qué deja listo el repo *(hecho)*
+
+- `render.yaml`: servicio `cycles-api`, plan gratis, Virginia, build con `npm ci --include=dev` (con `NODE_ENV=production` npm omitiría las herramientas de compilación), `prisma generate`, `nest build` y `prisma migrate deploy`; arranque con `node apps/api/dist/main.js`; se redespliega solo cuando cambia algo de la API.
+- `GET /health`: responde 200 para el *health check* de Render. No consulta la base, para que una caída breve de Supabase no reinicie la API.
+- Node 22 fijado en `package.json` (`engines`).
+- Probado en una copia limpia del repo con `NODE_ENV=production`: compila, arranca, `/health` da 200, CORS solo acepta `app.getcycles.app` y `/auth/google` redirige a Google.
+
+### 3.3 Lo que haces tú: Google Cloud
+
+1. En **console.cloud.google.com**, crear un proyecto `Cycles`.
+2. **Google Auth Platform → Branding** (antes *Pantalla de consentimiento*): nombre `Cycles`, email de soporte, dominio autorizado `getcycles.app`.
+3. **Audience:** *External*, en modo **Testing**. Agregar como *test users* tu email y el de los coaches del piloto (hasta 100). Publicar la app se decide en el paso 7.
+4. **Clients → Create client → Web application**, nombre `Cycles producción`:
+   - *Authorized JavaScript origins:* `https://app.getcycles.app`
+   - *Authorized redirect URIs:* `https://api.getcycles.app/auth/google/callback`
+5. Guardar el **Client ID** y el **Client secret** en el gestor. El secret no se vuelve a mostrar completo.
+6. *(Opcional, para probar Google en local, P-09)* un segundo cliente `Cycles local` con origen `http://localhost:5173` y redirect `http://localhost:3000/auth/google/callback`, cargado en `apps/api/.env`.
+
+### 3.4 Lo que haces tú: secretos
+
+En tu terminal, uno por uno: se copia al portapapeles sin mostrarse. Pegarlo en el gestor antes de generar el siguiente.
+
+```bash
+openssl rand -hex 64 | pbcopy
+```
+
+- `JWT_ACCESS_SECRET` y `JWT_REFRESH_SECRET`: dos valores distintos, nuevos (nunca los de desarrollo).
+- `ACTIVITY_CRON_SECRET`: el tercero; va en Render y en GitHub.
+- **Resend:** crear una API key nueva, `Cycles producción`, con permiso *Sending access* y dominio `mail.getcycles.app`.
+
+### 3.5 Lo que haces tú: Render
+
+1. Crear la cuenta en **render.com** con GitHub y activar la verificación en dos pasos.
+2. **New → Blueprint**, elegir el repo `cycles` (rama `main`). Render lee `render.yaml` y pide los valores marcados como secretos:
+   - `DATABASE_URL`: la misma URL del *session pooler* de Supabase (paso 2).
+   - `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `ACTIVITY_CRON_SECRET`: los de 3.4.
+   - `RESEND_API_KEY`: la key nueva de producción.
+   - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`: los de 3.3.
+   - `SLACK_SECURITY_WEBHOOK_URL`, `SLACK_ACTIVITY_WEBHOOK_URL`: los mismos webhooks del `.env` local.
+3. **Apply.** El primer build tarda unos minutos. Si falta o está mal una variable, el log dice cuál y la API no arranca.
+
+### 3.6 Lo que haces tú: dominio
+
+1. En Render: *cycles-api → Settings → Custom Domains → Add* `api.getcycles.app`.
+2. En Cloudflare, en la zona `getcycles.app`, un registro **CNAME** `api` → `cycles-api.onrender.com`, con el proxy **desactivado** (*DNS only*).
+3. En Render, *Verify*. El certificado HTTPS se emite solo.
+
+### 3.7 GitHub (resumen diario)
+
+- Variable `CYCLES_API_URL` = `https://api.getcycles.app`: la carga Claude con `gh`, si le das el visto bueno.
+- Secreto `ACTIVITY_CRON_SECRET`: lo cargas tú en *Settings → Secrets and variables → Actions*, o en tu terminal con `gh secret set ACTIVITY_CRON_SECRET`, que lo pide sin mostrarlo.
+
+### 3.8 Qué verifica Claude
+
+- `https://api.getcycles.app/health` da 200 con HTTPS válido.
+- CORS: responde a `https://app.getcycles.app` y a ningún otro origen.
+- Login con credenciales inválidas da 401; a la sexta vez con el mismo email da 429 y llega **una** alerta a `#cycles-seguridad` con la IP real, no la del proxy (**P-11** y **P-12**).
+- `/auth/google` redirige a Google con el `redirect_uri` de producción.
+- El workflow del resumen, ejecutado a mano, responde 200 sin duplicar (parte de **P-13**).
+- Ningún secreto en el log del deploy.
+
+### 3.9 Listo cuando
+
+- [ ] La API responde en `https://api.getcycles.app/health`.
+- [ ] Todas las variables cargadas en Render y en el gestor; ningún secreto en el repo ni en el chat.
+- [ ] Verificaciones de 3.8 pasadas.
 
 ## Paso 4 · Web en Vercel *(por detallar)*
 
@@ -286,11 +362,11 @@ Leyendo `SUPABASE_DATABASE_URL` del `.env` sin mostrarla en pantalla:
 
 ## Paso 5 · Google OAuth en producción *(por detallar)*
 
-- Credenciales en Google Cloud con los *redirect URIs* de producción y la pantalla de consentimiento publicada.
+- Las credenciales se crean en el paso 3 (3.3). Aquí queda: agregar el origen de la web cuando exista (paso 4), probar el login de punta a punta (P-09) y decidir si se publica la app o se sigue con *test users* durante el piloto.
 
 ## Paso 6 · DNS de la web y la API *(por detallar)*
 
-- Apuntar `app.` a Vercel y `api.` a Render (con los subdominios del paso 0), redirigir la raíz a `app.` y verificar HTTPS en todos.
+- Apuntar `app.` a Vercel (el de `api.` se hace en el paso 3), redirigir la raíz a `app.` y verificar HTTPS en todos.
 - Actualizar `FRONTEND_URL`, `VITE_API_URL`, CORS y los *redirect URIs* de Google con las URLs definitivas.
 
 ## Paso 7 · Prueba de punta a punta y piloto *(por detallar)*
