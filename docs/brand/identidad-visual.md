@@ -68,6 +68,10 @@ Archivos en [`docs/brand/img/`](img/). Isotipo: un loop/flecha circular — coin
 >
 > Ese Design System documenta bastante más de lo que hay en este archivo: cada color/tipografía/spacing/radio ya usado en `apps/web` con su contraste calculado, componentes (`AppHeader`, `AuthCard`, `Button`, `Field`, `ListRow`, `ProgramGrid`, `UserMenu`, etc.), y una guía de voz/contenido (español latino neutro con "tú", sentence case, patrones de copy). Decidido el 2026-09-24: la regla es "tú", no voseo; el copy actual de la app todavía usa voseo y se reescribe al actualizar cada pantalla. También señala gaps reales: `color-gray-border` da menos de 3:1 como borde de control en ambos temas, y en modo oscuro el texto blanco sobre el botón primario (`#4d94ff`) da 3.0:1 (insuficiente para AA). Ninguno de los dos se corrigió todavía en el código.
 
+## Hoja de especificaciones
+
+Ver [[especificaciones-diseno]] — solo los valores (color, tipografía, espaciado, radios, logo), sin el contexto histórico de este documento. Es la referencia a usar al crear un gráfico nuevo.
+
 ## Fuera de esta decisión
 
 - No se decidió nada sobre la **landing page** (marketing) — el usuario fue explícito en que eso se diseña después, por separado.
