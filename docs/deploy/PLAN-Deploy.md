@@ -58,7 +58,8 @@ Con un solo dominio, cada servicio usa un subdominio:
 
 | Subdominio | Para qué | Servicio |
 |---|---|---|
-| `<dominio>` (raíz) | Reservado para la landing de marketing, que se diseña aparte. Mientras tanto redirige a `app.` | Vercel |
+| `www.<dominio>` | **Landing page** (página principal de marketing), que se diseña y despliega aparte, como otro proyecto de Vercel. Decidido el 2026-09-28. | Vercel (proyecto propio) |
+| `<dominio>` (raíz) | Redirige a `www.`, para que `getcycles.app` y `www.getcycles.app` lleven a la misma landing | Cloudflare (regla de redirección) |
 | `app.<dominio>` | La web de Cycles | Vercel |
 | `api.<dominio>` | La API | Render |
 | `mail.<dominio>` | Envío de emails (paso 1) | Resend |
@@ -91,7 +92,7 @@ Si se elige la opción de compañía (`cycles.<dominio>`), la misma idea se adap
 |---|---|
 | Dominio elegido | **`getcycles.app`** |
 | Registrador | **Cloudflare Registrar** (el DNS también queda en Cloudflare) |
-| Estructura de subdominios | `app.getcycles.app` (web), `api.getcycles.app` (API), `mail.getcycles.app` (emails); la raíz `getcycles.app` redirige a `app.` hasta que exista la landing |
+| Estructura de subdominios | `app.getcycles.app` (web), `api.getcycles.app` (API), `mail.getcycles.app` (emails); `www.getcycles.app` para la landing (la raíz redirige a `www.`); hasta que exista la landing, las dos redirigen temporalmente a `app.` |
 | Fecha de compra y renovación | Comprado el 2026-09-25. Confirmar en Cloudflare la fecha de renovación y que la renovación automática esté activa |
 
 > `.app` exige HTTPS en todos los subdominios (la extensión está en la lista HSTS de los navegadores). Vercel, Render y Resend lo resuelven solos. Lo único a cuidar: en Cloudflare, dejar los registros de Vercel y Render en modo *DNS only* (proxy desactivado) al configurarlos.
@@ -383,7 +384,7 @@ openssl rand -hex 64 | pbcopy
 
 ### 4.3 Lo que haces tú: dominio
 
-1. En Vercel: *Project → Settings → Domains → Add* `app.getcycles.app`.
+1. En Vercel: *Project → Settings → Domains → Add* `app.getcycles.app`. **Solo ese:** si Vercel sugiere agregar también `getcycles.app` o `www.getcycles.app`, no aceptar; están reservados para la landing (paso 6).
 2. En Cloudflare, zona `getcycles.app`: el registro que indique Vercel (normalmente **CNAME** `app` → `cname.vercel-dns.com`), con el proxy **desactivado** (*DNS only*).
 3. Vercel verifica y emite el certificado solo.
 
@@ -407,7 +408,9 @@ openssl rand -hex 64 | pbcopy
 
 ## Paso 6 · DNS de la web y la API *(por detallar)*
 
-- Apuntar `app.` a Vercel (el de `api.` se hace en el paso 3), redirigir la raíz a `app.` y verificar HTTPS en todos.
+- `app.` se apunta en el paso 4 y `api.` en el paso 3.
+- **`www.` queda reservado para la landing** (otro proyecto de Vercel, no el de la app). Mientras no exista, la raíz y `www.` redirigen temporalmente (302) a `app.` con una regla de Cloudflare; cuando la landing esté lista, `www.` apunta a su proyecto y la raíz redirige a `www.` (301).
+- La landing es también el lugar natural para la **política de privacidad** y los términos (por ejemplo `www.getcycles.app/privacidad`), que Google pide para publicar la app (paso 5).
 - Actualizar `FRONTEND_URL`, `VITE_API_URL`, CORS y los *redirect URIs* de Google con las URLs definitivas.
 
 ## Paso 7 · Prueba de punta a punta y piloto *(por detallar)*
