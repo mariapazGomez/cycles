@@ -39,4 +39,4 @@ updated: 2026-09-26
 | — | Avisos de actividad a `#cycles-actividad` con el webhook real: un aviso de ejemplo (coach nuevo) y el resumen de un día | 2026-09-28 | Llegaron los dos, con el formato esperado y el email oculto |
 | — | P-11 · Límite de intentos en Render: 429 al sexto login con el mismo email; con IPs inventadas en `X-Forwarded-For` y `True-Client-IP`, el límite por IP igual bloquea al sexto pedido (después de corregir S-13) | 2026-09-28 | OK |
 | — | P-12 · Alerta de seguridad desde producción con la IP real: `152.231.117.33` (antes de corregir S-13 mostraba `10.31.18.12`, un proxy interno) | 2026-09-28 | OK |
-| — | Workflow del resumen diario ejecutado a mano dos veces contra producción: `sent: true` y luego `sent: false` | 2026-09-28 | OK |
+| — | Workflow del resumen diario ejecutado a mano dos veces contra producción: `sent: true` y luego `sent: false` | 2026-09-28 | OK: llegó un solo resumen a `#cycles-actividad`, con los totales en 0 (base de producción vacía) |
