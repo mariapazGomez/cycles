@@ -403,7 +403,7 @@ openssl rand -hex 64 | pbcopy
 
 ## Paso 5 · Google OAuth en producción *(por detallar)*
 
-- Las credenciales se crean en el paso 3 (3.3). Aquí queda: probar el login de punta a punta cuando exista la web (P-09) y decidir si se publica la app o se sigue con *test users* durante el piloto.
+- Las credenciales se crean en el paso 3 (3.3). El login de punta a punta en producción ya se probó (P-09, 2026-09-29). Queda decidir si se publica la app o se sigue con *test users* durante el piloto.
 - **Para publicar la app** (que cualquier coach entre con Google sin estar en la lista de *test users*), Google exige en *Branding* una página de inicio y una **política de privacidad** públicas en `getcycles.app`. La política también hace falta para el texto legal del consentimiento de datos (pendiente en `PRD-Autenticacion`, §11).
 
 ## Paso 6 · DNS de la web y la API *(por detallar)*
