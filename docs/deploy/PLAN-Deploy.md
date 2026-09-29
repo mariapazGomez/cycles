@@ -18,7 +18,7 @@ updated: 2026-09-26
 | 1 | Email transaccional con Resend | Sin emails nadie puede verificar su cuenta, recuperar la contraseña ni aceptar una invitación. Se puede hacer y probar en local antes de desplegar nada. | **Hecho** (2026-09-26); falta DMARC |
 | 2 | Base de datos en Supabase | La API la necesita para arrancar. | **Hecho** (2026-09-28); falta el script de respaldo (2.5, antes del piloto) |
 | 3 | API en Render | Depende de la base y de las variables de Resend. | **Hecho** (2026-09-28): `https://api.getcycles.app`, con las credenciales de Google y el DNS de `api.` |
-| 4 | Web en Vercel | Depende de la URL pública de la API. | Por detallar |
+| 4 | Web en Vercel | Depende de la URL pública de la API. | Detallado abajo (incluye 1D de seguridad y el DNS de `app.`) |
 | 5 | Google OAuth en producción | Necesita las URLs definitivas de la API y de la web. | Por detallar |
 | 6 | DNS de la web y la API | Apunta los subdominios del paso 0 a Vercel y Render. | Por detallar |
 | 7 | Prueba de punta a punta y piloto | Cierra el plan. | Por detallar |
@@ -358,10 +358,47 @@ openssl rand -hex 64 | pbcopy
 
 **Lo que salió al probar:** con `TRUST_PROXY=1` la API veía la IP de un proxy interno de Render (S-13). Se corrigió con `CLIENT_IP_HEADER` (PR #19) y se volvió a verificar.
 
-## Paso 4 · Web en Vercel *(por detallar)*
+## Paso 4 · Web en Vercel
 
-- Proyecto desde `apps/web`, con `VITE_API_URL` apuntando a la API pública.
-- Reescritura de rutas a `index.html`, para que funcionen `/sessions/:id/registro` y el resto al recargar.
+**Objetivo:** la web en `https://app.getcycles.app`, hablando con la API de producción, con las cabeceras de seguridad de 1D. Al terminar, Cycles se puede usar de punta a punta desde internet.
+
+### 4.1 Qué deja listo el repo *(hecho)*
+
+`apps/web/vercel.json`:
+- **Build:** Vite, `npm run build`, salida `dist`. Vercel instala desde la raíz del monorepo (npm workspaces), así que `@cycles/shared` funciona igual que en local.
+- **Rutas:** toda ruta que no sea un archivo cae en `index.html`, para que al recargar `/sessions/:id/registro` o cualquier otra pantalla no dé 404.
+- **Solo redespliega si cambia la web** (`ignoreCommand`): cambios de la API o de docs no gastan builds.
+- **Cabeceras de seguridad (1D de `docs/PLAN-Seguridad.md`):** `Content-Security-Policy` (scripts solo del propio sitio; la web solo puede llamar a `api.getcycles.app`; fuentes de Google Fonts; no se puede embeber en otro sitio), `Referrer-Policy: no-referrer`, `X-Content-Type-Options`, `X-Frame-Options`, `Permissions-Policy` (sin cámara, micrófono ni ubicación), `Strict-Transport-Security` y `Cross-Origin-Opener-Policy`.
+- **Caché:** los archivos de `/assets` (con hash en el nombre) se cachean un año.
+- Probado en local: el build de producción no tiene scripts en línea; servido con estas cabeceras, la pantalla de login carga con sus fuentes y sin errores de CSP en la consola.
+
+### 4.2 Lo que haces tú: Vercel
+
+1. Crear la cuenta en **vercel.com** con GitHub (acceso solo al repo `cycles`) y activar la verificación en dos pasos.
+2. **Add New → Project**, importar `mariapazGomez/cycles`:
+   - **Root Directory:** `apps/web`.
+   - **Framework:** Vite (lo detecta; `vercel.json` manda igual).
+   - **Environment Variables:** `VITE_API_URL` = `https://api.getcycles.app` (no es secreta: termina dentro del JavaScript público, R10).
+3. **Deploy.** Vercel da una URL `*.vercel.app` para probar.
+
+### 4.3 Lo que haces tú: dominio
+
+1. En Vercel: *Project → Settings → Domains → Add* `app.getcycles.app`.
+2. En Cloudflare, zona `getcycles.app`: el registro que indique Vercel (normalmente **CNAME** `app` → `cname.vercel-dns.com`), con el proxy **desactivado** (*DNS only*).
+3. Vercel verifica y emite el certificado solo.
+
+### 4.4 Qué verifica Claude
+
+- `https://app.getcycles.app` carga; recargar en una ruta interna no da 404.
+- Las cabeceras de 4.1 están presentes (y una revisión en securityheaders.com).
+- **Recorrido en producción** (con cuentas creadas para la prueba y borradas al final): registro de coach → email de verificación real → login → invitación → el atleta acepta → plan con grid → registro de una sesión → avisos en `#cycles-actividad`. Sin errores de CSP ni de CORS en la consola en ninguna pantalla.
+- **Login con Google** de punta a punta con tu cuenta (usuario de prueba): **P-09**.
+
+### 4.5 Listo cuando
+
+- [ ] La web responde en `https://app.getcycles.app` con HTTPS válido.
+- [ ] Cabeceras de seguridad presentes y sin errores de CSP.
+- [ ] Recorrido de 4.4 completo, y los datos de prueba borrados.
 
 ## Paso 5 · Google OAuth en producción *(por detallar)*
 
