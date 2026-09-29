@@ -17,7 +17,7 @@ updated: 2026-09-26
 | 0 | Definir y comprar el dominio | Resend necesita un dominio verificado para enviar a cualquier persona, y la web, la API y Google OAuth van a usar ese mismo dominio. | **Hecho** (2026-09-25) |
 | 1 | Email transaccional con Resend | Sin emails nadie puede verificar su cuenta, recuperar la contraseña ni aceptar una invitación. Se puede hacer y probar en local antes de desplegar nada. | **Hecho** (2026-09-26); falta DMARC |
 | 2 | Base de datos en Supabase | La API la necesita para arrancar. | **Hecho** (2026-09-28); falta el script de respaldo (2.5, antes del piloto) |
-| 3 | API en Render | Depende de la base y de las variables de Resend. | Detallado abajo (incluye las credenciales de Google del paso 5 y el DNS de `api.`) |
+| 3 | API en Render | Depende de la base y de las variables de Resend. | **Hecho** (2026-09-28): `https://api.getcycles.app`, con las credenciales de Google y el DNS de `api.` |
 | 4 | Web en Vercel | Depende de la URL pública de la API. | Por detallar |
 | 5 | Google OAuth en producción | Necesita las URLs definitivas de la API y de la web. | Por detallar |
 | 6 | DNS de la web y la API | Apunta los subdominios del paso 0 a Vercel y Render. | Por detallar |
@@ -287,7 +287,7 @@ Leyendo `SUPABASE_DATABASE_URL` del `.env` sin mostrarla en pantalla:
 | **Dominio** | `api.getcycles.app` se conecta **en este paso** (adelanta parte del paso 6) | Así `GOOGLE_CALLBACK_URL` y la URL que usa el resumen diario son definitivas desde el principio. |
 | **Resend** | Una **API key nueva** solo para producción, con permiso de solo envío | Si se filtra la del `.env` local, no compromete producción, y cada una se puede revocar por separado. |
 | **Migraciones** | Al final del build (`prisma migrate deploy`) | El plan gratis no tiene *pre-deploy command*. Si la compilación falla, no se migra. |
-| **IP real del cliente** | `CLIENT_IP_HEADER=true-client-ip` (en `render.yaml`) | Encontrado al probar P-11 en producción: el `X-Forwarded-For` de Render se puede falsear (S-13). `True-Client-IP` lo pone Cloudflare y el cliente no puede pisarlo. |
+| **IP real del cliente** | `CLIENT_IP_HEADER=true-client-ip` (en `render.yaml`) | Encontrado al probar P-11 en producción: con `TRUST_PROXY=1` la API veía la IP de un proxy interno de Render, no la del cliente (S-13). `True-Client-IP` lo pone Cloudflare y el cliente no puede pisarlo. |
 
 ### 3.2 Qué deja listo el repo *(hecho)*
 
@@ -352,9 +352,11 @@ openssl rand -hex 64 | pbcopy
 
 ### 3.9 Listo cuando
 
-- [ ] La API responde en `https://api.getcycles.app/health`.
-- [ ] Todas las variables cargadas en Render y en el gestor; ningún secreto en el repo ni en el chat.
-- [ ] Verificaciones de 3.8 pasadas.
+- [x] La API responde en `https://api.getcycles.app/health`, con HTTPS válido.
+- [x] Todas las variables cargadas en Render y en el gestor; ningún secreto en el repo ni en el chat. `CYCLES_API_URL` y `ACTIVITY_CRON_SECRET` cargados en GitHub.
+- [x] Verificaciones de 3.8 pasadas (2026-09-28): CORS solo para `app.getcycles.app`; login inválido 401 y 429 al sexto intento con el mismo email; límite por IP que no se puede esquivar con IPs inventadas; alerta a `#cycles-seguridad` con la IP pública real; `/auth/google` con el `redirect_uri` de producción; el workflow del resumen, ejecutado dos veces a mano, respondió `sent: true` y luego `sent: false`.
+
+**Lo que salió al probar:** con `TRUST_PROXY=1` la API veía la IP de un proxy interno de Render (S-13). Se corrigió con `CLIENT_IP_HEADER` (PR #19) y se volvió a verificar.
 
 ## Paso 4 · Web en Vercel *(por detallar)*
 
@@ -363,7 +365,8 @@ openssl rand -hex 64 | pbcopy
 
 ## Paso 5 · Google OAuth en producción *(por detallar)*
 
-- Las credenciales se crean en el paso 3 (3.3). Aquí queda: agregar el origen de la web cuando exista (paso 4), probar el login de punta a punta (P-09) y decidir si se publica la app o se sigue con *test users* durante el piloto.
+- Las credenciales se crean en el paso 3 (3.3). Aquí queda: probar el login de punta a punta cuando exista la web (P-09) y decidir si se publica la app o se sigue con *test users* durante el piloto.
+- **Para publicar la app** (que cualquier coach entre con Google sin estar en la lista de *test users*), Google exige en *Branding* una página de inicio y una **política de privacidad** públicas en `getcycles.app`. La política también hace falta para el texto legal del consentimiento de datos (pendiente en `PRD-Autenticacion`, §11).
 
 ## Paso 6 · DNS de la web y la API *(por detallar)*
 
