@@ -2,9 +2,11 @@
 # Ver docs/deploy/PLAN-Deploy.md, paso 8.
 #
 # GitHub programa en UTC y Chile cambia de horario (UTC-3 / UTC-4), así que
-# corre a las 11:05 y a las 12:05 UTC y solo llama a la API si en Chile son
-# las 8 o las 9 (margen por si GitHub se atrasa). Si llegan dos llamadas el
-# mismo día, la API envía el resumen una sola vez.
+# corre a las 11:05 y a las 12:05 UTC y solo llama a la API si en Chile ya
+# son las 8 o más tarde (hasta las 23:59). GitHub puede atrasar las
+# ejecuciones programadas varias horas: con la ventana amplia, el resumen
+# igual llega ese día, aunque más tarde. Si llegan dos llamadas el mismo
+# día, la API envía el resumen una sola vez (tabla ActivityDigest).
 #
 # Necesita, en Settings → Secrets and variables → Actions:
 # - variable CYCLES_API_URL (ej. https://api.getcycles.app)
@@ -37,7 +39,7 @@ jobs:
             exit 0
           fi
           HOUR=$(TZ=America/Santiago date +%H)
-          if [ "$EVENT" = "schedule" ] && [ "$HOUR" != "08" ] && [ "$HOUR" != "09" ]; then
+          if [ "$EVENT" = "schedule" ] && [ "$((10#$HOUR))" -lt 8 ]; then
             echo "En Chile son las $HOUR: esta ejecución no corresponde."
             exit 0
           fi
