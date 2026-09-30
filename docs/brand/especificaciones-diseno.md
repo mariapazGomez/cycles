@@ -145,6 +145,10 @@ Breakpoint mobile: **640px** (padding y gaps más ajustados).
 - No existe set de íconos. Las señales direccionales son glifos de texto (← → + —). Sin emoji en ningún lado.
 - Otras variantes del logo (vertical, solo isotipo, con tagline, etc.) están en `docs/brand/img/` — ver [[identidad-visual]] para el listado completo; ninguna tiene aún versión transparente/SVG.
 
+## Motivo gráfico
+
+Cadena de proteína (perlas de `brand-blue` de distinto tamaño y opacidad, plegadas en lazos) como fondo decorativo detrás de tarjetas con texto. Hoy solo en los correos. Detalle y razón de marca en [[identidad-visual]].
+
 ## Reglas de oro al crear un gráfico nuevo
 
 1. Fondo blanco o `color-gray-light`; nunca degradados.

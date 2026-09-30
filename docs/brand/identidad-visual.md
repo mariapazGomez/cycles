@@ -68,6 +68,20 @@ Archivos en [`docs/brand/img/`](img/). Isotipo: un loop/flecha circular — coin
 >
 > Ese Design System documenta bastante más de lo que hay en este archivo: cada color/tipografía/spacing/radio ya usado en `apps/web` con su contraste calculado, componentes (`AppHeader`, `AuthCard`, `Button`, `Field`, `ListRow`, `ProgramGrid`, `UserMenu`, etc.), y una guía de voz/contenido (español latino neutro con "tú", sentence case, patrones de copy). Decidido el 2026-09-24: la regla es "tú", no voseo; el copy actual de la app todavía usa voseo y se reescribe al actualizar cada pantalla. También señala gaps reales: `color-gray-border` da menos de 3:1 como borde de control en ambos temas, y en modo oscuro el texto blanco sobre el botón primario (`#4d94ff`) da 3.0:1 (insuficiente para AA). Ninguno de los dos se corrigió todavía en el código.
 
+## Motivo gráfico: cadena de proteína (agregado 2026-09-30)
+
+Elemento decorativo de marca: una cadena de perlas (aminoácidos) de distintos tamaños y opacidades que se pliega en lazos suaves, en `brand-blue` (#3080fc). Las cadenas fluyen de lado a lado y **pasan por detrás de las tarjetas con texto**, así que solo asoman en los márgenes y en el espacio entre ellas.
+
+**Por qué:** le da identidad a la marca y conecta con el trasfondo de la empresa: correlacionar la ciencia del deporte (fisiología, bioquímica, adaptación al entrenamiento) con el rendimiento deportivo. Los flujos de ADN, ARN y proteína se exploraron el 2026-09-30; la decisión fue la proteína. Las cadenas también dialogan con la idea de "ciclo" del isotipo (recorridos que se pliegan y vuelven).
+
+**Dónde se usa:** fondo de la zona blanca del correo de invitación y de los demás correos transaccionales (`apps/api/src/mail/templates.ts`). Archivo: `apps/web/public/email/curvas-cycles.png` (520×680 a 2x, ~120 KB, PNG porque Gmail no soporta SVG).
+
+**Reglas:**
+- Solo como fondo, siempre detrás de tarjetas opacas; nunca detrás de texto suelto.
+- Solo `brand-blue` sobre blanco, con opacidades variables; no es un degradado.
+- Tres cadenas por pantalla (arriba, centro, abajo), con el centro cruzando el espacio entre tarjetas.
+- No aplicarlo todavía en la app web ni en mobile; hoy es exclusivo del correo.
+
 ## Hoja de especificaciones
 
 Ver [[especificaciones-diseno]] — solo los valores (color, tipografía, espaciado, radios, logo), sin el contexto histórico de este documento. Es la referencia a usar al crear un gráfico nuevo.
