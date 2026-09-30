@@ -9,7 +9,11 @@ export interface EmailContent {
   text: string;
 }
 
+// BRAND_FILL es el azul del logo: solo para rellenos. Con texto blanco no
+// llega a AA (3.7:1), por eso botón y enlaces usan el tono más oscuro.
+const BRAND_FILL = "#3080fc";
 const BRAND_BLUE = "#1a66dd";
+const TINT = "#eef4ff";
 const INK = "#1f2228";
 const MUTED = "#5c6068";
 
@@ -21,21 +25,44 @@ function escapeHtml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
+// El logo se sirve desde la web (apps/web/public/email): los clientes de
+// correo bloquean imágenes embebidas, así que va por URL absoluta.
 function layout({ heading, body, cta, url, note }: { heading: string; body: string; cta: string; url: string; note: string }): string {
   const safeUrl = escapeHtml(url);
+  const assets = `${new URL(url).origin}/email`;
+  const font = "Helvetica,Arial,sans-serif";
   return `<!doctype html>
 <html lang="es">
 <body style="margin:0;padding:0;background:#f6f7f9;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f7f9;padding:32px 16px;">
 <tr><td align="center">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border:1px solid #dfe2e7;border-radius:12px;">
-<tr><td style="padding:32px 32px 0;font-family:Helvetica,Arial,sans-serif;font-size:22px;font-weight:700;color:${INK};">Cycles</td></tr>
-<tr><td style="padding:24px 32px 0;font-family:Helvetica,Arial,sans-serif;">
-<h1 style="margin:0 0 12px;font-size:20px;line-height:1.3;color:${INK};">${heading}</h1>
-<p style="margin:0 0 24px;font-size:15px;line-height:1.5;color:${INK};">${body}</p>
-<a href="${safeUrl}" style="display:inline-block;padding:12px 24px;border-radius:999px;background:${BRAND_BLUE};color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;">${cta}</a>
-<p style="margin:24px 0 0;font-size:13px;line-height:1.5;color:${MUTED};">Si el botón no funciona, copia este enlace en tu navegador:<br><a href="${safeUrl}" style="color:${BRAND_BLUE};word-break:break-all;">${safeUrl}</a></p>
-<p style="margin:16px 0 32px;font-size:13px;line-height:1.5;color:${MUTED};">${note}</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border:1px solid #dfe2e7;border-radius:16px;overflow:hidden;">
+<tr><td height="6" style="height:6px;line-height:6px;font-size:0;background:${BRAND_FILL};">&nbsp;</td></tr>
+<tr><td bgcolor="#ffffff" background="${assets}/curvas-cycles.png" style="background:#ffffff url('${assets}/curvas-cycles.png') no-repeat center top;background-size:100% auto;padding:28px 28px 32px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr><td style="padding:0 0 32px;"><img src="${assets}/logo-cycles.png" width="132" alt="Cycles" style="display:block;border:0;height:auto;"></td></tr>
+<tr><td style="padding:0 0 44px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${TINT};border:1px solid #d6e4ff;border-radius:16px;">
+<tr><td style="padding:28px 24px;font-family:${font};">
+<img src="${assets}/isotipo-cycles.png" width="44" height="44" alt="" style="display:block;border:0;margin:0 0 16px;">
+<h1 style="margin:0 0 12px;font-size:24px;line-height:1.25;color:${INK};">${heading}</h1>
+<p style="margin:0;font-size:16px;line-height:1.55;color:${INK};">${body}</p>
+</td></tr>
+</table>
+</td></tr>
+<tr><td>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border:1px solid #dfe2e7;border-radius:16px;">
+<tr><td style="padding:28px 24px 8px;font-family:${font};">
+<a href="${safeUrl}" style="display:inline-block;padding:14px 28px;border-radius:999px;background:${BRAND_BLUE};color:#ffffff;font-size:16px;font-weight:700;text-decoration:none;">${cta}</a>
+<p style="margin:28px 0 0;font-size:13px;line-height:1.5;color:${MUTED};">Si el botón no funciona, copia este enlace en tu navegador:<br><a href="${safeUrl}" style="color:${BRAND_BLUE};word-break:break-all;">${safeUrl}</a></p>
+<p style="margin:16px 0 20px;font-size:13px;line-height:1.5;color:${MUTED};">${note}</p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</td></tr>
+<tr><td style="padding:16px 36px;background:#f6f7f9;border-top:1px solid #dfe2e7;font-family:${font};font-size:13px;color:${MUTED};">
+<img src="${assets}/isotipo-cycles.png" width="16" height="16" alt="" style="vertical-align:middle;border:0;margin-right:8px;">Enviado por Cycles
 </td></tr>
 </table>
 </td></tr>
