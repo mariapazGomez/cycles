@@ -19,12 +19,12 @@ export function VerifyEmailPage() {
   }, [token]);
 
   if (state === "verifying") {
-    return <AuthCard title="Verificando tu email">Un momento…</AuthCard>;
+    return <AuthCard title="Verificando tu email" pattern="c">Un momento…</AuthCard>;
   }
 
   if (state === "success") {
     return (
-      <AuthCard title="Email verificado">
+      <AuthCard title="Email verificado" pattern="b">
         <div className="success-banner">Tu cuenta quedó activada.</div>
         <Link className="button-primary" to="/login" style={{ display: "block", textAlign: "center" }}>
           Ir a iniciar sesión
@@ -34,7 +34,7 @@ export function VerifyEmailPage() {
   }
 
   return (
-    <AuthCard title="El link no es válido">
+    <AuthCard title="El link no es válido" pattern="c">
       <div className="error-banner">El link de verificación es inválido o ya expiró.</div>
       <Link className="button-primary" to="/check-email" style={{ display: "block", textAlign: "center" }}>
         Solicitar un nuevo link

@@ -74,13 +74,14 @@ Elemento decorativo de marca: una cadena de perlas (aminoácidos) de distintos t
 
 **Por qué:** le da identidad a la marca y conecta con el trasfondo de la empresa: correlacionar la ciencia del deporte (fisiología, bioquímica, adaptación al entrenamiento) con el rendimiento deportivo. Los flujos de ADN, ARN y proteína se exploraron el 2026-09-30; la decisión fue la proteína. Las cadenas también dialogan con la idea de "ciclo" del isotipo (recorridos que se pliegan y vuelven).
 
-**Dónde se usa:** fondo de la zona blanca del correo de invitación y de los demás correos transaccionales (`apps/api/src/mail/templates.ts`). Archivo: `apps/web/public/email/curvas-cycles.png` (520×680 a 2x, ~120 KB, PNG porque Gmail no soporta SVG).
+**Dónde se usa:** fondo de las pantallas de autenticación de la web y de la zona blanca del correo de invitación y de los demás correos transaccionales (`apps/api/src/mail/templates.ts`). Archivo: `apps/web/public/email/curvas-cycles.png` (520×680 a 2x, ~120 KB, PNG porque Gmail no soporta SVG).
 
 **Reglas:**
 - Solo como fondo, siempre detrás de tarjetas opacas; nunca detrás de texto suelto.
 - Solo `brand-blue` sobre blanco, con opacidades variables; no es un degradado.
 - Tres cadenas por pantalla (arriba, centro, abajo), con el centro cruzando el espacio entre tarjetas.
-- No aplicarlo todavía en la app web ni en mobile; hoy es exclusivo del correo.
+- En la web se aplica solo a las pantallas de autenticación (`AuthCard`), con tres variantes SVG en `apps/web/src/assets/patterns/`: `a` para entrar (login, registro, invitación), `b` para pasos de email y contraseña, `c` para errores y estados de espera. El logo va arriba a la izquierda de la tarjeta.
+- No aplicarlo todavía en el resto de la app web ni en mobile.
 
 ## Hoja de especificaciones
 

@@ -39,7 +39,7 @@ export function ResetPasswordPage() {
 
   if (!token) {
     return (
-      <AuthCard title="Link inválido">
+      <AuthCard title="Link inválido" pattern="c">
         <div className="error-banner">Este link de recuperación no es válido.</div>
         <p className="auth-footer">
           <Link to="/forgot-password">Solicitar uno nuevo</Link>
@@ -50,7 +50,7 @@ export function ResetPasswordPage() {
 
   if (mutation.isSuccess) {
     return (
-      <AuthCard title="Contraseña actualizada">
+      <AuthCard title="Contraseña actualizada" pattern="b">
         <div className="success-banner">Ya puedes iniciar sesión con tu nueva contraseña.</div>
         <Link className="button-primary" to="/login" style={{ display: "block", textAlign: "center" }}>
           Ir a iniciar sesión
@@ -60,7 +60,7 @@ export function ResetPasswordPage() {
   }
 
   return (
-    <AuthCard title="Crea una nueva contraseña">
+    <AuthCard title="Crea una nueva contraseña" pattern="b">
       {formError && <div className="error-banner">{formError}</div>}
 
       <form onSubmit={handleSubmit} noValidate>
