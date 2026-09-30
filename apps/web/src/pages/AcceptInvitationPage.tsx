@@ -46,7 +46,7 @@ export function AcceptInvitationPage() {
 
   if (!token) {
     return (
-      <AuthCard title="Link inválido">
+      <AuthCard title="Link inválido" pattern="c">
         <div className="error-banner">Este link de invitación no es válido.</div>
         <p className="auth-footer">
           <Link to="/login">Volver a inicio de sesión</Link>

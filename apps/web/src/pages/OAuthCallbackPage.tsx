@@ -31,7 +31,7 @@ export function OAuthCallbackPage() {
 
   if (error) {
     return (
-      <AuthCard title="No se pudo iniciar sesión con Google">
+      <AuthCard title="No se pudo iniciar sesión con Google" pattern="c">
         <div className="error-banner">Intenta de nuevo o usa email y contraseña.</div>
         <p className="auth-footer">
           <Link to="/login">Volver a inicio de sesión</Link>
@@ -40,5 +40,5 @@ export function OAuthCallbackPage() {
     );
   }
 
-  return <AuthCard title="Iniciando sesión…">Un momento…</AuthCard>;
+  return <AuthCard title="Iniciando sesión…" pattern="c">Un momento…</AuthCard>;
 }
