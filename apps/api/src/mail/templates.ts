@@ -44,7 +44,6 @@ function layout({ heading, body, cta, url, note }: { heading: string; body: stri
 <tr><td style="padding:0 0 44px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${TINT};border:1px solid #d6e4ff;border-radius:16px;">
 <tr><td style="padding:28px 24px;font-family:${font};">
-<img src="${assets}/isotipo-cycles.png" width="44" height="44" alt="" style="display:block;border:0;margin:0 0 16px;">
 <h1 style="margin:0 0 12px;font-size:24px;line-height:1.25;color:${INK};">${heading}</h1>
 <p style="margin:0;font-size:16px;line-height:1.55;color:${INK};">${body}</p>
 </td></tr>
