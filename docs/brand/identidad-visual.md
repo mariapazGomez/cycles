@@ -83,6 +83,7 @@ Elemento decorativo de marca: una cadena de perlas (aminoácidos) de distintos t
 - En la web se aplica solo a las pantallas de autenticación (`AuthCard`), con tres variantes SVG en `apps/web/src/assets/patterns/`: `a` para entrar (login, registro, invitación), `b` para pasos de email y contraseña, `c` para errores y estados de espera. El logo va arriba a la izquierda de la tarjeta.
 - En los estados vacíos de la app (`EmptyState`: Inicio del coach y de atleta) va la variante `c` como fondo de una tarjeta blanca.
 - La cabecera de la app usa el logo en lugar del texto "Cycles"; en celular se parte en dos filas (logo y avatar arriba, pestañas repartidas abajo) para que no se corten.
+- En el constructor de rutinas, la cadena de proteína se traduce a una estructura: los ejercicios son cuentas numeradas unidas por una línea, en tres tonos de azul de marca (`--color-blue-*` en `global.css`). El panel "Carga de la sesión" usa los mismos tonos, con el volumen en el más profundo. Sin sombras ni degradados.
 - No aplicarlo todavía en el resto de la app web ni en mobile.
 
 ## Hoja de especificaciones

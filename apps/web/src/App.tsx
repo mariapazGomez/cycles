@@ -17,6 +17,7 @@ import { CyclesPage } from "./pages/CyclesPage";
 import { CycleDetailPage } from "./pages/CycleDetailPage";
 import { SessionDetailPage } from "./pages/SessionDetailPage";
 import { RoutinesPage } from "./pages/RoutinesPage";
+import { RoutineEditorPage } from "./pages/RoutineEditorPage";
 import { AthleteSummaryPage } from "./pages/AthleteSummaryPage";
 import { SessionLogPage } from "./pages/SessionLogPage";
 
@@ -73,6 +74,8 @@ export function App() {
         <Route path="athletes/:athleteId" element={<AthleteSummaryPage />} />
         <Route path="cycles" element={<CyclesPage />} />
         <Route path="routines" element={<RoutinesPage />} />
+        <Route path="routines/new" element={<RoutineEditorPage />} />
+        <Route path="routines/:id" element={<RoutineEditorPage />} />
         <Route path="cycles/:id" element={<CycleDetailPage />} />
         <Route path="sessions/:id" element={<SessionDetailPage />} />
         <Route path="sessions/:id/registro" element={<SessionLogPage />} />
