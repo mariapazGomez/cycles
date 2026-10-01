@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as executionApi from "../services/executionApi";
 import { ApiError } from "../services/httpClient";
+import { EmptyState } from "../components/EmptyState";
 import { formatKg } from "../lib/format";
 
 // Inicio del atleta: la próxima sesión pendiente de su plan activo.
@@ -36,8 +37,9 @@ export function TodayPage() {
   if (!today) {
     return (
       <div className="log-shell">
-        <h1 className="page-title">Todo al día</h1>
-        <p>Todavía no tienes sesiones pendientes. Cuando tu coach te asigne una, aparecerá aquí.</p>
+        <EmptyState title="Todo al día">
+          Todavía no tienes sesiones pendientes. Cuando tu coach te asigne una, aparecerá aquí.
+        </EmptyState>
       </div>
     );
   }

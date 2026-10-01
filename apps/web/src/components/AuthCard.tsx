@@ -1,19 +1,11 @@
 import { ReactNode } from "react";
 import logo from "../assets/logo-cycles.png";
-import patternA from "../assets/patterns/proteina-a.svg";
-import patternB from "../assets/patterns/proteina-b.svg";
-import patternC from "../assets/patterns/proteina-c.svg";
-
-// Fondo de cadenas de proteína (motivo de marca, ver docs/brand/identidad-visual.md).
-// Cada variante tiene recorridos distintos: "a" para entrar (login, registro,
-// invitación), "b" para los pasos de email y contraseña, "c" para estados de
-// error o espera.
-const PATTERNS = { a: patternA, b: patternB, c: patternC };
+import { PATTERNS, PatternName } from "../assets/patterns";
 
 interface AuthCardProps {
   title: string;
   subtitle?: string;
-  pattern?: keyof typeof PATTERNS;
+  pattern?: PatternName;
   children: ReactNode;
 }
 

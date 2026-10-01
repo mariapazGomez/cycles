@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import * as trackingApi from "../services/trackingApi";
+import { EmptyState } from "../components/EmptyState";
 import { AttentionList, useDismissedAlerts } from "../components/AttentionList";
 
 // Inicio del coach: primero qué atletas necesitan atención y por qué.
@@ -33,7 +34,7 @@ export function AttentionPage() {
       {attentionQuery.isLoading && <p>Cargando…</p>}
       {attentionQuery.isError && <div className="error-banner">No se pudieron cargar los avisos.</div>}
       {attentionQuery.data && byAthlete.size === 0 && (
-        <p>Sin avisos: todo va según lo planificado.</p>
+        <EmptyState title="Todo al día">Sin avisos: todo va según lo planificado.</EmptyState>
       )}
 
       {[...byAthlete.entries()].map(([athleteId, group]) => (
