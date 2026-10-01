@@ -81,6 +81,8 @@ Elemento decorativo de marca: una cadena de perlas (aminoácidos) de distintos t
 - Solo `brand-blue` sobre blanco, con opacidades variables; no es un degradado.
 - Tres cadenas por pantalla (arriba, centro, abajo), con el centro cruzando el espacio entre tarjetas.
 - En la web se aplica solo a las pantallas de autenticación (`AuthCard`), con tres variantes SVG en `apps/web/src/assets/patterns/`: `a` para entrar (login, registro, invitación), `b` para pasos de email y contraseña, `c` para errores y estados de espera. El logo va arriba a la izquierda de la tarjeta.
+- En los estados vacíos de la app (`EmptyState`: Inicio del coach y de atleta) va la variante `c` como fondo de una tarjeta blanca.
+- La cabecera de la app usa el logo en lugar del texto "Cycles"; en celular se parte en dos filas (logo y avatar arriba, pestañas repartidas abajo) para que no se corten.
 - No aplicarlo todavía en el resto de la app web ni en mobile.
 
 ## Hoja de especificaciones

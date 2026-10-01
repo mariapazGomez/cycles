@@ -23,10 +23,9 @@
 }
 
 .app-logo {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.2rem;
-  color: var(--color-ink);
+  display: block;
+  height: 26px;
+  width: auto;
 }
 
 .app-nav {
@@ -134,16 +133,38 @@
 
 /* Celular: el atleta registra desde el gimnasio. */
 @media (max-width: 640px) {
+  /* Dos filas: logo y avatar arriba, pestañas repartidas abajo. Así no se
+     cortan con cuatro enlaces en un ancho de 360px. */
   .app-header {
-    padding: 12px 16px;
+    display: grid;
+    grid-template-areas: "logo menu" "nav nav";
+    grid-template-columns: 1fr auto;
+    row-gap: 10px;
+    padding: 12px 16px 0;
   }
 
   .app-header-left {
-    gap: 16px;
+    display: contents;
+  }
+
+  .app-logo {
+    grid-area: logo;
+  }
+
+  .user-menu {
+    grid-area: menu;
   }
 
   .app-nav {
-    gap: 14px;
+    grid-area: nav;
+    justify-content: space-between;
+    gap: 8px;
+    overflow-x: auto;
+  }
+
+  .app-nav-link {
+    padding: 10px 2px;
+    white-space: nowrap;
   }
 
   .app-main {

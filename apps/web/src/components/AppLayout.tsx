@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import logo from "../assets/logo-cycles.png";
 import { UserMenu } from "./UserMenu";
 
 function navLinkClass({ isActive }: { isActive: boolean }): string {
@@ -13,7 +14,7 @@ export function AppLayout() {
     <div className="app-shell">
       <header className="app-header">
         <div className="app-header-left">
-          <span className="app-logo">Cycles</span>
+          <img className="app-logo" src={logo} alt="Cycles" height={26} />
           {user?.role === "coach" && (
             <nav className="app-nav">
               <NavLink to="/" end className={navLinkClass}>
