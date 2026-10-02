@@ -23,14 +23,16 @@ updated: 2026-09-25
 | `/complete-profile` | Último paso de onboarding para cuentas creadas por Google sin rol | Autenticado, sin rol |
 | `/` | Inicio. Coach: "Necesitan atención" (avisos por atleta con ajuste de carga). Atleta: su próxima sesión, empezarla u omitirla | Autenticado |
 | `/athletes/:athleteId` | Resumen del atleta: avisos, carga semanal, adherencia, fuerza estimada por ejercicio | Autenticado (coach, relación activa) |
-| `/routines` | Biblioteca de rutinas, con reps en reserva objetivo por ejercicio | Autenticado (coach) |
+| `/routines` | Biblioteca de rutinas: tarjetas con grupos musculares y totales, editar, borrar con confirmación | Autenticado (coach) |
+| `/routines/new` | Constructor de rutinas: ejercicios como cadena de cuentas, buscador del catálogo, reordenar con flechas y panel de carga de la sesión (series, duración, volumen) | Autenticado (coach) |
+| `/routines/:id` | El mismo constructor, para editar una rutina existente | Autenticado (coach dueño) |
 | `/sessions/:id/registro` | Registro de una sesión por serie + cierre (esfuerzo, duración, dolor), pensado para el celular | Autenticado (atleta asignado) |
 | `/athletes` | Invitar atletas + lista con su estado | Autenticado (coach) |
 | `/cycles` | Planes: lista de ciclos + crear uno nuevo | Autenticado (coach) |
 | `/cycles/:id` | Detalle de un plan: grid con el progreso real por celda y los avisos del plan | Autenticado (coach dueño o atleta asignado) |
 | `/sessions/:id` | Detalle de una sesión: editar, agregar/quitar ejercicios del catálogo | Autenticado (coach dueño o atleta asignado) |
 
-> Nota: el link de verificación de email / reset de contraseña / invitación no llega a ningún inbox real todavía (Resend sin implementar) — aparece logueado en `/private/tmp/cycles-api.log` cuando se genera.
+> Nota: los emails de verificación, recuperación de contraseña e invitación salen por Resend desde `hola@mail.getcycles.app`. Solo en desarrollo, sin `RESEND_API_KEY`, el enlace se escribe en el log de la API.
 
 ## Backend / API (`localhost:3000`, con `npm run dev:api`)
 
