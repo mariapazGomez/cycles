@@ -85,7 +85,7 @@ export class ActivityNotifier {
   sessionCompleted(athleteId: string): void {
     this.run(async () => {
       const count = await this.prisma.sessionFeedback.count({
-        where: { athleteId, outcome: "completed", supersedesId: null },
+        where: { athleteId, outcome: "completed", supersedesId: null, active: 1 },
       });
       if (count !== 1) return;
       const athlete = await this.prisma.user.findUniqueOrThrow({ where: { id: athleteId } });
@@ -127,8 +127,8 @@ export class ActivityNotifier {
       this.prisma.athleteInvitationToken.count({ where: { createdAt: range } }),
       this.prisma.athleteInvitationToken.count({ where: { usedAt: range } }),
       this.prisma.trainingCycle.count({ where: { createdAt: range } }),
-      this.prisma.sessionFeedback.count({ where: { outcome: "completed", supersedesId: null, submittedAt: range } }),
-      this.prisma.sessionFeedback.count({ where: { outcome: "skipped", supersedesId: null, submittedAt: range } }),
+      this.prisma.sessionFeedback.count({ where: { outcome: "completed", supersedesId: null, active: 1, submittedAt: range } }),
+      this.prisma.sessionFeedback.count({ where: { outcome: "skipped", supersedesId: null, active: 1, submittedAt: range } }),
       this.prisma.loadAdjustment.count({ where: { createdAt: range } }),
     ]);
     return [

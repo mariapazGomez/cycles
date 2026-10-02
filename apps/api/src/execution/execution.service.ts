@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { ActivityNotifier } from "../activity/activity-notifier.service";
 import { PrismaService } from "../prisma/prisma.service";
-import { CURRENT_ONLY, parseDay, planWeekAt, startOfUtcDay } from "../common/training";
+import { CURRENT_FEEDBACK, CURRENT_ONLY, parseDay, planWeekAt, startOfUtcDay } from "../common/training";
 import { LogSetDto } from "./dto/log-set.dto";
 import { SessionFeedbackDto } from "./dto/session-feedback.dto";
 import { ScheduleSessionDto } from "./dto/schedule-session.dto";
@@ -208,7 +208,7 @@ export class ExecutionService {
   async submitFeedback(athleteId: string, sessionId: string, dto: SessionFeedbackDto) {
     const session = await this.getWritableSession(athleteId, sessionId);
     const current = await this.prisma.sessionFeedback.findFirst({
-      where: { sessionId, ...CURRENT_ONLY },
+      where: { sessionId, ...CURRENT_FEEDBACK },
     });
 
     if (dto.supersedesId) {
@@ -260,6 +260,31 @@ export class ExecutionService {
 
   // Solo el atleta asignado, con relación activa con el coach del plan y el
   // plan en estado activo, puede registrar sobre una sesión.
+  // Devuelve una sesión cerrada (hecha o no hecha) a pendiente. El cierre
+  // vigente no se borra: queda inactivo (active = 0) para el historial, y los
+  // registros de series se conservan. Después se puede cerrar de nuevo.
+  async reopenSession(athleteId: string, sessionId: string) {
+    const session = await this.getWritableSession(athleteId, sessionId);
+    if (session.status === "pending") {
+      throw new BadRequestException("Esta sesión ya está pendiente.");
+    }
+    const current = await this.prisma.sessionFeedback.findFirst({
+      where: { sessionId, ...CURRENT_FEEDBACK },
+    });
+
+    const reopen = this.prisma.trainingSession.update({
+      where: { id: sessionId },
+      data: { status: "pending" },
+    });
+    const [updated] = current
+      ? await this.prisma.$transaction([
+          reopen,
+          this.prisma.sessionFeedback.update({ where: { id: current.id }, data: { active: 0 } }),
+        ])
+      : [await reopen];
+    return updated;
+  }
+
   private async getWritableSession(athleteId: string, sessionId: string) {
     const session = await this.prisma.trainingSession.findUnique({
       where: { id: sessionId },

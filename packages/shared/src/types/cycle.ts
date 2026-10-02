@@ -117,6 +117,8 @@ export interface SessionFeedback {
   painNotes: string | null;
   notes: string | null;
   supersedesId: string | null;
+  // 1 = cierre vigente; 0 = anulado al reabrir la sesión (no se borra).
+  active: 0 | 1;
   submittedAt: string;
 }
 

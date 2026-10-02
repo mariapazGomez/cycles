@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { TrainingCycle, TrainingSession } from '@cycles/shared';
 import {
   Modal,
@@ -20,6 +21,7 @@ import { ProfileAvatar } from '../components/ProfileAvatar';
 import { Spinner } from '../components/Spinner';
 import { useTabBarClearance } from '../components/FloatingTabBar';
 import { scheduleSession } from '../services/executionApi';
+import type { AppStackParamList } from '../navigation/types';
 import { fetchActiveCycles, fetchCycleSessions } from '../services/planApi';
 import { colors } from '../theme/colors';
 import { cardShadow } from '../theme/elevation';
@@ -54,6 +56,7 @@ const STATE_LABEL: Record<SessionState, string> = {
 export function CalendarScreen() {
   const insets = useSafeAreaInsets();
   const clearance = useTabBarClearance();
+  const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
   const [plans, setPlans] = useState<PlanData[] | undefined>(undefined);
   const [planIndex, setPlanIndex] = useState(0);
   const [week, setWeek] = useState<number | null>(null);
@@ -281,9 +284,8 @@ export function CalendarScreen() {
                   <PressableScale
                     key={session.id}
                     style={[styles.card, styles.row, isNext && styles.rowNext]}
-                    disabled={!canAssign}
-                    onPress={() => openAssign(session)}
-                    accessibilityLabel={`Asignar día a ${session.name}`}>
+                    onPress={() => navigation.navigate('SessionDetail', { sessionId: session.id })}
+                    accessibilityLabel={`Ver ${session.name}`}>
                     <View
                       style={[
                         styles.node,
@@ -299,9 +301,18 @@ export function CalendarScreen() {
                     </View>
                     <View style={styles.rowInfo}>
                       <Text style={styles.sessionName}>{session.name}</Text>
-                      <Text style={[styles.sessionSlot, canAssign && !day && styles.sessionNoDay]}>
-                        {day ? formatDay(day) : canAssign ? 'Elegir día' : `Sesión ${session.slotNumber}`}
-                      </Text>
+                      {canAssign ? (
+                        <TouchableOpacity
+                          onPress={() => openAssign(session)}
+                          hitSlop={8}
+                          accessibilityLabel={`Asignar día a ${session.name}`}>
+                          <Text style={[styles.sessionSlot, !day && styles.sessionNoDay]}>
+                            {day ? formatDay(day) : 'Elegir día'}
+                          </Text>
+                        </TouchableOpacity>
+                      ) : (
+                        <Text style={styles.sessionSlot}>{day ? formatDay(day) : `Sesión ${session.slotNumber}`}</Text>
+                      )}
                     </View>
                     <View
                       style={[

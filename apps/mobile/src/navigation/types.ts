@@ -12,6 +12,7 @@ export type AppStackParamList = {
   ExerciseLog: {
     sessionExercise: SessionExercise & { exercise: Exercise; logs: ExerciseLog[] };
   };
+  SessionDetail: { sessionId: string };
   SessionFeedback: {
     sessionId: string;
     startedAt?: string | null;

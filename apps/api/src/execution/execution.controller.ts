@@ -37,6 +37,12 @@ export class ExecutionController {
     return this.executionService.startSession(user.id, id);
   }
 
+  // Devuelve una sesión hecha o no hecha a pendiente (el cierre queda inactivo).
+  @Post("sessions/:id/reopen")
+  reopen(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string) {
+    return this.executionService.reopenSession(user.id, id);
+  }
+
   @Post("session-exercises/:id/logs")
   logSet(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string, @Body() dto: LogSetDto) {
     return this.executionService.logSet(user.id, id, dto);
