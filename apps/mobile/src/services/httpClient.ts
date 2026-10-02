@@ -37,16 +37,41 @@ async function extractErrorMessage(response: Response): Promise<string> {
 // Evita disparar varios refresh en paralelo si varias requests reciben 401 a la vez.
 let refreshInFlight: Promise<void> | null = null;
 
+// Tope de espera por request. Render (plan gratuito) duerme la API tras un
+// rato sin uso y la primera petición puede tardar cerca de un minuto en
+// despertarla; pasado este tope se corta con un mensaje claro en vez de
+// dejar la pantalla cargando sin fin.
+export const REQUEST_TIMEOUT_MS = 70_000;
+
 // Sin conexión / servidor inalcanzable: fetch() rechaza con un TypeError
 // críptico ("Network request failed"). Se normaliza a un ApiError con
 // status 0 para que el resto del código (y la UI) lo distinga de un
-// rechazo real del servidor y muestre un mensaje entendible.
+// rechazo real del servidor y muestre un mensaje entendible. El timeout
+// también es status 0: no es un rechazo del servidor, así que no debe
+// borrar la sesión guardada.
 async function safeFetch(url: string, init: RequestInit): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
   try {
-    return await fetch(url, init);
+    return await fetch(url, { ...init, signal: controller.signal });
   } catch {
-    throw new ApiError(0, 'No pudimos conectar con el servidor. Revisa tu conexión.');
+    throw new ApiError(
+      0,
+      controller.signal.aborted
+        ? 'El servidor tardó demasiado en responder. Intenta de nuevo.'
+        : 'No pudimos conectar con el servidor. Revisa tu conexión.',
+    );
+  } finally {
+    clearTimeout(timer);
   }
+}
+
+// Despierta la API en segundo plano al abrir la app, para que cuando la
+// persona termine de escribir sus datos el servidor ya esté listo.
+export function warmUpApi(): void {
+  fetch(`${API_URL}/health`).catch(() => {
+    // Best-effort: si falla, el login mostrará su propio error.
+  });
 }
 
 async function refreshSession(): Promise<void> {

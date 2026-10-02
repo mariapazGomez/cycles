@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Linking,
@@ -21,6 +21,9 @@ import { Spinner } from '../components/Spinner';
 import { colors } from '../theme/colors';
 import { cardShadow } from '../theme/elevation';
 
+// Si el login tarda más que esto, se avisa que el servidor está despertando.
+const SLOW_LOGIN_MS = 6000;
+
 const FORGOT_PASSWORD_URL = 'https://app.getcycles.app/forgot-password';
 
 function loginErrorMessage(err: unknown): string {
@@ -38,6 +41,16 @@ export function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [slow, setSlow] = useState(false);
+
+  useEffect(() => {
+    if (!submitting) {
+      setSlow(false);
+      return;
+    }
+    const timer = setTimeout(() => setSlow(true), SLOW_LOGIN_MS);
+    return () => clearTimeout(timer);
+  }, [submitting]);
 
   const handleSubmit = async () => {
     if (submitting || !email || !password) {
@@ -135,6 +148,12 @@ export function LoginScreen() {
               )}
             </PressableScale>
 
+            {slow && (
+              <Text style={styles.slowNote}>
+                El servidor estaba dormido y está despertando. Puede tardar hasta un minuto.
+              </Text>
+            )}
+
             <TouchableOpacity
               style={styles.forgot}
               onPress={() => Linking.openURL(FORGOT_PASSWORD_URL)}
@@ -200,6 +219,7 @@ const styles = StyleSheet.create({
   },
   buttonIdle: { opacity: 0.55 },
   buttonText: { color: colors.onBlue, fontSize: 16, fontWeight: '700' },
+  slowNote: { color: colors.inkSecondary, fontSize: 13, textAlign: 'center', marginTop: 12 },
   forgot: { alignItems: 'center', marginTop: 16 },
   forgotText: { color: colors.blue, fontSize: 14, fontWeight: '600' },
 });
