@@ -43,3 +43,22 @@ export function calendarWeekStart(date: Date): Date {
 export function addDays(date: Date, days: number): Date {
   return new Date(date.getTime() + days * DAY_MS);
 }
+
+// Día calendario "YYYY-MM-DD" a medianoche UTC (la misma convención con la que
+// se guardan las fechas de los planes). Null si el texto no es una fecha real.
+export function parseDay(day: string): Date | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(day);
+  if (!match) {
+    return null;
+  }
+  const [year, month, date] = [Number(match[1]), Number(match[2]), Number(match[3])];
+  const parsed = new Date(Date.UTC(year, month - 1, date));
+  const real =
+    parsed.getUTCFullYear() === year && parsed.getUTCMonth() === month - 1 && parsed.getUTCDate() === date;
+  return real ? parsed : null;
+}
+
+// Recorta una fecha a su día (medianoche UTC).
+export function startOfUtcDay(date: Date): Date {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+}
