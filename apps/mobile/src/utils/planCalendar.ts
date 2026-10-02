@@ -74,3 +74,53 @@ export function weekProgress(sessions: TrainingSession[], week: number) {
   const inWeek = sessions.filter(s => s.weekNumber === week);
   return { done: inWeek.filter(s => s.status !== 'pending').length, total: inWeek.length };
 }
+
+const WEEKDAY_LETTERS = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
+const WEEKDAY_NAMES = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+
+// Día local "AAAA-MM-DD" de una fecha: el "hoy" del atleta según su zona.
+export function toLocalDay(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+// Día asignado de una sesión como "AAAA-MM-DD". Se guarda a medianoche UTC,
+// así que el día es el de la parte de fecha del texto, sin pasar por la zona
+// horaria local (que lo correría hacia atrás al oeste de UTC).
+export function sessionDay(session: TrainingSession): string | null {
+  return session.scheduledDate ? session.scheduledDate.slice(0, 10) : null;
+}
+
+export interface PlanDay {
+  iso: string;
+  day: number;
+  letter: string;
+  name: string;
+}
+
+// Los 7 días de una semana del plan (empieza el día de la semana en que
+// empieza el plan, no necesariamente el lunes).
+export function weekDays(startDate: string, week: number): PlanDay[] {
+  const first = Date.parse(startDate) + (week - 1) * WEEK_MS;
+  return Array.from({ length: 7 }, (_, i) => {
+    const date = new Date(first + i * DAY_MS);
+    return {
+      iso: date.toISOString().slice(0, 10),
+      day: date.getUTCDate(),
+      letter: WEEKDAY_LETTERS[date.getUTCDay()],
+      name: WEEKDAY_NAMES[date.getUTCDay()],
+    };
+  });
+}
+
+// ¿El día cae dentro de las fechas del plan? (misma regla que valida la API).
+export function isDayInPlan(iso: string, cycle: TrainingCycle): boolean {
+  return iso >= cycle.startDate.slice(0, 10) && iso <= cycle.endDate.slice(0, 10);
+}
+
+// "viernes 17" a partir de "AAAA-MM-DD".
+export function formatDay(iso: string): string {
+  const date = new Date(`${iso}T00:00:00Z`);
+  return `${WEEKDAY_NAMES[date.getUTCDay()]} ${date.getUTCDate()}`;
+}

@@ -1,6 +1,11 @@
 import type { TrainingCycle, TrainingSession } from '@cycles/shared';
 import {
   firstPending,
+  formatDay,
+  isDayInPlan,
+  sessionDay,
+  toLocalDay,
+  weekDays,
   formatWeekRange,
   planWeekAt,
   sessionState,
@@ -54,4 +59,29 @@ test('progreso de una semana cuenta sesiones resueltas', () => {
     session({ id: '4', weekNumber: 2 }),
   ];
   expect(weekProgress(list, 1)).toEqual({ done: 2, total: 3 });
+});
+
+test('los días de una semana del plan empiezan el día en que empieza el plan', () => {
+  const days = weekDays('2026-10-02T00:00:00.000Z', 1); // viernes
+  expect(days.map(d => d.letter).join('')).toBe('VSDLMXJ');
+  expect(days[0]).toMatchObject({ iso: '2026-10-02', day: 2, name: 'viernes' });
+  expect(weekDays('2026-10-02T00:00:00.000Z', 2)[0].iso).toBe('2026-10-09');
+});
+
+test('el día asignado se lee de la fecha UTC y el "hoy" del atleta de su hora local', () => {
+  expect(sessionDay(session({ scheduledDate: '2026-10-05T00:00:00.000Z' }))).toBe('2026-10-05');
+  expect(sessionDay(session({}))).toBeNull();
+  expect(toLocalDay(new Date(2026, 9, 5, 23, 30))).toBe('2026-10-05');
+});
+
+test('un día solo es válido dentro de las fechas del plan', () => {
+  const cycle = { startDate: '2026-10-02T00:00:00.000Z', endDate: '2026-11-05T00:00:00.000Z' } as TrainingCycle;
+  expect(isDayInPlan('2026-10-02', cycle)).toBe(true);
+  expect(isDayInPlan('2026-11-05', cycle)).toBe(true);
+  expect(isDayInPlan('2026-10-01', cycle)).toBe(false);
+  expect(isDayInPlan('2026-11-06', cycle)).toBe(false);
+});
+
+test('formatea un día como "viernes 17"', () => {
+  expect(formatDay('2026-07-17')).toBe('viernes 17');
 });

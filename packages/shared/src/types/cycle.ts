@@ -130,4 +130,13 @@ export interface TodaySession {
       logs: ExerciseLog[];
     })[];
   };
+  // Sesiones pendientes que el atleta asignó para hoy (solo viene si se
+  // pidió con ?date=). Puede incluir la propia `session`.
+  assignedToday?: Array<{
+    id: string;
+    name: string;
+    cycleId: string;
+    weekNumber: number;
+    slotNumber: number;
+  }>;
 }
