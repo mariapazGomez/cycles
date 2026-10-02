@@ -2,13 +2,12 @@ import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import { CalendarScreen } from '../src/screens/CalendarScreen';
 import { fetchActiveCycles, fetchCycleSessions } from '../src/services/planApi';
-
-const mockNavigate = jest.fn();
+import { scheduleSession } from '../src/services/executionApi';
+import { toLocalDay } from '../src/utils/planCalendar';
 
 jest.mock('@react-navigation/native', () => {
   const React = require('react');
   return {
-    useNavigation: () => ({ navigate: mockNavigate }),
     useFocusEffect: (cb: () => void) => React.useEffect(cb, [cb]),
   };
 });
@@ -19,10 +18,12 @@ jest.mock('../src/services/planApi', () => ({
   fetchActiveCycles: jest.fn(),
   fetchCycleSessions: jest.fn(),
 }));
+jest.mock('../src/services/executionApi', () => ({ scheduleSession: jest.fn() }));
 jest.mock('../src/components/ProfileAvatar', () => ({ ProfileAvatar: () => null }));
 
 const cycles = fetchActiveCycles as jest.Mock;
 const sessions = fetchCycleSessions as jest.Mock;
+const schedule = scheduleSession as jest.Mock;
 
 const cycle = {
   id: 'c1',
@@ -61,13 +62,50 @@ test('muestra las sesiones de la semana con su estado y marca la siguiente', asy
   expect(t).not.toContain('Full body d');
 });
 
-test('tocar la sesión siguiente lleva a Inicio', async () => {
+test('elegir el día de una sesión pendiente llama a la API y actualiza la fila', async () => {
   cycles.mockResolvedValue([cycle]);
   sessions.mockResolvedValue([session('b', 1, 1, 'pending')]);
+  const target = new Date(Date.parse(cycle.startDate) + 86400000).toISOString().slice(0, 10);
+  schedule.mockResolvedValue({ ...session('b', 1, 1, 'pending'), scheduledDate: `${target}T00:00:00.000Z` });
+
   const tree = await mount();
-  const next = tree.root.find(n => typeof n.props.onPress === 'function' && n.props.disabled === false);
-  await ReactTestRenderer.act(async () => next.props.onPress());
-  expect(mockNavigate).toHaveBeenCalledWith('Today');
+  expect(texts(tree)).toContain('Elegir día');
+
+  await ReactTestRenderer.act(async () => {
+    tree.root.find(n => n.props.accessibilityLabel === 'Asignar día a Full body b').props.onPress();
+  });
+  expect(texts(tree)).toContain('¿Qué día harás esta sesión?');
+
+  await ReactTestRenderer.act(async () => {
+    await tree.root.find(n => n.props.accessibilityLabel === `Día ${target}`).props.onPress();
+  });
+  expect(schedule).toHaveBeenCalledWith('b', target);
+  expect(texts(tree)).not.toContain('¿Qué día harás esta sesión?');
+  expect(texts(tree).some(t => /^(lunes|martes|miércoles|jueves|viernes|sábado|domingo) \d+$/.test(t))).toBe(true);
+});
+
+test('una sesión hecha no se puede reasignar', async () => {
+  cycles.mockResolvedValue([cycle]);
+  sessions.mockResolvedValue([session('a', 1, 1, 'completed')]);
+  const tree = await mount();
+  const row = tree.root.find(n => n.props.accessibilityLabel === 'Asignar día a Full body a');
+  expect(row.props.disabled).toBe(true);
+});
+
+test('un error al guardar el día se muestra en la hoja', async () => {
+  cycles.mockResolvedValue([cycle]);
+  sessions.mockResolvedValue([session('b', 1, 1, 'pending')]);
+  schedule.mockRejectedValue(new Error('El día debe estar dentro de las fechas del plan.'));
+  const tree = await mount();
+  await ReactTestRenderer.act(async () => {
+    tree.root.find(n => n.props.accessibilityLabel === 'Asignar día a Full body b').props.onPress();
+  });
+  const today = toLocalDay(new Date());
+  await ReactTestRenderer.act(async () => {
+    await tree.root.findAll(n => typeof n.props.accessibilityLabel === 'string' && n.props.accessibilityLabel.startsWith('Día '))[1].props.onPress();
+  });
+  expect(texts(tree)).toContain('El día debe estar dentro de las fechas del plan.');
+  expect(today).toBeTruthy();
 });
 
 test('sin planes activos muestra el estado vacío', async () => {
