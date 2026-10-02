@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
-  ActivityIndicator,
   ScrollView,
   StyleSheet,
   Switch,
@@ -13,6 +12,7 @@ import {
 import type { SessionOutcome } from '@cycles/shared';
 import { submitFeedback } from '../services/executionApi';
 import type { AppStackParamList } from '../navigation/types';
+import { Spinner } from '../components/Spinner';
 import { colors } from '../theme/colors';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'SessionFeedback'>;
@@ -139,7 +139,7 @@ export function SessionFeedbackScreen({ route, navigation }: Props) {
         onPress={handleSubmit}
         disabled={submitting}>
         {submitting ? (
-          <ActivityIndicator color={colors.onBlue} />
+          <Spinner size={22} color={colors.onBlue} />
         ) : (
           <Text style={styles.submitButtonText}>Enviar</Text>
         )}
