@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 import { RolesGuard } from "../common/guards/roles.guard";
 import { Roles } from "../common/decorators/roles.decorator";
@@ -6,6 +6,8 @@ import { CurrentUser, AuthenticatedUser } from "../common/decorators/current-use
 import { ExecutionService } from "./execution.service";
 import { LogSetDto } from "./dto/log-set.dto";
 import { SessionFeedbackDto } from "./dto/session-feedback.dto";
+import { ScheduleSessionDto } from "./dto/schedule-session.dto";
+import { TodayQueryDto } from "./dto/today-query.dto";
 
 // Endpoints del atleta para registrar lo que hizo — ver
 // docs/prds/features/PRD-EjecucionYSeguimiento.md, sección 6.
@@ -16,8 +18,18 @@ export class ExecutionController {
   constructor(private readonly executionService: ExecutionService) {}
 
   @Get("me/today")
-  today(@CurrentUser() user: AuthenticatedUser) {
-    return this.executionService.today(user.id);
+  today(@CurrentUser() user: AuthenticatedUser, @Query() query: TodayQueryDto) {
+    return this.executionService.today(user.id, query);
+  }
+
+  // El coach define cuántas sesiones por semana; el atleta elige el día de cada una.
+  @Patch("sessions/:id/schedule")
+  schedule(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("id") id: string,
+    @Body() dto: ScheduleSessionDto,
+  ) {
+    return this.executionService.scheduleSession(user.id, id, dto);
   }
 
   @Post("sessions/:id/start")

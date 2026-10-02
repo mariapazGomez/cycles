@@ -166,6 +166,9 @@ Reglas del modelo:
 
 **Atleta** (solo el atleta asignado, con relación coach–atleta activa y plan `active`)
 - `GET /me/today` — próxima sesión pendiente del plan activo, con sus ejercicios, objetivos y lo ya registrado.
+  - Query opcional `date=AAAA-MM-DD` (el día local del atleta): la respuesta incluye `assignedToday`, las sesiones pendientes que el atleta asignó para ese día.
+  - Query opcional `sessionId`: devuelve esa sesión pendiente (p. ej. la asignada para hoy) en vez de la primera pendiente del plan.
+- `PATCH /sessions/:id/schedule` — el coach define cuántas sesiones por semana; **el atleta elige el día de cada una**. Body `{ date: "AAAA-MM-DD" | null }` (`null` quita el día). Solo sesiones pendientes de un plan activo con relación activa. El día puede ser de cualquier semana, con varias sesiones el mismo día, pero dentro de las fechas del plan. Guarda `scheduledDate` a medianoche UTC.
 - `POST /sessions/:id/start` — marca `startedAt` (idempotente: si ya tiene valor, no lo cambia).
 - `POST /session-exercises/:id/logs` — `{ id, setNumber, actualReps, actualWeight?, rir?, supersedesId? }`. `id` lo genera el cliente; si ya existe, responde con el registro ya guardado en vez de duplicarlo (reintento seguro). Sin `supersedesId`, registrar una serie que ya tiene registro vigente responde 409.
 - `POST /sessions/:id/feedback` — `{ outcome, srpe?, durationMinutes?, pain, painNotes?, notes?, supersedesId? }`. Valida `srpe` y `durationMinutes` cuando `outcome = completed`. Actualiza `TrainingSession.status`.
