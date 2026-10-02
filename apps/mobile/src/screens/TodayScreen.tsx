@@ -4,8 +4,6 @@ import type { CompositeScreenProps } from '@react-navigation/native';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
-  Modal,
-  Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -18,7 +16,6 @@ import type { TodaySession } from '@cycles/shared';
 import { fetchToday, startSession } from '../services/executionApi';
 import { RestBar } from '../components/RestTimer';
 import { DEFAULT_REST_SECONDS, useRestTimer } from '../store/RestTimerContext';
-import { useAuth } from '../store/AuthContext';
 import type { AppStackParamList, TabParamList } from '../navigation/types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PressableScale } from '../components/PressableScale';
@@ -26,6 +23,7 @@ import { BeadChain } from '../components/BeadChain';
 import { Icon } from '../components/Icon';
 import { Spinner } from '../components/Spinner';
 import { ChainBackground } from '../components/ChainBackground';
+import { ProfileAvatar } from '../components/ProfileAvatar';
 import { useTabBarClearance } from '../components/FloatingTabBar';
 import { colors } from '../theme/colors';
 import { cardShadow } from '../theme/elevation';
@@ -36,8 +34,6 @@ type Props = CompositeScreenProps<
 >;
 
 export function TodayScreen({ navigation }: Props) {
-  const { logout, user } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
   const insets = useSafeAreaInsets();
   const clearance = useTabBarClearance();
   const [data, setData] = useState<TodaySession | null | undefined>(undefined);
@@ -99,14 +95,6 @@ export function TodayScreen({ navigation }: Props) {
   const elapsedMinutes = Number.isFinite(startedAtMs)
     ? Math.max(1, Math.round((Date.now() - startedAtMs) / 60000))
     : null;
-  const initials =
-    (user?.name ?? '')
-      .split(' ')
-      .filter(Boolean)
-      .slice(0, 2)
-      .map(part => part[0].toUpperCase())
-      .join('') || '·';
-
   const openFeedback = () => {
     if (!data) {
       return;
@@ -140,12 +128,7 @@ export function TodayScreen({ navigation }: Props) {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
       <View style={styles.header}>
         <Text style={styles.title}>Hoy</Text>
-        <TouchableOpacity
-          style={styles.avatar}
-          onPress={() => setMenuOpen(true)}
-          accessibilityLabel="Abrir perfil">
-          <Text style={styles.avatarText}>{initials}</Text>
-        </TouchableOpacity>
+        <ProfileAvatar />
       </View>
 
       {error && <Text style={styles.error}>{error}</Text>}
@@ -306,22 +289,6 @@ export function TodayScreen({ navigation }: Props) {
         </>
       )}
 
-      <Modal visible={menuOpen} transparent animationType="fade" onRequestClose={() => setMenuOpen(false)}>
-        <Pressable style={styles.menuBackdrop} onPress={() => setMenuOpen(false)}>
-          <View style={[styles.menu, { top: insets.top + 56 }]}>
-            <Text style={styles.menuName} numberOfLines={1}>{user?.name}</Text>
-            <Text style={styles.menuEmail} numberOfLines={1}>{user?.email}</Text>
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => {
-                setMenuOpen(false);
-                logout();
-              }}>
-              <Text style={styles.menuItemText}>Salir</Text>
-            </TouchableOpacity>
-          </View>
-        </Pressable>
-      </Modal>
     </ScrollView>
   );
 }
@@ -332,15 +299,6 @@ const styles = StyleSheet.create({
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bgApp },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
   title: { fontSize: 32, fontWeight: '800', color: colors.ink },
-  avatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.ink,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: { color: colors.onBlue, fontSize: 13, fontWeight: '700' },
   heroButtonDone: { backgroundColor: colors.brand },
   statsRow: { flexDirection: 'row', gap: 10, marginBottom: 10 },
   statCard: { flex: 1 },
@@ -363,20 +321,6 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   emptyTitle: { fontSize: 21, fontWeight: '800', color: colors.ink, marginBottom: 6 },
-  menuBackdrop: { flex: 1 },
-  menu: {
-    position: 'absolute',
-    right: 16,
-    width: 230,
-    backgroundColor: colors.bg,
-    borderRadius: 16,
-    padding: 14,
-    ...cardShadow,
-  },
-  menuName: { fontSize: 15, fontWeight: '700', color: colors.ink },
-  menuEmail: { fontSize: 12, color: colors.inkSecondary, marginTop: 2, marginBottom: 10 },
-  menuItem: { borderTopWidth: 1, borderTopColor: colors.grayBorder, paddingTop: 12 },
-  menuItemText: { color: colors.painInk, fontSize: 15, fontWeight: '600' },
   error: { color: colors.painInk, marginBottom: 16 },
   emptyText: { fontSize: 14, color: colors.inkSecondary },
   hero: {
