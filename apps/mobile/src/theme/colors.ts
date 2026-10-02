@@ -12,6 +12,12 @@ export const colors = {
   ink: '#1f2228',
   inkSecondary: '#5c6068',
   grayLight: '#f6f7f9',
+  // Solo mobile: fondo de la app, para que las tarjetas blancas se separen por
+  // superficie (excepción a "líneas finas en vez de sombras" de la web).
+  bgApp: '#f3f5f8',
+  inkTrack: '#3a3f48',
+  inkMuted: '#bfc4cc',
+  grayDot: '#d7dce3',
   grayBorder: '#dfe2e7',
   controlBorder: '#8a8f98',
   grayMid: '#8a8f98',
