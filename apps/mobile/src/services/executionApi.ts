@@ -57,3 +57,9 @@ export function submitFeedback(sessionId: string, input: SubmitFeedbackInput) {
     body: input,
   });
 }
+
+// Devuelve una sesión hecha o no hecha a pendiente. El cierre no se borra: el
+// servidor lo deja inactivo (active = 0) para el historial.
+export function reopenSession(sessionId: string) {
+  return apiRequest<TrainingSession>(`/sessions/${sessionId}/reopen`, { method: 'POST' });
+}
