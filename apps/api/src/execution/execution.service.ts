@@ -16,6 +16,11 @@ import { TodayQueryDto } from "./dto/today-query.dto";
 // Registro de ejecución del atleta. ExerciseLog y SessionFeedback son
 // append-only: aquí solo se crean filas, nunca se actualizan ni se borran.
 // Ver docs/prds/features/PRD-EjecucionYSeguimiento.md.
+// Los grupos musculares que suman carga en el Resumen. Cardio, "otros" y los
+// ejercicios sin grupo quedan fuera.
+export const SUMMARY_GROUPS = ["legs", "back", "chest", "shoulders", "glutes", "arms", "core"] as const;
+type SummaryGroup = (typeof SUMMARY_GROUPS)[number];
+
 @Injectable()
 export class ExecutionService {
   constructor(
@@ -260,6 +265,62 @@ export class ExecutionService {
 
   // Solo el atleta asignado, con relación activa con el coach del plan y el
   // plan en estado activo, puede registrar sobre una sesión.
+  // Series y carga (repeticiones × peso) por grupo muscular de cada sesión
+  // entrenada de un plan. "Entrenada" = tiene series registradas y no se
+  // marcó como no hecha. La fecha es la de la primera serie. Los ejercicios
+  // sin peso (plancha, flexiones) suman series pero no kilos.
+  async muscleSummary(athleteId: string, cycleId: string) {
+    const cycle = await this.prisma.trainingCycle.findUnique({ where: { id: cycleId } });
+    if (!cycle) {
+      throw new NotFoundException("Plan no encontrado.");
+    }
+    if (cycle.athleteId !== athleteId) {
+      throw new ForbiddenException("Este plan no es tuyo.");
+    }
+
+    const sessions = await this.prisma.trainingSession.findMany({
+      where: { cycleId, status: { not: "skipped" } },
+      orderBy: [{ weekNumber: "asc" }, { slotNumber: "asc" }],
+      select: {
+        id: true,
+        name: true,
+        weekNumber: true,
+        sessionExercises: {
+          select: {
+            exercise: { select: { muscleGroup: true } },
+            logs: { where: CURRENT_ONLY, select: { actualReps: true, actualWeight: true, loggedAt: true } },
+          },
+        },
+      },
+    });
+
+    const empty = () => Object.fromEntries(SUMMARY_GROUPS.map((g) => [g, 0])) as Record<SummaryGroup, number>;
+    const days = [];
+    for (const session of sessions) {
+      const sets = empty();
+      const kg = empty();
+      let trainedAt: Date | null = null;
+      let logged = 0;
+      for (const item of session.sessionExercises) {
+        for (const log of item.logs) {
+          logged += 1;
+          if (!trainedAt || log.loggedAt < trainedAt) {
+            trainedAt = log.loggedAt;
+          }
+          const group = item.exercise.muscleGroup as SummaryGroup | null;
+          if (group && group in sets) {
+            sets[group] += 1;
+            kg[group] += log.actualReps * (log.actualWeight ?? 0);
+          }
+        }
+      }
+      if (logged > 0 && trainedAt) {
+        days.push({ sessionId: session.id, name: session.name, weekNumber: session.weekNumber, trainedAt, sets, kg });
+      }
+    }
+    return { cycleId, days };
+  }
+
   // Devuelve una sesión cerrada (hecha o no hecha) a pendiente. El cierre
   // vigente no se borra: queda inactivo (active = 0) para el historial, y los
   // registros de series se conservan. Después se puede cerrar de nuevo.
