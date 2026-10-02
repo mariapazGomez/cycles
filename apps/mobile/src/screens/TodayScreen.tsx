@@ -4,6 +4,8 @@ import type { CompositeScreenProps } from '@react-navigation/native';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
+  Modal,
+  Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -23,6 +25,7 @@ import { PressableScale } from '../components/PressableScale';
 import { BeadChain } from '../components/BeadChain';
 import { Icon } from '../components/Icon';
 import { Spinner } from '../components/Spinner';
+import { ChainBackground } from '../components/ChainBackground';
 import { useTabBarClearance } from '../components/FloatingTabBar';
 import { colors } from '../theme/colors';
 import { cardShadow } from '../theme/elevation';
@@ -33,7 +36,8 @@ type Props = CompositeScreenProps<
 >;
 
 export function TodayScreen({ navigation }: Props) {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
   const insets = useSafeAreaInsets();
   const clearance = useTabBarClearance();
   const [data, setData] = useState<TodaySession | null | undefined>(undefined);
@@ -87,7 +91,35 @@ export function TodayScreen({ navigation }: Props) {
   const exercises = data?.session.sessionExercises ?? [];
   const isComplete = (e: (typeof exercises)[number]) => e.logs.length >= e.targetSets;
   const doneCount = exercises.filter(isComplete).length;
+  const doneExercises = doneCount;
   const currentIndex = exercises.findIndex(e => !isComplete(e));
+  const doneSets = exercises.reduce((sum, e) => sum + Math.min(e.logs.length, e.targetSets), 0);
+  const plannedSets = exercises.reduce((sum, e) => sum + e.targetSets, 0);
+  const startedAtMs = data?.session.startedAt ? Date.parse(data.session.startedAt) : NaN;
+  const elapsedMinutes = Number.isFinite(startedAtMs)
+    ? Math.max(1, Math.round((Date.now() - startedAtMs) / 60000))
+    : null;
+  const initials =
+    (user?.name ?? '')
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map(part => part[0].toUpperCase())
+      .join('') || '·';
+
+  const openFeedback = () => {
+    if (!data) {
+      return;
+    }
+    navigation.navigate('SessionFeedback', {
+      sessionId: data.session.id,
+      startedAt: data.session.startedAt,
+      doneSets,
+      plannedSets,
+      doneExercises,
+      totalExercises: exercises.length,
+    });
+  };
 
   if (data === undefined && !error) {
     return (
@@ -108,16 +140,23 @@ export function TodayScreen({ navigation }: Props) {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
       <View style={styles.header}>
         <Text style={styles.title}>Hoy</Text>
-        <TouchableOpacity onPress={logout}>
-          <Text style={styles.logout}>Salir</Text>
+        <TouchableOpacity
+          style={styles.avatar}
+          onPress={() => setMenuOpen(true)}
+          accessibilityLabel="Abrir perfil">
+          <Text style={styles.avatarText}>{initials}</Text>
         </TouchableOpacity>
       </View>
 
       {error && <Text style={styles.error}>{error}</Text>}
 
       {data === null && !error && (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>No tienes ninguna sesión pendiente.</Text>
+        <View style={[styles.card, styles.emptyCard]}>
+          <ChainBackground />
+          <View style={styles.emptyBox}>
+            <Text style={styles.emptyTitle}>No tienes una sesión pendiente</Text>
+            <Text style={styles.emptyText}>Cuando tu coach te asigne una, la verás aquí.</Text>
+          </View>
         </View>
       )}
 
@@ -146,16 +185,9 @@ export function TodayScreen({ navigation }: Props) {
                   <Icon name="arrowRight" size={20} color={colors.ink} />
                 </PressableScale>
               ) : (
-                <PressableScale
-                  style={styles.heroButton}
-                  onPress={() =>
-                    navigation.navigate('SessionFeedback', {
-                      sessionId: data.session.id,
-                      startedAt: data.session.startedAt,
-                    })
-                  }>
-                  <Text style={styles.heroButtonText}>Cerrar sesión</Text>
-                  <Icon name="arrowRight" size={20} color={colors.ink} />
+                <PressableScale style={[styles.heroButton, styles.heroButtonDone]} onPress={openFeedback}>
+                  <Text style={[styles.heroButtonText, { color: colors.onBlue }]}>Cerrar sesión</Text>
+                  <Icon name="arrowRight" size={20} color={colors.onBlue} />
                 </PressableScale>
               )
             ) : (
@@ -174,6 +206,25 @@ export function TodayScreen({ navigation }: Props) {
               </PressableScale>
             )}
           </View>
+
+          {routineStarted && !nextExercise && (
+            <>
+              <View style={styles.statsRow}>
+                <View style={[styles.card, styles.statCard]}>
+                  <Text style={styles.statNumber}>{doneSets}</Text>
+                  <Text style={styles.statLabel}>series</Text>
+                </View>
+                <View style={[styles.card, styles.statCard]}>
+                  <Text style={styles.statNumber}>{elapsedMinutes ?? '–'}</Text>
+                  <Text style={styles.statLabel}>minutos</Text>
+                </View>
+              </View>
+              <View style={[styles.card, styles.doneMessage]}>
+                <Icon name="check" size={22} color={colors.okInk} />
+                <Text style={styles.doneMessageText}>Terminaste todos los ejercicios</Text>
+              </View>
+            </>
+          )}
 
           {!routineStarted && (
             <View style={[styles.card, styles.restCard]}>
@@ -248,17 +299,29 @@ export function TodayScreen({ navigation }: Props) {
           {routineStarted && nextExercise && (
             <TouchableOpacity
               style={styles.closeLink}
-              onPress={() =>
-                navigation.navigate('SessionFeedback', {
-                  sessionId: data.session.id,
-                  startedAt: data.session.startedAt,
-                })
-              }>
+              onPress={openFeedback}>
               <Text style={styles.closeLinkText}>Cerrar sesión</Text>
             </TouchableOpacity>
           )}
         </>
       )}
+
+      <Modal visible={menuOpen} transparent animationType="fade" onRequestClose={() => setMenuOpen(false)}>
+        <Pressable style={styles.menuBackdrop} onPress={() => setMenuOpen(false)}>
+          <View style={[styles.menu, { top: insets.top + 56 }]}>
+            <Text style={styles.menuName} numberOfLines={1}>{user?.name}</Text>
+            <Text style={styles.menuEmail} numberOfLines={1}>{user?.email}</Text>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => {
+                setMenuOpen(false);
+                logout();
+              }}>
+              <Text style={styles.menuItemText}>Salir</Text>
+            </TouchableOpacity>
+          </View>
+        </Pressable>
+      </Modal>
     </ScrollView>
   );
 }
@@ -269,10 +332,53 @@ const styles = StyleSheet.create({
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bgApp },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
   title: { fontSize: 32, fontWeight: '800', color: colors.ink },
-  logout: { color: colors.blue, fontSize: 15, fontWeight: '600' },
+  avatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.ink,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: { color: colors.onBlue, fontSize: 13, fontWeight: '700' },
+  heroButtonDone: { backgroundColor: colors.brand },
+  statsRow: { flexDirection: 'row', gap: 10, marginBottom: 10 },
+  statCard: { flex: 1 },
+  statNumber: { fontSize: 30, lineHeight: 32, fontWeight: '800', color: colors.ink },
+  statLabel: { fontSize: 12, color: colors.inkSecondary, marginTop: 2 },
+  doneMessage: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: colors.okBg,
+    marginBottom: 14,
+  },
+  doneMessageText: { color: colors.okInk, fontWeight: '600', fontSize: 14 },
+  emptyCard: { height: 380, overflow: 'hidden', justifyContent: 'flex-end', padding: 20 },
+  emptyBox: {
+    backgroundColor: colors.bg,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.grayBorder,
+    padding: 16,
+  },
+  emptyTitle: { fontSize: 21, fontWeight: '800', color: colors.ink, marginBottom: 6 },
+  menuBackdrop: { flex: 1 },
+  menu: {
+    position: 'absolute',
+    right: 16,
+    width: 230,
+    backgroundColor: colors.bg,
+    borderRadius: 16,
+    padding: 14,
+    ...cardShadow,
+  },
+  menuName: { fontSize: 15, fontWeight: '700', color: colors.ink },
+  menuEmail: { fontSize: 12, color: colors.inkSecondary, marginTop: 2, marginBottom: 10 },
+  menuItem: { borderTopWidth: 1, borderTopColor: colors.grayBorder, paddingTop: 12 },
+  menuItemText: { color: colors.painInk, fontSize: 15, fontWeight: '600' },
   error: { color: colors.painInk, marginBottom: 16 },
-  emptyState: { marginTop: 60, alignItems: 'center' },
-  emptyText: { fontSize: 16, color: colors.inkSecondary, textAlign: 'center' },
+  emptyText: { fontSize: 14, color: colors.inkSecondary },
   hero: {
     backgroundColor: colors.ink,
     borderRadius: 24,
