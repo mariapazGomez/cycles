@@ -14,6 +14,8 @@ import {
 } from 'react-native';
 import type { TodaySession } from '@cycles/shared';
 import { fetchToday, startSession } from '../services/executionApi';
+import { ApiError } from '../services/httpClient';
+import { toLocalDay } from '../utils/planCalendar';
 import { RestBar } from '../components/RestTimer';
 import { DEFAULT_REST_SECONDS, useRestTimer } from '../store/RestTimerContext';
 import type { AppStackParamList, TabParamList } from '../navigation/types';
@@ -40,16 +42,25 @@ export function TodayScreen({ navigation }: Props) {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
+  // Sesión pendiente que el atleta eligió entre las asignadas para hoy; null =
+  // la siguiente pendiente del plan.
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const { routineStarted, setRoutineStarted, autoRest, setAutoRest } = useRestTimer();
 
   const load = useCallback(async () => {
     setError(null);
     try {
-      setData(await fetchToday());
-    } catch {
+      setData(await fetchToday({ date: toLocalDay(new Date()), sessionId: selectedId ?? undefined }));
+    } catch (err) {
+      if (selectedId && err instanceof ApiError && err.status === 404) {
+        // La sesión elegida ya no está pendiente (p. ej. la terminaste): se
+        // vuelve a la siguiente del plan.
+        setSelectedId(null);
+        return;
+      }
       setError('No pudimos cargar tu entrenamiento. Desliza para reintentar.');
     }
-  }, []);
+  }, [selectedId]);
 
   const sessionStarted = data?.session.startedAt != null;
   useEffect(() => {
@@ -117,6 +128,9 @@ export function TodayScreen({ navigation }: Props) {
     );
   }
 
+  const assignedHere = (data?.assignedToday ?? []).some(a => a.id === data?.session.id);
+  const otherAssigned = (data?.assignedToday ?? []).filter(a => a.id !== data?.session.id);
+
   const nextExercise = currentIndex === -1 ? undefined : exercises[currentIndex];
   const openExercise = (exercise: (typeof exercises)[number]) =>
     navigation.navigate('ExerciseLog', { sessionExercise: exercise });
@@ -147,7 +161,14 @@ export function TodayScreen({ navigation }: Props) {
         <>
           <View style={styles.hero}>
             <BeadChain />
-            <Text style={styles.heroWeek}>Semana {data.cycle.currentWeek}</Text>
+            <View style={styles.heroTop}>
+              <Text style={styles.heroWeek}>Semana {data.cycle.currentWeek}</Text>
+              {assignedHere && (
+                <View style={styles.assignedPill}>
+                  <Text style={styles.assignedPillText}>Asignada para hoy</Text>
+                </View>
+              )}
+            </View>
             <Text style={styles.heroTitle}>{data.session.name}</Text>
             <View style={styles.heroCount}>
               <Text style={styles.heroNumber}>{doneCount}</Text>
@@ -207,6 +228,34 @@ export function TodayScreen({ navigation }: Props) {
                 <Text style={styles.doneMessageText}>Terminaste todos los ejercicios</Text>
               </View>
             </>
+          )}
+
+          {(otherAssigned.length > 0 || selectedId) && !routineStarted && (
+            <View style={styles.card}>
+              {otherAssigned.length > 0 && (
+                <>
+                  <Text style={styles.assignedTitle}>Asignadas para hoy</Text>
+                  {otherAssigned.map(a => (
+                    <TouchableOpacity
+                      key={a.id}
+                      style={styles.assignedRow}
+                      onPress={() => setSelectedId(a.id)}
+                      accessibilityLabel={`Hacer ${a.name}`}>
+                      <View style={styles.flex}>
+                        <Text style={styles.assignedName}>{a.name}</Text>
+                        <Text style={styles.assignedMeta}>{`Semana ${a.weekNumber}, sesión ${a.slotNumber}`}</Text>
+                      </View>
+                      <Text style={styles.assignedAction}>Hacer esta</Text>
+                    </TouchableOpacity>
+                  ))}
+                </>
+              )}
+              {selectedId && (
+                <TouchableOpacity style={styles.assignedRow} onPress={() => setSelectedId(null)}>
+                  <Text style={styles.assignedAction}>Volver a la siguiente sesión del plan</Text>
+                </TouchableOpacity>
+              )}
+            </View>
           )}
 
           {!routineStarted && (
@@ -330,7 +379,16 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     overflow: 'hidden',
   },
-  heroWeek: { fontSize: 12, color: colors.inkMuted, marginBottom: 4 },
+  heroTop: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
+  heroWeek: { fontSize: 12, color: colors.inkMuted },
+  assignedPill: { backgroundColor: colors.brand, borderRadius: 999, paddingVertical: 2, paddingHorizontal: 8 },
+  assignedPillText: { fontSize: 11, fontWeight: '700', color: colors.ink },
+  flex: { flex: 1 },
+  assignedTitle: { fontSize: 15, fontWeight: '700', color: colors.ink, marginBottom: 4 },
+  assignedRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10 },
+  assignedName: { fontSize: 15, fontWeight: '600', color: colors.ink },
+  assignedMeta: { fontSize: 12, color: colors.inkSecondary, marginTop: 2 },
+  assignedAction: { color: colors.blue, fontSize: 14, fontWeight: '600' },
   heroTitle: { fontSize: 26, fontWeight: '800', color: colors.onBlue, maxWidth: '75%', marginBottom: 16 },
   heroCount: { flexDirection: 'row', alignItems: 'flex-end', gap: 6, marginBottom: 14 },
   heroNumber: { fontSize: 48, lineHeight: 50, fontWeight: '800', color: colors.onBlue },
