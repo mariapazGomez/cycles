@@ -70,7 +70,8 @@ Usa directamente `User` (`passwordHash`, `authProvider`, `role` ahora nullable, 
 - `POST /auth/refresh` — rota el refresh token (revoca el anterior, emite un par nuevo); si detecta reuso de un token ya rotado, revoca todas las sesiones del usuario.
 - `POST /auth/logout` — revoca el refresh token recibido.
 - `POST /auth/complete-profile` (protegido) — asigna `role: coach` a una cuenta creada vía Google sin rol; falla si ya tiene rol asignado.
-- `GET /auth/google` / `GET /auth/google/callback` — flujo OAuth Google; si el email ya existe (cuenta manual), se vincula en vez de crear un usuario nuevo; si no existe, crea la cuenta con `role: null` pendiente de `complete-profile`.
+- `GET /auth/google` / `GET /auth/google/callback` — flujo OAuth Google; si el email ya existe (cuenta manual), se vincula en vez de crear un usuario nuevo; si no existe, crea la cuenta con `role: null` pendiente de `complete-profile`. El callback **no** pone tokens en la URL: redirige a `/oauth-callback?code=…` con un código de un solo uso que vence en 60 segundos (se guarda solo su hash, tabla `OAuthExchangeCode`).
+- `POST /auth/google/exchange` (público, con límite de intentos) — recibe `{ code }` y devuelve el par de tokens. Código inválido, usado o vencido: 401. Ver [[SEGURIDAD]], hallazgo S-02.
 - `POST /auth/password-reset/request` — solicita email de recuperación (respuesta genérica).
 - `POST /auth/password-reset/confirm` — establece nueva contraseña con el token recibido y revoca todas las sesiones activas del usuario.
 
@@ -103,5 +104,6 @@ Usa directamente `User` (`passwordHash`, `authProvider`, `role` ahora nullable, 
 ## 11. Estado y decisiones abiertas
 
 - **Proveedor de email transaccional: resuelto — Resend** (ver decisiones del [[PRD-General]], sección 11, 2026-09-19). Pendiente de implementación: reemplazar el `MailService` de desarrollo en `apps/api/src/mail/mail.service.ts` (actualmente solo loguea el link) por la integración real.
+- **Tokens de Google fuera de la URL: resuelto** (2026-09-27, PR 1C de `docs/PLAN-Seguridad.md`) con el código de un solo uso descrito en la sección de endpoints.
 - Apple Sign In postergado deliberadamente (ver sección 3); se reevalúa si se publica app nativa en App Store o si hay demanda explícita.
 - Texto legal exacto del consentimiento de datos (`dataConsentVersion`) pendiente de redactar junto con la política de privacidad.

@@ -68,6 +68,28 @@ Archivos en [`docs/brand/img/`](img/). Isotipo: un loop/flecha circular — coin
 
 > **Actualización 2026-09-25 (rediseño aplicado + re-sync del Design System):** `brand-blue`/`brand-ink` ya están en el código, no solo registrados. `--color-brand` (`#3080fc`) marca estado/selección; `--color-ink` (`#1f2228`) es la tinta única de la app. Para el hueco de contraste que se señalaba arriba (`brand-blue` insuficiente en texto chico) se agregó `--color-blue` (`#1a66dd`, un paso derivado que sí da 4.5:1+) para botones/links/texto chico. La app móvil (`apps/mobile/src/theme/colors.ts`) espeja esta misma paleta. El copy ya no tiene voseo en ningún lado (verificado en `apps/web` y `apps/mobile`). Se quitaron los subtítulos de las 6 pantallas de auth. El modo oscuro se descartó explícitamente para esta fase (no es un gap pendiente, es alcance pospuesto) — los estilos oscuros parciales que existían se sacaron en vez de extenderse a medias. El Design System se re-sincronizó reflejando todo esto.
 
+## Motivo gráfico: cadena de proteína (agregado 2026-09-30)
+
+Elemento decorativo de marca: una cadena de perlas (aminoácidos) de distintos tamaños y opacidades que se pliega en lazos suaves, en `brand-blue` (#3080fc). Las cadenas fluyen de lado a lado y **pasan por detrás de las tarjetas con texto**, así que solo asoman en los márgenes y en el espacio entre ellas.
+
+**Por qué:** le da identidad a la marca y conecta con el trasfondo de la empresa: correlacionar la ciencia del deporte (fisiología, bioquímica, adaptación al entrenamiento) con el rendimiento deportivo. Los flujos de ADN, ARN y proteína se exploraron el 2026-09-30; la decisión fue la proteína. Las cadenas también dialogan con la idea de "ciclo" del isotipo (recorridos que se pliegan y vuelven).
+
+**Dónde se usa:** fondo de las pantallas de autenticación de la web y de la zona blanca del correo de invitación y de los demás correos transaccionales (`apps/api/src/mail/templates.ts`). Archivo: `apps/web/public/email/curvas-cycles.png` (520×680 a 2x, ~120 KB, PNG porque Gmail no soporta SVG).
+
+**Reglas:**
+- Solo como fondo, siempre detrás de tarjetas opacas; nunca detrás de texto suelto.
+- Solo `brand-blue` sobre blanco, con opacidades variables; no es un degradado.
+- Tres cadenas por pantalla (arriba, centro, abajo), con el centro cruzando el espacio entre tarjetas.
+- En la web se aplica solo a las pantallas de autenticación (`AuthCard`), con tres variantes SVG en `apps/web/src/assets/patterns/`: `a` para entrar (login, registro, invitación), `b` para pasos de email y contraseña, `c` para errores y estados de espera. El logo va arriba a la izquierda de la tarjeta.
+- En los estados vacíos de la app (`EmptyState`: Inicio del coach y de atleta) va la variante `c` como fondo de una tarjeta blanca.
+- La cabecera de la app usa el logo en lugar del texto "Cycles"; en celular se parte en dos filas (logo y avatar arriba, pestañas repartidas abajo) para que no se corten.
+- En el constructor de rutinas, la cadena de proteína se traduce a una estructura: los ejercicios son cuentas numeradas unidas por una línea, en tres tonos de azul de marca (`--color-blue-*` en `global.css`). El panel "Carga de la sesión" usa los mismos tonos, con el volumen en el más profundo. Sin sombras ni degradados.
+- No aplicarlo todavía en el resto de la app web ni en mobile.
+
+## Hoja de especificaciones
+
+Ver [[especificaciones-diseno]] — solo los valores (color, tipografía, espaciado, radios, logo), sin el contexto histórico de este documento. Es la referencia a usar al crear un gráfico nuevo.
+
 ## Fuera de esta decisión
 
 - No se decidió nada sobre la **landing page** (marketing) — el usuario fue explícito en que eso se diseña después, por separado.

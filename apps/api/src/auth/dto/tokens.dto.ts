@@ -9,3 +9,8 @@ export class LogoutDto {
   @IsString()
   refreshToken!: string;
 }
+
+export class GoogleExchangeDto {
+  @IsString()
+  code!: string;
+}

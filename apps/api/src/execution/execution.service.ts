@@ -5,53 +5,127 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import { ActivityNotifier } from "../activity/activity-notifier.service";
 import { PrismaService } from "../prisma/prisma.service";
-import { CURRENT_ONLY, planWeekAt } from "../common/training";
+import { CURRENT_ONLY, parseDay, planWeekAt, startOfUtcDay } from "../common/training";
 import { LogSetDto } from "./dto/log-set.dto";
 import { SessionFeedbackDto } from "./dto/session-feedback.dto";
+import { ScheduleSessionDto } from "./dto/schedule-session.dto";
+import { TodayQueryDto } from "./dto/today-query.dto";
 
 // Registro de ejecución del atleta. ExerciseLog y SessionFeedback son
 // append-only: aquí solo se crean filas, nunca se actualizan ni se borran.
 // Ver docs/prds/features/PRD-EjecucionYSeguimiento.md.
 @Injectable()
 export class ExecutionService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly activity: ActivityNotifier,
+  ) {}
 
   // La próxima sesión pendiente de los planes activos del atleta, con lo que
-  // ya registró. Null si no tiene nada pendiente.
-  async today(athleteId: string) {
+  // ya registró. Null si no tiene nada pendiente. Además devuelve las sesiones
+  // pendientes que el atleta asignó para hoy (`query.date`, su día local), y
+  // con `query.sessionId` devuelve esa sesión pendiente en vez de la primera.
+  async today(athleteId: string, query: TodayQueryDto = {}) {
     const now = new Date();
     const cycles = await this.prisma.trainingCycle.findMany({
       where: { athleteId, status: "active", cycleType: { not: "macrocycle" } },
       orderBy: { startDate: "asc" },
     });
-
+    const usable: typeof cycles = [];
     for (const cycle of cycles) {
-      if (!(await this.hasActiveRelation(cycle.coachId, athleteId))) {
-        continue;
+      if (await this.hasActiveRelation(cycle.coachId, athleteId)) {
+        usable.push(cycle);
       }
+    }
+
+    const include = {
+      sessionExercises: {
+        orderBy: { orderIndex: "asc" as const },
+        include: {
+          exercise: true,
+          logs: { where: CURRENT_ONLY, orderBy: { setNumber: "asc" as const } },
+        },
+      },
+    };
+    const cycleInfo = (cycle: (typeof cycles)[number]) => ({
+      id: cycle.id,
+      name: cycle.name,
+      currentWeek: planWeekAt(cycle.startDate, now),
+    });
+
+    let assignedToday: Array<{ id: string; name: string; cycleId: string; weekNumber: number; slotNumber: number }> = [];
+    if (query.date) {
+      const day = parseDay(query.date);
+      if (!day) {
+        throw new BadRequestException("Esa fecha no existe.");
+      }
+      if (usable.length > 0) {
+        assignedToday = await this.prisma.trainingSession.findMany({
+          where: { cycleId: { in: usable.map((c) => c.id) }, status: "pending", scheduledDate: day },
+          orderBy: [{ weekNumber: "asc" }, { slotNumber: "asc" }],
+          select: { id: true, name: true, cycleId: true, weekNumber: true, slotNumber: true },
+        });
+      }
+    }
+
+    if (query.sessionId) {
+      const chosen = await this.prisma.trainingSession.findFirst({
+        where: { id: query.sessionId, status: "pending", cycleId: { in: usable.map((c) => c.id) } },
+        include,
+      });
+      if (!chosen) {
+        throw new NotFoundException("Esa sesión no está pendiente en tus planes activos.");
+      }
+      const cycle = usable.find((c) => c.id === chosen.cycleId)!;
+      return { cycle: cycleInfo(cycle), session: chosen, assignedToday };
+    }
+
+    for (const cycle of usable) {
       const session = await this.prisma.trainingSession.findFirst({
         where: { cycleId: cycle.id, status: "pending" },
         orderBy: [{ weekNumber: "asc" }, { slotNumber: "asc" }],
-        include: {
-          sessionExercises: {
-            orderBy: { orderIndex: "asc" },
-            include: {
-              exercise: true,
-              logs: { where: CURRENT_ONLY, orderBy: { setNumber: "asc" } },
-            },
-          },
-        },
+        include,
       });
       if (session) {
-        return {
-          cycle: { id: cycle.id, name: cycle.name, currentWeek: planWeekAt(cycle.startDate, now) },
-          session,
-        };
+        return { cycle: cycleInfo(cycle), session, assignedToday };
       }
     }
 
     return null;
+  }
+
+  // El coach define cuántas sesiones por semana; el atleta elige el día de cada
+  // una (puede moverla a otra semana y repetir día entre sesiones, siempre
+  // dentro de las fechas del plan). Solo sesiones pendientes.
+  async scheduleSession(athleteId: string, sessionId: string, dto: ScheduleSessionDto) {
+    const session = await this.getWritableSession(athleteId, sessionId);
+    if (session.status !== "pending") {
+      throw new BadRequestException("Solo puedes cambiar el día de una sesión pendiente.");
+    }
+    if (dto.date === undefined) {
+      throw new BadRequestException("Indica el día de la sesión, o null para quitarlo.");
+    }
+
+    let scheduledDate: Date | null = null;
+    if (dto.date !== null) {
+      const day = parseDay(dto.date);
+      if (!day) {
+        throw new BadRequestException("Esa fecha no existe.");
+      }
+      const first = startOfUtcDay(session.cycle.startDate);
+      const last = startOfUtcDay(session.cycle.endDate);
+      if (day < first || day > last) {
+        throw new BadRequestException("El día debe estar dentro de las fechas del plan.");
+      }
+      scheduledDate = day;
+    }
+
+    return this.prisma.trainingSession.update({
+      where: { id: session.id },
+      data: { scheduledDate },
+    });
   }
 
   async startSession(athleteId: string, sessionId: string) {
@@ -178,6 +252,9 @@ export class ExecutionService {
         data: { status: dto.outcome },
       }),
     ]);
+    if (dto.outcome === "completed" && !dto.supersedesId) {
+      this.activity.sessionCompleted(athleteId);
+    }
     return feedback;
   }
 

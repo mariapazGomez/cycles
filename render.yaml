@@ -1,0 +1,65 @@
+# Configuración de la API en Render (Blueprint). Ver docs/deploy/PLAN-Deploy.md, paso 3.
+# Los valores secretos van con `sync: false`: Render los pide al crear el
+# servicio y nunca se escriben aquí (R1).
+services:
+  - type: web
+    name: cycles-api
+    runtime: node
+    plan: free
+    region: virginia # la misma región que la base en Supabase (paso 2)
+    branch: main
+    autoDeployTrigger: commit
+    # Solo redespliega si cambia algo que afecta a la API.
+    buildFilter:
+      paths:
+        - apps/api/**
+        - packages/**
+        - package.json
+        - package-lock.json
+        - render.yaml
+    # --include=dev: NODE_ENV=production haría que npm omita las herramientas
+    # de compilación (Nest CLI, Prisma CLI, TypeScript). Las migraciones van al
+    # final, cuando la compilación ya funcionó.
+    buildCommand: >-
+      npm ci --include=dev &&
+      npx prisma generate --schema apps/api/prisma/schema.prisma &&
+      npm run build --workspace apps/api &&
+      npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
+    startCommand: node apps/api/dist/main.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "1"
+      # La IP real la pone Cloudflare en True-Client-IP; X-Forwarded-For en
+      # Render se puede falsear (ver apps/api/src/main.ts).
+      - key: CLIENT_IP_HEADER
+        value: true-client-ip
+      - key: FRONTEND_URL
+        value: https://app.getcycles.app
+      - key: CORS_ORIGINS
+        value: https://app.getcycles.app
+      - key: MAIL_FROM
+        value: "Cycles <hola@mail.getcycles.app>"
+      - key: GOOGLE_CALLBACK_URL
+        value: https://api.getcycles.app/auth/google/callback
+      # Secretos: se cargan a mano en Render y se guardan en el gestor de contraseñas.
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: ACTIVITY_CRON_SECRET
+        sync: false
+      - key: SLACK_SECURITY_WEBHOOK_URL
+        sync: false
+      - key: SLACK_ACTIVITY_WEBHOOK_URL
+        sync: false

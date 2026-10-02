@@ -1,7 +1,8 @@
-import { ConflictException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { ConflictException, Injectable, ServiceUnavailableException, UnauthorizedException } from "@nestjs/common";
 import * as bcrypt from "bcrypt";
 import { PrismaService } from "../prisma/prisma.service";
 import { MailService } from "../mail/mail.service";
+import { ActivityNotifier } from "../activity/activity-notifier.service";
 import { AuthService, AuthTokens } from "../auth/auth.service";
 import { generateRawToken, hashToken } from "../auth/token.util";
 import { InviteAthleteDto } from "./dto/invite-athlete.dto";
@@ -14,6 +15,7 @@ export class AthletesService {
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
     private readonly authService: AuthService,
+    private readonly activity: ActivityNotifier,
   ) {}
 
   async invite(coachId: string, dto: InviteAthleteDto): Promise<{ id: string; email: string }> {
@@ -47,8 +49,21 @@ export class AthletesService {
       },
     });
 
-    await this.mail.sendAthleteInvitationEmail(athlete.email, rawToken);
+    const coach = await this.prisma.user.findUniqueOrThrow({ where: { id: coachId }, select: { name: true } });
+    try {
+      await this.mail.sendAthleteInvitationEmail(athlete.email, rawToken, coach.name);
+    } catch {
+      // Si el email no salió, se deshace lo creado: si no, el email quedaría
+      // tomado y no se podría volver a invitar. Ver PLAN-Deploy §1.5.
+      await this.prisma.$transaction([
+        this.prisma.athleteInvitationToken.deleteMany({ where: { coachAthleteId: coachAthlete.id } }),
+        this.prisma.coachAthlete.delete({ where: { id: coachAthlete.id } }),
+        this.prisma.user.delete({ where: { id: athlete.id } }),
+      ]);
+      throw new ServiceUnavailableException("No pudimos enviar la invitación. Intenta de nuevo en unos minutos.");
+    }
 
+    this.activity.invitationSent(coachId);
     return { id: coachAthlete.id, email: athlete.email };
   }
 
@@ -80,6 +95,7 @@ export class AthletesService {
       }),
     ]);
 
+    this.activity.athleteJoined(athlete.id, record.coachAthlete.coachId);
     return this.authService.issueTokenPair(athlete);
   }
 

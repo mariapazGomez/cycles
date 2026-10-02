@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  Ip,
   HttpStatus,
   Post,
   Req,
@@ -10,12 +11,14 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
+import { Throttle } from "@nestjs/throttler";
+import { LIMITS } from "../common/throttle/throttle";
 import { ConfigService } from "@nestjs/config";
 import type { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
-import { RefreshTokenDto, LogoutDto } from "./dto/tokens.dto";
+import { RefreshTokenDto, LogoutDto, GoogleExchangeDto } from "./dto/tokens.dto";
 import { VerifyEmailDto, ResendVerificationDto } from "./dto/email-verification.dto";
 import { RequestPasswordResetDto, ConfirmPasswordResetDto } from "./dto/password-reset.dto";
 import { CompleteProfileDto } from "./dto/complete-profile.dto";
@@ -30,21 +33,24 @@ export class AuthController {
     private readonly config: ConfigService,
   ) {}
 
+  @Throttle(LIMITS.register)
   @Post("register")
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
 
+  @Throttle(LIMITS.login)
   @Post("login")
   @HttpCode(HttpStatus.OK)
-  login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
+  login(@Body() dto: LoginDto, @Ip() ip: string) {
+    return this.authService.login(dto, ip);
   }
 
+  @Throttle(LIMITS.refresh)
   @Post("refresh")
   @HttpCode(HttpStatus.OK)
-  refresh(@Body() dto: RefreshTokenDto) {
-    return this.authService.refresh(dto.refreshToken);
+  refresh(@Body() dto: RefreshTokenDto, @Ip() ip: string) {
+    return this.authService.refresh(dto.refreshToken, ip);
   }
 
   @Post("logout")
@@ -53,6 +59,7 @@ export class AuthController {
     await this.authService.logout(dto.refreshToken);
   }
 
+  @Throttle(LIMITS.tokenUse)
   @Post("verify-email")
   @HttpCode(HttpStatus.OK)
   async verifyEmail(@Body() dto: VerifyEmailDto) {
@@ -60,6 +67,7 @@ export class AuthController {
     return { message: "Email verificado correctamente." };
   }
 
+  @Throttle(LIMITS.emailLink)
   @Post("verify-email/resend")
   @HttpCode(HttpStatus.OK)
   async resendVerification(@Body() dto: ResendVerificationDto) {
@@ -67,6 +75,7 @@ export class AuthController {
     return { message: "Si el email existe, se envió un nuevo link de verificación." };
   }
 
+  @Throttle(LIMITS.emailLink)
   @Post("password-reset/request")
   @HttpCode(HttpStatus.OK)
   async requestPasswordReset(@Body() dto: RequestPasswordResetDto) {
@@ -74,6 +83,7 @@ export class AuthController {
     return { message: "Si el email existe, se envió un link de recuperación." };
   }
 
+  @Throttle(LIMITS.tokenUse)
   @Post("password-reset/confirm")
   @HttpCode(HttpStatus.OK)
   async confirmPasswordReset(@Body() dto: ConfirmPasswordResetDto) {
@@ -101,14 +111,19 @@ export class AuthController {
   @UseGuards(AuthGuard("google"))
   @Get("google/callback")
   async googleCallback(@Req() req: Request, @Res() res: Response) {
-    const tokens = await this.authService.loginWithGoogle(req.user as GoogleProfile);
-    const frontendUrl = this.config.get<string>("FRONTEND_URL");
-    const redirectUrl = new URL("/oauth-callback", frontendUrl);
-    redirectUrl.searchParams.set("accessToken", tokens.accessToken);
-    redirectUrl.searchParams.set("refreshToken", tokens.refreshToken);
-    // Nota: pasar tokens por query string es una simplificación de MVP.
-    // Antes de producción, mover a un intercambio vía cookie httpOnly o
-    // código de un solo uso (ver PRD-Autenticacion, decisiones abiertas).
+    // Solo un código de un solo uso (60 s) viaja en la URL; los tokens se
+    // entregan en el cuerpo de POST /auth/google/exchange. Ver
+    // docs/SEGURIDAD.md, hallazgo S-02.
+    const code = await this.authService.loginWithGoogle(req.user as GoogleProfile);
+    const redirectUrl = new URL("/oauth-callback", this.config.get<string>("FRONTEND_URL"));
+    redirectUrl.searchParams.set("code", code);
     res.redirect(redirectUrl.toString());
+  }
+
+  @Throttle(LIMITS.tokenUse)
+  @Post("google/exchange")
+  @HttpCode(HttpStatus.OK)
+  exchangeGoogleCode(@Body() dto: GoogleExchangeDto) {
+    return this.authService.exchangeGoogleCode(dto.code);
   }
 }

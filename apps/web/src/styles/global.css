@@ -16,6 +16,13 @@
   --color-blue: #1a66dd;
   --color-blue-hover: #155ccc;
   --color-blue-tint: #eaf2ff;
+  /* Tonos de azul de marca para la cadena de ejercicios y las tarjetas de datos. */
+  --color-blue-50: #f3f8ff;
+  --color-blue-100: #eaf2ff;
+  --color-blue-200: #d6e4ff;
+  --color-blue-300: #a9c8fd;
+  --color-blue-400: #6fa6fc;
+  --color-blue-700: #1450b0;
   --color-bg: #ffffff;
   --color-ink: #1f2228;
   --color-ink-secondary: #5c6068;

@@ -15,7 +15,7 @@ export function ForgotPasswordPage() {
 
   if (mutation.isSuccess) {
     return (
-      <AuthCard title="Revisa tu email">
+      <AuthCard title="Revisa tu email" pattern="b">
         <div className="success-banner">
           Si existe una cuenta con ese email, enviamos un link para restablecer tu contraseña.
         </div>
@@ -27,7 +27,7 @@ export function ForgotPasswordPage() {
   }
 
   return (
-    <AuthCard title="¿Olvidaste tu contraseña?">
+    <AuthCard title="¿Olvidaste tu contraseña?" pattern="b">
       <form onSubmit={handleSubmit} noValidate>
         <div className="field">
           <label htmlFor="email">Email</label>

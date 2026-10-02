@@ -33,6 +33,15 @@ export function login(data: { email: string; password: string }) {
   });
 }
 
+// Cambia el código de un solo uso que deja el callback de Google por la sesión.
+export function exchangeGoogleCode(code: string) {
+  return apiRequest<AuthTokens>("/auth/google/exchange", {
+    method: "POST",
+    auth: false,
+    body: { code },
+  });
+}
+
 export function logout(refreshToken: string) {
   return apiRequest<void>("/auth/logout", {
     method: "POST",

@@ -10,6 +10,8 @@ import * as bcrypt from "bcrypt";
 import { User } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { MailService } from "../mail/mail.service";
+import { SecurityAlertService } from "../common/alerts/security-alert.service";
+import { ActivityNotifier } from "../activity/activity-notifier.service";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
 import { CompleteProfileDto } from "./dto/complete-profile.dto";
@@ -20,6 +22,8 @@ const ACCESS_TOKEN_TTL = "15m";
 const REFRESH_TOKEN_TTL_MS = 1000 * 60 * 60 * 24 * 30; // 30 días
 const EMAIL_VERIFICATION_TTL_MS = 1000 * 60 * 60 * 24; // 24 horas
 const PASSWORD_RESET_TTL_MS = 1000 * 60 * 30; // 30 minutos
+const OAUTH_CODE_TTL_MS = 1000 * 60; // 60 segundos: la web lo usa apenas llega
+const OAUTH_CODE_RETENTION_MS = 1000 * 60 * 60 * 24; // se borran al día de vencer
 const DATA_CONSENT_VERSION = "v1";
 
 export interface AuthTokens {
@@ -34,6 +38,8 @@ export class AuthService {
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
     private readonly mail: MailService,
+    private readonly alerts: SecurityAlertService,
+    private readonly activity: ActivityNotifier,
   ) {}
 
   async register(dto: RegisterDto): Promise<{ id: string; email: string }> {
@@ -65,14 +71,12 @@ export class AuthService {
     return { id: user.id, email: user.email };
   }
 
-  async login(dto: LoginDto): Promise<AuthTokens> {
+  // `ip` alimenta las alertas de seguridad (docs/PLAN-Seguridad.md, 1E).
+  async login(dto: LoginDto, ip: string): Promise<AuthTokens> {
     const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
-    if (!user || !user.passwordHash) {
-      throw new UnauthorizedException("Credenciales inválidas");
-    }
-
-    const matches = await bcrypt.compare(dto.password, user.passwordHash);
-    if (!matches) {
+    const matches = user?.passwordHash ? await bcrypt.compare(dto.password, user.passwordHash) : false;
+    if (!user || !matches) {
+      this.alerts.failedLogin(ip, dto.email, "POST /auth/login");
       throw new UnauthorizedException("Credenciales inválidas");
     }
 
@@ -83,7 +87,10 @@ export class AuthService {
     return this.issueTokenPair(user);
   }
 
-  async loginWithGoogle(profile: GoogleProfile): Promise<AuthTokens> {
+  // Login con Google en dos pasos (docs/SEGURIDAD.md, S-02): el callback no
+  // pone tokens en la URL, sino un código de un solo uso que la web cambia
+  // por la sesión con exchangeGoogleCode.
+  async loginWithGoogle(profile: GoogleProfile): Promise<string> {
     let user = await this.prisma.user.findUnique({ where: { email: profile.email } });
 
     if (!user) {
@@ -105,7 +112,46 @@ export class AuthService {
       });
     }
 
-    return this.issueTokenPair(user);
+    return this.createOAuthExchangeCode(user.id);
+  }
+
+  async exchangeGoogleCode(rawCode: string): Promise<AuthTokens> {
+    const now = new Date();
+    const codeHash = hashToken(rawCode);
+    // Marcar como usado en una sola operación: si llegan dos pedidos con el
+    // mismo código, solo uno lo consume.
+    const { count } = await this.prisma.oAuthExchangeCode.updateMany({
+      where: { codeHash, usedAt: null, expiresAt: { gt: now } },
+      data: { usedAt: now },
+    });
+    if (count !== 1) {
+      throw new UnauthorizedException("El inicio de sesión con Google expiró. Vuelve a intentarlo.");
+    }
+
+    const record = await this.prisma.oAuthExchangeCode.findUniqueOrThrow({
+      where: { codeHash },
+      include: { user: true },
+    });
+    return this.issueTokenPair(record.user);
+  }
+
+  private async createOAuthExchangeCode(userId: string): Promise<string> {
+    const rawCode = generateRawToken();
+    const now = Date.now();
+    await this.prisma.$transaction([
+      // Limpieza: los códigos vencidos ya no sirven para nada.
+      this.prisma.oAuthExchangeCode.deleteMany({
+        where: { expiresAt: { lt: new Date(now - OAUTH_CODE_RETENTION_MS) } },
+      }),
+      this.prisma.oAuthExchangeCode.create({
+        data: {
+          userId,
+          codeHash: hashToken(rawCode),
+          expiresAt: new Date(now + OAUTH_CODE_TTL_MS),
+        },
+      }),
+    ]);
+    return rawCode;
   }
 
   async completeProfile(userId: string, dto: CompleteProfileDto): Promise<void> {
@@ -122,9 +168,10 @@ export class AuthService {
         dataConsentVersion: dto.dataConsent ? DATA_CONSENT_VERSION : user.dataConsentVersion,
       },
     });
+    this.activity.coachJoined(userId);
   }
 
-  async refresh(rawRefreshToken: string): Promise<AuthTokens> {
+  async refresh(rawRefreshToken: string, ip: string): Promise<AuthTokens> {
     let payload: { sub: string };
     try {
       payload = this.jwt.verify(rawRefreshToken, {
@@ -144,6 +191,8 @@ export class AuthService {
         where: { userId: stored.userId, revokedAt: null },
         data: { revokedAt: new Date() },
       });
+      const owner = await this.prisma.user.findUnique({ where: { id: stored.userId } });
+      this.alerts.refreshTokenReused(ip, owner?.email ?? stored.userId, "POST /auth/refresh");
       throw new UnauthorizedException("Refresh token inválido");
     }
 
@@ -185,6 +234,7 @@ export class AuthService {
       }),
       this.prisma.emailVerificationToken.deleteMany({ where: { userId: record.userId } }),
     ]);
+    this.activity.coachJoined(record.userId);
   }
 
   async resendVerification(email: string): Promise<void> {
@@ -210,7 +260,9 @@ export class AuthService {
         expiresAt: new Date(Date.now() + PASSWORD_RESET_TTL_MS),
       },
     });
-    await this.mail.sendPasswordResetEmail(user.email, rawToken);
+    // Si el envío falla, la respuesta sigue siendo la misma (no revela si la
+    // cuenta existe); el error queda en el log del MailService.
+    await this.mail.sendPasswordResetEmail(user.email, rawToken).catch(() => undefined);
   }
 
   async confirmPasswordReset(rawToken: string, newPassword: string): Promise<void> {
@@ -245,7 +297,9 @@ export class AuthService {
         expiresAt: new Date(Date.now() + EMAIL_VERIFICATION_TTL_MS),
       },
     });
-    await this.mail.sendVerificationEmail(user.email, rawToken);
+    // El registro no falla por el email: el usuario puede pedir otro desde
+    // "Revisa tu email" (POST /auth/verify-email/resend). Ver PLAN-Deploy §1.5.
+    await this.mail.sendVerificationEmail(user.email, rawToken).catch(() => undefined);
   }
 
   // Público: también lo usa AthletesService para loguear automáticamente

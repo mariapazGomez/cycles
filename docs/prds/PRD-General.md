@@ -3,7 +3,7 @@ type: prd
 level: general
 status: draft
 created: 2026-09-16
-updated: 2026-09-25
+updated: 2026-10-01
 tags: [prd, general]
 ---
 
@@ -243,6 +243,23 @@ Ver detalle completo en [`docs/ARCHITECTURE.md`](../ARCHITECTURE.md). Resumen:
 
 Estos son los NFR de plataforma. Un PRD hijo solo debe listar NFR **adicionales o más estrictos** que apliquen específicamente a su funcionalidad.
 
+### 8.1 Reglas de seguridad (obligatorias para todo el proyecto)
+
+Convenciones que ya sigue el código y que todo cambio (código, infraestructura, documentación, PRDs hijos) debe respetar. El detalle, los archivos sensibles y la auditoría viven en [`docs/SEGURIDAD.md`](../SEGURIDAD.md); si un cambio necesita romper una regla, primero se actualiza ese documento.
+
+1. **Secretos (R1):** nunca en el repo, issues, PRs ni conversaciones; distintos por entorno y entre sí (JWT access ≠ refresh, ≥64 caracteres); API keys con permiso mínimo; nada secreto en variables `VITE_*`.
+2. **Autenticación (R2):** bcrypt costo 12; access token de 15 min; refresh de 30 días rotativo, hasheado y con detección de reuso; tokens de un solo uso aleatorios, hasheados (SHA-256) y con vencimiento; cambiar la contraseña revoca las sesiones; login manual solo con email verificado.
+3. **No revelar si una cuenta existe (R3)** en recuperación de contraseña y reenvío de verificación.
+4. **Roles (R4):** coach o atleta, nunca ambos; el atleta solo se crea por invitación; cada endpoint declara su rol.
+5. **Propiedad de los datos (R5):** además del rol, cada servicio verifica que el dato sea del usuario; el coach accede a un atleta solo con la relación activa; el atleta siempre a lo suyo.
+6. **Validación (R6):** DTO con `class-validator` en todo endpoint; texto del usuario escapado antes de ir a HTML.
+7. **Integridad y privacidad (R7):** registros de ejecución append-only, UTC, y sin análisis entre atletas sin consentimiento.
+8. **Logs (R8):** nunca contraseñas, tokens ni enlaces con token en producción.
+9. **Fallas externas (R9):** una falla de un servicio externo no revela información ni deja datos a medias.
+10. **Frontend (R10):** sin `dangerouslySetInnerHTML` ni HTML armado con texto del usuario.
+11. **Dependencias (R11):** `npm audit --omit=dev` antes de cada deploy; sin vulnerabilidades altas o críticas en producción sin una razón escrita.
+12. **Proceso (R12):** todo entra por PR; los cambios que tocan autenticación, roles o propiedad dicen qué se probó para los casos prohibidos.
+
 ## 9. Métricas de éxito (MVP)
 
 - % de sesiones planificadas que quedan con registro de ejecución (adherencia).
@@ -254,11 +271,45 @@ Estos son los NFR de plataforma. Un PRD hijo solo debe listar NFR **adicionales 
 
 | Fase | Alcance | PRDs |
 |---|---|---|
-| **Fase 0 — Fundacional (actual)** | PRD, arquitectura, scaffolding del monorepo, modelo de datos base. | — |
+| **Fase 0 — Fundacional** | PRD, arquitectura, scaffolding del monorepo, modelo de datos base. | — |
 | **Fase 1 — Auth & onboarding** | Registro/login manual + Google, verificación de email, invitación coach→atleta. | [[PRD-Autenticacion]] |
 | **Fase 2 — Planificación** | Invitación de atletas; catálogo de ejercicios; rutinas y programación en grid (ciclos/sesiones). | [[PRD-InvitacionAtletas]], [[PRD-CatalogoEjercicios]], [[PRD-RutinasYProgramacion]] |
 | **Fase 3 — Ejecución y seguimiento** | Registro de ejecución real (`ExerciseLog`), vista de progreso/adherencia para el coach. | [[PRD-EjecucionYSeguimiento]] |
-| **Fase 4 — Evolución** | Multi-tenant (gimnasios/academias), notificaciones, métricas avanzadas, app móvil nativa. | *(pendiente)* |
+| **Fase 3.5 — Piloto (actual)** | Deploy completo (dominio `getcycles.app`, Resend, Supabase, Render, Vercel, Google OAuth), **tanda 1 de seguridad** (dependencias, endurecer la API, Google sin tokens en la URL, cabeceras, alertas de seguridad a Slack) y **avisos de actividad del piloto** en Slack. Termina con 2–3 coaches reales usando la app. | `docs/deploy/PLAN-Deploy.md`, `docs/PLAN-Seguridad.md` (tanda 1) |
+| **Fase 4 — Evolución** | Multi-tenant (gimnasios/academias), notificaciones, métricas avanzadas, app móvil nativa. **Requisito para empezarla:** tanda 2 de seguridad (refresh token en cookie `httpOnly`, tokens de la app móvil en el Keychain, tests de autorización y CI). | *(pendiente)*, `docs/PLAN-Seguridad.md` (tanda 2) |
+
+**Estado de la Fase 3.5 al 2026-10-01** (detalle en `docs/deploy/PLAN-Deploy.md`, `docs/PLAN-Seguridad.md` y `docs/PRUEBAS-PENDIENTES.md`):
+
+- **Hecho:** dominio, Resend, Supabase, API en Render, web en Vercel (`app.getcycles.app`, con cabeceras de seguridad), login con Google probado en modo *Testing*, avisos de actividad y resumen diario programado funcionando, y la **tanda 1 de seguridad completa** (1A a 1E, más S-13).
+- **Pendiente para abrir el piloto:** el recorrido completo de punta a punta en producción (paso 4.4 del deploy), la recuperación de contraseña (P-03, hoy sin resolver), el respaldo de la base (2.5), la redirección de la raíz y `www.` (paso 6) y la decisión sobre publicar la app de Google, que exige una política de privacidad pública.
+- **Trabajo de marca y experiencia durante el piloto** (PRs #25 a #30, no estaba en el plan original): onboarding documentado, correos transaccionales rediseñados, pantallas de autenticación, inicio en celular y constructor de rutinas, todos con el motivo de la cadena de proteína (`docs/brand/identidad-visual.md`).
+
+La **tanda 3** de `docs/PLAN-Seguridad.md` (tiempos del login y append-only en la base) son mejoras sin fase fija: se hacen cuando haya espacio, antes de que crezca el volumen de datos.
+
+### 10.1 Checklist de cierre de cada fase
+
+Una fase (o un PR grande dentro de ella) no se da por terminada hasta verificar esta lista. Es la forma de no depender de la memoria: se revisa **siempre**, aunque la fase parezca no tocar el tema.
+
+**Seguridad**
+- [ ] El cambio respeta las reglas de §8.1 (detalle en `docs/SEGURIDAD.md` §2).
+- [ ] Cada endpoint nuevo tiene DTO, rol declarado y chequeo de propiedad, y se probaron los casos prohibidos: sin sesión, otro rol, otro dueño, relación inactiva.
+- [ ] `npm audit --omit=dev` sin vulnerabilidades altas ni críticas, o cada excepción anotada en `docs/SEGURIDAD.md`.
+- [ ] Ningún secreto nuevo en el repo; las variables nuevas están en el `.env.example` que corresponda y en la lista de validación al arrancar.
+- [ ] `docs/SEGURIDAD.md` actualizado: archivos sensibles nuevos y hallazgos resueltos o nuevos.
+
+**Producto y datos**
+- [ ] El PRD de la funcionalidad tiene su estado al día, y la tabla de §0 también.
+- [ ] Si cambió el esquema: migración nueva (nunca editar una aplicada) y diagrama del modelo de datos actualizado (§6 y `docs/diagrams/modelo-relacional.html`).
+- [ ] `docs/enlaces.md` al día con las rutas y endpoints nuevos.
+
+**Diseño y textos**
+- [ ] Textos en español latino con "tú", sin voseo.
+- [ ] Sin subtítulos grises bajo los títulos; colores y tipografía del Design System.
+
+**Calidad y proceso**
+- [ ] Typecheck y build de los workspaces tocados, sin errores.
+- [ ] Probado a mano de punta a punta (y con tests automáticos cuando existan: tanda 2 de seguridad). Lo que quede sin probar se anota en `docs/PRUEBAS-PENDIENTES.md`.
+- [ ] Todo entra a `main` por PR, con una descripción de qué se probó.
 
 ## 11. Decisiones abiertas
 

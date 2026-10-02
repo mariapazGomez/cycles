@@ -233,7 +233,7 @@
         <span class="dot" style="background: var(--tag-auth)"></span>
         <span class="name">Autenticación</span>
       </div>
-      <span class="tables">User, RefreshToken, PasswordResetToken, EmailVerificationToken</span>
+      <span class="tables">User, RefreshToken, PasswordResetToken, EmailVerificationToken, OAuthExchangeCode</span>
     </div>
     <div class="legend-item">
       <div class="dot-row">
@@ -255,6 +255,13 @@
         <span class="name">Ejecución (Fase 3)</span>
       </div>
       <span class="tables">ExerciseLog — modelo listo, sin API todavía</span>
+    </div>
+    <div class="legend-item">
+      <div class="dot-row">
+        <span class="dot" style="background: var(--muted)"></span>
+        <span class="name">Operación</span>
+      </div>
+      <span class="tables">ActivityDigest — días cuyo resumen de actividad ya se envió a Slack (sin relaciones)</span>
     </div>
   </section>
 
