@@ -3,7 +3,7 @@ type: prd
 level: general
 status: draft
 created: 2026-09-16
-updated: 2026-09-26
+updated: 2026-10-01
 tags: [prd, general]
 ---
 
@@ -277,6 +277,12 @@ Convenciones que ya sigue el código y que todo cambio (código, infraestructura
 | **Fase 3 — Ejecución y seguimiento** | Registro de ejecución real (`ExerciseLog`), vista de progreso/adherencia para el coach. | [[PRD-EjecucionYSeguimiento]] |
 | **Fase 3.5 — Piloto (actual)** | Deploy completo (dominio `getcycles.app`, Resend, Supabase, Render, Vercel, Google OAuth), **tanda 1 de seguridad** (dependencias, endurecer la API, Google sin tokens en la URL, cabeceras, alertas de seguridad a Slack) y **avisos de actividad del piloto** en Slack. Termina con 2–3 coaches reales usando la app. | `docs/deploy/PLAN-Deploy.md`, `docs/PLAN-Seguridad.md` (tanda 1) |
 | **Fase 4 — Evolución** | Multi-tenant (gimnasios/academias), notificaciones, métricas avanzadas, app móvil nativa. **Requisito para empezarla:** tanda 2 de seguridad (refresh token en cookie `httpOnly`, tokens de la app móvil en el Keychain, tests de autorización y CI). | *(pendiente)*, `docs/PLAN-Seguridad.md` (tanda 2) |
+
+**Estado de la Fase 3.5 al 2026-10-01** (detalle en `docs/deploy/PLAN-Deploy.md`, `docs/PLAN-Seguridad.md` y `docs/PRUEBAS-PENDIENTES.md`):
+
+- **Hecho:** dominio, Resend, Supabase, API en Render, web en Vercel (`app.getcycles.app`, con cabeceras de seguridad), login con Google probado en modo *Testing*, avisos de actividad y resumen diario programado funcionando, y la **tanda 1 de seguridad completa** (1A a 1E, más S-13).
+- **Pendiente para abrir el piloto:** el recorrido completo de punta a punta en producción (paso 4.4 del deploy), la recuperación de contraseña (P-03, hoy sin resolver), el respaldo de la base (2.5), la redirección de la raíz y `www.` (paso 6) y la decisión sobre publicar la app de Google, que exige una política de privacidad pública.
+- **Trabajo de marca y experiencia durante el piloto** (PRs #25 a #30, no estaba en el plan original): onboarding documentado, correos transaccionales rediseñados, pantallas de autenticación, inicio en celular y constructor de rutinas, todos con el motivo de la cadena de proteína (`docs/brand/identidad-visual.md`).
 
 La **tanda 3** de `docs/PLAN-Seguridad.md` (tiempos del login y append-only en la base) son mejoras sin fase fija: se hacen cuando haya espacio, antes de que crezca el volumen de datos.
 

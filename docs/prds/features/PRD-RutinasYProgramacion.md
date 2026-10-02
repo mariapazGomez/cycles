@@ -5,7 +5,7 @@ parent: "[[PRD-General]]"
 status: complete
 phase: "Fase 2 — Planificación"
 created: 2026-09-23
-updated: 2026-09-24
+updated: 2026-10-01
 tags: [prd, feature/rutinas-programacion]
 related: ["[[PRD-CRUDCiclos]]", "[[PRD-CRUDSesiones]]", "[[PRD-CatalogoEjercicios]]"]
 ---
@@ -132,6 +132,7 @@ model TrainingSession {
 - Vista de un plan `micro`/`meso`: grid (filas = sesión 1..N, columnas = semana 1..M). Celda vacía → botón para asignar una rutina de la biblioteca. Celda llena → nombre de la rutina + resumen, click entra al detalle de esa sesión (misma pantalla `/sessions/:id` que ya existe) para ajustar targets.
 - Vista de un plan `macrocycle`: lista de sus planes hijos (no un grid), con botón para crear un mesociclo/microciclo dentro.
 - Biblioteca de rutinas: pantalla nueva para crear/editar/listar rutinas propias — necesaria antes de poder asignar nada al grid.
+- **Constructor de rutinas en página propia (2026-10-01, PR #30):** crear y editar pasan a `/routines/new` y `/routines/:id`; `/routines` queda como lista. Los ejercicios son una cadena de cuentas numeradas (series, reps, carga, descanso, RIR), con buscador del catálogo por nombre o grupo muscular, reordenar con flechas, duplicar y quitar. Un panel lateral muestra la carga de la sesión: series, duración estimada (40 s de trabajo por serie más el descanso), volumen (series × reps × carga) y series por grupo muscular. En el celular, barra de guardado fija. Sin cambios en la API. Las flechas reemplazan al arrastre, que queda para después; "Recientes", atajos de teclado y borradores guardados quedan fuera.
 
 ## 8. Requisitos no funcionales específicos
 

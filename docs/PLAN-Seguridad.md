@@ -3,7 +3,7 @@ type: plan
 tags: [seguridad, plan]
 status: draft
 created: 2026-09-26
-updated: 2026-09-26
+updated: 2026-10-01
 ---
 
 # Plan de correcciones de seguridad
@@ -249,9 +249,9 @@ Migración con un trigger de Postgres que rechace `UPDATE` y `DELETE` sobre `Exe
 |---|---|---|
 | 1A Dependencias | S-03 | **Hecho** (2026-09-27): de 16 vulnerabilidades a 1 moderada aceptada (`@nestjs/core`, ver `SEGURIDAD.md` §3.4) |
 | 1B Endurecer la API | S-01, S-04, S-05, S-06, S-07 | **Hecho** (2026-09-27). Diferencias con el plan: login con 20/min por IP y 5/min por email (sin el límite por hora); la invitación limita por IP y por email invitado, no por coach, porque el límite se aplica antes de identificar al usuario. `execution` y `tracking` mantienen su propio chequeo de relación. |
-| 1C Google sin tokens en la URL | S-02 | **Hecho** (2026-09-27). Probado sin credenciales de Google, con códigos creados en la base: intercambio válido 200; reuso, vencido o inválido 401; tres pedidos simultáneos con el mismo código dan un solo 200; la URL final queda limpia; ni el código ni los tokens aparecen en el log. Falta la prueba de punta a punta con Google (P-09). `Referrer-Policy` queda para 1D. |
-| 1D Cabeceras en Vercel | S-07 | **En curso** (2026-09-28): `apps/web/vercel.json` listo y probado en local; falta verificarlo en producción (paso 4 del deploy) |
-| 1E Alertas de seguridad a Slack | Detección | **Hecho** (2026-09-27). Probado en local simulando IPs con `X-Forwarded-For`: cada uno de los cinco eventos da una sola alerta, el email sale oculto, el anti-inundación omite las repeticiones y la siguiente alerta dice cuántas; sin webhook o con Slack caído la API responde igual. Diferencia con el plan: la regla "IP que prueba muchos emails" cuenta solo logins **fallidos**. Falta probar con el webhook real (P-12). |
+| 1C Google sin tokens en la URL | S-02 | **Hecho** (2026-09-27). Probado sin credenciales de Google, con códigos creados en la base: intercambio válido 200; reuso, vencido o inválido 401; tres pedidos simultáneos con el mismo código dan un solo 200; la URL final queda limpia; ni el código ni los tokens aparecen en el log. Probado de punta a punta con Google en producción (P-09, 2026-09-29). `Referrer-Policy` queda para 1D. |
+| 1D Cabeceras en Vercel | S-07 | **Hecho** (2026-09-29, PR #21): `apps/web/vercel.json` con CSP, `Referrer-Policy: no-referrer`, `X-Frame-Options`, HSTS y el resto, verificado en `https://app.getcycles.app`. Sin errores de CSP en las pantallas públicas |
+| 1E Alertas de seguridad a Slack | Detección | **Hecho** (2026-09-27). Probado en local simulando IPs con `X-Forwarded-For`: cada uno de los cinco eventos da una sola alerta, el email sale oculto, el anti-inundación omite las repeticiones y la siguiente alerta dice cuántas; sin webhook o con Slack caído la API responde igual. Diferencia con el plan: la regla "IP que prueba muchos emails" cuenta solo logins **fallidos**. Probado con el webhook real y la IP pública real en producción (P-12, 2026-09-28); S-13 se corrigió en ese recorrido (PR #19). |
 | 2A Refresh en cookie | S-08 | Pendiente |
 | 2B Keychain en móvil | S-09 | Pendiente (rama móvil) |
 | 2C Tests y CI | S-11 | Pendiente |

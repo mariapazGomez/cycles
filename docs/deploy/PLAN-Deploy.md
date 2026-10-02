@@ -3,26 +3,26 @@ type: plan
 tags: [deploy, infra]
 status: draft
 created: 2026-09-25
-updated: 2026-09-26
+updated: 2026-10-01
 ---
 
 # Plan de deploy de Cycles
 
-> Plan **sin ejecutar**. Objetivo: tener Cycles accesible en internet para un piloto con 2 o 3 coaches reales, dentro del presupuesto acordado (tier gratuito o menos de 25 USD/mes). Las decisiones de infraestructura ya están cerradas (ver [[PRD-General]] §11 y `docs/ARCHITECTURE.md`): **Supabase** (Postgres), **Render** (API), **Vercel** (web) y **Resend** (email).
+> Plan **en ejecución** (pasos 0 a 3 y 8 hechos; paso 4 desplegado, con el recorrido completo pendiente; estado al 2026-10-01). Objetivo: tener Cycles accesible en internet para un piloto con 2 o 3 coaches reales, dentro del presupuesto acordado (tier gratuito o menos de 25 USD/mes). Las decisiones de infraestructura ya están cerradas (ver [[PRD-General]] §11 y `docs/ARCHITECTURE.md`): **Supabase** (Postgres), **Render** (API), **Vercel** (web) y **Resend** (email).
 
 ## Orden de los pasos
 
 | # | Paso | Por qué en este orden | Estado |
 |---|---|---|---|
 | 0 | Definir y comprar el dominio | Resend necesita un dominio verificado para enviar a cualquier persona, y la web, la API y Google OAuth van a usar ese mismo dominio. | **Hecho** (2026-09-25) |
-| 1 | Email transaccional con Resend | Sin emails nadie puede verificar su cuenta, recuperar la contraseña ni aceptar una invitación. Se puede hacer y probar en local antes de desplegar nada. | **Hecho** (2026-09-26); falta DMARC |
+| 1 | Email transaccional con Resend | Sin emails nadie puede verificar su cuenta, recuperar la contraseña ni aceptar una invitación. Se puede hacer y probar en local antes de desplegar nada. | **Hecho** (2026-09-26); DMARC publicado (`p=none`, verificado el 2026-10-01) |
 | 2 | Base de datos en Supabase | La API la necesita para arrancar. | **Hecho** (2026-09-28); falta el script de respaldo (2.5, antes del piloto) |
 | 3 | API en Render | Depende de la base y de las variables de Resend. | **Hecho** (2026-09-28): `https://api.getcycles.app`, con las credenciales de Google y el DNS de `api.` |
-| 4 | Web en Vercel | Depende de la URL pública de la API. | Detallado abajo (incluye 1D de seguridad y el DNS de `app.`) |
-| 5 | Google OAuth en producción | Necesita las URLs definitivas de la API y de la web. | Por detallar |
-| 6 | DNS de la web y la API | Apunta los subdominios del paso 0 a Vercel y Render. | Por detallar |
-| 7 | Prueba de punta a punta y piloto | Cierra el plan. | Por detallar |
-| 8 | Avisos de actividad del piloto en Slack | Para seguir el piloto sin entrar a la base: quién se suma y qué hace. Comparte la integración con las alertas de seguridad (1E). | **Hecho en código** (2026-09-28); falta probarlo en producción (P-13) |
+| 4 | Web en Vercel | Depende de la URL pública de la API. | **Desplegado** (2026-09-29, PR #21): `https://app.getcycles.app`, con las cabeceras de 1D verificadas en producción. **Falta el recorrido completo de 4.4** (lo haces tú, con los alias Gmail) |
+| 5 | Google OAuth en producción | Necesita las URLs definitivas de la API y de la web. | **Parcial:** login de punta a punta probado en modo *Testing* (P-09, 2026-09-29). Falta decidir si se publica la app, y para eso la política de privacidad |
+| 6 | DNS de la web y la API | Apunta los subdominios del paso 0 a Vercel y Render. | **Parcial:** `app.`, `api.` y `mail.` listos; `www.` reservado para la landing (PR #22). Falta la redirección temporal de la raíz y `www.` a `app.` |
+| 7 | Prueba de punta a punta y piloto | Cierra el plan. | Por detallar. Depende de cerrar el paso 4 y de las pruebas de `docs/PRUEBAS-PENDIENTES.md` |
+| 8 | Avisos de actividad del piloto en Slack | Para seguir el piloto sin entrar a la base: quién se suma y qué hace. Comparte la integración con las alertas de seguridad (1E). | **Hecho y en producción** (2026-09-28): el resumen programado corre cada día y envía una sola vez (29-09, 30-09 y 01-10, sin duplicados). La ventana se amplió a 8:00–23:59 de Chile (PR #23) porque GitHub atrasa las ejecuciones. Avisos y resumen confirmados en Slack (P-13, 2026-10-01) |
 
 **El dominio no bloquea todo.** Mientras se decide, se puede avanzar con el código del paso 1 (probando con el remitente de prueba de Resend, que solo envía a tu propio email) y con los pasos 2 a 4 usando las URLs gratuitas de cada servicio (`*.onrender.com`, `*.vercel.app`). Lo que sí necesita el dominio es enviar emails a los coaches y atletas del piloto.
 
@@ -397,8 +397,8 @@ openssl rand -hex 64 | pbcopy
 
 ### 4.5 Listo cuando
 
-- [ ] La web responde en `https://app.getcycles.app` con HTTPS válido.
-- [ ] Cabeceras de seguridad presentes y sin errores de CSP.
+- [x] La web responde en `https://app.getcycles.app` con HTTPS válido (2026-09-29).
+- [x] Cabeceras de seguridad presentes (2026-09-29, PR #21) y sin errores de CSP en las pantallas públicas. Las pantallas con sesión iniciada se revisan en el recorrido.
 - [ ] Recorrido de 4.4 completo, y los datos de prueba borrados.
 
 ## Paso 5 · Google OAuth en producción *(por detallar)*
