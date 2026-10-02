@@ -8,6 +8,7 @@ import { LogSetDto } from "./dto/log-set.dto";
 import { SessionFeedbackDto } from "./dto/session-feedback.dto";
 import { ScheduleSessionDto } from "./dto/schedule-session.dto";
 import { TodayQueryDto } from "./dto/today-query.dto";
+import { SummaryQueryDto } from "./dto/summary-query.dto";
 
 // Endpoints del atleta para registrar lo que hizo — ver
 // docs/prds/features/PRD-EjecucionYSeguimiento.md, sección 6.
@@ -20,6 +21,13 @@ export class ExecutionController {
   @Get("me/today")
   today(@CurrentUser() user: AuthenticatedUser, @Query() query: TodayQueryDto) {
     return this.executionService.today(user.id, query);
+  }
+
+  // Series y carga por grupo muscular de cada sesión entrenada de un plan, para
+  // el Resumen del atleta.
+  @Get("me/summary")
+  summary(@CurrentUser() user: AuthenticatedUser, @Query() query: SummaryQueryDto) {
+    return this.executionService.muscleSummary(user.id, query.cycleId);
   }
 
   // El coach define cuántas sesiones por semana; el atleta elige el día de cada una.

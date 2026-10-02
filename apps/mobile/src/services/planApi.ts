@@ -7,6 +7,7 @@ import type {
   TrainingSession,
 } from '@cycles/shared';
 import { apiRequest } from './httpClient';
+import type { MuscleDay } from '../utils/muscleSummary';
 
 export function fetchActiveCycles() {
   return apiRequest<TrainingCycle[]>('/cycles?status=active');
@@ -26,4 +27,9 @@ export interface SessionDetail extends TrainingSession {
 
 export function fetchSessionDetail(sessionId: string) {
   return apiRequest<SessionDetail>(`/sessions/${sessionId}`);
+}
+
+// Series y carga por grupo muscular de cada sesión entrenada del plan.
+export function fetchMuscleSummary(cycleId: string) {
+  return apiRequest<{ cycleId: string; days: MuscleDay[] }>(`/me/summary?cycleId=${cycleId}`);
 }
