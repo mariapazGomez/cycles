@@ -8,6 +8,10 @@ const WEEK_MS = 7 * DAY_MS;
 // append-only: los que ninguna corrección reemplazó.
 export const CURRENT_ONLY = { supersededBy: { is: null } } as const;
 
+// El cierre de sesión vigente: el que ninguna corrección reemplazó y que no se
+// anuló al reabrir la sesión (active = 1).
+export const CURRENT_FEEDBACK = { supersededBy: { is: null }, active: 1 } as const;
+
 // Semana del plan (1-based) en la que cae `now`. Antes del inicio devuelve 0.
 export function planWeekAt(startDate: Date, now: Date): number {
   const elapsed = now.getTime() - startDate.getTime();

@@ -2,6 +2,7 @@ import { BadRequestException, ForbiddenException, Injectable, NotFoundException 
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import {
+  CURRENT_FEEDBACK,
   CURRENT_ONLY,
   addDays,
   calendarWeekStart,
@@ -30,7 +31,7 @@ const CYCLE_WITH_EXECUTION = {
   sessions: {
     orderBy: [{ weekNumber: "asc" as const }, { slotNumber: "asc" as const }],
     include: {
-      feedback: { where: CURRENT_ONLY },
+      feedback: { where: CURRENT_FEEDBACK },
       sessionExercises: {
         orderBy: { orderIndex: "asc" as const },
         include: {

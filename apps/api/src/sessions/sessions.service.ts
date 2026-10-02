@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuthenticatedUser } from "../common/decorators/current-user.decorator";
-import { CURRENT_ONLY } from "../common/training";
+import { CURRENT_FEEDBACK, CURRENT_ONLY } from "../common/training";
 import { assertActiveRelation } from "../common/access";
 import { CreateSessionDto } from "./dto/create-session.dto";
 import { UpdateSessionDto } from "./dto/update-session.dto";
@@ -111,7 +111,7 @@ export class SessionsService {
             logs: { where: CURRENT_ONLY, orderBy: { setNumber: "asc" } },
           },
         },
-        feedback: { where: CURRENT_ONLY },
+        feedback: { where: CURRENT_FEEDBACK },
       },
     });
     if (!session) {

@@ -345,6 +345,10 @@ model SessionFeedback {
   // Nota libre, o el motivo si outcome = skipped.
   notes           String?
   supersedesId    String?        @unique
+  // 1 = cierre vigente; 0 = se anuló al reabrir la sesión. Nunca se borra: el
+  // historial de cierres y reaperturas sirve para analizar el comportamiento
+  // del atleta. Solo admite 0 o 1 (restricción CHECK en la migración).
+  active          Int            @default(1)
   submittedAt     DateTime       @default(now())
 
   session      TrainingSession  @relation(fields: [sessionId], references: [id])
