@@ -37,7 +37,7 @@ export function LoginPage() {
   }
 
   return (
-    <AuthCard title="Inicia sesión" subtitle="Bienvenido de nuevo a Cycles.">
+    <AuthCard title="Inicia sesión">
       {formError && <div className="error-banner">{formError}</div>}
       {unverifiedEmail && (
         <div className="error-banner">

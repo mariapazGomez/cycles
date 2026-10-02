@@ -37,7 +37,7 @@ export function RegisterPage() {
   }
 
   return (
-    <AuthCard title="Crea tu cuenta de coach" subtitle="Para gestionar tus atletas y ciclos de entrenamiento.">
+    <AuthCard title="Crea tu cuenta de coach">
       {formError && <div className="error-banner">{formError}</div>}
 
       <form onSubmit={handleSubmit} noValidate>

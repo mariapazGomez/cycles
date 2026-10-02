@@ -33,10 +33,9 @@ export function CompleteProfilePage() {
   }
 
   return (
-    <AuthCard
-      title="Un último paso"
-      subtitle="Tu cuenta se activará como coach. Los atletas se suman por invitación."
-    >
+    <AuthCard title="Un último paso">
+      <p>Tu cuenta se activará como coach. Los atletas se suman por invitación.</p>
+
       {formError && <div className="error-banner">{formError}</div>}
 
       <form onSubmit={handleSubmit} noValidate>

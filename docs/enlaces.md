@@ -73,6 +73,9 @@ Sin Swagger/OpenAPI activado todavía (pendiente, ver `docs/prds/PRD-General.md`
 | PRD padre del producto | `docs/prds/PRD-General.md` |
 | Visión de compañía | `docs/prds/VISION.md` |
 | Arquitectura técnica | `docs/ARCHITECTURE.md` |
+| Deuda técnica conocida | `docs/DEUDA-TECNICA.md` |
+| Issues de UX/producto (para resolver una por una) | `docs/ISSUES.md` |
+| Plan para pasar el estado del proyecto a Linear | `docs/PLAN-Linear.md` |
 | Seguridad: archivos sensibles, reglas y auditoría | `docs/SEGURIDAD.md` |
 | Plan de correcciones de seguridad | `docs/PLAN-Seguridad.md` |
 | Pruebas manuales pendientes | `docs/PRUEBAS-PENDIENTES.md` |

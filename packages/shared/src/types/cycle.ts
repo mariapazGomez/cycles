@@ -119,3 +119,24 @@ export interface SessionFeedback {
   supersedesId: string | null;
   submittedAt: string;
 }
+
+// Lo que devuelve GET /me/today: la próxima sesión pendiente del atleta,
+// con sus ejercicios y los logs ya registrados en cada uno.
+export interface TodaySession {
+  cycle: { id: string; name: string; currentWeek: number };
+  session: TrainingSession & {
+    sessionExercises: (SessionExercise & {
+      exercise: Exercise;
+      logs: ExerciseLog[];
+    })[];
+  };
+  // Sesiones pendientes que el atleta asignó para hoy (solo viene si se
+  // pidió con ?date=). Puede incluir la propia `session`.
+  assignedToday?: Array<{
+    id: string;
+    name: string;
+    cycleId: string;
+    weekNumber: number;
+    slotNumber: number;
+  }>;
+}
