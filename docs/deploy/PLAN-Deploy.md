@@ -58,7 +58,7 @@ Con un solo dominio, cada servicio usa un subdominio:
 
 | Subdominio | Para qué | Servicio |
 |---|---|---|
-| `www.<dominio>` | **Landing page** (página principal de marketing), que se diseña y despliega aparte, como otro proyecto de Vercel. Decidido el 2026-09-28. | Vercel (proyecto propio) |
+| `www.<dominio>` | **Landing page.** ~~Proyecto aparte de Vercel (2026-09-28).~~ **Cambio 2026-10-03:** la landing se construyó dentro de `apps/web` (ruta `/` para visitantes) y se publica en `app.`; `www.` y la raíz redirigen a `app.` hasta que se decida mover la landing. | Redirección (Cloudflare) |
 | `<dominio>` (raíz) | Redirige a `www.`, para que `getcycles.app` y `www.getcycles.app` lleven a la misma landing | Cloudflare (regla de redirección) |
 | `app.<dominio>` | La web de Cycles | Vercel |
 | `api.<dominio>` | La API | Render |
@@ -409,7 +409,8 @@ openssl rand -hex 64 | pbcopy
 ## Paso 6 · DNS de la web y la API *(por detallar)*
 
 - `app.` se apunta en el paso 4 y `api.` en el paso 3.
-- **`www.` queda reservado para la landing** (otro proyecto de Vercel, no el de la app). Mientras no exista, la raíz y `www.` redirigen temporalmente (302) a `app.` con una regla de Cloudflare; cuando la landing esté lista, `www.` apunta a su proyecto y la raíz redirige a `www.` (301).
+- **Cambio 2026-10-03:** la landing vive en `apps/web` y se sirve desde `app.getcycles.app` (ver Paso 9); `www.` y la raíz redirigen a `app.` y mover la landing a `www.` queda para más adelante.
+- ~~**`www.` queda reservado para la landing**~~ (otro proyecto de Vercel, no el de la app). Mientras no exista, la raíz y `www.` redirigen temporalmente (302) a `app.` con una regla de Cloudflare; cuando la landing esté lista, `www.` apunta a su proyecto y la raíz redirige a `www.` (301).
 - La landing es también el lugar natural para la **política de privacidad** y los términos (por ejemplo `www.getcycles.app/privacidad`), que Google pide para publicar la app (paso 5).
 - Actualizar `FRONTEND_URL`, `VITE_API_URL`, CORS y los *redirect URIs* de Google con las URLs definitivas.
 
@@ -476,3 +477,33 @@ openssl rand -hex 64 | pbcopy
 - [x] Ningún aviso incluye datos de salud o rendimiento, ni emails completos (probado en local: una sesión con dolor no lo menciona).
 - [x] Sin webhook configurado, la API funciona igual (probado en local el 2026-09-28).
 
+## Paso 9 · Landing y formulario de contacto
+
+**Objetivo:** publicar la landing para coaches ([[PRD-LandingContacto]]) en `https://app.getcycles.app/` y recibir sus mensajes en el canal privado `#cycles-early-adopters`.
+
+### 9.1 Decisiones *(2026-10-03)*
+
+| Tema | Decisión |
+|---|---|
+| Dónde se sirve | `app.getcycles.app/` para quien no tiene sesión; sin proyecto nuevo de Vercel ni cambios de CORS (mismo origen que la app). |
+| `www.` y la raíz | Redirección a `app.getcycles.app` (302 por ahora) con una regla de Cloudflare. |
+| Base de datos | Tabla nueva `ContactRequest`, migración `20261003185120_contact_request`; se aplica sola al desplegar la API (`prisma migrate deploy` al final del build). |
+| Slack | Canal privado `#cycles-early-adopters`, variable `SLACK_CONTACT_WEBHOOK_URL` (secreto, `sync: false` en `render.yaml`). Sin ella, los mensajes igual quedan guardados. |
+
+### 9.2 Orden
+
+1. **Respaldo** de Supabase (`pg_dump`, plan 2.5) antes de mezclar: es una migración nueva.
+2. **Regenerar el webhook** de `#cycles-early-adopters` (el primero se pegó en una conversación) y guardarlo en el gestor de contraseñas.
+3. **Cargar `SLACK_CONTACT_WEBHOOK_URL` en Render** (*cycles-api → Environment*), antes de mezclar para que el primer deploy ya la tenga.
+4. **Mezclar el PR.** Render despliega la API y aplica la migración; Vercel despliega la web.
+5. **Verificar en producción:** `GET /health`; la landing en `app.getcycles.app` sin sesión; el inicio de la app con sesión; un mensaje de prueba que llegue a Slack y quede en la tabla; el límite por IP con la IP real.
+6. **Regla de Cloudflare:** `www.getcycles.app` y la raíz redirigen a `app.getcycles.app`.
+
+### 9.3 Listo cuando
+
+- [ ] Respaldo hecho y guardado fuera del repo.
+- [ ] Webhook regenerado y `SLACK_CONTACT_WEBHOOK_URL` cargada en Render.
+- [ ] Migración aplicada en producción (`prisma migrate status` sin pendientes).
+- [ ] Landing visible sin sesión y la app intacta con sesión.
+- [ ] Mensaje de prueba recibido en Slack y guardado en `ContactRequest`; se borra después.
+- [ ] `www.` y la raíz redirigen a `app.`.

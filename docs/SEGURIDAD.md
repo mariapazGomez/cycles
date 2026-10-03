@@ -23,13 +23,21 @@ updated: 2026-10-01
 
 | Archivo | Qué contiene | Regla |
 |---|---|---|
-| `apps/api/.env` | Secretos locales: `DATABASE_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, credenciales de Google, `RESEND_API_KEY`, `SLACK_SECURITY_WEBHOOK_URL`, `SLACK_ACTIVITY_WEBHOOK_URL`, `ACTIVITY_CRON_SECRET`, `SUPABASE_DATABASE_URL` | Nunca se commitea (está en `.gitignore`). Solo desarrollo. |
+| `apps/api/.env` | Secretos locales: `DATABASE_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, credenciales de Google, `RESEND_API_KEY`, `SLACK_SECURITY_WEBHOOK_URL`, `SLACK_ACTIVITY_WEBHOOK_URL`, `SLACK_CONTACT_WEBHOOK_URL`, `ACTIVITY_CRON_SECRET`, `SUPABASE_DATABASE_URL` | Nunca se commitea (está en `.gitignore`). Solo desarrollo. |
 | `apps/api/.env.example` | Los nombres de las variables, sin valores reales | Se actualiza cada vez que se agrega una variable. Nunca lleva un secreto. |
 | `apps/web/.env` / `.env.example` | `VITE_API_URL` | Todo `VITE_*` termina **dentro del JavaScript público**: nunca poner un secreto ahí. |
 | `.gitignore` | Excluye `.env`, `.env.local`, `node_modules`, `dist` | No quitar esas entradas. |
 | Base de producción (Supabase) | La URL del *session pooler* con la contraseña (`DATABASE_URL` en Render; `SUPABASE_DATABASE_URL` en el `.env` local, solo para migraciones y respaldos) | Solo en el gestor de contraseñas y en esas variables. La Data API de Supabase no se usa: los roles `anon` y `authenticated` no tienen permisos (migración `20260928130000_revoke_supabase_api_roles`) y todas las tablas tienen RLS. Ver `docs/deploy/PLAN-Deploy.md`, paso 2. |
 | Secretos de GitHub Actions | `ACTIVITY_CRON_SECRET` (el mismo de Render), usado por `.github/workflows/resumen-actividad.yml` | El repo es público: el workflow nunca imprime el secreto ni los totales del resumen. |
 | Variables de Render y Vercel (producción) | Los mismos secretos que `.env`, con valores distintos | Solo en el panel de cada servicio y en el gestor de contraseñas. Ver `docs/deploy/PLAN-Deploy.md`. |
+
+### Endpoint público de contacto (landing)
+
+| Archivo | Qué hace |
+|---|---|
+| `apps/api/src/contact/contact.service.ts` | `POST /contact`, sin sesión: formulario de la landing. Filtra bots (campo señuelo, tiempo mínimo de llenado, máximo de enlaces), ignora el mismo correo dentro de 24 h y tiene un tope de 40 mensajes al día. Guarda en `ContactRequest` (sin IP) y avisa a Slack con el texto escapado. |
+| `apps/api/src/common/throttle/throttle.ts` (`LIMITS.contact`) | 3 intentos por hora por IP y 2 por día por correo. |
+| `SLACK_CONTACT_WEBHOOK_URL` | Webhook de un canal privado propio (`#cycles-early-adopters`). Lleva el correo completo de quien escribe, por eso no se mezcla con el canal de actividad. Es un secreto (R1). |
 
 ### Autenticación y permisos
 

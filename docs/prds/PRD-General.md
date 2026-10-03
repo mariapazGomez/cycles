@@ -23,6 +23,7 @@ tags: [prd, general]
 | Frontend de planificación (ciclos/sesiones/ejercicios) | Fase 2 | in-progress | [[PRD-FrontendPlanificacion]] |
 | Rutinas y programación en grid | Fase 2 | complete | [[PRD-RutinasYProgramacion]] |
 | Ejecución y seguimiento (registro del atleta + seguimiento del coach) | Fase 3 | approved | [[PRD-EjecucionYSeguimiento]] |
+| Landing y formulario de contacto | Fase 3.5 | complete | [[PRD-LandingContacto]] |
 
 > Esta tabla se actualiza a mano cada vez que se crea un PRD hijo nuevo (ver plantilla en `_templates/PRD-Feature-Template.md`). Además, como cada PRD hijo enlaza de vuelta a `[[PRD-General]]` en su frontmatter, el panel de **Linked mentions / Backlinks** de Obsidian en esta nota mostrará automáticamente todos los hijos, aunque se te olvide actualizar la tabla.
 
