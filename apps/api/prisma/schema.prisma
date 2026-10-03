@@ -385,3 +385,18 @@ model ActivityDigest {
   day    String   @id
   sentAt DateTime @default(now())
 }
+
+// Mensajes del formulario de contacto de la landing (coaches que piden
+// conversar). Los manda cualquiera, sin sesión, así que el módulo `contact`
+// los limita y filtra bots antes de guardarlos. `slackSentAt` queda nulo si
+// el aviso a Slack falló: el mensaje no se pierde. No se guarda la IP.
+model ContactRequest {
+  id          String    @id @default(uuid())
+  email       String
+  message     String
+  createdAt   DateTime  @default(now())
+  slackSentAt DateTime?
+
+  @@index([createdAt])
+  @@index([email, createdAt])
+}

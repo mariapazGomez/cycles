@@ -28,11 +28,16 @@ updated: 2026-10-02
 
 > Tu plan llega a tu atleta. Lo que pasó en cada sesión te llega a ti.
 
+**Línea de portada para coaches** (decidido 2026-10-03)
+
+> Todos tus atletas, en un solo lugar.
+
 **Dos ángulos de apoyo, según el canal**
 
 | Preocupación | Mensaje |
 |---|---|
 | Ahorrar tiempo | "Deja de perseguir mensajes. Lo que pasó en cada sesión ya está donde lo necesitas." |
+| Todos en un lugar | "Todos tus atletas en un solo lugar: sin un Excel y un chat por cada uno." Verificable hoy: la web del coach tiene la lista de atletas y el inicio con los que necesitan atención. |
 | Demostrar resultados | "Cada sesión queda registrada. El progreso de tus atletas se puede ver, no solo contar." |
 
 El de resultados todavía es más promesa que realidad: depende de qué tan completo sea hoy el seguimiento que ve el coach en Cycles. Verificarlo con producto antes de usarlo en público.

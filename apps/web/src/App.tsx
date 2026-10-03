@@ -1,7 +1,9 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { PublicOnlyRoute } from "./components/PublicOnlyRoute";
 import { AppLayout } from "./components/AppLayout";
+import { useAuth } from "./hooks/useAuth";
+import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { CheckEmailPage } from "./pages/CheckEmailPage";
@@ -20,6 +22,21 @@ import { RoutinesPage } from "./pages/RoutinesPage";
 import { RoutineEditorPage } from "./pages/RoutineEditorPage";
 import { AthleteSummaryPage } from "./pages/AthleteSummaryPage";
 import { SessionLogPage } from "./pages/SessionLogPage";
+
+// "/" es la landing para quien no tiene sesión y el inicio de la app para quien
+// sí; el resto de rutas bajo "/" siguen exigiendo sesión.
+function RootGate() {
+  const { status } = useAuth();
+  const { pathname } = useLocation();
+  if (status === "unauthenticated" && pathname === "/") {
+    return <LandingPage />;
+  }
+  return (
+    <ProtectedRoute>
+      <AppLayout />
+    </ProtectedRoute>
+  );
+}
 
 export function App() {
   return (
@@ -63,11 +80,7 @@ export function App() {
       />
       <Route
         path="/"
-        element={
-          <ProtectedRoute>
-            <AppLayout />
-          </ProtectedRoute>
-        }
+        element={<RootGate />}
       >
         <Route index element={<HomePage />} />
         <Route path="athletes" element={<AthletesPage />} />

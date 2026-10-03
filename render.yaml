@@ -63,3 +63,7 @@ services:
         sync: false
       - key: SLACK_ACTIVITY_WEBHOOK_URL
         sync: false
+      # Mensajes del formulario de la landing (canal privado #cycles-early-adopters).
+      # Lleva el correo completo de quien escribe: no usar el canal de actividad.
+      - key: SLACK_CONTACT_WEBHOOK_URL
+        sync: false

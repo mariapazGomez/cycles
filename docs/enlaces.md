@@ -21,6 +21,7 @@ updated: 2026-09-25
 | `/accept-invitation?token=...` | Atleta activa su cuenta a partir de la invitación del coach | Pública |
 | `/oauth-callback?code=...` | Callback interno del login con Google: cambia el código de un solo uso por la sesión (no se visita a mano) | — |
 | `/complete-profile` | Último paso de onboarding para cuentas creadas por Google sin rol | Autenticado, sin rol |
+| `/` (sin sesión) | Landing para coaches con el formulario de contacto ([[PRD-LandingContacto]]) | Pública |
 | `/` | Inicio. Coach: "Necesitan atención" (avisos por atleta con ajuste de carga). Atleta: su próxima sesión, empezarla u omitirla | Autenticado |
 | `/athletes/:athleteId` | Resumen del atleta: avisos, carga semanal, adherencia, fuerza estimada por ejercicio | Autenticado (coach, relación activa) |
 | `/routines` | Biblioteca de rutinas: tarjetas con grupos musculares y totales, editar, borrar con confirmación | Autenticado (coach) |
@@ -49,6 +50,7 @@ Sin Swagger/OpenAPI activado todavía (pendiente, ver `docs/prds/PRD-General.md`
 | Hijos de un macrociclo | `/cycles/:id/children` | [[PRD-RutinasYProgramacion]] |
 | Registro del atleta | `/me/today`, `/sessions/:id/start`, `/session-exercises/:id/logs`, `/sessions/:id/feedback` | [[PRD-EjecucionYSeguimiento]] |
 | Seguimiento del coach | `/coach/attention`, `/athletes/:id/summary`, `/cycles/:id/progress`, `/cycles/:id/load-adjustments` | [[PRD-EjecucionYSeguimiento]] |
+| Contacto de la landing (público, con límites y filtros anti-bots) | `POST /contact` | [[PRD-LandingContacto]] |
 | Interno: resumen diario de actividad (solo GitHub Actions, con secreto) | `POST /internal/activity/daily-summary` | `docs/deploy/PLAN-Deploy.md`, paso 8 |
 
 ## Base de datos
