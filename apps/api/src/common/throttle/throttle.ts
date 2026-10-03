@@ -10,6 +10,7 @@ import { ThrottlerModuleOptions } from "@nestjs/throttler";
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
+const DAY = 24 * HOUR;
 
 export const THROTTLE_MESSAGE = "Hiciste demasiados intentos. Espera unos minutos y vuelve a probar.";
 
@@ -20,6 +21,8 @@ export const LIMITS = {
   // Recuperación y reenvío: el mismo límite exista o no el email (no revela nada).
   emailLink: { default: { limit: 10, ttl: HOUR }, email: { limit: 3, ttl: HOUR } },
   invite: { default: { limit: 20, ttl: HOUR }, email: { limit: 3, ttl: HOUR } },
+  // Formulario público de la landing: pocos intentos por IP y por correo.
+  contact: { default: { limit: 3, ttl: HOUR }, email: { limit: 2, ttl: DAY } },
   refresh: { default: { limit: 30, ttl: MINUTE } },
   // Endpoints con un token de un solo uso (verificar email, aceptar invitación, confirmar reset).
   tokenUse: { default: { limit: 20, ttl: MINUTE } },

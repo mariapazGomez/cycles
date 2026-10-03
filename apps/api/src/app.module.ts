@@ -18,6 +18,7 @@ import { ExercisesModule } from "./exercises/exercises.module";
 import { RoutinesModule } from "./routines/routines.module";
 import { ExecutionModule } from "./execution/execution.module";
 import { TrackingModule } from "./tracking/tracking.module";
+import { ContactModule } from "./contact/contact.module";
 import { HealthController } from "./health/health.controller";
 
 @Module({
@@ -37,6 +38,7 @@ import { HealthController } from "./health/health.controller";
     RoutinesModule,
     ExecutionModule,
     TrackingModule,
+    ContactModule,
   ],
   controllers: [HealthController],
   // Límite de intentos en toda la API (docs/SEGURIDAD.md, S-01), con alertas

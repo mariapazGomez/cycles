@@ -58,7 +58,7 @@ export function validateEnv(config: Record<string, unknown>): Record<string, unk
 
   // Opcionales incluso en producción: sin ellas, las alertas de seguridad y
   // los avisos de actividad quedan en el log.
-  for (const key of ["SLACK_SECURITY_WEBHOOK_URL", "SLACK_ACTIVITY_WEBHOOK_URL"]) {
+  for (const key of ["SLACK_SECURITY_WEBHOOK_URL", "SLACK_ACTIVITY_WEBHOOK_URL", "SLACK_CONTACT_WEBHOOK_URL"]) {
     if (value(key) && !value(key).startsWith(SLACK_WEBHOOK_PREFIX)) {
       errors.push(`${key} debe ser una URL de webhook de Slack (${SLACK_WEBHOOK_PREFIX}…).`);
     }
