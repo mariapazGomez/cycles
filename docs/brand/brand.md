@@ -8,6 +8,15 @@ tags: [brand, vision]
 > Fuente de la sección "Marca" de [[VISION]]. Nombres ("Cycles", "InProgress Co.") son candidatos — ver sección 27, pendiente búsqueda de marca registrada antes de invertir en identidad visual.
 >
 > **Actualización 2026-09-24**: ya existen decisiones y assets concretos que ejecutan parte de este documento estratégico — ver [[identidad-visual]] (tipografía, color, y los primeros logos en `docs/brand/img/`). El isotipo (loop circular) coincide con el territorio visual de la sección 14 de abajo.
+>
+> **Actualización 2026-10-02**: este documento es la estrategia amplia y sigue en borrador. Las decisiones de esencia, historia, voz y mensajes se desarrollaron después con la fundadora y **prevalecen sobre lo que aquí se contradiga**. Orden de lectura:
+>
+> 1. [[esencia]] — propósito, creencias, enemigo, a quién le hablamos, emoción (decidido)
+> 2. [[historia]] — historia de origen, versión corta y larga (borrador)
+> 3. [[voz-y-tono]] — cómo habla la marca (borrador; humor pendiente)
+> 4. [[firma]] — cómo conviven InProgress Co. y Cycles (decidido)
+> 5. [[mensajes]] — promesa para coach y para atleta (borrador; falta validar con coaches)
+> 6. [[identidad-visual]] — tipografía, color, logo, motivo gráfico (decidido)
 
 INPROGRESS CO. + CYCLES
 Estrategia de compañía, producto y oportunidades YC 2026
