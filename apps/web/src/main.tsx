@@ -9,6 +9,7 @@ import "./styles/auth.css";
 import "./styles/layout.css";
 import "./styles/tracking.css";
 import "./styles/routines.css";
+import "./styles/landing.css";
 
 const queryClient = new QueryClient();
 
