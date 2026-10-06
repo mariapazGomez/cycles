@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { memo, type ReactNode } from "react";
 
 // Maquetas de las pantallas de la app del atleta, con el lenguaje visual
 // aprobado para mobile (tarjeta oscura con cadena de proteína, números en
@@ -54,7 +54,7 @@ function Island() {
   );
 }
 
-export function HoyDevice() {
+function HoyDeviceBase() {
   return (
     <Device label="Pantalla Hoy de la app: la sesión Piernas con 1 de 4 ejercicios completados">
       <div className="lp-sb"><span>18:40</span><em>•••</em></div>
@@ -92,7 +92,7 @@ export function HoyDevice() {
   );
 }
 
-export function SerieDevice() {
+function SerieDeviceBase() {
   return (
     <Device label="Pantalla de registro de serie: peso, repeticiones y repeticiones en reserva">
       <div className="lp-sb"><span>18:52</span><em>•••</em></div>
@@ -117,7 +117,7 @@ export function SerieDevice() {
   );
 }
 
-export function CierreDevice() {
+function CierreDeviceBase() {
   const effort = [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0];
   return (
     <Device label="Pantalla de cierre de sesión: esfuerzo, resultado, dolor y notas para el coach">
@@ -141,3 +141,7 @@ export function CierreDevice() {
     </Device>
   );
 }
+
+export const HoyDevice = memo(HoyDeviceBase);
+export const SerieDevice = memo(SerieDeviceBase);
+export const CierreDevice = memo(CierreDeviceBase);
