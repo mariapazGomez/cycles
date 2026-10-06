@@ -6,12 +6,15 @@ import { API_URL } from "./httpClient";
 // sesión), apenas carga la página se le hace un pedido de despertar a /health
 // y la API se va despertando mientras la persona lee o escribe.
 //
-// "no-cors": no hace falta leer la respuesta (solo despertar), así que no
-// depende de CORS. Solo en producción, para no ensuciar la consola en local.
+// Pedido en modo CORS normal (la API lo permite para este dominio). Con
+// "no-cors" el pedido también despertaba la API, pero la cabecera
+// Cross-Origin-Resource-Policy: same-origin que manda helmet hacía que el
+// navegador descartara la respuesta con un error en la consola de cada
+// visitante. Solo en producción, para no ensuciar la consola en local.
 let warmed = false;
 
 export function warmUpApi(): void {
   if (warmed || !import.meta.env.PROD) return;
   warmed = true;
-  void fetch(`${API_URL}/health`, { mode: "no-cors", cache: "no-store" }).catch(() => undefined);
+  void fetch(`${API_URL}/health`, { cache: "no-store" }).catch(() => undefined);
 }
