@@ -10,6 +10,15 @@
   background-size: cover;
 }
 
+.loading-box { text-align: center; }
+
+.loading-hint {
+  max-width: 34ch;
+  margin: 8px auto 0;
+  font-size: 0.9rem;
+  color: var(--color-ink-secondary);
+}
+
 .auth-card {
   width: 100%;
   max-width: 400px;

@@ -34,6 +34,16 @@ export function LandingPage() {
   const openedAt = useRef(Date.now());
   const root = useRef<HTMLDivElement>(null);
   const mutation = useMutation({ mutationFn: contactApi.sendContact });
+  // Si el envío tarda, casi siempre es la API despertando (Render gratis): se avisa.
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    if (!mutation.isPending) {
+      setSlow(false);
+      return;
+    }
+    const id = window.setTimeout(() => setSlow(true), 5000);
+    return () => window.clearTimeout(id);
+  }, [mutation.isPending]);
 
   useEffect(() => (root.current ? startPhoneDemos(root.current) : undefined), []);
 
@@ -324,6 +334,11 @@ export function LandingPage() {
                   <button type="submit" className="lp-btn" disabled={mutation.isPending}>
                     {mutation.isPending ? "Enviando…" : <>Quiero acceso anticipado {ARROW}</>}
                   </button>
+                  {slow && (
+                    <p className="lp-privacy" role="status">
+                      El servidor estaba dormido y se está despertando. Puede tardar hasta un minuto: no cierres la página.
+                    </p>
+                  )}
                   <p className="lp-privacy">Usaremos tu correo solo para responderte.</p>
                 </form>
               )}
