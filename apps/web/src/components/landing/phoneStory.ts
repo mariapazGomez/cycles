@@ -195,10 +195,19 @@ function story(box: HTMLElement): Player {
   const SE = serieScreen(devs[1]);
   const C = cierreScreen(devs[2]);
   const F = devs.map((d) => finger(d, S));
+  // En móvil los teléfonos van en un carrusel horizontal: se centra el activo
+  // (solo en horizontal, sin mover la página).
+  const narrow = window.matchMedia("(max-width: 820px)");
+  const centerFigure = (fig: HTMLElement) => {
+    const b = box.getBoundingClientRect();
+    const f = fig.getBoundingClientRect();
+    box.scrollTo({ left: box.scrollLeft + (f.left - b.left) - (b.width - f.width) / 2, behavior: "smooth" });
+  };
   const active = (i: number) =>
     S.run(() => {
       figs.forEach((f, k) => f.classList.toggle("lp-active", k === i));
       F.forEach((f, k) => k !== i && f.hide());
+      if (narrow.matches) centerFigure(figs[i]);
     });
   const idle = () => {
     figs.forEach((f) => f.classList.remove("lp-active"));

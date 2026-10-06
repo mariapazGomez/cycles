@@ -23,7 +23,8 @@ Una página para coaches que ve quien entra a `/` sin sesión (quien tiene sesi�
 - **Oferta: acceso anticipado gratis mientras se construye.** El botón dice "Quiero acceso anticipado".
 - Estructura al estilo de myfitnesspal.com con la marca de Cycles; botones en píldora como los de la app, con animación.
 - **Animaciones** (se apagan con "reducir movimiento" y solo corren a la vista): cadena de proteína viva en un lienzo (`ChainCanvas`), etiqueta "Para …" que gira entre sinónimos de coach (`RotatingAudience`), anillo del ciclo y una historia única de los tres teléfonos (`phoneStory.ts`: Hoy → registro de serie → Hoy → cierre de sesión).
-- Las capturas web son de una base de demostración con personas ficticias (`apps/api/scripts/seed-demo.ts`); las pantallas del teléfono son maquetas animadas, no capturas del simulador: deben seguir coincidiendo con la app móvil.
+- Las capturas web (escritorio y móvil) son de una base de demostración con personas ficticias (`apps/api/scripts/seed-demo.ts`); las pantallas del teléfono son maquetas animadas, no capturas del simulador: deben seguir coincidiendo con la app móvil.
+- **Móvil** (revisión de UX y UI del 2026-10-06, con mediciones en 320, 375 y 414 px): el scroll bajó de 9.082 a unos 7.000 px. Los tres teléfonos van en un carrusel horizontal con "snap" y la historia lleva el foco de uno a otro; las capturas de la web del coach se reemplazan por capturas de **la versión móvil de la app** (legibles; las de escritorio tenían texto de 5,5 px) en otro carrusel; los beneficios van con el ícono a la izquierda; los enlaces miden al menos 44 px; hay una barra fija con "Quiero acceso anticipado" que aparece al pasar la portada y se oculta al llegar al formulario; el teléfono de la portada asoma cortado abajo. Escritorio no cambia.
 - Estilos con prefijo `lp-` y tokens de `global.css`, para no chocar con el resto de la app.
 
 ## 3. Formulario de contacto

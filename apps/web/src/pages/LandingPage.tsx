@@ -5,6 +5,9 @@ import logo from "../assets/logo-cycles.png";
 import atencion from "../assets/landing/atencion.jpg";
 import resumen from "../assets/landing/resumen.jpg";
 import plan from "../assets/landing/plan.jpg";
+import mAtencion from "../assets/landing/m-atencion.jpg";
+import mResumen from "../assets/landing/m-resumen.jpg";
+import mPlan from "../assets/landing/m-plan.jpg";
 import { ChainCanvas } from "../components/landing/ChainCanvas";
 import { CycleRing } from "../components/landing/CycleRing";
 import { CierreDevice, HoyDevice, SerieDevice } from "../components/landing/PhoneScreens";
@@ -26,6 +29,39 @@ const ARROW = (
     <path d="M5 12h14M13 6l6 6-6 6" />
   </svg>
 );
+
+// Barra fija con el llamado a la acción, solo en móvil (la oculta el CSS en
+// escritorio). Aparece cuando el botón de la portada sale de pantalla y se
+// esconde al llegar al formulario, para no tapar los campos.
+function StickyCta() {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    const hero = document.querySelector(".lp-hero .lp-btn");
+    const contact = document.getElementById("contacto");
+    if (!hero || !contact) return;
+    let heroSeen = true;
+    let contactSeen = false;
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.target === hero) heroSeen = e.isIntersecting;
+        else contactSeen = e.isIntersecting;
+      }
+      setShow(!heroSeen && !contactSeen);
+    });
+    io.observe(hero);
+    io.observe(contact);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <div className={show ? "lp-sticky lp-show" : "lp-sticky"} aria-hidden={!show}>
+      <a href="#contacto" className="lp-btn" tabIndex={show ? 0 : -1}>
+        Quiero acceso anticipado {ARROW}
+      </a>
+    </div>
+  );
+}
 
 export function LandingPage() {
   const [email, setEmail] = useState("");
@@ -238,14 +274,20 @@ export function LandingPage() {
               <figure className="lp-fig">
                 <div className="lp-browser">
                   <div className="lp-browser-top"><i /><i /><i /></div>
-                  <img src={atencion} alt="Inicio del coach con la lista Necesitan atención" />
+                  <picture>
+                    <source media="(max-width: 820px)" srcSet={mAtencion} />
+                    <img src={atencion} alt="Inicio del coach con la lista Necesitan atención" />
+                  </picture>
                 </div>
                 <figcaption>Inicio: quién necesita tu atención</figcaption>
               </figure>
               <figure className="lp-fig">
                 <div className="lp-browser">
                   <div className="lp-browser-top"><i /><i /><i /></div>
-                  <img src={resumen} alt="Resumen de un atleta con carga semanal y adherencia" />
+                  <picture>
+                    <source media="(max-width: 820px)" srcSet={mResumen} />
+                    <img src={resumen} alt="Resumen de un atleta con carga semanal y adherencia" />
+                  </picture>
                 </div>
                 <figcaption>Un atleta: carga semanal y adherencia</figcaption>
               </figure>
@@ -269,7 +311,10 @@ export function LandingPage() {
             </div>
             <div className="lp-browser">
               <div className="lp-browser-top"><i /><i /><i /></div>
-              <img src={plan} alt="Plan con una sesión omitida y su nota" />
+              <picture>
+                    <source media="(max-width: 820px)" srcSet={mPlan} />
+                    <img src={plan} alt="Plan con una sesión omitida y su nota" />
+                  </picture>
             </div>
           </div>
         </section>
@@ -346,6 +391,8 @@ export function LandingPage() {
           </div>
         </section>
       </main>
+
+      <StickyCta />
 
       <footer>
         <div className="lp-foot">
