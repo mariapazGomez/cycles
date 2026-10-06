@@ -18,21 +18,30 @@ updated: 2026-10-02
 - Sus dos preocupaciones principales: **ahorrar tiempo** y **demostrar resultados**.
 - Diseña el plan, pero no está en cada sesión; hoy se coordina con Excel y WhatsApp.
 
-**Promesa**
+**Promesa** (actualizada 2026-10-06, ver [[landing]])
 
-> **Sabe cómo le fue a cada atleta, sin estar ahí.**
+> **Tú diseñas el ciclo de entrenamiento. Cycles te cuenta cómo les fue.**
 >
-> Diseñas el plan, y Cycles te trae de vuelta lo que pasó en cada sesión: lo que hizo, lo que sintió y lo que no pudo hacer. Sin Excel, sin perseguir mensajes.
+> Cycles es la plataforma de ciclos de entrenamiento: armas el ciclo, tu atleta lo registra desde el celular y tú ves quién necesita tu atención. Todos tus atletas en un solo lugar, sin perseguir mensajes.
 
-**Línea corta**
+**Lo que se le promete al coach que ya trabaja bien:** no cambia cómo entrena ("Tú sigues diseñando el plan"); le suma saber qué pasó sin preguntar, a quién mirar primero, ajustar el ciclo con datos y recuperar tiempo.
 
-> Tu plan llega a tu atleta. Lo que pasó en cada sesión te llega a ti.
+**Oferta:** acceso anticipado gratis mientras se construye. Es un compromiso: quien deja su correo espera poder entrar.
+
+**Línea de apoyo**
+
+> Todos tus atletas en un solo lugar, sin perseguir mensajes.
+
+**Frase de marca adaptada para el coach**
+
+> Nada se pierde entre tú y tus atletas.
 
 **Dos ángulos de apoyo, según el canal**
 
 | Preocupación | Mensaje |
 |---|---|
 | Ahorrar tiempo | "Deja de perseguir mensajes. Lo que pasó en cada sesión ya está donde lo necesitas." |
+| Todos en un lugar | "Todos tus atletas en un solo lugar: sin un Excel y un chat por cada uno." Verificable hoy: la web del coach tiene la lista de atletas y el inicio con los que necesitan atención. |
 | Demostrar resultados | "Cada sesión queda registrada. El progreso de tus atletas se puede ver, no solo contar." |
 
 El de resultados todavía es más promesa que realidad: depende de qué tan completo sea hoy el seguimiento que ve el coach en Cycles. Verificarlo con producto antes de usarlo en público.
