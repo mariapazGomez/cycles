@@ -4,12 +4,15 @@ import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./store/AuthContext";
 import { App } from "./App";
+import { warmUpApi } from "./services/warmUp";
 import "./styles/global.css";
 import "./styles/auth.css";
 import "./styles/layout.css";
 import "./styles/tracking.css";
 import "./styles/routines.css";
 import "./styles/landing.css";
+
+warmUpApi();
 
 const queryClient = new QueryClient();
 
