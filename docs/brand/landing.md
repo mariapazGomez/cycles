@@ -1,101 +1,96 @@
 ---
 type: brand
 parent: "[[brand]]"
-status: draft
+status: decided
 tags: [brand, landing, copy]
 created: 2026-10-03
-updated: 2026-10-03
+updated: 2026-10-06
 ---
 
-> Hijo de [[speech]]. Texto de la landing para **coaches**, en voz "nosotros" ([[voz-y-tono]]). Vive dentro de `apps/web`, en la ruta `/` para visitantes sin sesión. El llamado a la acción es **conversar con la fundadora**, no registrarse. Imágenes: capturas reales de la app móvil; las de la web del coach quedan pendientes hasta que esas pantallas estén definidas.
+> Hijo de [[speech]]. Texto de la landing para **coaches**, en voz "nosotros" ([[voz-y-tono]]). Vive dentro de `apps/web`, en la ruta `/` para visitantes sin sesión (ver [[PRD-LandingContacto]]). Reescrita el 2026-10-06 tras el feedback de la fundadora: la primera versión no dejaba claro a quién le hablaba ni qué ofrecía, y los ciclos de entrenamiento no tenían protagonismo.
 
 # Landing page
 
+## Principios de esta versión
+
+- **Le habla al coach desde la primera línea.** Reconoce lo que ya hace bien ("Tú diseñas el ciclo de entrenamiento") y dice qué le suma ("Cycles te cuenta cómo les fue").
+- **El ciclo de entrenamiento es el centro**, porque es el nombre del producto: aparece en el título, en la definición y en una sección propia ("Cada ciclo construye el siguiente").
+- **La propuesta de valor se muestra como cambio en el trabajo del coach**, con funciones que la app ya tiene.
+- **La oferta es acceso anticipado gratis mientras se construye.** Es un compromiso: quien deja su correo espera poder entrar.
+
 ## 1. Portada
 
-**Título:** Nada se pierde entre tú y tu coach.
+- **Etiqueta:** "PARA" fija y una palabra que gira hacia abajo como un carrete: *coaches, personal trainers, preparadores físicos, entrenadores de equipos*. Sin fondo ni burbuja.
+- **Título:** Tú diseñas el ciclo de entrenamiento. Cycles te cuenta cómo les fue.
+- **Línea azul:** Todos tus atletas en un solo lugar, sin perseguir mensajes.
+- **Definición:** Cycles es la plataforma de ciclos de entrenamiento: armas el ciclo, tu atleta lo registra desde el celular y tú ves quién necesita tu atención.
+- **Botón:** Quiero acceso anticipado
+- **Visual:** pantalla "Hoy" de la app móvil sobre la cadena de proteína animada.
 
-**Línea del coach:** Todos tus atletas, en un solo lugar.
+## 2. Cada ciclo construye el siguiente
 
-**Texto:** Si eres coach, Cycles te trae de vuelta lo que pasó en cada sesión, sin que tengas que estar ahí.
+Anillo del ciclo (perlas de la marca y un punto que lo recorre) con cuatro pasos:
 
-**Botón:** Conversemos
+1. **Diseñas el ciclo.** Armas rutinas y las programas semana a semana. Tu atleta las recibe en su celular.
+2. **Tu atleta lo entrena.** Registra cada serie y cierra la sesión contándote cómo se sintió.
+3. **Ves qué pasó.** Cycles te marca quién necesita tu atención: dolor, cargas desajustadas, sesiones sin hacer.
+4. **Ajustas y empieza el siguiente.** Cambias la carga con datos y el próximo ciclo parte de lo que de verdad pasó.
 
-**Fondo:** motivo de cadenas de proteína en `brand-blue`, detrás de tarjetas opacas (ver [[identidad-visual]]).
+Introducción: "Cycles gira alrededor de tu ciclo de entrenamiento, sea micro, meso o macrociclo."
 
-> El título habla a ambos lados de la relación coach-atleta. La línea del coach y el texto de abajo se dirigen al coach, que es la audiencia de esta página. "Todos tus atletas, en un solo lugar" sube a la portada por decisión de la fundadora (2026-10-03): es lo que más pesa en quien lleva varios atletas (hasta ~20) y se puede mostrar hoy en la web del coach.
+## 3. Lo que cambia en una semana normal
 
-## 2. La escena
+Dos columnas, **Hoy** y **Con Cycles**, con cuatro líneas cada una (Excel y WhatsApp frente a ciclo en el celular, registro de cada serie, aviso de quién necesita atención y todos los atletas en un solo lugar). Cierra con: **Nada se pierde entre tú y tus atletas.**
 
-**Título:** Seguro conoces esta escena
+## 4. Qué cambia en tu trabajo
 
-**Texto:**
-Tú diseñas el plan y se lo mandas a tu atleta en un Excel.
-Tu atleta entrena según cómo se siente ese día.
-Después tiene que acordarse de contártelo, y a veces se le olvida.
-Lo demás se resuelve por WhatsApp.
+Cuatro resultados, todos respaldados por funciones que la app ya tiene:
 
-Lo que de verdad pasó en la sesión no queda guardado en ninguna parte.
+| Resultado | Respaldo en la app |
+|---|---|
+| **Ves qué pasó sin preguntar** | Registro por serie y cierre de sesión |
+| **Sabes a quién mirar primero** | "Necesitan atención": dolor, carga alta o baja, adherencia |
+| **Ajustas el ciclo con datos** | Sugerencia de ajuste de carga que el coach acepta o descarta |
+| **Recuperas tiempo** | Todos los atletas en un solo lugar |
 
-Y eso, por cada atleta que llevas.
+Cierre: **No cambia cómo entrenas. Tú sigues diseñando el plan.**
 
-## 3. El problema real
+## 5. Tu atleta lo registra en el celular
 
-**Título:** No es tu atleta. No eres tú.
+Tres maquetas del teléfono que cuentan **una sola historia, en orden**, con un dedo que toca cada elemento: (1) *Hoy*, elige continuar → (2) *Serie por serie*, sube el peso, elige repeticiones en reserva y guarda → de vuelta en *Hoy*, el progreso avanza hasta "Cerrar sesión" → (3) *Cuéntale a tu coach*, marca el esfuerzo, escribe una nota y envía. Solo el teléfono activo está nítido; los demás esperan. Son maquetas animadas, no grabaciones de la app: deben seguir coincidiendo con ella.
 
-**Texto:** El entrenamiento está repartido en pedazos: el plan en un lugar, la conversación en otro, y lo que de verdad ocurrió, en ninguno.
+## 6. Todos tus atletas, en un solo lugar
 
-## 4. Cómo funciona
+Dos capturas de la web con datos ficticios, con pie: "Inicio: quién necesita tu atención" y "Un atleta: carga semanal y adherencia". Botón: Quiero acceso anticipado.
 
-**Título:** Cycles junta los pedazos
+## 7. Una sesión que no se pudo hacer también cuenta
 
-Tres pasos:
+"Un día no se pudo. Pasa. En Cycles eso queda registrado, con su nota, y no se convierte en un fracaso: es un dato más para decidir cómo sigue el ciclo." Con la captura del plan donde se ve la sesión omitida y su nota.
 
-| Paso | Texto | Imagen |
-|---|---|---|
-| 1. Armas el ciclo de entrenamiento | Diseñas rutinas y las programas semana a semana, en micro, meso o macrociclos. Tu atleta las recibe. | **Pendiente:** captura de la web del coach |
-| 2. Tu atleta cuenta cómo le fue | En el celular, serie por serie, sin acordarse de nada después. | Captura de la app móvil (registro de sesión) |
-| 3. Tú lo ves | Lo que hizo, cómo se sintió y qué no pudo hacer, de todos tus atletas en un solo lugar. | **Pendiente:** captura de la web del coach |
+## 8. Acceso anticipado
 
-> Hasta tener las capturas de la web, los pasos 1 y 3 van solo con texto, sin imagen provisional ni ilustración inventada. Solo se muestra lo que ya funciona.
+- **Título:** Acceso anticipado, gratis mientras lo construimos
+- **Texto:** Estamos armando Cycles junto a los primeros coaches. Déjanos tu correo y cuéntanos cómo trabajas: te damos acceso y tu experiencia nos ayuda a decidir qué sigue.
+- **Campos:** Correo · Cuéntanos quién eres y cuántos atletas llevas
+- **Botón:** Quiero acceso anticipado
+- **Aviso:** Usaremos tu correo solo para responderte.
+- **Fondo:** cadena de proteína animada, detrás de una tarjeta opaca.
 
-## 5. La sesión perdida es un dato
+El formulario guarda el mensaje en la base de datos y avisa al canal privado de Slack `#cycles-early-adopters` (ver [[PRD-LandingContacto]]).
 
-**Título:** Una sesión que no se pudo hacer también cuenta
+## 9. Pie
 
-**Texto:** Un día no se pudo. Pasa. En Cycles eso queda registrado, con su nota, y no se convierte en un fracaso: es un dato más para decidir cómo sigue el ciclo. Cada ciclo construye el siguiente.
+Hecho por InProgress Co. (ver [[firma]]).
 
-> Hoy Cycles registra la sesión como omitida con una nota. Mostrar dónde cabe dentro de la semana es una idea de producto, no una función existente; este texto no la promete.
+## Animaciones
 
-## 6. Construyámoslo juntos
+Todas se apagan con "reducir movimiento" y solo corren cuando están a la vista.
 
-**Título:** Todavía lo estamos construyendo
-
-**Texto:** Queremos hacerlo junto a coaches. Más que venderte algo, queremos conversar contigo sobre cómo trabajas hoy: qué te sobra y qué te falta.
-
-**Botón:** Conversemos
-
-**Canal de contacto (decidido 2026-10-03):** un formulario con dos campos, el correo del coach y una breve descripción de quién es. Al enviarlo, el mensaje llega a un canal de Slack. Los dos botones "Conversemos" llevan a este formulario. Detalles técnicos y pendientes en la sección "Formulario de contacto" más abajo.
-
-## 7. Pie
-
-Hecho por InProgress Co. (ver [[firma]]). Enlaces a política de privacidad y términos cuando existan.
-
-## Formulario de contacto
-
-Campos: **correo** y **"Cuéntanos quién eres"** (texto corto). Nada más.
-
-Texto de confianza bajo el formulario: "Usaremos tu correo solo para responderte."
-
-Mensaje tras enviar: confirmación breve y sin dramatismo, en la voz de [[voz-y-tono]]. Si falla: explica qué pasó y qué hacer.
-
-Notas técnicas (a decidir al implementar):
-- **Endpoint público** en la API, sin sesión. Sigue las reglas de [[SEGURIDAD]]: validación con DTO (R6), límite de largo en ambos campos, límite de peticiones por IP, y un campo señuelo contra bots.
-- **Slack:** reutiliza `postToSlack` (`apps/api/src/common/slack/slack.ts`) con un **tercer webhook propio** (variable nueva, secreto según R1), a un canal privado distinto de los de seguridad y actividad. A diferencia del canal de actividad, aquí el correo va **completo**, porque la fundadora necesita poder responder.
-- **Texto que llega a Slack:** hay que neutralizar menciones (`@channel`, `<!here>`) y marcado, porque lo escribe un desconocido.
-- **Si Slack falla** el mensaje no puede perderse (R9): guardarlo en la base de datos y avisar a Slack después, o devolver un error claro al coach.
-- **La política de seguridad de la web** ya permite llamar a la API (`connect-src`), así que no hace falta cambiarla.
-- **Privacidad:** se recogen datos de personas que no son usuarias. Necesita el aviso de arriba y conectar con la política de privacidad pendiente del plan de deploy.
+- **Cadena de proteína viva:** las perlas flotan y una onda de energía recorre cada hebra (portada y sección final).
+- **Carrete de la etiqueta:** cambia de palabra cada 1,5 s, con el ancho ajustado.
+- **Botones:** flecha, aro que late y desplazamiento al apuntar.
+- **Anillo del ciclo:** un punto lo recorre cada 12 s.
+- **Historia del teléfono:** ver sección 5.
 
 ## Reglas de esta página
 
@@ -106,9 +101,7 @@ Notas técnicas (a decidir al implementar):
 
 ## Pendiente
 
-- Canal privado `cycles-early-adopters` creado (2026-10-03). Falta su webhook, que va como `SLACK_CONTACT_WEBHOOK_URL` en Render; es un secreto, no pegarlo en el chat ni en el repo.
-- Decidido: los mensajes también se guardan en la base de datos (tabla `ContactRequest`). Endpoint `POST /contact` implementado en la API con filtros anti-bots; falta el formulario en la web.
-- Capturas de la app móvil para el paso 2 (cuando el otro chat tenga estable la pantalla de registro).
-- Capturas de la web del coach para los pasos 1 y 3 (cuando esas pantallas estén definidas).
+- Verificar con producto el mensaje "demostrar resultados" antes de usarlo en público (no aparece en esta versión).
 - Revisar el texto con 2 o 3 coaches antes de publicar.
-- Implementación en `apps/web`: ruta pública, redirección de quien ya tiene sesión, estilos con los tokens existentes.
+- Capturas de la web a mayor resolución (hoy 800 px).
+- Probar la landing en un iPhone real y en Safari (P-19).

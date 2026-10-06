@@ -5,7 +5,7 @@ parent: "[[PRD-General]]"
 status: complete
 phase: "Fase 3.5 — Piloto"
 created: 2026-10-03
-updated: 2026-10-03
+updated: 2026-10-06
 tags: [prd, feature/landing]
 related: ["[[landing]]", "[[speech]]", "[[PRD-Autenticacion]]"]
 ---
@@ -19,8 +19,12 @@ Una página para coaches que ve quien entra a `/` sin sesión (quien tiene sesi�
 ## 2. Decisiones
 
 - Vive dentro de `apps/web`, en la ruta `/` para visitantes (2026-10-03). En producción se sirve desde `app.getcycles.app`; la raíz y `www` redirigen allí. Mover la landing a `www` o a un proyecto aparte queda para más adelante.
-- Estructura al estilo de myfitnesspal.com con la marca de Cycles; botones en píldora, como los de la app, con animación.
-- Las capturas web son de una base de demostración con personas ficticias (`apps/api/scripts/seed-demo.ts`); las pantallas del teléfono son maquetas, no capturas del simulador.
+- **Le habla al coach** (2026-10-06, tras el feedback de la fundadora) y pone el **ciclo de entrenamiento** al centro, por ser el nombre del producto. Propuesta de valor mostrada como cambio en el trabajo del coach, con funciones que la app ya tiene.
+- **Oferta: acceso anticipado gratis mientras se construye.** El botón dice "Quiero acceso anticipado".
+- Estructura al estilo de myfitnesspal.com con la marca de Cycles; botones en píldora como los de la app, con animación.
+- **Animaciones** (se apagan con "reducir movimiento" y solo corren a la vista): cadena de proteína viva en un lienzo (`ChainCanvas`), etiqueta "Para …" que gira entre sinónimos de coach (`RotatingAudience`), anillo del ciclo y una historia única de los tres teléfonos (`phoneStory.ts`: Hoy → registro de serie → Hoy → cierre de sesión).
+- Las capturas web son de una base de demostración con personas ficticias (`apps/api/scripts/seed-demo.ts`); las pantallas del teléfono son maquetas animadas, no capturas del simulador: deben seguir coincidiendo con la app móvil.
+- Estilos con prefijo `lp-` y tokens de `global.css`, para no chocar con el resto de la app.
 
 ## 3. Formulario de contacto
 
