@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import { Vibration } from 'react-native';
 import { RestModal } from '../components/RestTimer';
+import { clearRest, loadRest, saveRest } from '../services/restTimerStorage';
 
 export const DEFAULT_REST_SECONDS = 90;
 const ADJUST_STEP_SECONDS = 15;
@@ -41,6 +42,34 @@ export function RestTimerProvider({ children }: { children: React.ReactNode }) {
   const [now, setNow] = useState(() => Date.now());
   const [expanded, setExpanded] = useState(false);
   const finished = useRef(false);
+
+  // Al abrir la app, retoma la pausa que quedó corriendo (si sigue vigente),
+  // minimizada para no tapar la pantalla. Si terminó mientras estaba cerrada
+  // se descarta sin vibrar.
+  useEffect(() => {
+    let cancelled = false;
+    loadRest().then(rest => {
+      if (cancelled || !rest) {
+        return;
+      }
+      finished.current = false;
+      setNow(Date.now());
+      setTotal(rest.total);
+      setEndsAt(rest.endsAt);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Cada cambio de la pausa se guarda; al terminar o saltarla se borra.
+  useEffect(() => {
+    if (endsAt === null) {
+      clearRest();
+    } else {
+      saveRest({ endsAt, total });
+    }
+  }, [endsAt, total]);
 
   useEffect(() => {
     if (endsAt === null) {

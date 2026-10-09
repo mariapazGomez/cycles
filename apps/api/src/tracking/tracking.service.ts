@@ -3,7 +3,7 @@ import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import {
   CURRENT_FEEDBACK,
-  CURRENT_ONLY,
+  CURRENT_LOG,
   addDays,
   calendarWeekStart,
   estimateOneRepMax,
@@ -36,7 +36,7 @@ const CYCLE_WITH_EXECUTION = {
         orderBy: { orderIndex: "asc" as const },
         include: {
           exercise: true,
-          logs: { where: CURRENT_ONLY, orderBy: { setNumber: "asc" as const } },
+          logs: { where: CURRENT_LOG, orderBy: { setNumber: "asc" as const } },
         },
       },
     },

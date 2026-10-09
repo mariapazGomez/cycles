@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuthenticatedUser } from "../common/decorators/current-user.decorator";
-import { CURRENT_FEEDBACK, CURRENT_ONLY } from "../common/training";
+import { CURRENT_FEEDBACK, CURRENT_LOG } from "../common/training";
 import { assertActiveRelation } from "../common/access";
 import { CreateSessionDto } from "./dto/create-session.dto";
 import { UpdateSessionDto } from "./dto/update-session.dto";
@@ -108,7 +108,7 @@ export class SessionsService {
           include: {
             exercise: true,
             // Solo los registros vigentes (los que ninguna corrección reemplazó).
-            logs: { where: CURRENT_ONLY, orderBy: { setNumber: "asc" } },
+            logs: { where: CURRENT_LOG, orderBy: { setNumber: "asc" } },
           },
         },
         feedback: { where: CURRENT_FEEDBACK },

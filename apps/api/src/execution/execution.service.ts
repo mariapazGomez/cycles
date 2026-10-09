@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { ActivityNotifier } from "../activity/activity-notifier.service";
 import { PrismaService } from "../prisma/prisma.service";
-import { CURRENT_FEEDBACK, CURRENT_ONLY, parseDay, planWeekAt, startOfUtcDay } from "../common/training";
+import { CURRENT_FEEDBACK, CURRENT_LOG, parseDay, planWeekAt, startOfUtcDay } from "../common/training";
 import { LogSetDto } from "./dto/log-set.dto";
 import { SessionFeedbackDto } from "./dto/session-feedback.dto";
 import { ScheduleSessionDto } from "./dto/schedule-session.dto";
@@ -50,7 +50,7 @@ export class ExecutionService {
         orderBy: { orderIndex: "asc" as const },
         include: {
           exercise: true,
-          logs: { where: CURRENT_ONLY, orderBy: { setNumber: "asc" as const } },
+          logs: { where: CURRENT_LOG, orderBy: { setNumber: "asc" as const } },
         },
       },
     };
@@ -173,9 +173,12 @@ export class ExecutionService {
       if (previous.supersededBy) {
         throw new ConflictException("Ese registro ya fue corregido. Corrige la versión más reciente.");
       }
+      if (previous.active !== 1) {
+        throw new ConflictException("Ese registro se anuló al reabrir la sesión. Registra la serie de nuevo.");
+      }
     } else {
       const current = await this.prisma.exerciseLog.findFirst({
-        where: { sessionExerciseId, setNumber: dto.setNumber, ...CURRENT_ONLY },
+        where: { sessionExerciseId, setNumber: dto.setNumber, ...CURRENT_LOG },
       });
       if (current) {
         throw new ConflictException(
@@ -288,7 +291,7 @@ export class ExecutionService {
         sessionExercises: {
           select: {
             exercise: { select: { muscleGroup: true } },
-            logs: { where: CURRENT_ONLY, select: { actualReps: true, actualWeight: true, loggedAt: true } },
+            logs: { where: CURRENT_LOG, select: { actualReps: true, actualWeight: true, loggedAt: true } },
           },
         },
       },
@@ -321,28 +324,31 @@ export class ExecutionService {
     return { cycleId, days };
   }
 
-  // Devuelve una sesión cerrada (hecha o no hecha) a pendiente. El cierre
-  // vigente no se borra: queda inactivo (active = 0) para el historial, y los
-  // registros de series se conservan. Después se puede cerrar de nuevo.
+  // Devuelve una sesión cerrada (hecha o no hecha) a pendiente, como si no se
+  // hubiera hecho: el cierre vigente y las series registradas no se borran,
+  // quedan inactivos (active = 0) para el historial, y la sesión vuelve a
+  // empezar de cero (sin hora de inicio). Después se puede entrenar y cerrar
+  // de nuevo.
   async reopenSession(athleteId: string, sessionId: string) {
     const session = await this.getWritableSession(athleteId, sessionId);
     if (session.status === "pending") {
       throw new BadRequestException("Esta sesión ya está pendiente.");
     }
-    const current = await this.prisma.sessionFeedback.findFirst({
-      where: { sessionId, ...CURRENT_FEEDBACK },
-    });
 
-    const reopen = this.prisma.trainingSession.update({
-      where: { id: sessionId },
-      data: { status: "pending" },
-    });
-    const [updated] = current
-      ? await this.prisma.$transaction([
-          reopen,
-          this.prisma.sessionFeedback.update({ where: { id: current.id }, data: { active: 0 } }),
-        ])
-      : [await reopen];
+    const [updated] = await this.prisma.$transaction([
+      this.prisma.trainingSession.update({
+        where: { id: sessionId },
+        data: { status: "pending", startedAt: null },
+      }),
+      this.prisma.sessionFeedback.updateMany({
+        where: { sessionId, ...CURRENT_FEEDBACK },
+        data: { active: 0 },
+      }),
+      this.prisma.exerciseLog.updateMany({
+        where: { sessionExercise: { sessionId }, ...CURRENT_LOG },
+        data: { active: 0 },
+      }),
+    ]);
     return updated;
   }
 
