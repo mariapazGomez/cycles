@@ -34,7 +34,7 @@ const STATUS_LABEL = { completed: 'Hecha', skipped: 'No hecha', pending: 'Pendie
 const STATUS_OPTIONS: Array<{ value: keyof typeof STATUS_LABEL; hint: string }> = [
   { value: 'completed', hint: 'La hiciste. Te pedimos el esfuerzo y los minutos.' },
   { value: 'skipped', hint: 'No la hiciste. Puedes contar el motivo.' },
-  { value: 'pending', hint: 'La vuelves a dejar por hacer. El cierre anterior queda guardado.' },
+  { value: 'pending', hint: 'La vuelves a dejar por hacer, sin las series que registraste.' },
 ];
 
 export function SessionDetailScreen({ route }: Props) {
@@ -104,7 +104,7 @@ export function SessionDetailScreen({ route }: Props) {
     } else {
       Alert.alert(
         'Volver a pendiente',
-        'El cierre actual se anula, pero queda guardado en tu historial. Podrás cerrar la sesión de nuevo.',
+        'Se anulan el cierre y las series que registraste en esta sesión (quedan guardados en tu historial) y la sesión vuelve a empezar de cero.',
         [
           { text: 'Cancelar', style: 'cancel' },
           { text: 'Volver a pendiente', onPress: () => run(() => reopenSession(sessionId)) },
