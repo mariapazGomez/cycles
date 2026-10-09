@@ -320,6 +320,10 @@ model ExerciseLog {
   // Repeticiones en reserva (0–4, 4 = "4 o más"). Se pide en la última serie.
   rir               Int?
   supersedesId      String?  @unique
+  // 1 = serie vigente; 0 = se anuló al reabrir la sesión. Nunca se borra: el
+  // historial sirve para analizar el comportamiento del atleta. Solo admite 0
+  // o 1 (restricción CHECK en la migración).
+  active            Int      @default(1)
   loggedAt          DateTime @default(now())
 
   sessionExercise SessionExercise @relation(fields: [sessionExerciseId], references: [id])
