@@ -30,7 +30,7 @@ Si olvidas el paso 2, el paso 3 falla y te lo dice. Si olvidas el paso 5, la sig
 ## Qué valida `ios:check`
 
 - La versión es `X.Y.Z` y la compilación es mayor que la última subida.
-- El identificador es `app.getcycles.mobile` y el equipo de firma **no** es el gratuito.
+- El identificador es `app.getcycles.mobile` y el equipo de firma es `Y6Z96XJBFW` (la cuenta de Apple Developer, inscrita como persona física). Ese ID es el mismo que tenía el equipo personal gratuito: al pagar el programa el ID se conserva. Por eso el validador, además, avisa si **Xcode todavía ve el equipo como gratuito** (hay que actualizar la cuenta en Xcode → Settings → Accounts).
 - Solo iPhone, cifrado declarado en el `Info.plist` y ningún permiso con el texto vacío.
 - Ícono de 1024 × 1024 **sin transparencia** (Apple lo rechaza si tiene).
 - Las compilaciones Release usan la API de producción.
