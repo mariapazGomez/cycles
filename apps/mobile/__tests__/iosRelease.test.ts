@@ -9,6 +9,7 @@ const {
   pngInfo,
   lastUpload,
   checkVersioning,
+  xcodeTeamIsFree,
 } = require('../scripts/ios-release');
 
 const pbx = `
@@ -106,4 +107,24 @@ test('lee el tamaño de un PNG y detecta la transparencia que Apple rechaza', ()
   const withTrns = png(1024, 1024, 2, [Buffer.concat([Buffer.from([0, 0, 0, 3]), Buffer.from('tRNS'), Buffer.alloc(7)])]);
   expect(pngInfo(withTrns).hasAlpha).toBe(true);
   expect(pngInfo(Buffer.from('no es un png'))).toBeNull();
+});
+
+const freeTeam = `{
+    "ABC" =     (
+                {
+            isFreeProvisioningTeam = 1;
+            teamID = Y6Z96XJBFW;
+            teamName = "Mariapaz (Personal Team)";
+            teamType = "Personal Team";
+        }
+    );
+}`;
+const paidTeam = freeTeam.replace('isFreeProvisioningTeam = 1;', 'isFreeProvisioningTeam = 0;').replace('Personal Team', 'Individual');
+
+test('detecta si Xcode ve el equipo como gratuito, sin confundirse con otros equipos', () => {
+  expect(xcodeTeamIsFree(freeTeam, 'Y6Z96XJBFW')).toBe(true);
+  expect(xcodeTeamIsFree(paidTeam, 'Y6Z96XJBFW')).toBe(false);
+  // el gratuito es de otro equipo, no del que se valida
+  expect(xcodeTeamIsFree(freeTeam, 'ZZZZZZZZZZ')).toBe(false);
+  expect(xcodeTeamIsFree('', 'Y6Z96XJBFW')).toBe(false);
 });

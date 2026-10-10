@@ -27,8 +27,11 @@ const ENV_TS = path.join(ROOT, 'src', 'config', 'env.ts');
 
 const BUNDLE_ID = 'app.getcycles.mobile';
 const PROD_URL = 'https://api.getcycles.app';
-// Equipo gratuito ("Personal Team"): no puede distribuir por TestFlight.
-const FREE_TEAM = 'Y6Z96XJBFW';
+// Equipo de Apple Developer de la cuenta de pago (persona física). Es el mismo ID
+// que tenía el equipo personal gratuito: al inscribirse en el programa de pago
+// el ID se conserva y cambia el tipo de cuenta. Por eso el ID solo no dice si la
+// cuenta es de pago; para eso se mira lo que Xcode sabe de ella (xcodeTeamIsFree).
+const TEAM_ID = 'Y6Z96XJBFW';
 // Lo único que puede estar modificado al validar justo después de `bump`.
 const BUMP_FILES = ['apps/mobile/ios/CyclesMobile.xcodeproj/project.pbxproj', 'apps/mobile/ios/subidas.json'];
 
@@ -89,6 +92,14 @@ function pngInfo(buffer) {
     offset += 12 + length;
   }
   return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20), hasAlpha };
+}
+
+// ¿Xcode ve este equipo como gratuito ("Personal Team")? Lee la salida de
+// `defaults read com.apple.dt.Xcode IDEProvisioningTeamByIdentifier`, donde cada
+// equipo es un bloque { isFreeProvisioningTeam = 1; teamID = X; … }.
+function xcodeTeamIsFree(defaultsOutput, teamId) {
+  const blocks = defaultsOutput.match(/\{[^{}]*\}/g) || [];
+  return blocks.some(block => block.includes(`teamID = ${teamId};`) && /isFreeProvisioningTeam = 1;/.test(block));
 }
 
 function lastUpload(record) {
@@ -171,10 +182,20 @@ function checkProject() {
   const teams = readSetting(pbx, 'DEVELOPMENT_TEAM');
   if (teams.length === 0 || teams.some(t => !t)) {
     results.push(fail('Falta DEVELOPMENT_TEAM: el proyecto no tiene equipo de firma (tarea T-114).'));
-  } else if (teams.includes(FREE_TEAM)) {
-    results.push(fail(`El proyecto firma con el equipo gratuito ${FREE_TEAM}, que no puede subir a TestFlight. Cámbialo al de la cuenta de pago (tarea T-114).`));
+  } else if (teams.some(t => t !== TEAM_ID)) {
+    results.push(fail(`El equipo de firma debe ser ${TEAM_ID}, el de la cuenta de Apple Developer (hoy: ${[...new Set(teams)].join(', ')}).`));
   } else {
-    results.push(ok(`Equipo de firma ${teams[0]}`));
+    results.push(ok(`Equipo de firma ${TEAM_ID}`));
+    // Xcode guarda en caché el tipo de cuenta: si aún dice "Personal Team", no
+    // puede crear los certificados de distribución al archivar.
+    try {
+      const cache = execSync('defaults read com.apple.dt.Xcode IDEProvisioningTeamByIdentifier', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+      if (xcodeTeamIsFree(cache, TEAM_ID)) {
+        results.push(warn('Xcode todavía ve este equipo como gratuito (Personal Team). Abre Xcode → Settings → Accounts, selecciona tu Apple ID y descarga los perfiles, o cierra sesión y vuelve a entrar, hasta que diga Individual.'));
+      }
+    } catch {
+      // Sin Xcode o sin caché (otro sistema): no se puede comprobar.
+    }
   }
 
   // Solo iPhone
@@ -359,4 +380,4 @@ if (require.main === module) {
   process.exit(main());
 }
 
-module.exports = { readSetting, writeSetting, parseVersion, compareVersions, pngInfo, lastUpload, checkVersioning };
+module.exports = { readSetting, writeSetting, parseVersion, compareVersions, pngInfo, lastUpload, checkVersioning, xcodeTeamIsFree };
