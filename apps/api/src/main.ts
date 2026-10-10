@@ -1,6 +1,5 @@
 import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
-import { ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import helmet from "helmet";
@@ -8,6 +7,7 @@ import { isIP } from "net";
 import type { NextFunction, Request, Response } from "express";
 import { AppModule } from "./app.module";
 import { corsOrigins } from "./common/config/env.validation";
+import { spanishValidationPipe } from "./common/validation/spanish-validation";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -40,7 +40,7 @@ async function bootstrap() {
   app.use(helmet());
   // Solo la web de Cycles puede llamar a la API desde el navegador (S-04).
   app.enableCors({ origin: corsOrigins(config) });
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.useGlobalPipes(spanishValidationPipe());
   await app.listen(process.env.PORT ?? 3000);
 }
 
