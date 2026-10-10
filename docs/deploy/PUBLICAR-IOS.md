@@ -46,3 +46,24 @@ La fase llama a `scripts/ios-check-xcode.sh` y no directamente a Node porque `wi
 ## Lo que el validador no puede saber
 
 No consulta a Apple: si alguien subió una compilación desde otro Mac sin registrarla, `subidas.json` no lo sabrá. Para eso haría falta una clave de la API de App Store Connect.
+
+## Compilar y subir con Xcode Cloud
+
+**Por qué.** Desde 2026 Apple solo acepta compilaciones hechas con el **SDK de iOS 26 (Xcode 26 o más nuevo)**. El Mac de la fundadora (macOS 14.5, Xcode 16.2, disco casi lleno) no puede instalarlo, así que la compilación se hace en **Xcode Cloud**, los servidores de Apple. La firma y los certificados de distribución los administra Apple.
+
+**Qué hay en el repositorio**
+- `apps/mobile/ios/ci_scripts/ci_post_clone.sh`: Xcode Cloud lo ejecuta tras clonar. Instala Node 22 si falta, las dependencias de npm **solo de la app móvil y del paquete compartido** (`npm ci --workspace apps/mobile --workspace packages/shared`), CocoaPods y los pods. Fija UTF-8 (CocoaPods se cae sin eso) y le indica a las fases de compilación dónde está Node (`.xcode.env.local`). El nombre del archivo y su carpeta (junto al proyecto de Xcode) tienen que ser exactamente esos.
+- El **validador** detecta Xcode Cloud (`CI_XCODE_CLOUD=TRUE`) y omite dos comprobaciones que ahí no aplican: git limpio y al día con `main` (es un clon en un commit concreto) y la comparación del número de compilación con `subidas.json` (lo numera Xcode Cloud). Todo lo demás se valida igual: versión, identificador, equipo, solo iPhone, cifrado, permisos, ícono y API de producción.
+- Se probó simulando un Mac limpio: clon nuevo, sin `node_modules` ni `LANG`, con el script entero. Eso encontró el fallo de la codificación de CocoaPods.
+
+**Configurar el flujo (una sola vez, en Xcode, lo hace la dueña de la cuenta)**
+1. Abrir `apps/mobile/ios/CyclesMobile.xcworkspace` en Xcode.
+2. Panel de informes (⌘9) → pestaña **Cloud** → **Get Started** / crear flujo.
+3. Conceder acceso al repositorio de GitHub (Xcode Cloud instala su app en GitHub).
+4. Entorno: **Xcode: "Latest Release"** y macOS el más reciente. Esto es lo que resuelve el requisito del SDK.
+5. Condición de inicio: **manual** al principio (cada compilación gasta horas del plan gratuito, 25 al mes).
+6. Acción: **Archive – iOS**, y como preparación del despliegue **TestFlight (solo pruebas internas)**.
+
+**Número de compilación.** Con Xcode Cloud lo numera Apple (empieza en 1, configurable en App Store Connect). Por eso `ios:bump` y `ios:registrar` solo valen para subidas hechas desde un Mac propio; con Xcode Cloud se deja de usar `subidas.json`.
+
+**Lo que no se pudo comprobar antes de la primera compilación real:** que Xcode Cloud acepte el flujo con el proyecto dentro de un monorepo, y el tiempo de `npm ci` y `pod install` en sus servidores. Si la primera compilación falla, el registro está en Xcode (⌘9 → Cloud) y en App Store Connect → Xcode Cloud.
