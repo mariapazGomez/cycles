@@ -5,6 +5,9 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
+    "ios:bump": "node scripts/ios-release.js bump",
+    "ios:check": "node scripts/ios-release.js check",
+    "ios:registrar": "node scripts/ios-release.js registrar",
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
