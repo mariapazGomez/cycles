@@ -63,7 +63,24 @@ function StickyCta() {
   );
 }
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Mismo mínimo que la API, contado como ella: con los espacios juntados.
+const MIN_MESSAGE_LENGTH = 10;
+
+// Lo que falta o está mal en el formulario de contacto, en español.
+export function contactProblems({ email, message }: { email: string; message: string }): string[] {
+  const problems: string[] = [];
+  if (!EMAIL_PATTERN.test(email.trim())) {
+    problems.push("Escribe un correo válido.");
+  }
+  if (message.replace(/\s+/g, " ").trim().length < MIN_MESSAGE_LENGTH) {
+    problems.push("Cuéntanos un poco más sobre ti.");
+  }
+  return problems;
+}
+
 export function LandingPage() {
+  const [localError, setLocalError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [website, setWebsite] = useState("");
@@ -85,7 +102,15 @@ export function LandingPage() {
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    mutation.mutate({ email, message, website, elapsedMs: Date.now() - openedAt.current });
+    // Se valida antes de enviar: así se ve el error enseguida y no se gasta uno
+    // de los intentos que el servidor permite por hora.
+    const problems = contactProblems({ email, message });
+    if (problems.length > 0) {
+      setLocalError(problems.join(" "));
+      return;
+    }
+    setLocalError(null);
+    mutation.mutate({ email: email.trim(), message, website, elapsedMs: Date.now() - openedAt.current });
   }
 
   return (
@@ -335,9 +360,9 @@ export function LandingPage() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} noValidate>
-                  {mutation.isError && (
+                  {(localError || mutation.isError) && (
                     <div className="error-banner" role="alert">
-                      {mutation.error.message}
+                      {localError ?? mutation.error?.message}
                     </div>
                   )}
                   <div className="field">
