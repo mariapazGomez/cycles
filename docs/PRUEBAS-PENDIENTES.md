@@ -28,6 +28,7 @@ updated: 2026-10-01
 | P-17 | **Formulario de la landing en producción** | En `app.getcycles.app` sin sesión: enviar el formulario y ver que llega a `#cycles-early-adopters` (con el correo completo y el texto escapado) y que queda una fila en `ContactRequest`. Borrar la fila de prueba. Enviar otra vez con el mismo correo: debe responder igual y no duplicar. | Usuaria | Deploy del PR de la landing y el webhook cargado en Render | Landing 2026-10-03 |
 | P-18 | **Límite por IP del formulario con la IP real** | Desde producción, enviar 4 veces seguidas: el cuarto debe dar 429 ("Hiciste demasiados intentos…"). Comprueba que `CLIENT_IP_HEADER` sirve también para `/contact`. | Claude | P-17 | Landing 2026-10-03 |
 | P-19 | **Landing en un celular real y en Safari** | Ver la landing en un iPhone: que las maquetas del teléfono, los botones animados y el formulario se vean y funcionen. Hoy solo se probó en el navegador integrado (escritorio y 375 px). | Usuaria | Deploy | Landing 2026-10-03 |
+| P-20 | **La API ya no se duerme** | Más de 15 minutos después de crear el monitor de cron-job.org, medir `curl -w "%{time_total}" https://api.getcycles.app/health`: debe dar menos de 2 s. Si da ~50 s, el monitor no está funcionando. | Claude | Monitor creado (PLAN-Deploy 3.10) | Arranque en frío 2026-10-06 |
 | P-10 | **Registro de sesión completo en un celular real** | Como atleta, desde el navegador del celular: empezar una sesión, registrar series con los botones −/+, responder las reps en reserva, descansar y cerrar la sesión. | Usuaria | — | PR #4 |
 
 ## Hechas

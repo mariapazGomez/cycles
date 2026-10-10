@@ -263,7 +263,9 @@ Leyendo `SUPABASE_DATABASE_URL` del `.env` sin mostrarla en pantalla:
 ### 2.5 Respaldos durante el piloto
 
 - **Cada semana** (y antes de cada migración nueva): un `pg_dump` de la base de Supabase a un archivo local, guardado fuera del repo (por ejemplo, en una carpeta privada de Google Drive). Contiene datos de personas: nunca en el repo, que es público, ni en un chat.
-- Claude deja un script para hacerlo con un solo comando cuando se abra el piloto (paso 7), y se prueba restaurarlo una vez en la base local.
+- **Script de un solo comando** (hecho el 2026-10-06): `bash apps/api/scripts/respaldo-supabase.sh`. Lee `SUPABASE_DATABASE_URL` de `apps/api/.env` (nunca la imprime), respalda solo el esquema `public` (sin los esquemas internos de Supabase) en formato comprimido y guarda el archivo en `~/Respaldos-Cycles` con permisos solo para ti. Si el respaldo falla, no deja un archivo a medias.
+- **Necesita `pg_dump` 17 o más nuevo** (Supabase usa Postgres 17; un `pg_dump` más viejo se niega a funcionar). En el Mac de la fundadora, macOS 14 ya no tiene soporte de Homebrew y `brew` no logró descargarlo, así que se compiló solo el cliente desde la fuente oficial (`postgresql-17.11`, suma sha256 contrastada con la de Homebrew) en `~/.local/pg17`; el script lo busca primero ahí.
+- **Restauración probada** (2026-10-06): se restauró en una base local descartable y los conteos de 10 tablas coincidieron con producción. Al restaurar en un Postgres anterior al 17 sale el aviso inofensivo `unrecognized configuration parameter "transaction_timeout"`. Para restaurar: `~/.local/pg17/bin/pg_restore --no-owner --no-acl -d <base> <archivo>`.
 
 ### 2.6 Listo cuando
 
@@ -358,6 +360,16 @@ openssl rand -hex 64 | pbcopy
 - [x] Verificaciones de 3.8 pasadas (2026-09-28): CORS solo para `app.getcycles.app`; login inválido 401 y 429 al sexto intento con el mismo email; límite por IP que no se puede esquivar con IPs inventadas; alerta a `#cycles-seguridad` con la IP pública real; `/auth/google` con el `redirect_uri` de producción; el workflow del resumen, ejecutado dos veces a mano, respondió `sent: true` y luego `sent: false`.
 
 **Lo que salió al probar:** con `TRUST_PROXY=1` la API veía la IP de un proxy interno de Render (S-13). Se corrigió con `CLIENT_IP_HEADER` (PR #19) y se volvió a verificar.
+
+### 3.10 Arranque en frío del plan gratuito *(2026-10-06)*
+
+Render gratis duerme la API tras 15 minutos sin tráfico y tarda hasta un minuto en despertar. La landing no se ve afectada (carga en 0,24 s desde Vercel), pero quien ya tiene sesión veía "Cargando…" sin explicación y el primer envío del formulario de la landing esperaba igual.
+
+- [x] **PR #38:** apenas carga la web (solo en producción) se hace un `GET /health` de calentamiento en segundo plano (`mode: "no-cors"`); la pantalla de carga explica a los 4 s que se está despertando el servidor; el formulario de la landing lo explica a los 5 s.
+- [ ] **Monitor externo** que pida `https://api.getcycles.app/health` cada 10 minutos para que no se duerma (decidido: cron-job.org, con aviso por correo tras 3 fallos seguidos; un monitor con el plan gratuito de UptimeRobot no sirve para uso comercial). Lo crea la fundadora.
+- [ ] **Confirmar en Render que `cycles-api` es el único servicio gratuito:** mantenerlo despierto gasta unas 744 de las 750 horas gratis del mes; con otro servicio gratuito se pasarían y Render suspendería los gratis hasta fin de mes.
+- [ ] **Comprobar que funciona** (P-20): más de 15 minutos después de crear el monitor, `GET /health` debe responder en menos de 2 segundos.
+- Alternativas si el monitor falla: un Worker de Cloudflare con cron cada 5 minutos, o pasar a un plan de Render sin suspensión por inactividad.
 
 ## Paso 4 · Web en Vercel
 
@@ -501,9 +513,9 @@ openssl rand -hex 64 | pbcopy
 
 ### 9.3 Listo cuando
 
-- [ ] Respaldo hecho y guardado fuera del repo.
+- [x] Respaldo hecho y guardado fuera del repo (2026-10-06, `~/Respaldos-Cycles`, restauración probada). Se hizo después del merge: la migración solo agregó una tabla.
 - [ ] Webhook regenerado y `SLACK_CONTACT_WEBHOOK_URL` cargada en Render.
 - [ ] Migración aplicada en producción (`prisma migrate status` sin pendientes).
 - [ ] Landing visible sin sesión y la app intacta con sesión.
 - [ ] Mensaje de prueba recibido en Slack y guardado en `ContactRequest`; se borra después.
-- [ ] `www.` y la raíz redirigen a `app.`.
+- [x] `www.` y la raíz redirigen a `app.` (2026-10-06): dos registros A proxied (`@` y `www` → `192.0.2.1`) y una regla de redirección dinámica 302 en Cloudflare que conserva la ruta y los parámetros. Verificado en `https` y `http`, con ruta (`/login`, `/accept-invitation?token=…`), hasta el 200 de `app.getcycles.app`.
