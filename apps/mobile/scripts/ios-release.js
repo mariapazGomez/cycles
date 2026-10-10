@@ -94,6 +94,20 @@ function pngInfo(buffer) {
   return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20), hasAlpha };
 }
 
+// ¿El conjunto de íconos declara un solo ícono universal de 1024 px? Xcode genera
+// de ahí todos los tamaños. Con el formato antiguo (tamaños sueltos sin archivo)
+// el paquete queda sin el ícono de 120 px y Apple rechaza la subida.
+function iconIsSingleSize(contentsJson) {
+  try {
+    const images = JSON.parse(contentsJson).images || [];
+    return images.some(
+      i => i.idiom === 'universal' && i.platform === 'ios' && i.size === '1024x1024' && i.filename === 'icon-1024.png',
+    );
+  } catch {
+    return false;
+  }
+}
+
 // ¿Xcode ve este equipo como gratuito ("Personal Team")? Lee la salida de
 // `defaults read com.apple.dt.Xcode IDEProvisioningTeamByIdentifier`, donde cada
 // equipo es un bloque { isFreeProvisioningTeam = 1; teamID = X; … }.
@@ -230,8 +244,8 @@ function checkProject() {
     results.push(fail(`El ícono debe medir 1024 × 1024 px (mide ${info.width} × ${info.height}).`));
   } else if (info.hasAlpha) {
     results.push(fail('El ícono de 1024 px tiene transparencia (canal alfa): Apple lo rechaza. Expórtalo sin transparencia.'));
-  } else if (!contents.includes('icon-1024.png')) {
-    results.push(fail('Contents.json del ícono no apunta a icon-1024.png.'));
+  } else if (!iconIsSingleSize(contents)) {
+    results.push(fail('Contents.json del ícono debe declarar un solo ícono universal de 1024 px (icon-1024.png); con tamaños sueltos Apple rechaza la subida por falta del ícono de 120 px.'));
   } else {
     results.push(ok('Ícono 1024 × 1024 sin transparencia'));
   }
@@ -380,4 +394,4 @@ if (require.main === module) {
   process.exit(main());
 }
 
-module.exports = { readSetting, writeSetting, parseVersion, compareVersions, pngInfo, lastUpload, checkVersioning, xcodeTeamIsFree };
+module.exports = { readSetting, writeSetting, parseVersion, compareVersions, pngInfo, lastUpload, checkVersioning, xcodeTeamIsFree, iconIsSingleSize };

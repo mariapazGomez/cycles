@@ -10,6 +10,7 @@ const {
   lastUpload,
   checkVersioning,
   xcodeTeamIsFree,
+  iconIsSingleSize,
 } = require('../scripts/ios-release');
 
 const pbx = `
@@ -127,4 +128,18 @@ test('detecta si Xcode ve el equipo como gratuito, sin confundirse con otros equ
   // el gratuito es de otro equipo, no del que se valida
   expect(xcodeTeamIsFree(freeTeam, 'ZZZZZZZZZZ')).toBe(false);
   expect(xcodeTeamIsFree('', 'Y6Z96XJBFW')).toBe(false);
+});
+
+test('el ícono debe declararse como un solo ícono universal de 1024 px', () => {
+  const unico = JSON.stringify({ images: [{ filename: 'icon-1024.png', idiom: 'universal', platform: 'ios', size: '1024x1024' }] });
+  const antiguo = JSON.stringify({
+    images: [
+      { idiom: 'iphone', scale: '2x', size: '60x60' },
+      { idiom: 'ios-marketing', scale: '1x', size: '1024x1024', filename: 'icon-1024.png' },
+    ],
+  });
+  expect(iconIsSingleSize(unico)).toBe(true);
+  // el formato que Apple rechazó: sin ícono de 120 px dentro del paquete
+  expect(iconIsSingleSize(antiguo)).toBe(false);
+  expect(iconIsSingleSize('no es json')).toBe(false);
 });
