@@ -168,22 +168,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		A7C5E1D0B3F24A6C9D8E1F20 /* Validar la subida a App Store Connect */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Validar la subida a App Store Connect";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -e\n\n# Solo al archivar (ACTION=install) en Release: las compilaciones de prueba no se validan.\nif [ \"$ACTION\" != \"install\" ] || [ \"$CONFIGURATION\" != \"Release\" ]; then\n  exit 0\nfi\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nif ! \"$WITH_ENVIRONMENT\" \"$SRCROOT/../scripts/ios-check-xcode.sh\"; then\n  echo \"error: La validacion de la subida a App Store Connect fallo. Corre 'npm run ios:check' en apps/mobile para ver el detalle.\" >&2\n  exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
 		00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -215,6 +199,22 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-CyclesMobile/Pods-CyclesMobile-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A7C5E1D0B3F24A6C9D8E1F20 /* Validar la subida a App Store Connect */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Validar la subida a App Store Connect";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n\n# Solo al archivar (ACTION=install) en Release: las compilaciones de prueba no se validan.\nif [ \"$ACTION\" != \"install\" ] || [ \"$CONFIGURATION\" != \"Release\" ]; then\n  exit 0\nfi\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nif ! \"$WITH_ENVIRONMENT\" \"$SRCROOT/../scripts/ios-check-xcode.sh\"; then\n  echo \"error: La validacion de la subida a App Store Connect fallo. Corre 'npm run ios:check' en apps/mobile para ver el detalle.\" >&2\n  exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */ = {
@@ -276,7 +276,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Y6Z96XJBFW;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = CyclesMobile/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -291,8 +293,6 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = app.getcycles.mobile;
-				DEVELOPMENT_TEAM = Y6Z96XJBFW;
-				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = CyclesMobile;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -308,7 +308,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Y6Z96XJBFW;
 				INFOPLIST_FILE = CyclesMobile/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -322,8 +324,6 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = app.getcycles.mobile;
-				DEVELOPMENT_TEAM = Y6Z96XJBFW;
-				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = CyclesMobile;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_VERSION = 5.0;
