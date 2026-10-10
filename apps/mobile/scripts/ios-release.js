@@ -94,6 +94,14 @@ function pngInfo(buffer) {
   return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20), hasAlpha };
 }
 
+// Xcode Cloud define CI_XCODE_CLOUD=TRUE en sus compilaciones. Ahí el
+// repositorio no está "en main y al día" (es un clon en un commit concreto) y es
+// Xcode Cloud quien numera las compilaciones, así que esas dos comprobaciones no
+// aplican; todo lo demás se valida igual.
+function isXcodeCloud(env) {
+  return env.CI_XCODE_CLOUD === 'TRUE';
+}
+
 // ¿El conjunto de íconos declara un solo ícono universal de 1024 px? Xcode genera
 // de ahí todos los tamaños. Con el formato antiguo (tamaños sueltos sin archivo)
 // el paquete queda sin el ícono de 120 px y Apple rechaza la subida.
@@ -171,17 +179,24 @@ function git(args) {
   return execSync(`git ${args}`, { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
 }
 
-function checkProject() {
+function checkProject({ ci = false } = {}) {
   const results = [];
   const pbx = fs.readFileSync(PBX, 'utf8');
-  const record = readRecord();
+  // En Xcode Cloud la compilación la numera Xcode Cloud: no se compara con subidas.json.
+  const record = ci ? { subidas: [] } : readRecord();
 
   // Versión y compilación
   const versions = readSetting(pbx, 'MARKETING_VERSION');
   const builds = readSetting(pbx, 'CURRENT_PROJECT_VERSION');
   const versionErrors = checkVersioning({ versions, builds, record });
   if (versionErrors.length === 0) {
-    results.push(ok(`Versión ${versions[0]}, compilación ${builds[0]} (última subida: ${lastUpload(record).build || 'ninguna'})`));
+    results.push(
+      ok(
+        ci
+          ? `Versión ${versions[0]} (Xcode Cloud numera la compilación)`
+          : `Versión ${versions[0]}, compilación ${builds[0]} (última subida: ${lastUpload(record).build || 'ninguna'})`,
+      ),
+    );
   } else {
     versionErrors.forEach(e => results.push(fail(e)));
   }
@@ -323,7 +338,8 @@ function printResults(results) {
 // ---------- comandos ----------
 
 function check(args) {
-  const results = [...checkProject(), ...checkGit()];
+  const ci = isXcodeCloud(process.env);
+  const results = [...checkProject({ ci }), ...(ci ? [] : checkGit())];
   // Dentro de Xcode no se corren las pruebas: ya se corren a mano y tardarían.
   if (!args.includes('--sin-pruebas') && !args.includes('--desde-xcode')) {
     results.push(...checkTests());
@@ -394,4 +410,4 @@ if (require.main === module) {
   process.exit(main());
 }
 
-module.exports = { readSetting, writeSetting, parseVersion, compareVersions, pngInfo, lastUpload, checkVersioning, xcodeTeamIsFree, iconIsSingleSize };
+module.exports = { isXcodeCloud, readSetting, writeSetting, parseVersion, compareVersions, pngInfo, lastUpload, checkVersioning, xcodeTeamIsFree, iconIsSingleSize };

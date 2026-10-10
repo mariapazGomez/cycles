@@ -11,6 +11,7 @@ const {
   checkVersioning,
   xcodeTeamIsFree,
   iconIsSingleSize,
+  isXcodeCloud,
 } = require('../scripts/ios-release');
 
 const pbx = `
@@ -142,4 +143,11 @@ test('el ícono debe declararse como un solo ícono universal de 1024 px', () =>
   // el formato que Apple rechazó: sin ícono de 120 px dentro del paquete
   expect(iconIsSingleSize(antiguo)).toBe(false);
   expect(iconIsSingleSize('no es json')).toBe(false);
+});
+
+test('reconoce las compilaciones de Xcode Cloud por su variable de entorno', () => {
+  expect(isXcodeCloud({ CI_XCODE_CLOUD: 'TRUE' })).toBe(true);
+  expect(isXcodeCloud({ CI_XCODE_CLOUD: 'FALSE' })).toBe(false);
+  expect(isXcodeCloud({ CI: 'true' })).toBe(false);
+  expect(isXcodeCloud({})).toBe(false);
 });
