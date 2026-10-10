@@ -30,5 +30,20 @@ target 'CyclesMobile' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+
+    # Xcode 26 solo admite objetivos de iOS 15.0 o superior (con menos marca el
+    # aviso "The iOS deployment target ... is set to 12.4, but the range of
+    # supported deployment target versions is 15.0 to ..."). Algunos pods traen
+    # un objetivo más viejo en sus paquetes de recursos (AsyncStorage_resources
+    # en 13.0, RNSVGFilters en 12.4): se suben al mínimo de la app.
+    minimum = Gem::Version.new(min_ios_version_supported)
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        current = config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']
+        if current && Gem::Version.new(current.to_s) < minimum
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = min_ios_version_supported
+        end
+      end
+    end
   end
 end
