@@ -22,7 +22,7 @@ updated: 2026-09-25
 | `/oauth-callback?code=...` | Callback interno del login con Google: cambia el código de un solo uso por la sesión (no se visita a mano) | — |
 | `/complete-profile` | Último paso de onboarding para cuentas creadas por Google sin rol | Autenticado, sin rol |
 | `/` (sin sesión) | Landing para coaches con el formulario de contacto ([[PRD-LandingContacto]]) | Pública |
-| `/` | Inicio. Coach: "Necesitan atención" (avisos por atleta con ajuste de carga). Atleta: su próxima sesión, empezarla u omitirla | Autenticado |
+| `/` | Inicio. Coach: tarjeta oscura con quién necesita atención y por quién empezar, avisos por atleta con ajuste de carga y el panel "Tus atletas" con la semana en curso. Atleta: su próxima sesión, empezarla u omitirla | Autenticado |
 | `/athletes/:athleteId` | Resumen del atleta: avisos, carga semanal, adherencia, fuerza estimada por ejercicio | Autenticado (coach, relación activa) |
 | `/routines` | Biblioteca de rutinas: tarjetas con grupos musculares y totales, editar, borrar con confirmación | Autenticado (coach) |
 | `/routines/new` | Constructor de rutinas: ejercicios como cadena de cuentas, buscador del catálogo, reordenar con flechas y panel de carga de la sesión (series, duración, volumen) | Autenticado (coach) |
