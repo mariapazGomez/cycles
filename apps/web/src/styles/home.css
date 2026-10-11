@@ -1,0 +1,320 @@
+/* Inicio del coach. Lenguaje con tarjetas con sombra suave y una tarjeta oscura
+   arriba: excepción a "líneas finas, sin sombras" documentada en
+   docs/brand/identidad-visual.md. */
+body.hm-bg {
+  background: var(--color-page);
+}
+
+.hm-page {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hm-invite {
+  width: auto;
+  padding: 8px 16px;
+}
+
+/* ---------- Tarjeta oscura ---------- */
+.hm-hero {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 20px;
+  padding: 28px 28px 26px;
+  border-radius: 22px;
+  background: var(--color-ink);
+  color: #ffffff;
+}
+
+.hm-hero-art {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 52%;
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: cover;
+}
+
+.hm-hero-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  max-width: 46%;
+}
+
+.hm-hero p {
+  margin: 0;
+}
+
+.hm-hero-big {
+  font-family: var(--font-display);
+  font-size: 4rem;
+  line-height: 0.95;
+  font-weight: 700;
+}
+
+.hm-hero-big-text {
+  font-size: 2.2rem;
+  line-height: 1.05;
+}
+
+.hm-hero-big small {
+  margin-left: 10px;
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: #cfd6e4;
+}
+
+.hm-hero-line {
+  font-size: 0.95rem;
+  color: #e6ebf5;
+}
+
+.hm-hero-line b {
+  color: #ffffff;
+}
+
+.hm-hero-cta {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 999px;
+  background: var(--color-brand);
+  color: #06142e;
+  font: 700 0.92rem Inter, system-ui, sans-serif;
+  text-decoration: none;
+}
+
+.hm-hero-cta:hover {
+  background: #5a9bfd;
+}
+
+.hm-hero-cta:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+/* ---------- Cuerpo ---------- */
+.hm-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 32px;
+  align-items: start;
+}
+
+.hm-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.hm-card {
+  padding: 18px 20px;
+  border: 0;
+  border-radius: 18px;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-card);
+}
+
+.hm-group-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.hm-group-name {
+  flex: 1;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.hm-avatar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-ink);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.hm-avatar-sm {
+  width: 32px;
+  height: 32px;
+  font-size: 0.74rem;
+}
+
+/* Los avisos van apilados dentro de la tarjeta: etiqueta, texto y acciones. */
+.hm-group .alert-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.hm-group .alert-actions {
+  flex-wrap: wrap;
+}
+
+/* ---------- Tus atletas ---------- */
+.hm-side {
+  position: sticky;
+  top: 84px;
+}
+
+.hm-ath-list {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hm-ath-list li + li {
+  border-top: 1px solid var(--color-gray-border);
+}
+
+.hm-ath {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+a.hm-ath:hover .hm-ath-who b {
+  text-decoration: underline;
+}
+
+.hm-ath-who {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.hm-ath-who b {
+  overflow: hidden;
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hm-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--color-ink-secondary);
+}
+
+.hm-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.hm-dot-attention {
+  background: var(--color-warn-fill);
+}
+
+.hm-dot-ok {
+  background: #3b9b57;
+}
+
+.hm-dot-no_plan {
+  background: var(--color-gray-mid);
+}
+
+.hm-dot-pending {
+  border: 1.5px solid var(--color-gray-mid);
+}
+
+.hm-week {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hm-beads {
+  display: flex;
+  gap: 4px;
+}
+
+.hm-bead {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-blue-200);
+}
+
+.hm-bead-done {
+  background: var(--color-brand);
+}
+
+.hm-week-text {
+  font-size: 0.74rem;
+  color: var(--color-ink-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.hm-muted {
+  margin: 8px 0 0;
+  font-size: 0.88rem;
+  color: var(--color-ink-secondary);
+}
+
+.hm-all {
+  margin-top: 8px;
+  padding-left: 0;
+}
+
+@media (max-width: 900px) {
+  .hm-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hm-side {
+    position: static;
+  }
+}
+
+@media (max-width: 760px) {
+  .hm-hero-art {
+    width: 100%;
+    opacity: 0.35;
+  }
+
+  .hm-hero-body {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .hm-hero {
+    padding: 22px 20px;
+  }
+
+  .hm-hero-big {
+    font-size: 3rem;
+  }
+
+  .hm-hero-big-text {
+    font-size: 1.8rem;
+  }
+}

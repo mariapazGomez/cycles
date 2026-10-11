@@ -23,6 +23,9 @@
   --color-blue-300: #a9c8fd;
   --color-blue-400: #6fa6fc;
   --color-blue-700: #1450b0;
+  /* Fondo de las pantallas con tarjetas con sombra (Inicio del coach). */
+  --color-page: #f3f5f8;
+  --shadow-card: 0 1px 2px rgba(31, 34, 40, 0.05), 0 6px 18px -8px rgba(31, 34, 40, 0.14);
   --color-bg: #ffffff;
   --color-ink: #1f2228;
   --color-ink-secondary: #5c6068;

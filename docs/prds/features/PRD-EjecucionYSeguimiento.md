@@ -194,7 +194,10 @@ Mockups: lienzo de pantallas web de Cycles (Design artifact), a completar en la 
 - Todo con controles ≥ 44 px y usable con una mano.
 
 ### 7.2 Coach
-- **Necesitan atención** (primera pantalla del coach): alertas agrupadas por atleta, cada una en una línea que dice qué pasó y qué se sugiere, con acción directa ("Aplicar −5 % desde semana 4" / "Descartar" / "Ver atleta").
+- **Inicio** (primera pantalla del coach; rediseñada el 2026-10-11, pregunta que responde: "¿a quién miro primero?"):
+  - **Tarjeta oscura:** cuántos atletas necesitan atención y por quién empezar ("Empieza por Camila Rojas: reportó dolor." con el botón "Ver a Camila"). Con todo al día dice "Todo al día"; sin atletas, invita al primero.
+  - **Necesitan atención:** una tarjeta por atleta con sus alertas, cada una con qué pasó y qué se sugiere, y acción directa ("Bajar 5 % desde semana 4" / "Descartar" / "Ver sesión" / "Ver plan"). El orden de los atletas sigue la urgencia de sus avisos (dolor, carga alta, adherencia, carga baja).
+  - **Tus atletas:** todos en un solo lugar, con su estado (con avisos, al día, sin plan, invitación pendiente) y la semana en curso como cuentas ("2 de 3"). Se arma con la lista de atletas, los planes y el resumen semanal de cada atleta con plan activo; no hay endpoint nuevo (una llamada por atleta es aceptable para ~20 atletas; si crece, conviene uno agregado).
 - **Resumen por atleta**: adherencia por semana, carga semanal como tendencia (barras), tabla de ejercicios con RIR objetivo vs. real y e1RM.
 - **Grid del plan**: cada celda muestra estado (Completada / Pendiente / Omitida, con texto además de color) y un indicador si hubo dolor.
 

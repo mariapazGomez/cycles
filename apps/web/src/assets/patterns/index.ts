@@ -8,3 +8,7 @@ import patternC from "./proteina-c.svg";
 // esperas y estados vacíos.
 export const PATTERNS = { a: patternA, b: patternB, c: patternC };
 export type PatternName = keyof typeof PATTERNS;
+
+// Arte de la tarjeta oscura del Inicio del coach: cadenas en azul de marca
+// sobre fondo de tinta. Se usa solo a la derecha, nunca detrás de texto suelto.
+export { default as HERO_PATTERN } from "./proteina-hero.svg";
