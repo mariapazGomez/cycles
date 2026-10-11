@@ -4,9 +4,11 @@ parent: "[[brand]]"
 status: draft
 tags: [brand, voz, copy]
 created: 2026-10-02
-updated: 2026-10-02
+updated: 2026-10-11
 ---
 
+> **Actualización 2026-10-11:** el producto le habla primero al coach (ver [[esencia]]). La voz es la misma; cambia a quién se dirige y qué ejemplos van primero. Los ejemplos para el atleta se mantienen para la app móvil.
+>
 > Hijo de [[esencia]] y [[historia]]. Tres decisiones de la fundadora (2026-10-02): habla como **compañera de entrenamiento**, ante un problema **explica y propone el siguiente paso sin dramatizar**, y el humor es **un toque muy sutil**. Complementa la regla ya vigente de español latino neutro tuteando (ver guía de contenido del Design System).
 
 # Voz y tono
@@ -15,7 +17,7 @@ updated: 2026-10-02
 
 Una compañera de entrenamiento que sabe lo que hace. Cercana, directa, sin solemnidad, pero con criterio: no te trata como cliente ni como principiante.
 
-Habla de tú a tú, con frases cortas, y asume que ya eres una atleta que se toma esto en serio.
+Habla de tú a tú, con frases cortas. Con el coach, asume que ya sabe entrenar y diseñar un ciclo: no le explica su oficio, le muestra lo que necesita decidir. Con el atleta, asume que ya se toma esto en serio.
 
 ## Cinco principios
 
@@ -23,7 +25,7 @@ Habla de tú a tú, con frases cortas, y asume que ya eres una atleta que se tom
 Verbos de la vida real ("entrenar", "contar cómo te fue"), no del software ("registrar incidencias", "gestionar sesiones").
 
 **2. Primero lo que importa.**
-Lo que la atleta necesita saber va al principio de la frase. Sin preámbulos ni agradecimientos de relleno.
+Lo que el coach (o el atleta) necesita saber va al principio de la frase. Para el coach, lo primero es quién necesita su atención. Sin preámbulos ni agradecimientos de relleno.
 
 **3. Cuando algo sale mal, explica y propone.**
 Una frase para decir qué pasó, una para decir qué hacer. Sin disculpas dramáticas ni tono de alarma, y sin culpar nunca a la atleta. Coherente con la creencia de que una sesión perdida es un dato, no un fracaso.
@@ -49,6 +51,18 @@ Tampoco: motivación vacía ("¡Tú puedes!", "¡Sin excusas!"), gamificación i
 
 ## Ejemplos
 
+**Para el coach** (propuestas para la web; algunas ya están en la app y otras son ajustes):
+
+| Situación | Propuesta |
+|---|---|
+| Inicio, con avisos | "Necesitan atención" (se mantiene). Cada aviso dice qué pasó y qué se sugiere, en una línea. |
+| Inicio, sin avisos | "Todo al día. Ningún atleta necesita tu atención ahora." *(hoy: "Sin avisos: todo va según lo planificado.")* |
+| Atleta sin plan | "{Nombre} todavía no tiene un plan. Asígnale uno." |
+| Invitación pendiente | "{Nombre} aún no acepta tu invitación." |
+| Ajuste de carga sugerido | "Bajar 5 % desde la semana 4" (verbo + cambio concreto; ya existe) |
+| Sesión omitida de un atleta | "{Nombre} no pudo entrenar el martes. Quedó como omitida, con su nota." |
+| Error al cargar | "No pudimos cargar tus avisos. Revisa tu conexión e inténtalo de nuevo." |
+
 **Del copy que ya existe** (se mantienen: ya van en la dirección correcta):
 
 - Invitación: *"{Coach} te invitó a entrenar en Cycles."* Directo y humano.
@@ -69,8 +83,8 @@ Sin ejemplo de humor por ahora: el primero que se propuso ("Y tú, a descansar")
 
 ## Cómo suena cada uno de los dos
 
-- **A la atleta:** compañera cercana. Le habla de su sesión, de su semana, de cómo se sintió.
-- **Al coach:** el mismo carácter, pero más al grano: le habla de sus atletas y de lo que necesitan de él. Sigue siendo compañera de entrenamiento, no una herramienta corporativa.
+- **Al coach (el destinatario principal):** el mismo carácter, pero más al grano. Le habla de sus atletas y de lo que necesitan de él, y reconoce lo que ya hace bien ("Tú sigues diseñando el plan"). Sigue siendo compañera de entrenamiento, no una herramienta corporativa. Nunca promete que Cycles decide por él: propone y él decide.
+- **Al atleta:** compañera cercana. Le habla de su sesión, de su semana, de cómo se sintió.
 
 ## Pendiente
 
