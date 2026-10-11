@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import * as trackingApi from "../services/trackingApi";
@@ -7,6 +7,7 @@ import * as cyclesApi from "../services/cyclesApi";
 import { AttentionList, useDismissedAlerts } from "../components/AttentionList";
 import { CoachHero } from "../components/CoachHero";
 import { CoachAthletesPanel, WeekProgress } from "../components/CoachAthletesPanel";
+import { usePageBackground } from "../hooks/usePageBackground";
 import { buildAthleteRows, currentWeek, groupByAthlete } from "../lib/coachHome";
 
 function initials(name: string): string {
@@ -29,11 +30,7 @@ export function AttentionPage() {
   const { isDismissed, dismiss } = useDismissedAlerts();
   const [applied, setApplied] = useState<string | null>(null);
 
-  // Esta pantalla usa un fondo gris azulado detrás de las tarjetas.
-  useEffect(() => {
-    document.body.classList.add("hm-bg");
-    return () => document.body.classList.remove("hm-bg");
-  }, []);
+  usePageBackground();
 
   const visible = (attentionQuery.data ?? []).filter((item) => !isDismissed(item));
   const groups = groupByAthlete(visible);

@@ -30,7 +30,7 @@ updated: 2026-09-25
 | `/sessions/:id/registro` | Registro de una sesión por serie + cierre (esfuerzo, duración, dolor), pensado para el celular | Autenticado (atleta asignado) |
 | `/athletes` | Invitar atletas + lista con su estado | Autenticado (coach) |
 | `/cycles` | Planes: lista de ciclos + crear uno nuevo | Autenticado (coach) |
-| `/cycles/:id` | Detalle de un plan: grid con el progreso real por celda y los avisos del plan | Autenticado (coach dueño o atleta asignado) |
+| `/cycles/:id` | Detalle de un plan: tarjeta oscura con la semana en curso, avisos del plan y la cadena de semanas con el progreso real por sesión; el coach asigna rutinas (con opción de repetir en las semanas vacías) | Autenticado (coach dueño o atleta asignado) |
 | `/sessions/:id` | Detalle de una sesión: editar, agregar/quitar ejercicios del catálogo | Autenticado (coach dueño o atleta asignado) |
 
 > Nota: los emails de verificación, recuperación de contraseña e invitación salen por Resend desde `hola@mail.getcycles.app`. Solo en desarrollo, sin `RESEND_API_KEY`, el enlace se escribe en el log de la API.
