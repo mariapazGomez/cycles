@@ -62,11 +62,11 @@
 
 /* Héroe */
 .lp-hero { padding-block: 56px 72px; }
-.lp-hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 40px; align-items: center; }
+.lp-hero-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 40px; align-items: center; }
 .lp-hero h1 { margin-bottom: 18px; }
-.lp-tagline { font-family: var(--display); font-weight: 700; font-size: 1.35rem; color: var(--blue); margin-bottom: 16px; }
 .lp-hero .lp-lead { margin-bottom: 28px; }
-.lp-hero-visual { position: relative; min-height: 560px; display: grid; place-items: center; padding-block: 24px;  border-radius: 24px; overflow: hidden; }
+.lp-hero-visual { position: relative; display: grid; align-items: start; padding: 24px 22px; border-radius: 24px; overflow: hidden; }
+.lp-hero h1 em { font-style: normal; color: var(--blue); }
 
 /* Marcos: navegador con capturas reales de la web y teléfono con los diseños de la app */
 .lp-browser { width: 100%; max-width: 760px; margin: 0 auto; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--bg); box-shadow: 0 12px 32px rgba(31,34,40,.10); }
@@ -200,7 +200,6 @@
   :where(.landing) section { padding-block: 48px; }
   .lp-hero { padding-block: 32px 48px; }
   .lp-hero-grid, .lp-split { grid-template-columns: 1fr; gap: 32px; }
-  .lp-hero-visual { min-height: 500px; }
   .lp-shots { grid-template-columns: 1fr; }
   .lp-cols { grid-template-columns: 1fr; gap: 32px; }
   .lp-hero .lp-btn { display: flex; width: 100%; }
@@ -222,11 +221,17 @@
 .lp-cmp.lp-after { background: var(--bg); border: 2px solid var(--brand); box-shadow: 0 12px 32px rgba(48,128,252,.14); }
 .lp-cmp.lp-after li::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231a66dd' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.500 4.500L19 7.500'/%3E%3C/svg%3E"); }
 .lp-center > .lp-wrap > p.lp-sign { margin-top: 36px; font: 800 clamp(1.3rem, 3vw, 1.7rem)/1.2 var(--display); color: var(--ink); max-width: none; }
-.lp-benefits { display: grid; grid-template-columns: 1fr 1fr; gap: 36px 48px; margin-top: 48px; text-align: left; }
+/* Pilares: dos de planificación (ancho doble) y uno de seguimiento */
+.lp-pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px 40px; margin-top: 48px; text-align: left; }
+.lp-grp { border-bottom: 2px solid var(--blue-100); padding-bottom: 10px; font: 700 .85rem/1.25 var(--text); letter-spacing: .14em; text-transform: uppercase; color: var(--blue-700); }
+.lp-g2 { grid-column: span 2; }
+.lp-pl { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 10px; }
+.lp-pl li { position: relative; padding-left: 22px; }
+.lp-pl li::before { content: ""; position: absolute; left: 0; top: .5em; width: 8px; height: 8px; border-radius: 50%; background: var(--brand); }
 .lp-fig { margin: 0; }
 .lp-fig figcaption { margin-top: 12px; font-weight: 700; text-align: center; }
 .lp-after-benefits { margin-top: 44px; font: 800 clamp(1.2rem, 2.6vw, 1.5rem)/1.25 var(--display); max-width: none !important; }
-@media (max-width: 820px) { .lp-compare, .lp-benefits { grid-template-columns: 1fr; } }
+@media (max-width: 820px) { .lp-compare, .lp-pillars { grid-template-columns: 1fr; } .lp-g2 { grid-column: auto; } }
 
 /* Cadena de proteína viva: lienzo detrás del contenido; sin JS queda la imagen fija */
 .lp-chain-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
@@ -315,13 +320,12 @@
   .lp-eyebrow { margin-bottom: 14px; }
   :where(.landing) h1 { font-size: clamp(2.05rem, 9.4vw, 2.6rem); }
   :where(.landing) h2 { font-size: clamp(1.65rem, 7.4vw, 2rem); }
-  .lp-tagline { font-size: 1.2rem; line-height: 1.35; margin-bottom: 14px; }
   .lp-hero .lp-lead { font-size: 1.0625rem; line-height: 1.5; margin-bottom: 22px; }
   .lp-split { gap: 24px; }
   .lp-center > .lp-wrap > p { font-size: 1.0625rem; }
 
-  /* Portada: el teléfono asoma y se corta abajo; así se ve que hay más debajo */
-  .lp-hero-visual { min-height: 0; height: 440px; align-items: start; padding-block: 24px 0; border-radius: 20px; }
+  /* Portada: la plataforma del coach arriba y el teléfono de la atleta montado encima */
+  .lp-hero-visual { border-radius: 20px; padding-inline: 16px; }
 
   /* Anillo del ciclo más pequeño */
   .lp-ring { width: min(100%, 300px); }
@@ -335,12 +339,18 @@
   .lp-center > .lp-wrap > p.lp-sign { margin-top: 26px; }
 
   /* Resultados: ícono a la izquierda y texto a la derecha (antes, ícono arriba) */
-  .lp-benefits { gap: 22px; margin-top: 28px; }
-  .lp-benefits .lp-col { display: grid; grid-template-columns: 52px 1fr; column-gap: 16px; align-items: start; }
-  .lp-benefits .lp-col .lp-ico { grid-row: 1 / span 2; width: 52px; height: 52px; margin: 0; }
-  .lp-benefits .lp-col .lp-ico svg { width: 26px; height: 26px; }
-  .lp-benefits .lp-col h3 { margin: 2px 0 4px; font-size: 1.1rem; }
-  .lp-benefits .lp-col p { font-size: .98rem; line-height: 1.5; }
+  .lp-pillars { gap: 14px; margin-top: 28px; }
+  .lp-pillars .lp-col { display: grid; grid-template-columns: 52px 1fr; column-gap: 16px; align-items: start; }
+  .lp-pillars .lp-col .lp-ico { grid-row: 1 / span 2; width: 52px; height: 52px; margin: 0; }
+  .lp-pillars .lp-col .lp-ico svg { width: 26px; height: 26px; }
+  .lp-pillars .lp-col h3 { margin: 2px 0 4px; font-size: 1.1rem; }
+  .lp-pl { font-size: .98rem; line-height: 1.5; }
+  /* Etiqueta de planificación, sus dos pilares, luego seguimiento y el suyo */
+  .lp-pillars > :nth-child(1) { order: 1; }
+  .lp-pillars > :nth-child(3) { order: 2; }
+  .lp-pillars > :nth-child(4) { order: 3; }
+  .lp-pillars > :nth-child(2) { order: 4; margin-top: 22px; }
+  .lp-pillars > :nth-child(5) { order: 5; }
   .lp-after-benefits { margin-top: 28px; }
 
   /* Los tres teléfonos en un carrusel que se desliza; el activo queda centrado */
@@ -374,4 +384,26 @@
 @media (max-width: 360px) {
   .lp-btn { font-size: 1.02rem; padding-inline: 18px; gap: 8px; }
   .lp-btn .lp-arrow { width: 18px; height: 18px; }
+}
+
+/* Portada: plataforma del coach que alterna entre sus vistas + teléfono del atleta encima */
+.lp-ov { position: relative; z-index: 1; width: 100%; padding: 48px 0 190px; }
+.lp-coach .lp-browser { max-width: none; width: 100%; margin: 0; }
+.lp-slides { position: relative; aspect-ratio: 1500 / 1000; overflow: hidden; }
+.lp-slides img { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; object-fit: cover; object-position: top left; opacity: 0; transition: opacity .6s ease; }
+.lp-slides img.lp-on { opacity: 1; }
+.lp-tabs { position: absolute; left: 0; top: 0; z-index: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; max-width: calc(100% - 4px); }
+.lp-tabs-l { font: 700 12px/1 var(--text); letter-spacing: .08em; text-transform: uppercase; margin-right: 4px; }
+.lp-tab { position: relative; overflow: hidden; border: 1px solid var(--line); background: var(--bg); border-radius: 999px; font: 700 13px/1 var(--text); padding: 9px 14px; min-height: 34px; color: var(--ink-2); cursor: pointer; box-shadow: 0 3px 10px rgba(31,34,40,.08); }
+.lp-tab.lp-on { background: var(--ink); border-color: var(--ink); color: #fff; }
+.lp-tab.lp-on::after { content: ""; position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--brand); transform-origin: left; animation: lp-prog 4.5s linear forwards; }
+.lp-manual .lp-tab.lp-on::after { animation: none; }
+@keyframes lp-prog { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.lp-ph { position: absolute; right: 0; bottom: 0; transform: scale(.72); transform-origin: bottom right; display: grid; justify-items: end; gap: 10px; }
+.lp-ph .lp-device { box-shadow: 0 24px 50px rgba(31,34,40,.28); }
+.lp-tag { display: inline-block; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; font: 700 14px/1 var(--text); letter-spacing: .08em; text-transform: uppercase; padding: 9px 15px; box-shadow: 0 4px 12px rgba(31,34,40,.1); }
+@media (prefers-reduced-motion: reduce) { .lp-tab.lp-on::after { animation: none; } .lp-slides img { transition: none; } }
+@media (max-width: 820px) {
+  .lp-ov { padding: 92px 0 150px; }
+  .lp-ph { transform: scale(.56); }
 }

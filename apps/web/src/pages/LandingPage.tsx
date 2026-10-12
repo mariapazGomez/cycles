@@ -9,6 +9,7 @@ import mAtencion from "../assets/landing/m-atencion.jpg";
 import mResumen from "../assets/landing/m-resumen.jpg";
 import mPlan from "../assets/landing/m-plan.jpg";
 import { ChainCanvas } from "../components/landing/ChainCanvas";
+import { CoachShowcase } from "../components/landing/CoachShowcase";
 import { CycleRing } from "../components/landing/CycleRing";
 import { CierreDevice, HoyDevice, SerieDevice } from "../components/landing/PhoneScreens";
 import { RotatingAudience } from "../components/landing/RotatingAudience";
@@ -129,11 +130,12 @@ export function LandingPage() {
           <div className="lp-wrap lp-hero-grid">
             <div>
               <RotatingAudience />
-              <h1>Tú diseñas el ciclo de entrenamiento. Cycles te cuenta cómo les fue.</h1>
-              <p className="lp-tagline">Todos tus atletas en un solo lugar, sin perseguir mensajes.</p>
+              <h1>
+                Potencia tus ciclos, agiliza tu planificación y <em>mejora la comunicación</em> con cada atleta.
+              </h1>
               <p className="lp-lead">
-                Cycles es la plataforma de ciclos de entrenamiento: armas el ciclo, tu atleta lo registra desde el
-                celular y tú ves quién necesita tu atención.
+                Cycles es la plataforma de ciclos de entrenamiento para coaches: tú diseñas, tu atleta registra y tú ves
+                quién necesita tu atención.
               </p>
               <a href="#contacto" className="lp-btn lp-btn-pulse">
                 Quiero acceso anticipado {ARROW}
@@ -141,8 +143,65 @@ export function LandingPage() {
             </div>
             <div className="lp-hero-visual">
               <ChainCanvas />
-              <HoyDevice />
+              <div className="lp-ov">
+                <CoachShowcase />
+                <div className="lp-ph">
+                  <span className="lp-tag">App del atleta</span>
+                  <HoyDevice />
+                </div>
+              </div>
             </div>
+          </div>
+        </section>
+
+        <section className="lp-center lp-tight">
+          <div className="lp-wrap">
+            <h2>Así te ayuda Cycles en cada parte de tu trabajo</h2>
+            <div className="lp-pillars">
+              <div className="lp-grp lp-g2">Planificación del entrenamiento</div>
+              <div className="lp-grp">Seguimiento constante</div>
+              <div className="lp-col">
+                <div className="lp-ico">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M13 2 4 14h7l-1 8 9-12h-7z" />
+                  </svg>
+                </div>
+                <h3>Potencia tus ciclos</h3>
+                <ul className="lp-pl">
+                  <li>Diseña el ciclo a la medida de cada atleta, sea micro, meso o macrociclo.</li>
+                  <li>Ajusta la carga con lo que tu atleta realmente hizo.</li>
+                  <li>Acepta o descarta las sugerencias de ajuste: tú decides.</li>
+                </ul>
+              </div>
+              <div className="lp-col">
+                <div className="lp-ico">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="13" r="8" />
+                    <path d="M12 9v4l3 2M9 2h6" />
+                  </svg>
+                </div>
+                <h3>Agiliza tu planificación</h3>
+                <ul className="lp-pl">
+                  <li>Arma rutinas con el catálogo de ejercicios y asígnalas desde un solo lugar.</li>
+                  <li>Tu atleta las recibe en su celular, sin Excel ni PDF.</li>
+                  <li>Mira la cadena de semanas de cada plan de un vistazo.</li>
+                </ul>
+              </div>
+              <div className="lp-col">
+                <div className="lp-ico">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12z" />
+                  </svg>
+                </div>
+                <h3>Mejora la comunicación</h3>
+                <ul className="lp-pl">
+                  <li>Tu atleta registra cada serie y te cuenta cómo se sintió.</li>
+                  <li>Ves quién necesita tu atención: dolor, carga o sesiones sin hacer.</li>
+                  <li>Todo queda en un lugar, sin perseguir mensajes.</li>
+                </ul>
+              </div>
+            </div>
+            <p className="lp-after-benefits">No cambia cómo entrenas. Tú sigues diseñando el plan.</p>
           </div>
         </section>
 
@@ -212,55 +271,6 @@ export function LandingPage() {
               </div>
             </div>
             <p className="lp-sign">Nada se pierde entre tú y tus atletas.</p>
-          </div>
-        </section>
-
-        <section className="lp-center lp-tight">
-          <div className="lp-wrap">
-            <h2>Qué cambia en tu trabajo</h2>
-            <div className="lp-benefits">
-              <div className="lp-col">
-                <div className="lp-ico">
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                </div>
-                <h3>Ves qué pasó sin preguntar</h3>
-                <p>Series, esfuerzo y notas de cada sesión te llegan solos, sin esperar a que tu atleta se acuerde de contarte.</p>
-              </div>
-              <div className="lp-col">
-                <div className="lp-ico">
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15zM10 21h4" />
-                  </svg>
-                </div>
-                <h3>Sabes a quién mirar primero</h3>
-                <p>Cycles te avisa si alguien reportó dolor, si una carga se pasó o quedó corta, o si dejó de entrenar.</p>
-              </div>
-              <div className="lp-col">
-                <div className="lp-ico">
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M4 7h10M18 7h2M4 17h2M10 17h10" />
-                    <circle cx="16" cy="7" r="2" />
-                    <circle cx="8" cy="17" r="2" />
-                  </svg>
-                </div>
-                <h3>Ajustas el ciclo con datos</h3>
-                <p>Cuando una carga no calza, Cycles te propone cuánto cambiar en el ciclo. Tú decides si lo aplicas.</p>
-              </div>
-              <div className="lp-col">
-                <div className="lp-ico">
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <circle cx="12" cy="12" r="9" />
-                    <path d="M12 7v5l3 2" />
-                  </svg>
-                </div>
-                <h3>Recuperas tiempo</h3>
-                <p>Se acabó el Excel y el chat por cada atleta. Todos están en un solo lugar.</p>
-              </div>
-            </div>
-            <p className="lp-after-benefits">No cambia cómo entrenas. Tú sigues diseñando el plan.</p>
           </div>
         </section>
 
