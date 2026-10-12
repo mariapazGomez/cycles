@@ -65,6 +65,7 @@ Sin Swagger/OpenAPI activado todavía (pendiente, ver `docs/prds/PRD-General.md`
 |---|---|
 | Diagrama del modelo relacional (interactivo) | https://claude.ai/artifact/Wdfz4Rcq2tXaibdpbTYXzK |
 | Design System de Cycles (colores/tipografía/componentes, sincronizado contra el código) | https://claude.ai/artifact/Smf7SUnx1VMBv3nhbGv1aR |
+| Grilla del plan: opciones de diseño (A matriz, B cadena de semanas; la B es la oficial). Copia en el repo: `docs/diseno/grilla-del-plan/` | https://claude.ai/artifact/N5Eso8gL83GqyU1YRrtcUu |
 
 > La versión "de registro" del mismo diagrama vive versionada en `docs/prds/PRD-General.md` (sección 6) y como archivo standalone en `docs/diagrams/modelo-relacional.html`.
 
