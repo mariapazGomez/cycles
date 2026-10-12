@@ -106,4 +106,4 @@ Usa directamente `User` (`passwordHash`, `authProvider`, `role` ahora nullable, 
 - **Proveedor de email transaccional: resuelto — Resend** (ver decisiones del [[PRD-General]], sección 11, 2026-09-19). Pendiente de implementación: reemplazar el `MailService` de desarrollo en `apps/api/src/mail/mail.service.ts` (actualmente solo loguea el link) por la integración real.
 - **Tokens de Google fuera de la URL: resuelto** (2026-09-27, PR 1C de `docs/PLAN-Seguridad.md`) con el código de un solo uso descrito en la sección de endpoints.
 - Apple Sign In postergado deliberadamente (ver sección 3); se reevalúa si se publica app nativa en App Store o si hay demanda explícita.
-- Texto legal exacto del consentimiento de datos (`dataConsentVersion`) pendiente de redactar junto con la política de privacidad.
+- Texto legal exacto del consentimiento de datos (`dataConsentVersion`): la política de privacidad y los términos ya están redactados (borrador, ver [[PRD-PrivacidadYTerminos]]); falta revisión legal y decidir si se versiona la aceptación de los atletas en la API.

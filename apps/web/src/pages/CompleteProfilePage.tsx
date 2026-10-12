@@ -51,6 +51,10 @@ export function CompleteProfilePage() {
           </span>
         </label>
 
+        <p className="legal-accept">
+          Al continuar aceptas los <a href="/terminos">Términos de uso</a> y la <a href="/privacidad">Política de privacidad</a>.
+        </p>
+
         <button type="submit" className="button-primary" disabled={mutation.isPending}>
           {mutation.isPending ? "Guardando…" : "Continuar"}
         </button>

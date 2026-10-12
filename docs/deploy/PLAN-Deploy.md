@@ -425,6 +425,7 @@ Render gratis duerme la API tras 15 minutos sin tráfico y tarda hasta un minuto
 - **Cambio 2026-10-03:** la landing vive en `apps/web` y se sirve desde `app.getcycles.app` (ver Paso 9); `www.` y la raíz redirigen a `app.` y mover la landing a `www.` queda para más adelante.
 - ~~**`www.` queda reservado para la landing**~~ (otro proyecto de Vercel, no el de la app). Mientras no exista, la raíz y `www.` redirigen temporalmente (302) a `app.` con una regla de Cloudflare; cuando la landing esté lista, `www.` apunta a su proyecto y la raíz redirige a `www.` (301).
 - La landing es también el lugar natural para la **política de privacidad** y los términos (por ejemplo `www.getcycles.app/privacidad`), que Google pide para publicar la app (paso 5).
+  - **Actualización 2026-10-12:** la política y los términos están redactados como páginas estáticas en `/privacidad` y `/terminos` ([[PRD-PrivacidadYTerminos]]), pendientes de revisión legal, de crear el correo `privacidad@getcycles.app` y de confirmar los compromisos del PRD (sección 4). Cuando se publiquen, cargarlas en *Branding* de Google OAuth y en App Store Connect.
 - Actualizar `FRONTEND_URL`, `VITE_API_URL`, CORS y los *redirect URIs* de Google con las URLs definitivas.
 
 ## Paso 7 · Prueba de punta a punta y piloto *(por detallar)*

@@ -88,6 +88,10 @@ export function AcceptInvitationPage() {
           />
         </div>
 
+        <p className="legal-accept">
+          Al activar tu cuenta aceptas los <a href="/terminos">Términos de uso</a> y la <a href="/privacidad">Política de privacidad</a>. Tu coach verá tus entrenamientos y lo que cuentes, incluidas las notas de dolor.
+        </p>
+
         <button type="submit" className="button-primary" disabled={mutation.isPending}>
           {mutation.isPending ? "Activando…" : "Activar cuenta"}
         </button>

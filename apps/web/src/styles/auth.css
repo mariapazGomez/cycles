@@ -190,3 +190,30 @@
 .auth-footer a:hover {
   text-decoration: underline;
 }
+
+/* Aviso de aceptación de los términos y enlaces legales al pie de las pantallas de acceso */
+.legal-accept {
+  margin: 0 0 16px;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--color-ink-secondary);
+}
+
+.legal-accept a {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+
+.auth-legal {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 12px 0 -8px;
+  font-size: 0.82rem;
+}
+
+.auth-legal a {
+  padding: 10px 0;
+  color: var(--color-ink-secondary);
+  text-underline-offset: 3px;
+}

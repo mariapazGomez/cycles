@@ -386,6 +386,10 @@
   .lp-btn .lp-arrow { width: 18px; height: 18px; }
 }
 
+/* Pie: enlaces legales junto al acceso (anclas normales hacia páginas estáticas) */
+.lp-foot-links { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+.lp-privacy a { color: inherit; text-underline-offset: 3px; }
+
 /* Portada: plataforma del coach que alterna entre sus vistas + teléfono del atleta encima */
 .lp-ov { position: relative; z-index: 1; width: 100%; padding: 48px 0 190px; }
 .lp-coach .lp-browser { max-width: none; width: 100%; margin: 0; }
