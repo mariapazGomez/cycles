@@ -90,6 +90,10 @@ export function RegisterPage() {
           </span>
         </label>
 
+        <p className="legal-accept">
+          Al crear tu cuenta aceptas los <a href="/terminos">Términos de uso</a> y la <a href="/privacidad">Política de privacidad</a>.
+        </p>
+
         <button type="submit" className="button-primary" disabled={mutation.isPending}>
           {mutation.isPending ? "Creando cuenta…" : "Crear cuenta"}
         </button>

@@ -375,3 +375,7 @@
   .lp-btn { font-size: 1.02rem; padding-inline: 18px; gap: 8px; }
   .lp-btn .lp-arrow { width: 18px; height: 18px; }
 }
+
+/* Pie: enlaces legales junto al acceso (anclas normales hacia páginas estáticas) */
+.lp-foot-links { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+.lp-privacy a { color: inherit; text-underline-offset: 3px; }

@@ -409,7 +409,9 @@ export function LandingPage() {
                       El servidor estaba dormido y se está despertando. Puede tardar hasta un minuto: no cierres la página.
                     </p>
                   )}
-                  <p className="lp-privacy">Usaremos tu correo solo para responderte.</p>
+                  <p className="lp-privacy">
+                    Usaremos tu correo solo para responderte. Más en la <a href="/privacidad">política de privacidad</a>.
+                  </p>
                 </form>
               )}
             </div>
@@ -425,7 +427,11 @@ export function LandingPage() {
             <img src="/email/isotipo-cycles.png" alt="" width={16} height={16} />
             Hecho por InProgress Co.
           </span>
-          <Link to="/login">Inicia sesión</Link>
+          <span className="lp-foot-links">
+            <a href="/privacidad">Privacidad</a>
+            <a href="/terminos">Términos</a>
+            <Link to="/login">Inicia sesión</Link>
+          </span>
         </div>
       </footer>
     </div>

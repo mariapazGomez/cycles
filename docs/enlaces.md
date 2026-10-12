@@ -21,6 +21,7 @@ updated: 2026-09-25
 | `/accept-invitation?token=...` | Atleta activa su cuenta a partir de la invitación del coach | Pública |
 | `/oauth-callback?code=...` | Callback interno del login con Google: cambia el código de un solo uso por la sesión (no se visita a mano) | — |
 | `/complete-profile` | Último paso de onboarding para cuentas creadas por Google sin rol | Autenticado, sin rol |
+| `/privacidad` y `/terminos` | Política de privacidad y términos de uso (HTML estático, [[PRD-PrivacidadYTerminos]]) | Pública |
 | `/` (sin sesión) | Landing para coaches con el formulario de contacto ([[PRD-LandingContacto]]) | Pública |
 | `/` | Inicio. Coach: tarjeta oscura con quién necesita atención y por quién empezar, avisos por atleta con ajuste de carga y el panel "Tus atletas" con la semana en curso. Atleta: su próxima sesión, empezarla u omitirla | Autenticado |
 | `/athletes/:athleteId` | Resumen del atleta: avisos, carga semanal, adherencia, fuerza estimada por ejercicio | Autenticado (coach, relación activa) |
