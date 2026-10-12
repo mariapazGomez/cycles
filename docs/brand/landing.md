@@ -108,5 +108,5 @@ Todas se apagan con "reducir movimiento" y solo corren cuando están a la vista.
 
 - Verificar con producto el mensaje "demostrar resultados" antes de usarlo en público (no aparece en esta versión).
 - Revisar el texto con 2 o 3 coaches antes de publicar.
-- Capturas de la web a mayor resolución (hoy 800 px). Las de la portada (1.400 px) salen de la base de demostración con la versión actual; las de la sección "Todos tus atletas, en un solo lugar" siguen siendo del Inicio anterior al rediseño.
+- Capturas de la web a mayor resolución (hoy 800 px). Las de la portada (1.400 px) y las de "Todos tus atletas, en un solo lugar" (escritorio 1.200 px, móvil 750 px, actualizadas el 2026-10-12 con el Inicio rediseñado) salen de la base de demostración con la versión actual. Siguen del diseño anterior la captura de plan (`plan.jpg`, `m-plan.jpg`) de la sección de la sesión omitida.
 - Probar la landing en un iPhone real y en Safari (P-19).
