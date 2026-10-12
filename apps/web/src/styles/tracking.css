@@ -302,32 +302,6 @@
   background: var(--color-gray-light);
 }
 
-/* ---------- Grid del plan con progreso ---------- */
-.grid-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 10px 12px;
-  border: 1px solid var(--color-gray-border);
-  border-radius: 10px;
-  color: var(--color-ink);
-  text-decoration: none;
-  font-size: 0.88rem;
-}
-
-.grid-cell strong {
-  font-size: 0.95rem;
-}
-
-.grid-cell-meta {
-  color: var(--color-ink-secondary);
-  font-size: 0.82rem;
-}
-
-.grid-week-current {
-  color: var(--color-blue);
-}
-
 /* ---------- Registro del atleta (pensado para el celular) ---------- */
 .log-shell {
   max-width: 520px;

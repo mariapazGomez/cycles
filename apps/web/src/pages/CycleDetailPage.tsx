@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CycleStatus, CycleType } from "@cycles/shared";
@@ -6,8 +6,13 @@ import * as cyclesApi from "../services/cyclesApi";
 import * as sessionsApi from "../services/sessionsApi";
 import * as routinesApi from "../services/routinesApi";
 import * as trackingApi from "../services/trackingApi";
+import * as athletesApi from "../services/athletesApi";
 import { AttentionList, useDismissedAlerts } from "../components/AttentionList";
 import { planWeekOf } from "../lib/format";
+import { cellKey, emptyWeeksFrom, heroKind, planStats, totalWeeks } from "../lib/planGrid";
+import { usePageBackground } from "../hooks/usePageBackground";
+import { PlanHero } from "../components/PlanHero";
+import { PlanWeeks } from "../components/PlanWeeks";
 import { useAuth } from "../hooks/useAuth";
 import { ApiError } from "../services/httpClient";
 import { LoadingScreen } from "../components/LoadingScreen";
@@ -33,18 +38,15 @@ function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
-function totalWeeks(startDate: string, endDate: string): number {
-  const ms = new Date(endDate).getTime() - new Date(startDate).getTime();
-  return Math.max(1, Math.ceil(ms / (7 * 24 * 60 * 60 * 1000)));
-}
-
 export function CycleDetailPage() {
   const { id = "" } = useParams();
   const { user } = useAuth();
   const isCoach = user?.role === "coach";
   const queryClient = useQueryClient();
 
+  usePageBackground();
   const cycleQuery = useQuery({ queryKey: ["cycles", id], queryFn: () => cyclesApi.getCycle(id) });
+  const athletesQuery = useQuery({ queryKey: ["athletes"], queryFn: athletesApi.listAthletes, enabled: isCoach });
 
   const [showEdit, setShowEdit] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
@@ -67,6 +69,9 @@ export function CycleDetailPage() {
   }
 
   const cycle = cycleQuery.data;
+  const athlete = isCoach
+    ? (athletesQuery.data ?? []).map((r) => r.athlete).find((a) => a.id === cycle.athleteId) ?? null
+    : null;
 
   function handleEditSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -82,39 +87,45 @@ export function CycleDetailPage() {
   }
 
   return (
-    <div>
-      <p style={{ marginBottom: 4 }}>
-        <Link to="/cycles" style={{ color: "var(--color-ink-secondary)", fontSize: "0.85rem" }}>
-          ← Planes
-        </Link>
-      </p>
+    <div className="pl-page">
+      <Link className="rt-back" to="/cycles">
+        ← Planes
+      </Link>
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-        <div className="stack" style={{ gap: 10 }}>
+      <div className="page-header" style={{ marginTop: 8 }}>
+        <div className="pl-title">
           <h1 className="page-title">{cycle.name}</h1>
-          <div className="row">
+          <div className="pl-chips">
             <span className={cycle.status === "active" ? "pill pill-blue" : "pill"}>{CYCLE_STATUS_LABEL[cycle.status]}</span>
             <span className="pill">{CYCLE_TYPE_LABEL[cycle.cycleType]}</span>
             <span className="pill">
               {formatDate(cycle.startDate)} – {formatDate(cycle.endDate)}
             </span>
+            {athlete && (
+              <Link className="pl-who" to={`/athletes/${athlete.id}`}>
+                <span className="hm-avatar hm-avatar-sm" aria-hidden="true">
+                  {athlete.name
+                    .trim()
+                    .split(/\s+/)
+                    .slice(0, 2)
+                    .map((part) => part[0]?.toUpperCase())
+                    .join("")}
+                </span>
+                {athlete.name}
+              </Link>
+            )}
           </div>
-          {cycle.objective && <p style={{ margin: 0 }}>{cycle.objective}</p>}
+          {cycle.objective && <p className="pl-objective">{cycle.objective}</p>}
         </div>
         {isCoach && (
-          <button
-            type="button"
-            className="button-secondary"
-            style={{ width: "auto" }}
-            onClick={() => setShowEdit((v) => !v)}
-          >
+          <button type="button" className="button-secondary pl-edit" onClick={() => setShowEdit((v) => !v)}>
             {showEdit ? "Cancelar" : "Editar plan"}
           </button>
         )}
       </div>
 
       {showEdit && (
-        <form onSubmit={handleEditSubmit} noValidate style={{ maxWidth: 420, marginTop: 20 }}>
+        <form onSubmit={handleEditSubmit} noValidate className="hm-card pl-form">
           {editError && <div className="error-banner">{editError}</div>}
 
           <div className="field">
@@ -175,7 +186,7 @@ export function CycleDetailPage() {
       {cycle.cycleType === "macrocycle" ? (
         <MacrocycleChildren cycleId={cycle.id} athleteId={cycle.athleteId} isCoach={isCoach} />
       ) : (
-        <CycleGrid cycle={cycle} isCoach={isCoach} />
+        <CycleGrid cycle={cycle} isCoach={isCoach} athlete={athlete} />
       )}
     </div>
   );
@@ -356,45 +367,14 @@ function MacrocycleChildren({
   );
 }
 
-const SESSION_STATUS_PILL: Record<string, { label: string; className: string }> = {
-  pending: { label: "Pendiente", className: "pill" },
-  completed: { label: "Completada", className: "pill pill-ok" },
-  skipped: { label: "Omitida", className: "pill pill-warn" },
-};
-
-function GridCell({
-  session,
-  progress,
-}: {
-  session: { id: string; name: string; status: string };
-  progress?: trackingApi.CycleProgress["sessions"][number];
-}) {
-  const feedback = progress?.feedback;
-  const status = SESSION_STATUS_PILL[session.status] ?? SESSION_STATUS_PILL.pending;
-  let meta: string | null = null;
-  if (feedback?.outcome === "completed" && feedback.srpe !== null) {
-    meta = `Esfuerzo ${feedback.srpe} · ${feedback.durationMinutes} min`;
-  } else if (feedback?.outcome === "skipped" && feedback.notes) {
-    meta = feedback.notes;
-  }
-  return (
-    <Link to={`/sessions/${session.id}`} className="grid-cell">
-      <strong>{session.name}</strong>
-      {meta && <span className="grid-cell-meta">{meta}</span>}
-      <span className="row" style={{ gap: 6 }}>
-        <span className={status.className}>{status.label}</span>
-        {feedback?.pain && <span className="pill pill-pain">Dolor</span>}
-      </span>
-    </Link>
-  );
-}
-
 function CycleGrid({
   cycle,
   isCoach,
+  athlete,
 }: {
   cycle: Awaited<ReturnType<typeof cyclesApi.getCycle>>;
   isCoach: boolean;
+  athlete: { id: string; name: string } | null;
 }) {
   const queryClient = useQueryClient();
   const sessionsQuery = useQuery({
@@ -424,36 +404,69 @@ function CycleGrid({
 
   const [assigningCell, setAssigningCell] = useState<{ week: number; slot: number } | null>(null);
   const [routineId, setRoutineId] = useState("");
+  const [repeat, setRepeat] = useState(true);
   const [assignError, setAssignError] = useState<string | null>(null);
+  const panelRef = useRef<HTMLElement>(null);
+
+  const weeks = totalWeeks(cycle.startDate, cycle.endDate);
+  const slots = cycle.sessionsPerWeek ?? 0;
+  const sessions = sessionsQuery.data ?? [];
+  const sessionByCell = new Map(sessions.map((session) => [cellKey(session.weekNumber, session.slotNumber), session]));
+  const stats = planStats(sessions, currentWeek);
+
+  // Semanas, desde la elegida, en que esa sesión sigue sin rutina.
+  const emptyWeeks = assigningCell
+    ? emptyWeeksFrom(new Set(sessionByCell.keys()), assigningCell.week, assigningCell.slot, weeks)
+    : [];
 
   const assignMutation = useMutation({
-    mutationFn: () => {
-      if (!assigningCell) return Promise.reject(new Error("sin celda"));
-      return sessionsApi.createSession(cycle.id, {
-        weekNumber: assigningCell.week,
-        slotNumber: assigningCell.slot,
-        routineId,
-      });
+    mutationFn: async (targetWeeks: number[]) => {
+      if (!assigningCell) throw new Error("sin celda");
+      let done = 0;
+      try {
+        for (const weekNumber of targetWeeks) {
+          await sessionsApi.createSession(cycle.id, { weekNumber, slotNumber: assigningCell.slot, routineId });
+          done += 1;
+        }
+      } catch (error) {
+        const reason = error instanceof ApiError ? error.message : "No se pudo asignar la rutina.";
+        throw new Error(done > 0 ? `Se asignaron ${done} de ${targetWeeks.length} semanas. ${reason}` : reason);
+      }
     },
     onSuccess: () => {
       setAssigningCell(null);
       setRoutineId("");
-      queryClient.invalidateQueries({ queryKey: ["cycles", cycle.id, "sessions"] });
     },
     onError: (error: unknown) => {
-      setAssignError(error instanceof ApiError ? error.message : "No se pudo asignar la rutina.");
+      setAssignError(error instanceof Error ? error.message : "No se pudo asignar la rutina.");
     },
+    // Con éxito o con error parcial, la grilla se vuelve a leer.
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["cycles", cycle.id, "sessions"] }),
   });
 
-  const weeks = totalWeeks(cycle.startDate, cycle.endDate);
-  const slots = cycle.sessionsPerWeek ?? 0;
-  const sessionByCell = new Map(
-    (sessionsQuery.data ?? []).map((session) => [`${session.weekNumber}-${session.slotNumber}`, session]),
-  );
+  function openAssign(week: number, slot: number) {
+    setAssignError(null);
+    setRoutineId("");
+    setRepeat(true);
+    setAssigningCell({ week, slot });
+    // El panel está arriba de las semanas: se lleva a la vista y el foco al selector.
+    setTimeout(() => {
+      panelRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      document.getElementById("assignRoutine")?.focus();
+    }, 0);
+  }
 
   return (
-    <div style={{ marginTop: 32 }}>
-      <h2 style={{ fontSize: "1.1rem" }}>Grid del plan</h2>
+    <div className="pl-grid-area">
+      <PlanHero
+        kind={heroKind(stats, currentWeek, weeks)}
+        stats={stats}
+        weeks={weeks}
+        currentWeek={currentWeek}
+        startDate={cycle.startDate}
+        isCoach={isCoach}
+        athlete={athlete}
+      />
 
       {applied && (
         <div className="success-banner" role="status">
@@ -461,7 +474,7 @@ function CycleGrid({
         </div>
       )}
       {planAlerts.length > 0 && (
-        <section className="card" style={{ marginBottom: 16 }}>
+        <section className="hm-card" style={{ marginBottom: 16 }}>
           <AttentionList
             items={planAlerts}
             onDismiss={dismiss}
@@ -480,120 +493,78 @@ function CycleGrid({
       )}
 
       {assigningCell && (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setAssignError(null);
-            assignMutation.mutate();
-          }}
-          noValidate
-          style={{ maxWidth: 360, margin: "16px 0", padding: 16, border: "1px solid var(--color-gray-border)", borderRadius: 8 }}
-        >
-          <p style={{ marginTop: 0, fontWeight: 600 }}>
-            Semana {assigningCell.week} · Sesión {assigningCell.slot}
-          </p>
-          {assignError && <div className="error-banner">{assignError}</div>}
-          <div className="field">
-            <label htmlFor="assignRoutine">Rutina</label>
-            <select
-              id="assignRoutine"
-              required
-              value={routineId}
-              onChange={(e) => setRoutineId(e.target.value)}
-            >
-              <option value="" disabled>
-                Elige una rutina
-              </option>
-              {(routinesQuery.data ?? []).map((routine) => (
-                <option key={routine.id} value={routine.id}>
-                  {routine.name}
+        <section className="hm-card pl-panel" ref={panelRef}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setAssignError(null);
+              if (!routineId) {
+                setAssignError("Elige una rutina.");
+                return;
+              }
+              assignMutation.mutate(repeat ? emptyWeeks : [assigningCell.week]);
+            }}
+            noValidate
+          >
+            <h2>
+              Asignar rutina a la semana {assigningCell.week}, sesión {assigningCell.slot}
+            </h2>
+            {assignError && (
+              <div className="error-banner" role="alert">
+                {assignError}
+              </div>
+            )}
+            <div className="field">
+              <label htmlFor="assignRoutine">Rutina</label>
+              <select id="assignRoutine" required value={routineId} onChange={(e) => setRoutineId(e.target.value)}>
+                <option value="" disabled>
+                  Elige una rutina
                 </option>
-              ))}
-            </select>
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button type="submit" className="button-primary" style={{ width: "auto" }} disabled={assignMutation.isPending}>
-              {assignMutation.isPending ? "Asignando…" : "Asignar"}
-            </button>
-            <button
-              type="button"
-              className="button-secondary"
-              style={{ width: "auto" }}
-              onClick={() => setAssigningCell(null)}
-            >
-              Cancelar
-            </button>
-          </div>
-        </form>
+                {(routinesQuery.data ?? []).map((routine) => (
+                  <option key={routine.id} value={routine.id}>
+                    {routine.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {emptyWeeks.length > 1 && (
+              <label className="pl-check">
+                <input type="checkbox" checked={repeat} onChange={(e) => setRepeat(e.target.checked)} />
+                <span>
+                  Repetir en las semanas que siguen vacías ({emptyWeeks.length - 1} más)
+                </span>
+              </label>
+            )}
+            <div className="pl-panel-actions">
+              <button type="submit" className="button-primary" disabled={assignMutation.isPending}>
+                {assignMutation.isPending ? "Asignando…" : "Asignar"}
+              </button>
+              <button type="button" className="button-secondary" onClick={() => setAssigningCell(null)}>
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </section>
       )}
 
-      <div style={{ overflowX: "auto" }}>
-        <table style={{ borderCollapse: "collapse", width: "100%" }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: "left", padding: 8 }}></th>
-              {Array.from({ length: weeks }, (_, i) => i + 1).map((week) => (
-                <th
-                  key={week}
-                  className={week === currentWeek ? "grid-week-current" : undefined}
-                  style={{ padding: 8, fontSize: "0.82rem", color: week === currentWeek ? undefined : "var(--color-ink-secondary)" }}
-                >
-                  Semana {week}
-                  {week === currentWeek && (
-                    <>
-                      {" "}
-                      <span className="pill pill-blue">Esta semana</span>
-                    </>
-                  )}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {Array.from({ length: slots }, (_, i) => i + 1).map((slot) => (
-              <tr key={slot}>
-                <td style={{ padding: 8, fontSize: "0.82rem", color: "var(--color-ink-secondary)", whiteSpace: "nowrap" }}>
-                  Sesión {slot}
-                </td>
-                {Array.from({ length: weeks }, (_, i) => i + 1).map((week) => {
-                  const session = sessionByCell.get(`${week}-${slot}`);
-                  return (
-                    <td key={week} style={{ padding: 4, minWidth: 140 }}>
-                      {session ? (
-                        <GridCell session={session} progress={progressById.get(session.id)} />
-                      ) : isCoach ? (
-                        <button
-                          type="button"
-                          className="button-secondary"
-                          style={{ width: "100%", padding: "8px 10px", fontSize: "0.8rem" }}
-                          onClick={() => {
-                            setAssignError(null);
-                            setRoutineId("");
-                            setAssigningCell({ week, slot });
-                          }}
-                        >
-                          + Asignar
-                        </button>
-                      ) : (
-                        <span
-                          style={{
-                            display: "block",
-                            padding: "8px 10px",
-                            fontSize: "0.8rem",
-                            color: "var(--color-gray-mid)",
-                          }}
-                        >
-                          —
-                        </span>
-                      )}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="pl-section-head">
+        <h2>Semanas del plan</h2>
+        {stats.assigned > 0 && <span className="pl-hint">Toca una sesión para verla</span>}
       </div>
+
+      {sessionsQuery.isLoading ? (
+        <p>Cargando…</p>
+      ) : (
+        <PlanWeeks
+          weeks={weeks}
+          slots={slots}
+          currentWeek={currentWeek}
+          sessionByCell={sessionByCell}
+          progressById={progressById}
+          isCoach={isCoach}
+          onAssign={openAssign}
+        />
+      )}
     </div>
   );
 }

@@ -11,6 +11,7 @@ import "./styles/layout.css";
 import "./styles/tracking.css";
 import "./styles/routines.css";
 import "./styles/home.css";
+import "./styles/plan.css";
 import "./styles/landing.css";
 
 warmUpApi();
