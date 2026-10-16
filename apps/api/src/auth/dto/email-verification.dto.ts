@@ -1,4 +1,5 @@
 import { IsEmail, IsString } from "class-validator";
+import { NormalizeEmail } from "../../common/validation/normalize-email";
 
 export class VerifyEmailDto {
   @IsString()
@@ -6,6 +7,7 @@ export class VerifyEmailDto {
 }
 
 export class ResendVerificationDto {
+  @NormalizeEmail()
   @IsEmail()
   email!: string;
 }

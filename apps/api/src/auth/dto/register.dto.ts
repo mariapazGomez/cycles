@@ -1,7 +1,9 @@
 import { IsBoolean, IsEmail, IsIn, IsOptional, IsString, MinLength } from "class-validator";
 import { UserRole } from "@prisma/client";
+import { NormalizeEmail } from "../../common/validation/normalize-email";
 
 export class RegisterDto {
+  @NormalizeEmail()
   @IsEmail()
   email!: string;
 
