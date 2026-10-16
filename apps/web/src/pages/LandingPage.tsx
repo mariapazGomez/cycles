@@ -348,7 +348,7 @@ export function LandingPage() {
               <div className="lp-browser-top"><i /><i /><i /></div>
               <picture>
                     <source media="(max-width: 820px)" srcSet={mPlan} />
-                    <img src={plan} alt="Plan con una sesión omitida y su nota" />
+                    <img src={plan} alt="Plan por semanas con dos sesiones omitidas y la nota de cada una" />
                   </picture>
             </div>
           </div>
