@@ -53,8 +53,9 @@ Proporción sugerida: P3 40 %, P1+P2 25 %, P4 20 %, P5 15 %.
 Cada acto es una temporada de contenido. Las fechas salen del historial real del repositorio (el primer commit es del 2026-09-16; **lo anterior a esa fecha lo tienes que aportar tú**).
 
 ### Acto 0. Antes del código: la deportista
-**Periodo:** desde los 13 años hasta la idea. **[CEO]**
-- Deportista desde los 13, época de aspirante a atleta profesional, dejaste el alto rendimiento, siempre volviste a entrenar.
+**Periodo:** desde los 13 años hasta la idea.
+- Deportista desde los 13, época de aspirante a atleta profesional, dejaste el alto rendimiento, siempre volviste a entrenar. Hoy juegas fútbol (dato que le da identidad concreta a toda la historia).
+- El coach se cuenta de forma anónima (decidido el 2026-10-08).
 - El momento en que dejaste tu entrenamiento en manos de un coach y viste resultados.
 - La escena del Excel + WhatsApp + olvidarte de contar cómo te fue.
 
@@ -64,7 +65,8 @@ Ideas de piezas:
 3. "Dejé el alto rendimiento y nunca dejé de entrenar" (personal, humaniza).
 
 ### Acto 1. El problema se vuelve idea
-**Periodo:** previo a sept 2026. **[CEO]** (fecha exacta y contexto)
+**Periodo:** previo a sept 2026. **[CEO]** (falta solo la fecha aproximada)
+- **El detonante (tu relato):** la idea ya la tenías hace tiempo. No fue hasta que viste que otra persona desarrolló una idea que tú habías tenido y no hiciste, y que le estaba yendo muy bien, que te dijiste: "no me puede pasar otra vez". Esa es la escena central del acto: no es la idea, es el arrepentimiento de no haber actuado y la decisión de no repetirlo.
 - Darte cuenta de que el problema no era ni el coach ni el atleta, sino el entrenamiento repartido en pedazos.
 - La pregunta: ¿y si el coach pudiera llegar hasta donde tú entrenas?
 - La visión mayor: que cualquier atleta tenga la ciencia que hoy solo tiene la élite.
@@ -73,6 +75,8 @@ Piezas:
 4. "El enemigo no es tu coach ni tú. Es el entrenamiento fragmentado."
 5. "Por qué creo que cualquier atleta merece la ciencia de la élite" (visión, sin prometer IA hoy).
 6. "Idea → primera hoja en blanco": cómo pasé de la frustración a un documento de visión.
+6b. **"Una idea que ya había tenido, otra persona la hizo primero"** (pieza ancla de toda la marca personal: vulnerable, universal y explica por qué empezaste). Formato: video a cámara.
+6c. "Jugadora de fútbol, no de gimnasio: por qué construyo esto desde la cancha" (conecta tu deporte con el problema).
 
 ### Acto 2. Los cimientos (16 al 22 sept)
 **Qué pasó:** scaffold del monorepo, sistema de PRDs enlazados (visión → producto → funcionalidades), decisiones fundacionales (19 sept), login y registro (Fase 1), invitar atletas, catálogo de ejercicios, y el pivote de ciclos planos a **rutinas + programación en grid** (Fase 2).
@@ -116,40 +120,41 @@ Piezas:
 
 ### Acto 6. Lo que viene (siguiente temporada)
 **Hipótesis por validar, hoy sin respuesta:**
-- Entrevistar a 3–5 coaches reales (guía lista en [[mensajes]]). Esta es **la pieza más importante del siguiente acto**: contar qué aprendiste de hablar con ellos.
+- **Validar la idea** con 3–5 coaches reales (guía lista en [[mensajes]]). Dijiste que este es el momento más difícil del proceso: pasar de tener la idea y una base construida a comprobar que alguien la necesita. Es **la pieza más importante del siguiente acto**: contar qué aprendiste de hablar con ellos, incluido el miedo a escuchar que no.
 - Piloto con los primeros atletas.
+- Producto, tu visión de plataformas: **app para atletas en iOS y Android** (para tomar los datos de las rutinas), **versión móvil básica para coaches** y **web con todas las funcionalidades para coaches**. Hoy existe la web y la app móvil del atleta; la del coach móvil y Android están por hacer (hay documento en `docs/ANDROID.md`).
 - Resumen del atleta (qué ver ahí todavía no está decidido).
 - Reprogramar sesiones omitidas dentro de la semana.
-- App Android (hay documento en `docs/ANDROID.md`).
 - Integraciones de salud y, más adelante, el motor de correlación (solo como horizonte, no como promesa).
 
 Piezas:
 25. "Voy a hablar con 5 coaches. Esto es lo que quiero preguntarles."
 26. "Lo que me dijeron los coaches" (después de las entrevistas).
 27. "Qué construyo después y por qué" (hoja de ruta honesta).
+28. "Por qué coach en web completa y en móvil básico, y atleta en móvil" (decisión de plataformas explicada con un esquema).
+29. "Lo más difícil no fue programar: fue salir a validar" (el momento duro que mencionaste).
 
-## 5. Formatos y cadencia (propuesta, ajusta según tu tiempo)
+## 5. Formato y ritmo: TikTok, video a video
 
-| Formato | Frecuencia | Uso |
-|---|---|---|
-| Publicación larga (LinkedIn / blog) | 1 por semana | Decisiones y aprendizajes (P3, P5) |
-| Carrusel | 1 por semana | Antes/después, esquemas, diseño (P4, P3) |
-| Video corto hablando a cámara | 1–2 por semana | Origen, tropiezos, momentos clave (P1, P2) |
-| Captura o clip de la app | Según avance | Mostrar lo nuevo funcionando |
-| Historias / notas rápidas | Diario si puedes | Bastidores, sin producción |
+Decisión de la CEO (2026-10-09): **solo TikTok por ahora**, contenido simple del desarrollo, problemáticas, desafíos y acompañamiento. **No hay calendario mensual**: se planifica un video a la vez, y el siguiente se decide mirando cómo salió el anterior y qué pasó en el desarrollo esa semana.
 
-**Cadencia mínima sostenible:** 3 publicaciones por semana (1 larga, 1 carrusel, 1 video). Mejor poco y constante que mucho dos semanas y nada después.
+- **Formato único:** video corto a cámara (con pantalla de la app o la web cuando ayude). Sin producción pesada.
+- **Ritmo:** el que sea sostenible; no se fija una cantidad semanal. Un video terminado vale más que tres planificados.
+- **Los actos de la sección 4 son un banco de ideas, no un orden obligatorio.** Se elige la pieza que más sentido tiene hoy.
+- **Lo que llegue del desarrollo manda:** un tropiezo, una decisión o un avance de la semana puede pasar por delante de cualquier idea del banco.
 
-**Plataforma principal [CEO]:** LinkedIn parece el mejor primer canal para llegar a coaches y a la comunidad de producto; Instagram para atletas y para el contenido visual y de video. Decídelo tú según dónde te sientas cómoda.
+Ciclo de trabajo por video:
+1. Elegimos la idea (del banco o de lo que pasó esta semana).
+2. Escribimos juntas el guion corto (gancho, qué pasó, qué aprendí, cierre).
+3. Tú grabas y publicas.
+4. Anotamos cómo fue y decidimos el siguiente.
 
-Calendario inicial sugerido (4 semanas, para empezar a ordenar en Notion):
+Registro de videos (se llena a medida que avanzamos):
 
-| Semana | Foco | Piezas del plan |
-|---|---|---|
-| 1 | Origen y problema | 1, 2, 4 |
-| 2 | Los cimientos y el pivote | 7, 8, 9 |
-| 3 | Marca y diseño | 11, 13, 17 |
-| 4 | Producción y primeros coaches | 15, 21, 25 |
+| # | Tema | Estado | Fecha | Qué aprendimos |
+|---|---|---|---|---|
+| 1 | Una idea que ya había tenido, otra persona la hizo primero (pieza 6b) | Publicado | 2026-10 | |
+| 2 | El problema contado en presente, como si estuviera pasando (Excel, WhatsApp, feedback que se pierde) | Guion | | |
 
 ## 6. Estructura de cada pieza
 
@@ -184,18 +189,24 @@ Plantilla para cada fila en Notion:
 - **Naming:** sigue sin búsqueda de marca registrada; no lo presentes como definitivo legalmente.
 - **El repositorio es público:** cualquier cosa que cuentes de lo técnico puede ser comprobada. Cuenta solo lo que sabes que es cierto.
 
-## 8. Qué me falta de ti para cerrar el plan
+## 8. Respuestas de la CEO (2026-10-08) y lo que sigue abierto
 
-Estas son las respuestas que solo tú puedes dar; con ellas completamos el Acto 0 y el Acto 1 y definimos la voz final:
+**Ya respondido:**
 
-1. **Fecha y momento exacto de la idea.** ¿Cuándo ocurrió el "esto tiene que existir"? ¿Qué pasó ese día?
-2. **Tu coach.** ¿Quieres nombrarlo/a o contarlo de forma anónima? ¿Sabe que construyes esto?
-3. **Tu deporte.** El plan habla de "atleta" en general. En tu historia personal, ¿cuál es? (Da mucha identidad.)
-4. **Qué quieres mostrar de ti.** ¿Cara y voz en video, o prefieres piezas más escritas/visuales al inicio?
-5. **Qué momento de estas semanas fue más difícil** o te dieron ganas de dejarlo. Ese suele ser el mejor contenido.
-6. **Plataforma(s) y tiempo disponible** por semana.
-7. **Tu historia de emprender sola.** ¿Hay equipo, socios o ayuda que quieras mencionar?
-8. **Objetivo medible de la marca personal** a 3 meses (p. ej. N coaches en lista de espera, N conversaciones, N seguidores).
+1. **Detonante de la idea:** la idea ya existía; ver que alguien más desarrolló una idea parecida que ella no ejecutó, y que le iba muy bien, la llevó a decidir que no le pasaría otra vez. Va en el Acto 1.
+2. **Coach:** anónimo.
+3. **Deporte:** fútbol.
+4. **Presencia:** mostrará su cara; el video a cámara es formato central (se sube su peso en el calendario).
+5. **Momento más difícil:** tener la idea y una base, y luego validarla.
+6. **Plataformas del producto:** iOS y Android para tomar datos de las rutinas, móvil básico para coaches y web completa para coaches. (Esto es la hoja de ruta de producto, ya incorporada al Acto 6.)
+
+**Sigue abierto:**
+
+- **Redes sociales donde publicarás** y **tiempo por semana** (la respuesta 6 habló de plataformas del producto, no de redes).
+- **Fecha aproximada** de cuando viste esa idea ajena y decidiste actuar (mes y año bastan).
+- **Equipo:** ¿construyes sola o hay socios/ayuda que quieras mencionar?
+- **Objetivo medible** a 3 meses (p. ej. N coaches en lista de espera, N conversaciones de validación, N seguidores).
+- **Qué idea era la otra** y si quieres contarla con nombre o solo "una idea parecida" (conviene decidirlo: nombrar a alguien exige cuidado).
 
 ## 9. Siguientes pasos
 
