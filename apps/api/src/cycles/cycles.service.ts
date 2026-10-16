@@ -84,16 +84,11 @@ export class CyclesService {
       });
     }
 
-    // Un plan en borrador es trabajo a medio armar del coach: el atleta no lo
-    // ve, ni siquiera pidiendo status=draft explícitamente.
-    if (query.status === "draft") {
-      return [];
-    }
     return this.prisma.trainingCycle.findMany({
       where: {
         athleteId: user.id,
         parentCycleId: null,
-        status: query.status ?? { not: "draft" },
+        ...(query.status ? { status: query.status } : {}),
       },
       orderBy: { createdAt: "desc" },
     });
@@ -110,7 +105,7 @@ export class CyclesService {
     }
 
     return this.prisma.trainingCycle.findMany({
-      where: { parentCycleId: id, ...(user.role === "athlete" ? { status: { not: "draft" } } : {}) },
+      where: { parentCycleId: id },
       orderBy: { startDate: "asc" },
     });
   }
@@ -125,17 +120,10 @@ export class CyclesService {
     return cycle;
   }
 
-  private async assertAccess(
-    user: AuthenticatedUser,
-    cycle: { coachId: string; athleteId: string; status: string },
-  ): Promise<void> {
+  private async assertAccess(user: AuthenticatedUser, cycle: { coachId: string; athleteId: string }): Promise<void> {
     const isOwner = user.role === "coach" ? cycle.coachId === user.id : cycle.athleteId === user.id;
     if (!isOwner) {
       throw new ForbiddenException("No tienes acceso a este plan.");
-    }
-    // Un borrador todavía no se le asignó al atleta: para él no existe.
-    if (user.role !== "coach" && cycle.status === "draft") {
-      throw new NotFoundException("Ciclo no encontrado.");
     }
     // El coach además necesita la relación activa; el atleta siempre ve lo suyo.
     if (user.role === "coach") {

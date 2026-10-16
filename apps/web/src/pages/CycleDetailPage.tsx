@@ -18,7 +18,6 @@ import { ApiError } from "../services/httpClient";
 import { LoadingScreen } from "../components/LoadingScreen";
 
 const CYCLE_STATUS_LABEL: Record<CycleStatus, string> = {
-  draft: "Borrador",
   active: "Activo",
   completed: "Completado",
   archived: "Archivado",

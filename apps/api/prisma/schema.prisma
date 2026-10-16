@@ -31,7 +31,6 @@ enum WeightUnit {
 }
 
 enum CycleStatus {
-  draft
   active
   completed
   archived
@@ -191,7 +190,7 @@ model TrainingCycle {
   objective       String?
   startDate       DateTime
   endDate         DateTime
-  status          CycleStatus @default(draft)
+  status          CycleStatus @default(active)
   isTemplate      Boolean     @default(false)
   templateId      String?
   cycleType       CycleType   @default(mesocycle)

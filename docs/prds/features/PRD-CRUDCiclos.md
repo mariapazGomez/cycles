@@ -38,7 +38,7 @@ Sin un ciclo no hay dónde colgar las sesiones (historia 4) ni qué mostrarle a 
 
 - **Plantillas** (`isTemplate`/`templateId`): el modelo ya los soporta, pero duplicar un ciclo como plantilla hacia otro atleta es una funcionalidad separada, no incluida acá. Decisión tomada el 2026-09-22.
 - **Borrado (`DELETE`)**: no existe. Un ciclo que se descontinúa pasa a `status: archived` vía `PATCH`, nunca se borra de la base. Decisión tomada el 2026-09-22 — evita perder sesiones ya planificadas por error.
-- Validación de transiciones de estado (ej. impedir volver de `completed` a `draft`): no implementada en esta iteración: `PATCH` acepta cualquier `status` válido del enum.
+- Validación de transiciones de estado (ej. impedir volver de `completed` a `active` sin querer): no implementada en esta iteración: `PATCH` acepta cualquier `status` válido del enum.
 - UI en `apps/web`: no incluida en esta pieza — se construye junto con el CRUD de sesiones, que es donde un coach realmente arma el contenido de un ciclo.
 
 ## 4. Historias de usuario
@@ -79,4 +79,4 @@ Ninguno adicional a los del PRD general.
 ## 11. Estado y decisiones abiertas
 
 - **Plantillas y borrado quedaron fuera deliberadamente** (ver sección 3) — se retoman si hay demanda real.
-- **Sin validación de máquina de estados**: hoy `PATCH` deja pasar cualquier transición de `status` (incluso "rarezas" como volver de `completed` a `draft`). Se decidió no restringirlo todavía para no adivinar reglas de negocio que el usuario no pidió explícitamente; se ajusta cuando haya un caso real que lo justifique.
+- **Sin validación de máquina de estados**: hoy `PATCH` deja pasar cualquier transición de `status` (incluso "rarezas" como volver de `completed` a `active` sin querer). Se decidió no restringirlo todavía para no adivinar reglas de negocio que el usuario no pidió explícitamente; se ajusta cuando haya un caso real que lo justifique.
