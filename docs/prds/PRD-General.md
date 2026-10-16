@@ -164,7 +164,7 @@ erDiagram
         string objective "nullable"
         date startDate
         date endDate
-        enum status "draft|active|completed|archived"
+        enum status "active|completed|archived"
         boolean isTemplate
         uuid templateId FK "nullable, auto-relación"
         datetime createdAt

@@ -20,7 +20,7 @@ interface Item {
   weightKg: number | null;
 }
 interface PlanJson {
-  plan: { nombre: string; tipo: "mesocycle"; semanas: number; sesionesPorSemana: number; startDate: string; endDate: string; estado: "draft" | "active" };
+  plan: { nombre: string; tipo: "mesocycle"; semanas: number; sesionesPorSemana: number; startDate: string; endDate: string; estado: "active" };
   ejercicios: Record<string, { catalogo: string | null; crearComoPropio: boolean; grupoMuscular: string | null; nombreNuevo?: string }>;
   rutinas: Array<{ nombre: string; ejercicios: Item[] }>;
   cambiosPorSemana: Array<{ week: number; day: number; exercise: string; cambia: { weightKg?: number | null; sets?: number; reps?: number } }>;

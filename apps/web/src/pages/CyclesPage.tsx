@@ -8,7 +8,6 @@ import { ApiError } from "../services/httpClient";
 import { useAuth } from "../hooks/useAuth";
 
 const STATUS_LABEL: Record<CycleStatus, string> = {
-  draft: "Borrador",
   active: "Activo",
   completed: "Completado",
   archived: "Archivado",

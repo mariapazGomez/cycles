@@ -1,4 +1,4 @@
-export type CycleStatus = "draft" | "active" | "completed" | "archived";
+export type CycleStatus = "active" | "completed" | "archived";
 export type SessionStatus = "pending" | "completed" | "skipped";
 export type CycleType = "microcycle" | "mesocycle" | "macrocycle";
 export type MuscleGroup =
