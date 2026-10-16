@@ -17,6 +17,7 @@ import { LoginDto } from "./dto/login.dto";
 import { CompleteProfileDto } from "./dto/complete-profile.dto";
 import { GoogleProfile } from "./strategies/google.strategy";
 import { generateJti, generateRawToken, hashToken } from "./token.util";
+import { normalizeEmail } from "../common/validation/normalize-email";
 
 const ACCESS_TOKEN_TTL = "15m";
 const REFRESH_TOKEN_TTL_MS = 1000 * 60 * 60 * 24 * 30; // 30 días
@@ -91,12 +92,13 @@ export class AuthService {
   // pone tokens en la URL, sino un código de un solo uso que la web cambia
   // por la sesión con exchangeGoogleCode.
   async loginWithGoogle(profile: GoogleProfile): Promise<string> {
-    let user = await this.prisma.user.findUnique({ where: { email: profile.email } });
+    const email = normalizeEmail(profile.email);
+    let user = await this.prisma.user.findUnique({ where: { email } });
 
     if (!user) {
       user = await this.prisma.user.create({
         data: {
-          email: profile.email,
+          email,
           name: profile.name,
           authProvider: "google",
           role: null,
