@@ -13,6 +13,7 @@ import { Spinner } from '../components/Spinner';
 import { ExerciseLogScreen } from '../screens/ExerciseLogScreen';
 import { SessionFeedbackScreen } from '../screens/SessionFeedbackScreen';
 import { SessionDetailScreen } from '../screens/SessionDetailScreen';
+import { NotificationsScreen } from '../screens/NotificationsScreen';
 import type { AppStackParamList, TabParamList } from './types';
 import { colors } from '../theme/colors';
 
@@ -58,6 +59,7 @@ export function RootNavigator() {
             options={{ title: '' }}
           />
           <Stack.Screen name="SessionDetail" component={SessionDetailScreen} options={{ title: '' }} />
+          <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ headerShown: false }} />
           <Stack.Screen
             name="SessionFeedback"
             component={SessionFeedbackScreen}

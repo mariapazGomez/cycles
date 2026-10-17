@@ -26,6 +26,7 @@ import { Icon } from '../components/Icon';
 import { Spinner } from '../components/Spinner';
 import { ChainBackground } from '../components/ChainBackground';
 import { ProfileAvatar } from '../components/ProfileAvatar';
+import { NotificationBell } from '../components/NotificationBell';
 import { useTabBarClearance } from '../components/FloatingTabBar';
 import { colors } from '../theme/colors';
 import { cardShadow } from '../theme/elevation';
@@ -142,7 +143,10 @@ export function TodayScreen({ navigation }: Props) {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
       <View style={styles.header}>
         <Text style={styles.title}>Hoy</Text>
-        <ProfileAvatar />
+        <View style={styles.headerRight}>
+          <NotificationBell onPress={() => navigation.navigate('Notifications')} />
+          <ProfileAvatar />
+        </View>
       </View>
 
       {error && <Text style={styles.error}>{error}</Text>}
@@ -347,6 +351,7 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 16 },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bgApp },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   title: { fontSize: 32, fontWeight: '800', color: colors.ink },
   heroButtonDone: { backgroundColor: colors.brand },
   statsRow: { flexDirection: 'row', gap: 10, marginBottom: 10 },

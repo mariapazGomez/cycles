@@ -95,6 +95,7 @@ model User {
   emailVerificationTokens EmailVerificationToken[]
   refreshTokens           RefreshToken[]
   oauthExchangeCodes      OAuthExchangeCode[]
+  notifications           Notification[]
 }
 
 // Refresh tokens persistidos (hasheados) para poder rotarlos y revocarlos,
@@ -402,4 +403,38 @@ model ContactRequest {
 
   @@index([createdAt])
   @@index([email, createdAt])
+}
+
+// Avisos dentro de la app (campana) para atleta y coach. Ver
+// docs/diseno/notificaciones/README.md. No llevan datos de salud (R7): el
+// payload solo trae nombres y el día; los textos se arman en el cliente.
+enum NotificationType {
+  plan_assigned
+  session_added
+  session_changed
+  session_scheduled
+  session_logged
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  type      NotificationType
+  // Avisos con la misma clave se fusionan mientras no se lean.
+  groupKey  String
+  planId    String?
+  sessionId String?
+  count     Int              @default(1)
+  payload   Json
+  readAt    DateTime?
+  // Desde cuándo se ve. En los avisos con espera de 10 minutos es posterior a
+  // la creación; se mueve mientras sigan llegando cambios.
+  visibleAt DateTime
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, visibleAt])
+  @@index([userId, groupKey, readAt])
 }
