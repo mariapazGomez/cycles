@@ -9,6 +9,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { AuthenticatedUser } from "../common/decorators/current-user.decorator";
 import { CURRENT_FEEDBACK, CURRENT_LOG } from "../common/training";
 import { assertActiveRelation } from "../common/access";
+import { NotificationsService } from "../notifications/notifications.service";
 import { CreateSessionDto } from "./dto/create-session.dto";
 import { UpdateSessionDto } from "./dto/update-session.dto";
 import { AddSessionExerciseDto } from "./dto/add-session-exercise.dto";
@@ -16,7 +17,10 @@ import { UpdateSessionExerciseDto } from "./dto/update-session-exercise.dto";
 
 @Injectable()
 export class SessionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   // Una celda del grid: instancia una rutina de la biblioteca en
   // (weekNumber, slotNumber). Los SessionExercise se copian de la rutina
@@ -61,7 +65,7 @@ export class SessionsService {
       throw new ConflictException("Ya hay una sesión asignada en esa celda del grid.");
     }
 
-    return this.prisma.trainingSession.create({
+    const created = await this.prisma.trainingSession.create({
       data: {
         cycleId,
         name: routine.name,
@@ -83,6 +87,8 @@ export class SessionsService {
       },
       include: { sessionExercises: { include: { exercise: true }, orderBy: { orderIndex: "asc" } } },
     });
+    this.notifications.coachEditedSession(created.id, "added");
+    return created;
   }
 
   async listSessions(user: AuthenticatedUser, cycleId: string) {
@@ -125,7 +131,7 @@ export class SessionsService {
   async updateSession(coachId: string, sessionId: string, dto: UpdateSessionDto) {
     const session = await this.getSessionForCoach(sessionId, coachId);
 
-    return this.prisma.trainingSession.update({
+    const updated = await this.prisma.trainingSession.update({
       where: { id: session.id },
       data: {
         ...(dto.name !== undefined ? { name: dto.name } : {}),
@@ -133,6 +139,10 @@ export class SessionsService {
         ...(dto.status !== undefined ? { status: dto.status } : {}),
       },
     });
+    if (dto.name !== undefined || dto.scheduledDate !== undefined) {
+      this.notifications.coachEditedSession(session.id, "changed");
+    }
+    return updated;
   }
 
   async deleteSession(coachId: string, sessionId: string): Promise<void> {
@@ -164,7 +174,7 @@ export class SessionsService {
     });
     const orderIndex = (_max.orderIndex ?? 0) + 1;
 
-    return this.prisma.sessionExercise.create({
+    const created = await this.prisma.sessionExercise.create({
       data: {
         sessionId: session.id,
         exerciseId: dto.exerciseId,
@@ -177,12 +187,14 @@ export class SessionsService {
       },
       include: { exercise: true },
     });
+    this.notifications.coachEditedSession(session.id, "changed");
+    return created;
   }
 
   async updateExercise(coachId: string, sessionExerciseId: string, dto: UpdateSessionExerciseDto) {
     const sessionExercise = await this.getSessionExerciseForCoach(sessionExerciseId, coachId);
 
-    return this.prisma.sessionExercise.update({
+    const updated = await this.prisma.sessionExercise.update({
       where: { id: sessionExercise.id },
       data: {
         ...(dto.targetSets !== undefined ? { targetSets: dto.targetSets } : {}),
@@ -193,6 +205,8 @@ export class SessionsService {
       },
       include: { exercise: true },
     });
+    this.notifications.coachEditedSession(sessionExercise.sessionId, "changed");
+    return updated;
   }
 
   async removeExercise(coachId: string, sessionExerciseId: string): Promise<void> {
@@ -207,6 +221,7 @@ export class SessionsService {
     }
 
     await this.prisma.sessionExercise.delete({ where: { id: sessionExercise.id } });
+    this.notifications.coachEditedSession(sessionExercise.sessionId, "changed");
   }
 
   private async assertCycleAccess(

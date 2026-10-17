@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { ActivityNotifier } from "../activity/activity-notifier.service";
+import { NotificationsService } from "../notifications/notifications.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { CURRENT_FEEDBACK, CURRENT_LOG, parseDay, planWeekAt, startOfUtcDay } from "../common/training";
 import { LogSetDto } from "./dto/log-set.dto";
@@ -26,6 +27,7 @@ export class ExecutionService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly activity: ActivityNotifier,
+    private readonly notifications: NotificationsService,
   ) {}
 
   // La próxima sesión pendiente de los planes activos del atleta, con lo que
@@ -127,10 +129,14 @@ export class ExecutionService {
       scheduledDate = day;
     }
 
-    return this.prisma.trainingSession.update({
+    const updated = await this.prisma.trainingSession.update({
       where: { id: session.id },
       data: { scheduledDate },
     });
+    if (scheduledDate) {
+      this.notifications.athleteScheduledSession(session.id);
+    }
+    return updated;
   }
 
   async startSession(athleteId: string, sessionId: string) {
@@ -263,6 +269,7 @@ export class ExecutionService {
     if (dto.outcome === "completed" && !dto.supersedesId) {
       this.activity.sessionCompleted(athleteId);
     }
+    this.notifications.athleteClosedSession(sessionId, dto.outcome);
     return feedback;
   }
 

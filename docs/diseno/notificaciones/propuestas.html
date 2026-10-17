@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Avisos Cycles</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&display=swap">
+<style>
+/* Concepto: los avisos son cuentas de la cadena. Sin leer = cuenta azul llena; leído = cuenta vacía con borde. Una campana en la cabecera (web) y en el encabezado de Hoy (app) abre la lista. Solo modo claro. Los datos de ejemplo son inventados. */
+:root{
+  --font-display:"Bricolage Grotesque","Inter",system-ui,sans-serif; --font-body:"Inter",system-ui,sans-serif;
+  --brand:#3080fc; --blue:#1a66dd; --b100:#eaf2ff; --b200:#d6e4ff; --b300:#a9c8fd;
+  --bg:#ffffff; --ink:#1f2228; --ink2:#5c6068; --gray:#f6f7f9; --line:#dfe2e7; --mid:#8a8f98;
+  --page:#f3f5f8; --shadow:0 1px 2px rgba(31,34,40,.05),0 6px 18px -8px rgba(31,34,40,.14);
+  --pop:0 2px 4px rgba(31,34,40,.06),0 16px 36px -12px rgba(31,34,40,.22); color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5}
+button{font:inherit;color:inherit;cursor:pointer}
+svg{display:block}
+.bar{max-width:1120px;margin:0 auto;padding:20px 24px 0;display:flex;flex-wrap:wrap;gap:8px 28px;align-items:center}
+.bar h1{font-family:var(--font-display);font-size:1.35rem;margin:0 12px 0 0}
+.seg{display:flex;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{border:0;background:none;padding:6px 14px;border-radius:999px;font-size:.88rem;font-weight:600;color:var(--ink2)}
+.seg button.on{background:var(--ink);color:#fff}
+.stage{max-width:1120px;margin:0 auto;padding:24px}
+.hide{display:none!important}
+
+/* ===== Cabecera web ===== */
+.web{background:var(--bg);border:1px solid var(--line);border-radius:14px;overflow:hidden;min-height:640px;position:relative}
+.hdr{display:flex;align-items:center;gap:32px;padding:14px 24px;border-bottom:1px solid var(--line);background:var(--bg)}
+.hdr img{height:26px}
+.nav{display:flex;gap:20px;flex:1}
+.nav a{font-size:.92rem;font-weight:600;color:var(--ink2);padding:6px 2px;border-bottom:2px solid transparent}
+.nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.hdr-r{display:flex;align-items:center;gap:8px}
+.bell{position:relative;width:44px;height:44px;border-radius:50%;border:0;background:none;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.bell:hover,.bell.open{background:var(--gray)}
+.bell:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.badge{position:absolute;top:3px;right:2px;min-width:20px;height:20px;padding:0 4px;border-radius:10px;background:var(--blue);color:#fff;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);box-sizing:border-box;line-height:1}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--ink);color:#fff;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.webbody{padding:28px 24px;background:var(--page);min-height:560px}
+.ghost{background:var(--bg);border:1px solid var(--line);border-radius:12px;height:96px;margin-bottom:14px;max-width:640px}
+.ghost.dark{background:var(--ink);border-color:var(--ink);height:150px}
+
+/* ===== Panel de avisos (compartido web) ===== */
+.pop{position:absolute;top:66px;right:24px;width:380px;background:var(--bg);border:1px solid var(--line);border-radius:14px;box-shadow:var(--pop);z-index:4}
+.pop-h{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px}
+.pop-h h2{font-family:var(--font-display);font-size:1.05rem;margin:0}
+.link{border:0;background:none;color:var(--blue);font-weight:600;font-size:.85rem;padding:6px 4px;border-radius:6px}
+.link:hover{text-decoration:underline}
+.list{list-style:none;margin:0;padding:0}
+.item{display:flex;gap:12px;padding:12px 16px;border-top:1px solid var(--line);align-items:flex-start;width:100%;background:none;border-left:0;border-right:0;border-bottom:0;text-align:left}
+.item:hover{background:var(--gray)}
+.item.unread{background:var(--b100)}
+.item.unread:hover{background:var(--b200)}
+.bead{width:36px;height:36px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center}
+.unread .bead{background:var(--blue);color:#fff}
+.read .bead{background:var(--bg);border:1.5px solid var(--line);color:var(--ink2)}
+.bead b{font-size:.74rem;font-weight:700;letter-spacing:.02em}
+.txt{flex:1;min-width:0}
+.t{font-weight:700;font-size:.92rem;line-height:1.3}
+.d{font-size:.88rem;color:var(--ink);margin-top:2px;line-height:1.4}
+.read .d{color:var(--ink2)}
+.when{font-size:.78rem;color:var(--ink2);white-space:nowrap;padding-top:2px}
+.pop-f{padding:10px 16px 14px;border-top:1px solid var(--line);font-size:.82rem;color:var(--ink2)}
+.state{padding:30px 24px 34px;text-align:center;position:relative;overflow:hidden}
+.state h3{font-family:var(--font-display);font-size:1.05rem;margin:10px 0 4px}
+.state p{margin:0 auto;max-width:260px;font-size:.9rem;color:var(--ink2)}
+.state .btn{margin-top:14px;border:1.5px solid var(--ink);background:var(--bg);border-radius:999px;padding:8px 18px;font-weight:600;font-size:.88rem}
+.chain{position:absolute;inset:0;pointer-events:none;opacity:.55}
+.state>*{position:relative}
+.note{margin:12px 0 0;font-size:.82rem;color:var(--ink2);max-width:640px}
+
+/* ===== Teléfono ===== */
+.phones{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.phone{width:390px;height:700px;background:var(--page);border:8px solid var(--ink);border-radius:38px;position:relative;overflow:hidden}
+.status{height:44px;padding:0 22px;display:flex;align-items:flex-end;justify-content:space-between;font-size:.72rem;font-weight:700;padding-bottom:4px}
+.pc{padding:6px 16px 0}
+.phead{display:flex;align-items:center;justify-content:space-between;margin:8px 0 14px;min-height:44px}
+.phead h2{font-family:var(--font-display);font-size:1.7rem;margin:0}
+.pr{display:flex;align-items:center;gap:4px}
+.pbell{position:relative;width:44px;height:44px;border-radius:50%;border:0;background:none;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.pbell .badge{border-color:var(--page);top:5px;right:3px}
+.back{width:44px;height:44px;border:0;background:none;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-10px}
+.pcard{background:var(--bg);border-radius:18px;box-shadow:var(--shadow);padding:16px}
+.pcard.dark{background:var(--ink);color:#fff;height:170px}
+.pcard.s{height:70px;margin-top:12px}
+.pcard.list{padding:0;overflow:hidden}
+.pcard.list .item{border-top:1px solid var(--line);padding:14px 16px}
+.pcard.list .item:first-child{border-top:0}
+.pcard.list .item:hover{background:none}
+.pcard.list .item.unread{background:var(--b100)}
+.markrow{display:flex;justify-content:flex-end;margin:-6px 2px 4px}
+.sect{font-family:var(--font-display);font-size:.95rem;margin:16px 4px 8px}
+.island{position:absolute;left:50%;transform:translateX(-50%);bottom:18px;height:52px;background:var(--bg);border-radius:26px;box-shadow:var(--pop);display:flex;align-items:center;gap:6px;padding:0 8px}
+.island span{height:38px;padding:0 14px;border-radius:19px;display:flex;align-items:center;gap:6px;font-size:.78rem;font-weight:700;color:var(--ink2)}
+.island span.on{background:var(--ink);color:#fff}
+.cap{margin:10px 0 0;text-align:center;font-size:.85rem;font-weight:600}
+.legend{max-width:640px;margin-top:20px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px 18px;font-size:.88rem}
+.legend b{font-weight:700}
+.legend ul{margin:6px 0 0;padding-left:18px}
+
+/* ===== Textos ===== */
+table{width:100%;border-collapse:collapse;background:var(--bg);border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:.9rem}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--gray);font-size:.8rem;font-weight:700}
+tr:last-child td{border-bottom:0}
+.tbl-h{font-family:var(--font-display);font-size:1.1rem;margin:22px 0 8px}
+code{background:var(--gray);padding:1px 6px;border-radius:5px;font-size:.84rem}
+@media (max-width:760px){.pop{left:12px;right:12px;width:auto}.hdr{gap:12px;padding:12px}.nav{gap:12px}}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <h1>Avisos</h1>
+  <div class="seg" id="seg-role"><button class="on" data-r="ath">Atleta</button><button data-r="coach">Coach</button></div>
+  <div class="seg" id="seg-plat">
+    <button class="on" data-p="web">Web</button>
+    <button data-p="app">App iOS</button>
+    <button data-p="txt">Textos y reglas</button>
+  </div>
+  <div class="seg" id="seg-web">
+    <button class="on" data-s="open">Con avisos</button>
+    <button data-s="closed">Panel cerrado</button>
+    <button data-s="empty">Sin avisos</button>
+    <button data-s="error">No cargó</button>
+  </div>
+  <div class="seg hide" id="seg-app">
+    <button class="on" data-s="hoy">Hoy</button>
+    <button data-s="lista">Lista</button>
+    <button data-s="empty">Sin avisos</button>
+    <button data-s="error">No cargó</button>
+  </div>
+</div>
+
+<div class="stage">
+
+<!-- ================= SVG sprites ================= -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 9.5a6 6 0 0 1 12 0c0 4.2 1.4 5.6 2 6.5H4c.6-.9 2-2.3 2-6.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 19.5a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-plan" viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="6.5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="17.5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.2 11l7.6-3.4M8.2 13l7.6 3.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M5 19l1-4L16.5 4.5a1.8 1.8 0 0 1 2.5 0l.5.5a1.8 1.8 0 0 1 0 2.5L9 18l-4 1Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 10h16M9 3.5v4M15 3.5v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M4.5 11 12 4.5 19.5 11V19a1 1 0 0 1-1 1h-4v-5h-5v5h-4a1 1 0 0 1-1-1Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-sum" viewBox="0 0 24 24"><path d="M5 19V11M12 19V5M19 19v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></symbol>
+    <!-- Cadena de proteína para estados vacíos: cuentas de distinto tamaño y opacidad que se pliegan -->
+    <symbol id="chain" viewBox="0 0 320 200">
+      <g fill="#3080fc">
+        <circle cx="20" cy="150" r="5" opacity=".25"/><circle cx="42" cy="132" r="7" opacity=".35"/><circle cx="68" cy="118" r="9" opacity=".5"/><circle cx="98" cy="112" r="6" opacity=".4"/><circle cx="124" cy="120" r="8" opacity=".55"/>
+        <circle cx="146" cy="138" r="5" opacity=".3"/><circle cx="170" cy="150" r="7" opacity=".45"/><circle cx="198" cy="146" r="9" opacity=".6"/><circle cx="226" cy="130" r="6" opacity=".4"/><circle cx="250" cy="112" r="8" opacity=".5"/>
+        <circle cx="276" cy="100" r="5" opacity=".3"/><circle cx="300" cy="96" r="7" opacity=".25"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ================= WEB ================= -->
+<section id="web">
+  <div class="web">
+    <header class="hdr">
+      <img src="../../brand/img/logo_cycles.png" alt="Cycles">
+      <nav class="nav" id="nav"></nav>
+      <div class="hdr-r">
+        <button class="bell open" id="bell-web" aria-label="Avisos, 3 sin leer" aria-expanded="true">
+          <svg width="22" height="22"><use href="#i-bell"/></svg>
+          <span class="badge" id="badge-web">3</span>
+        </button>
+        <div class="avatar" id="av-web">MG</div>
+      </div>
+    </header>
+    <div class="webbody">
+      <div class="ghost dark"></div><div class="ghost"></div><div class="ghost"></div>
+    </div>
+
+    <div class="pop" id="pop-web" role="dialog" aria-label="Avisos">
+      <div class="pop-h"><h2>Avisos</h2><button class="link" id="mark-web">Marcar todo como leído</button></div>
+      <div id="pop-body"></div>
+    </div>
+  </div>
+  <p class="note" id="web-note"></p>
+</section>
+
+<!-- ================= APP ================= -->
+<section id="app" class="hide">
+  <div class="phones" id="phones"></div>
+  <div class="legend" id="app-legend"></div>
+</section>
+
+<!-- ================= TEXTOS ================= -->
+<section id="txt" class="hide">
+ <div id="txt-ath">
+  <div class="tbl-h">Qué avisa y con qué texto</div>
+  <table>
+    <tr><th>Evento</th><th>Título</th><th>Texto</th><th>Al tocarlo abre</th></tr>
+    <tr><td>Plan nuevo asignado</td><td>Plan nuevo</td><td>«{Coach} te asignó {Plan}. Ya puedes verlo.»</td><td>El plan</td></tr>
+    <tr><td>Sesión nueva en un plan que ya tienes</td><td>Sesión nueva</td><td>«Hay una sesión nueva en {Plan}: {Rutina}.»</td><td>La sesión</td></tr>
+    <tr><td>Cambio en una sesión ya asignada</td><td>Cambió tu sesión</td><td>«{Coach} ajustó {Rutina} del {día}. Revísala antes de entrenar.»</td><td>La sesión</td></tr>
+    <tr><td>Varios cambios seguidos (agrupado)</td><td>Cambios en {Plan}</td><td>«{Coach} hizo {n} ajustes. Revísalos antes de entrenar.»</td><td>El plan</td></tr>
+  </table>
+  <div class="tbl-h">Estados de la lista</div>
+  <table>
+    <tr><th>Estado</th><th>Texto</th></tr>
+    <tr><td>Sin avisos</td><td><b>Todo al día.</b> «Cuando tu coach cambie algo en tu plan, lo verás aquí.»</td></tr>
+    <tr><td>No cargó</td><td><b>No pudimos cargar tus avisos.</b> «Revisa tu conexión e inténtalo de nuevo.» Botón: «Reintentar»</td></tr>
+    <tr><td>Acción de lista</td><td>«Marcar todo como leído»</td></tr>
+    <tr><td>Pie de lista (solo si hay más de 20)</td><td>«Mostrando los últimos 20 avisos.»</td></tr>
+    <tr><td>Etiqueta para lectores de pantalla</td><td>«Avisos, 3 sin leer» · «Avisos, ninguno sin leer»</td></tr>
+  </table>
+  <div class="tbl-h">Cuándo se avisa y cuándo no</div>
+  <table>
+    <tr><th>Regla</th><th>Decisión</th></tr>
+    <tr><td>Espera antes de avisar</td><td>El aviso sale cuando pasan <b>10 minutos sin cambios</b> en ese plan. Así no llega uno por cada ejercicio que el coach agrega al armar.</td></tr>
+    <tr><td>Agrupar</td><td>Si hay un aviso del mismo plan y tipo <b>sin leer</b>, no se crea otro: se actualiza el texto y la hora («Cambios en {Plan}», con el número). Si ya lo leíste, el siguiente cambio crea uno nuevo.</td></tr>
+    <tr><td>Plan vacío</td><td>No se avisa. El aviso «Plan nuevo» sale cuando el plan tiene al menos una sesión con ejercicios.</td></tr>
+    <tr><td>Coach en pantalla</td><td>El coach puede pulsar «Avisar ahora» en el cierre del plan (T-044) para saltarse la espera.</td></tr>
+    <tr><td>Cambios que no avisan</td><td>Sesiones ya completadas, omitidas o con series registradas; renombrar el plan; ajustes del coach sobre otros atletas.</td></tr>
+    <tr><td>Datos de salud (R7)</td><td>Nunca llevan cargas, esfuerzo, dolor, notas ni peso corporal. Solo nombres de coach, plan y rutina, y el día.</td></tr>
+    <tr><td>Cuánto se guardan</td><td>30 días y un máximo de 50 por atleta. La lista muestra los 20 más recientes.</td></tr>
+  </table>
+ </div>
+ <div id="txt-coach" class="hide">
+  <div class="tbl-h">Qué avisa y con qué texto</div>
+  <table>
+    <tr><th>Evento</th><th>Título</th><th>Texto</th><th>Al tocarlo abre</th></tr>
+    <tr><td>El atleta programa una sesión</td><td>Sesión programada</td><td>«{Atleta} programó {Rutina} para el {día}.»</td><td>El plan, en esa sesión</td></tr>
+    <tr><td>El atleta programa varias seguidas (agrupado)</td><td>Sesión programada</td><td>«{Atleta} programó {n} sesiones en {Plan}.»</td><td>El plan</td></tr>
+    <tr><td>El atleta registra una sesión completa</td><td>Sesión completada</td><td>«{Atleta} completó {Rutina}.»</td><td>El registro de la sesión</td></tr>
+    <tr><td>El atleta registra una parte</td><td>Completó una parte</td><td>«{Atleta} completó una parte de {Rutina}.»</td><td>El registro de la sesión</td></tr>
+    <tr><td>El atleta no pudo entrenar</td><td>Sesión omitida</td><td>«{Atleta} no pudo entrenar {Rutina}. Quedó como omitida.»</td><td>El registro de la sesión</td></tr>
+    <tr><td>Varios registros seguidos sin leer (agrupado)</td><td>Sesiones registradas</td><td>«{Atleta} registró {n} sesiones.»</td><td>El resumen del atleta</td></tr>
+  </table>
+  <div class="tbl-h">Estados de la lista</div>
+  <table>
+    <tr><th>Estado</th><th>Texto</th></tr>
+    <tr><td>Sin avisos</td><td><b>Todo al día.</b> «Cuando tus atletas programen o registren una sesión, lo verás aquí.»</td></tr>
+    <tr><td>No cargó</td><td><b>No pudimos cargar tus avisos.</b> «Revisa tu conexión e inténtalo de nuevo.» Botón: «Reintentar»</td></tr>
+    <tr><td>Acción de lista y pie</td><td>Igual que en el atleta: «Marcar todo como leído» y «Mostrando los últimos 20 avisos.»</td></tr>
+  </table>
+  <div class="tbl-h">Cuándo se avisa y cuándo no</div>
+  <table>
+    <tr><th>Regla</th><th>Decisión</th></tr>
+    <tr><td>Programar</td><td>Misma espera que en el atleta: el aviso sale cuando pasan <b>10 minutos sin que el atleta programe otra</b>. Así, asignar los días de la semana entera es un solo aviso.</td></tr>
+    <tr><td>Registrar</td><td>El aviso sale <b>al cerrar la sesión</b> (cuando el atleta guarda cómo le fue), no por cada serie. Sin espera.</td></tr>
+    <tr><td>Agrupar</td><td>Si hay un aviso del mismo atleta y tipo <b>sin leer</b>, se actualiza (número y hora) en vez de crear otro. Si ya estaba leído, se crea uno nuevo.</td></tr>
+    <tr><td>Reabrir y volver a cerrar</td><td>Reabrir una sesión no avisa. Al cerrarla otra vez se actualiza el aviso de esa sesión, no se duplica.</td></tr>
+    <tr><td>Reprogramar</td><td>Mover una sesión a otro día cuenta como programar; se avisa una vez, con el día nuevo.</td></tr>
+    <tr><td>De quién</td><td>Solo de atletas con relación activa con ese coach.</td></tr>
+    <tr><td>Datos de salud (R7)</td><td>Los avisos dicen <b>qué pasó</b> (completada, parte, omitida), nunca esfuerzo, dolor, notas, cargas ni peso corporal. Eso se ve al abrir el registro. El dolor reportado sigue en «Necesitan atención» del Inicio.</td></tr>
+    <tr><td>Aviso frente a «Necesitan atención»</td><td>«Necesitan atención» es lo que el coach debe resolver; los avisos son lo que pasó. No se repiten entre sí.</td></tr>
+    <tr><td>Cuánto se guardan</td><td>30 días y un máximo de 50 por coach. La lista muestra los 20 más recientes.</td></tr>
+  </table>
+ </div>
+</section>
+
+</div>
+
+<script>
+const ICON = {plan:'i-plan', add:'i-plus', edit:'i-edit'};
+const COACH = [
+  {ini:'LP', u:1, t:'Sesión completada', d:'Lucía Pérez completó Pierna A.', w:'Hace 8 min'},
+  {ini:'MR', u:1, t:'Sesión programada', d:'Mateo Rojas programó 3 sesiones en Bloque de fuerza.', w:'Hoy 09:15'},
+  {ini:'SV', u:1, t:'Sesión omitida', d:'Sofía Vera no pudo entrenar Torso B. Quedó como omitida.', w:'Ayer'},
+  {ini:'LP', u:0, t:'Completó una parte', d:'Lucía Pérez completó una parte de Torso A.', w:'Mar 14'},
+  {ini:'MR', u:0, t:'Sesión programada', d:'Mateo Rojas programó Pierna B para el jueves.', w:'Lun 13'}
+];
+let role='ath';
+const list_=()=>role==='coach'?COACH:DATA;
+const DATA = [
+  {k:'edit', u:1, t:'Cambió tu sesión', d:'Camila ajustó Pierna A del martes. Revísala antes de entrenar.', w:'Hace 12 min'},
+  {k:'add',  u:1, t:'Sesión nueva', d:'Hay una sesión nueva en Bloque de fuerza: Torso B.', w:'Hoy 09:40'},
+  {k:'plan', u:1, t:'Plan nuevo', d:'Camila te asignó Bloque de fuerza. Ya puedes verlo.', w:'Ayer'},
+  {k:'edit', u:0, t:'Cambios en Bloque de fuerza', d:'Camila hizo 4 ajustes. Revísalos antes de entrenar.', w:'Mar 14'},
+  {k:'add',  u:0, t:'Sesión nueva', d:'Hay una sesión nueva en Bloque de fuerza: Pierna A.', w:'Lun 13'}
+];
+function icon(k,s){return `<svg width="${s||18}" height="${s||18}"><use href="#${ICON[k]}"/></svg>`}
+function items(list,btn){
+  return `<ul class="list">`+list.map(n=>`<li><button class="item ${n.u?'unread':'read'}"><span class="bead">${n.ini?`<b>${n.ini}</b>`:icon(n.k)}</span><span class="txt"><div class="t">${n.t}</div><div class="d">${n.d}</div></span><span class="when">${n.w}</span></button></li>`).join('')+`</ul>`;
+}
+function emptyState(){return `<div class="state"><svg class="chain" viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"><use href="#chain"/></svg><h3>Todo al día</h3><p>${role==='coach'?'Cuando tus atletas programen o registren una sesión, lo verás aquí.':'Cuando tu coach cambie algo en tu plan, lo verás aquí.'}</p></div>`}
+function errorState(){return `<div class="state"><h3>No pudimos cargar tus avisos</h3><p>Revisa tu conexión e inténtalo de nuevo.</p><button class="btn">Reintentar</button></div>`}
+
+/* ---- Web ---- */
+const webNotes={
+  open:'Panel de 380 px anclado a la campana. Los sin leer llevan fondo azul claro y cuenta azul llena; los leídos, cuenta vacía con borde. Al tocar un aviso se marca como leído y se abre el plan o la sesión. Se cierra con Escape o al tocar fuera.',
+  closed:'La campana mide 44 px de área táctil. El número azul cuenta los avisos sin leer (de 1 a 9; desde 10 se muestra «9+»). Sin avisos pendientes no se dibuja número.',
+  empty:'Sin avisos: la campana va sin número. El panel usa la cadena de proteína de fondo, solo en la zona del texto.',
+  error:'Si la carga falla, la campana queda sin número y el panel ofrece reintentar. No bloquea el resto de la pantalla.'
+};
+const coachNotes={
+  open:'Misma campana y mismo panel que en el atleta. La diferencia: la cuenta lleva las iniciales del atleta en lugar de un icono, porque al coach le importa primero quién. El tipo de evento lo dice el título. Al tocar un aviso se marca como leído y abre el plan o el registro de la sesión.',
+  closed:'La campana va a la izquierda del menú de usuario, después de las pestañas Inicio, Atletas, Planes y Rutinas. Mismo número y mismas reglas que en el atleta. El Inicio sigue mostrando «Necesitan atención» con lo que hay que resolver; los avisos cuentan lo que pasó.',
+  empty:'Sin avisos: la campana va sin número y el panel muestra la cadena de proteína solo detrás del texto.',
+  error:'Si la carga falla, la campana queda sin número y el panel ofrece reintentar. No bloquea el resto de la pantalla.'
+};
+function renderWeb(s){
+  document.getElementById('nav').innerHTML=role==='coach'
+    ?'<a class="on" href="#">Inicio</a><a href="#">Atletas</a><a href="#">Planes</a><a href="#">Rutinas</a>'
+    :'<a class="on" href="#">Hoy</a><a href="#">Mis planes</a>';
+  document.getElementById('av-web').textContent=role==='coach'?'CR':'MG';
+  const pop=document.getElementById('pop-web'),bell=document.getElementById('bell-web'),badge=document.getElementById('badge-web'),mark=document.getElementById('mark-web');
+  document.getElementById('web-note').textContent=(role==='coach'?coachNotes:webNotes)[s];
+  pop.classList.toggle('hide',s==='closed');bell.classList.toggle('open',s!=='closed');bell.setAttribute('aria-expanded',s!=='closed');
+  const n=(s==='open'||s==='closed')?3:0;
+  badge.classList.toggle('hide',!n);badge.textContent=n;
+  bell.setAttribute('aria-label',n?`Avisos, ${n} sin leer`:'Avisos, ninguno sin leer');
+  mark.classList.toggle('hide',s!=='open');
+  const body=document.getElementById('pop-body');
+  if(s==='empty')body.innerHTML=emptyState();
+  else if(s==='error')body.innerHTML=errorState();
+  else body.innerHTML=items(list_())+`<div class="pop-f">Mostrando los últimos 20 avisos.</div>`;
+}
+
+/* ---- App ---- */
+function statusBar(){return `<div class="status"><span>9:41</span><span>5G</span></div>`}
+function island(){return `<div class="island"><span><svg width="18" height="18"><use href="#i-cal"/></svg></span><span class="on"><svg width="18" height="18"><use href="#i-home"/></svg>Inicio</span><span><svg width="18" height="18"><use href="#i-sum"/></svg></span></div>`}
+function phoneHoy(n){
+  return `<div><div class="phone">${statusBar()}<div class="pc">
+    <div class="phead"><h2>Hoy</h2><div class="pr">
+      <button class="pbell" aria-label="${n?`Avisos, ${n} sin leer`:'Avisos'}"><svg width="24" height="24"><use href="#i-bell"/></svg>${n?`<span class="badge">${n}</span>`:''}</button>
+      <div class="avatar">MG</div></div></div>
+    <div class="pcard dark"></div><div class="pcard s"></div><div class="pcard s"></div>
+  </div>${island()}</div><div class="cap">Hoy con la campana</div></div>`;
+}
+function phoneLista(inner,cap,showMark){
+  return `<div><div class="phone">${statusBar()}<div class="pc">
+    <div class="phead"><div class="pr"><button class="back" aria-label="Volver"><svg width="24" height="24"><use href="#i-back"/></svg></button><h2>Avisos</h2></div>
+    </div>
+    ${showMark?`<div class="markrow"><button class="link">Marcar todo como leído</button></div>`:''}
+    ${inner}
+  </div></div><div class="cap">${cap}</div></div>`;
+}
+const appLegend={
+  hoy:['La campana va en el encabezado de Hoy, a la izquierda del avatar. Es la única pantalla que la lleva: Calendario y Resumen no la repiten.','La isla de tres pestañas no cambia.','El número cuenta los sin leer y se actualiza al volver la app a primer plano.'],
+  lista:['«Avisos» es una pantalla aparte (se entra con la campana), no una cuarta pestaña. La isla se oculta mientras se está en ella, como en el registro de series.','Cada aviso es una fila de 44 px de alto mínimo, dentro de una sola tarjeta blanca de 18 px.','Al tocar un aviso se marca como leído y abre el plan o la sesión. Deslizar hacia abajo refresca.'],
+  empty:['Sin avisos: la cadena de proteína queda dentro de la tarjeta, solo en la zona del texto.'],
+  error:['Si la carga falla, la pantalla conserva el encabezado y ofrece reintentar.']
+};
+function renderApp(s){
+  const ph=document.getElementById('phones');
+  if(s==='hoy') ph.innerHTML=phoneHoy(3)+phoneHoy(0).replace('Hoy con la campana','Hoy sin avisos pendientes');
+  if(s==='lista') ph.innerHTML=phoneLista(`<div class="pcard list">${items(DATA)}</div>`,'Lista con avisos',true);
+  if(s==='empty') ph.innerHTML=phoneLista(`<div class="pcard">${emptyState()}</div>`,'Sin avisos',false);
+  if(s==='error') ph.innerHTML=phoneLista(`<div class="pcard">${errorState()}</div>`,'No cargó',false);
+  document.getElementById('app-legend').innerHTML='<b>Notas</b><ul>'+appLegend[s].map(x=>`<li>${x}</li>`).join('')+'</ul>';
+}
+
+/* ---- Controles ---- */
+let plat='web',web='open',app='hoy';
+function show(){
+  if(role==='coach'&&plat==='app')plat='web';
+  document.querySelector('#seg-plat [data-p="app"]').classList.toggle('hide',role==='coach');
+  document.querySelectorAll('#seg-role button').forEach(b=>b.classList.toggle('on',b.dataset.r===role));
+  document.getElementById('txt-ath').classList.toggle('hide',role==='coach');
+  document.getElementById('txt-coach').classList.toggle('hide',role!=='coach');
+  ['web','app','txt'].forEach(p=>document.getElementById(p).classList.toggle('hide',p!==plat));
+  document.getElementById('seg-web').classList.toggle('hide',plat!=='web');
+  document.getElementById('seg-app').classList.toggle('hide',plat!=='app');
+  document.querySelectorAll('#seg-plat button').forEach(b=>b.classList.toggle('on',b.dataset.p===plat));
+  document.querySelectorAll('#seg-web button').forEach(b=>b.classList.toggle('on',b.dataset.s===web));
+  document.querySelectorAll('#seg-app button').forEach(b=>b.classList.toggle('on',b.dataset.s===app));
+  renderWeb(web);renderApp(app);
+}
+document.querySelectorAll('#seg-role button').forEach(b=>b.onclick=()=>{role=b.dataset.r;show()});
+document.querySelectorAll('#seg-plat button').forEach(b=>b.onclick=()=>{plat=b.dataset.p;show()});
+document.querySelectorAll('#seg-web button').forEach(b=>b.onclick=()=>{web=b.dataset.s;show()});
+document.querySelectorAll('#seg-app button').forEach(b=>b.onclick=()=>{app=b.dataset.s;show()});
+show();
+</script>
+</body>
+</html>

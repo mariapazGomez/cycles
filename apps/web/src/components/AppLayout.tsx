@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import logo from "../assets/logo-cycles.png";
+import { NotificationBell } from "./NotificationBell";
 import { UserMenu } from "./UserMenu";
 
 function navLinkClass({ isActive }: { isActive: boolean }): string {
@@ -42,7 +43,10 @@ export function AppLayout() {
             </nav>
           )}
         </div>
-        <UserMenu />
+        <div className="app-header-right">
+          <NotificationBell />
+          <UserMenu />
+        </div>
       </header>
       <main className="app-main">
         <Outlet />
