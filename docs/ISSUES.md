@@ -13,7 +13,9 @@ Cada issue se trabaja como una solución separada cuando se pida, no todas junta
 
 **Parte resuelta (2026-10-16):** el estado `draft` se eliminó. Un plan nace `active` y el atleta lo ve desde que se crea (migración `quita_estado_borrador`; los borradores existentes pasaron a activos). Ya no hay un paso escondido en "Editar plan" que dejara el plan invisible.
 
-**Pendiente (T-044):** un cierre claro al terminar de armar, por ejemplo un aviso de que el atleta ya puede entrenar. Falta decidir cuándo notificar al atleta, ahora que no hay un momento de "activación".
+**Avisos al atleta (resuelto 2026-10-17):** salen directo y solos a los 10 minutos sin cambios, sin ninguna acción ni pregunta al coach (sin botón «Avisar ahora» ni «¿avisar al atleta?»).
+
+**Pendiente (T-044):** un mensaje informativo, dentro del propio flujo de armar el plan, de que el atleta ya puede entrenar. Solo informa: no pregunta ni pide nada al coach.
 
 **Dónde:** `apps/web/src/pages/CycleDetailPage.tsx`, `SessionDetailPage.tsx` (el flujo de agregar ejercicios termina sin nada).
 

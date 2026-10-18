@@ -79,7 +79,7 @@ Cada aviso guarda: `id`, `type` (`plan_assigned`, `session_added`, `session_chan
 
 ## Decisiones (confirmadas 2026-10-16)
 
-1. **Espera de 10 minutos antes de avisar**, en lugar de avisar al instante. Con la espera no se inunda al atleta mientras el coach arma; el coach puede saltarla con «Avisar ahora» en el cierre del plan (T-044).
+1. **Espera de 10 minutos antes de avisar**, en lugar de avisar al instante. Con la espera no se inunda al atleta mientras el coach arma. **El coach no hace ningún paso extra:** no hay botón «Avisar ahora», ni pregunta del tipo «¿quieres avisar al atleta?», ni otra acción para notificar; el aviso es directo y sale solo (decidido 2026-10-17).
 2. **«Plan nuevo» solo con contenido.** Como el estado borrador ya no existe, un plan recién creado y vacío es visible para el atleta; con esta regla no recibe aviso hasta que haya una sesión con ejercicios.
 3. **Campana solo en Hoy (app).** No se repite en Calendario ni en Resumen, para no recargarlas.
 
@@ -112,7 +112,7 @@ Los coaches usan solo la web (no hay app de coach), así que el diseño es la mi
 
 ## Relación con otras tareas
 
-- Responde la pregunta pendiente del issue 1 de [`ISSUES.md`](../../ISSUES.md) («cuándo notificar al atleta»); el botón «Avisar ahora» se diseña en T-044.
+- Responde la pregunta pendiente del issue 1 de [`ISSUES.md`](../../ISSUES.md) («cuándo notificar al atleta»): el aviso sale solo, a los 10 minutos sin cambios, sin acción del coach.
 - Todo el copy va en «tú», sin subtítulos grises ni emoji (ver [[voz-y-tono]]).
 
 ## Confirmado para el coach
