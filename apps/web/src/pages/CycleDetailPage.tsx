@@ -1,4 +1,4 @@
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CycleStatus, CycleType } from "@cycles/shared";
@@ -395,6 +395,14 @@ function CycleGrid({
   const attentionQuery = useQuery({ queryKey: ["attention"], queryFn: trackingApi.getAttention, enabled: isCoach });
   const { isDismissed, dismiss } = useDismissedAlerts();
   const [applied, setApplied] = useState<string | null>(null);
+  // Al asignar la primera sesión del plan, un mensaje informativo (sin botones
+  // ni preguntas) dice que el atleta ya puede entrenar. Se va solo.
+  const [readyNotice, setReadyNotice] = useState(false);
+  useEffect(() => {
+    if (!readyNotice) return;
+    const timer = window.setTimeout(() => setReadyNotice(false), 10_000);
+    return () => window.clearTimeout(timer);
+  }, [readyNotice]);
   const planAlerts = (attentionQuery.data ?? []).filter(
     (item) => item.cycle.id === cycle.id && item.kind !== "low_adherence" && !isDismissed(item),
   );
@@ -435,6 +443,7 @@ function CycleGrid({
     onSuccess: () => {
       setAssigningCell(null);
       setRoutineId("");
+      if (sessions.length === 0) setReadyNotice(true);
     },
     onError: (error: unknown) => {
       setAssignError(error instanceof Error ? error.message : "No se pudo asignar la rutina.");
@@ -467,6 +476,12 @@ function CycleGrid({
         athlete={athlete}
       />
 
+      {readyNotice && (
+        <div className="success-banner" role="status">
+          <strong>{athlete ? `${athlete.name} ya puede entrenar.` : "Tu atleta ya puede entrenar."}</strong> Verá este
+          plan en Hoy y le llegará un aviso en unos minutos.
+        </div>
+      )}
       {applied && (
         <div className="success-banner" role="status">
           <strong>Ajuste aplicado.</strong> {applied}
