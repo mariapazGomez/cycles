@@ -120,7 +120,7 @@ export function LandingPage() {
         <div className="lp-bar">
           <img src={logo} alt="Cycles" width={103} height={30} />
           <Link to="/login" className="lp-login">
-            Inicia sesión
+            Ya tengo una cuenta
           </Link>
         </div>
       </header>
@@ -440,7 +440,7 @@ export function LandingPage() {
           <span className="lp-foot-links">
             <a href="/privacidad">Privacidad</a>
             <a href="/terminos">Términos</a>
-            <Link to="/login">Inicia sesión</Link>
+            <Link to="/login">Ya tengo una cuenta</Link>
           </span>
         </div>
       </footer>
