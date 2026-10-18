@@ -44,7 +44,7 @@ export function PlanHero({ kind, stats, weeks, currentWeek, startDate, isCoach, 
             <p className="hm-hero-big hm-hero-big-text">{isCoach ? "Arma el primer ciclo" : "Todavía sin sesiones"}</p>
             <p className="hm-hero-line">
               {isCoach
-                ? `Asigna una rutina a cada sesión. Cuando el plan esté activo, ${name ?? "tu atleta"} las verá en su celular.`
+                ? `Asigna una rutina a cada sesión. ${name ?? "Tu atleta"} las verá en su celular apenas las asignes.`
                 : "Tu coach aún no asigna rutinas a este plan."}
             </p>
           </>

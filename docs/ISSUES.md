@@ -15,11 +15,11 @@ Cada issue se trabaja como una solución separada cuando se pida, no todas junta
 
 **Avisos al atleta (resuelto 2026-10-17):** salen directo y solos a los 10 minutos sin cambios, sin ninguna acción ni pregunta al coach (sin botón «Avisar ahora» ni «¿avisar al atleta?»).
 
-**Pendiente (T-044):** un mensaje informativo, dentro del propio flujo de armar el plan, de que el atleta ya puede entrenar. Solo informa: no pregunta ni pide nada al coach.
+**Cierre del flujo (resuelto 2026-10-17, T-044):** al asignar la primera sesión de un plan, un mensaje informativo dice que el atleta ya puede entrenar y que le llegará un aviso. Solo informa: no pregunta ni pide nada al coach.
 
 **Dónde:** `apps/web/src/pages/CycleDetailPage.tsx`, `SessionDetailPage.tsx` (el flujo de agregar ejercicios termina sin nada).
 
-**Estado:** parcialmente resuelto; queda el cierre del flujo.
+**Estado:** resuelto.
 
 ### 2. La vista del plan es la misma para coach y atleta — debería diferenciarse
 **Reportado:** 2026-09-25, por la usuaria probando el flujo completo.
