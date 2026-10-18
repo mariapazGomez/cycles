@@ -32,7 +32,7 @@ export class SessionsService {
       throw new NotFoundException("Ciclo no encontrado.");
     }
     if (cycle.coachId !== coachId) {
-      throw new ForbiddenException("No eres el coach de este plan.");
+      throw new ForbiddenException("No eres el coach de este ciclo.");
     }
     await assertActiveRelation(this.prisma, coachId, cycle.athleteId);
     if (cycle.cycleType === "macrocycle") {
@@ -40,7 +40,7 @@ export class SessionsService {
     }
     if (!cycle.sessionsPerWeek || dto.slotNumber > cycle.sessionsPerWeek) {
       throw new BadRequestException(
-        `Este plan tiene ${cycle.sessionsPerWeek ?? 0} sesiones por semana.`,
+        `Este ciclo tiene ${cycle.sessionsPerWeek ?? 0} sesiones por semana.`,
       );
     }
 
@@ -231,7 +231,7 @@ export class SessionsService {
     const isOwnerCoach = user.role === "coach" && cycle.coachId === user.id;
     const isAssignedAthlete = user.role === "athlete" && cycle.athleteId === user.id;
     if (!isOwnerCoach && !isAssignedAthlete) {
-      throw new ForbiddenException("No tienes acceso a este plan.");
+      throw new ForbiddenException("No tienes acceso a este ciclo.");
     }
     // El coach además necesita la relación activa; el atleta siempre ve lo suyo.
     if (isOwnerCoach) {

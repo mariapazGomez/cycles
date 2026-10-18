@@ -66,7 +66,7 @@ export function RoutinesPage() {
             </Link>
           }
         >
-          Una rutina es una cadena de ejercicios con series, reps y carga. La reutilizas en los planes de tus atletas.
+          Una rutina es una cadena de ejercicios con series, reps y carga. La reutilizas en los ciclos de tus atletas.
         </EmptyState>
       )}
 

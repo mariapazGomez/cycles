@@ -256,7 +256,7 @@ export function TodayScreen({ navigation }: Props) {
               )}
               {selectedId && (
                 <TouchableOpacity style={styles.assignedRow} onPress={() => setSelectedId(null)}>
-                  <Text style={styles.assignedAction}>Volver a la siguiente sesión del plan</Text>
+                  <Text style={styles.assignedAction}>Volver a la siguiente sesión del ciclo</Text>
                 </TouchableOpacity>
               )}
             </View>

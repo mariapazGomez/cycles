@@ -109,7 +109,7 @@ export function AttentionList({ items, onDismiss, onApplied }: AttentionListProp
                 )}
                 {item.kind === "low_adherence" && (
                   <Link className="button-secondary button-compact" to={`/cycles/${item.cycle.id}`}>
-                    Ver plan
+                    Ver ciclo
                   </Link>
                 )}
                 {item.kind !== "low_adherence" && (

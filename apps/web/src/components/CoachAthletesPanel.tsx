@@ -4,7 +4,7 @@ import { AthleteRow, AthleteStatus } from "../lib/coachHome";
 const STATUS_LABEL: Record<AthleteStatus, string> = {
   attention: "Con avisos",
   ok: "Al día",
-  no_plan: "Sin plan",
+  no_plan: "Sin ciclo",
   pending: "Invitación pendiente",
 };
 

@@ -36,7 +36,7 @@ function WeekChain({ weeks, currentWeek }: { weeks: number; currentWeek: number 
 export function PlanHero({ kind, stats, weeks, currentWeek, startDate, isCoach, athlete }: PlanHeroProps) {
   const name = athlete ? firstName(athlete.name) : null;
   return (
-    <section className="hm-hero" aria-label="Avance del plan">
+    <section className="hm-hero" aria-label="Avance del ciclo">
       <div className="hm-hero-art" style={{ backgroundImage: `url(${HERO_PATTERN})` }} aria-hidden="true" />
       <div className="hm-hero-body">
         {kind === "empty" && (
@@ -45,7 +45,7 @@ export function PlanHero({ kind, stats, weeks, currentWeek, startDate, isCoach, 
             <p className="hm-hero-line">
               {isCoach
                 ? `Asigna una rutina a cada sesión. ${name ?? "Tu atleta"} las verá en su celular apenas las asignes.`
-                : "Tu coach aún no asigna rutinas a este plan."}
+                : "Tu coach aún no asigna rutinas a este ciclo."}
             </p>
           </>
         )}
@@ -74,7 +74,7 @@ export function PlanHero({ kind, stats, weeks, currentWeek, startDate, isCoach, 
         )}
         {kind === "ended" && (
           <>
-            <p className="hm-hero-big hm-hero-big-text">El plan terminó</p>
+            <p className="hm-hero-big hm-hero-big-text">El ciclo terminó</p>
             <WeekChain weeks={weeks} currentWeek={weeks + 1} />
             <p className="hm-hero-line">
               En total, {stats.completed} de {stats.assigned} sesiones completadas.
