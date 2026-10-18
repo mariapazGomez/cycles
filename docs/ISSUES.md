@@ -33,3 +33,19 @@ Cada issue se trabaja como una solución separada cuando se pida, no todas junta
 **Dónde:** `apps/web/src/pages/CycleDetailPage.tsx` (`CycleGrid` es un solo componente compartido con un flag `isCoach`, no dos vistas). Relevante: la app móvil (`apps/mobile/src/screens/TodayScreen.tsx`) ya resolvió esto para el caso "atleta ejecutando" con una vista simple centrada en la sesión de hoy — podría ser el punto de partida para cómo se ve una vista de atleta más simple en la web.
 
 **Estado:** abierto, sin resolver.
+
+### 3. Cerrar el registro durante la fase de early adopters
+**Reportado:** 2026-10-18, por la usuaria.
+
+**Qué pasa hoy:** cualquiera puede crear una cuenta de coach desde la landing ("Inicia sesión" → "Regístrate") o con Google. En la fase de early adopters solo deben entrar personas que ya tienen cuenta.
+
+**Qué se espera:**
+- La landing dice **«Ya tengo una cuenta»** en lugar de «Inicia sesión» (cabecera y pie), y lleva al login.
+- El login no muestra «¿No tienes cuenta? Regístrate», y `/register` redirige al login.
+- Que no se pueda crear una cuenta por ninguna vía: ni con email (`POST /auth/register` responde 403) ni con Google (un email que no existe no crea cuenta; se vuelve a la web con un mensaje claro). Esconder el botón no alcanza.
+- Siguen funcionando las cuentas existentes, la recuperación de contraseña y la invitación de un coach a un atleta.
+- Reversible sin tocar código: interruptor `REGISTRATION_OPEN` (API) y `VITE_REGISTRATION_OPEN` (web), cerrados por defecto.
+
+**Dónde:** `apps/api/src/auth/auth.service.ts` (`register`, `loginWithGoogle`), `auth.controller.ts` (callback de Google), `apps/web/src/lib/features.ts`, `App.tsx`, `LoginPage.tsx`, `LandingPage.tsx`, `OAuthCallbackPage.tsx`.
+
+**Estado:** resuelto en la rama `feat/registro-cerrado` (2026-10-18). Para abrir el registro de nuevo: `REGISTRATION_OPEN=true` en Render y `VITE_REGISTRATION_OPEN=true` en Vercel.

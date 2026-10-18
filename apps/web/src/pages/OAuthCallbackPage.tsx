@@ -9,11 +9,18 @@ export function OAuthCallbackPage() {
   const navigate = useNavigate();
   const { loginWithTokens } = useAuth();
   const [error, setError] = useState(false);
+  const [closed, setClosed] = useState(false);
   const startedRef = useRef(false);
 
   useEffect(() => {
     if (startedRef.current) return;
     startedRef.current = true;
+
+    if (searchParams.get("error") === "registration_closed") {
+      setClosed(true);
+      setError(true);
+      return;
+    }
 
     const code = searchParams.get("code");
     if (!code) {
@@ -32,7 +39,11 @@ export function OAuthCallbackPage() {
   if (error) {
     return (
       <AuthCard title="No se pudo iniciar sesión con Google" pattern="c">
-        <div className="error-banner">Intenta de nuevo o usa email y contraseña.</div>
+        <div className="error-banner">
+          {closed
+            ? "Esta cuenta de Google todavía no tiene acceso: por ahora Cycles es solo para usuarios que ya tienen cuenta."
+            : "Intenta de nuevo o usa email y contraseña."}
+        </div>
         <p className="auth-footer">
           <Link to="/login">Volver a inicio de sesión</Link>
         </p>

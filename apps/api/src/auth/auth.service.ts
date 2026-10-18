@@ -27,6 +27,9 @@ const OAUTH_CODE_TTL_MS = 1000 * 60; // 60 segundos: la web lo usa apenas llega
 const OAUTH_CODE_RETENTION_MS = 1000 * 60 * 60 * 24; // se borran al día de vencer
 const DATA_CONSENT_VERSION = "v1";
 
+export const REGISTRATION_CLOSED_MESSAGE =
+  "El registro está cerrado por ahora: Cycles es solo para usuarios que ya tienen cuenta.";
+
 export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
@@ -43,7 +46,17 @@ export class AuthService {
     private readonly activity: ActivityNotifier,
   ) {}
 
+  // Early adopters: el registro está cerrado salvo que REGISTRATION_OPEN=true.
+  // Cubre el registro con email y la creación de cuentas nuevas con Google;
+  // las cuentas que ya existen y las invitaciones de un coach no cambian.
+  private get registrationOpen(): boolean {
+    return this.config.get<string>("REGISTRATION_OPEN")?.trim() === "true";
+  }
+
   async register(dto: RegisterDto): Promise<{ id: string; email: string }> {
+    if (!this.registrationOpen) {
+      throw new ForbiddenException(REGISTRATION_CLOSED_MESSAGE);
+    }
     if (dto.role === "athlete") {
       throw new ForbiddenException(
         "El registro de atletas es solo por invitación de un coach.",
@@ -96,6 +109,9 @@ export class AuthService {
     let user = await this.prisma.user.findUnique({ where: { email } });
 
     if (!user) {
+      if (!this.registrationOpen) {
+        throw new ForbiddenException(REGISTRATION_CLOSED_MESSAGE);
+      }
       user = await this.prisma.user.create({
         data: {
           email,

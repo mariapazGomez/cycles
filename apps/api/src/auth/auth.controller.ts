@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   HttpCode,
   Ip,
@@ -114,9 +115,15 @@ export class AuthController {
     // Solo un código de un solo uso (60 s) viaja en la URL; los tokens se
     // entregan en el cuerpo de POST /auth/google/exchange. Ver
     // docs/SEGURIDAD.md, hallazgo S-02.
-    const code = await this.authService.loginWithGoogle(req.user as GoogleProfile);
     const redirectUrl = new URL("/oauth-callback", this.config.get<string>("FRONTEND_URL"));
-    redirectUrl.searchParams.set("code", code);
+    try {
+      const code = await this.authService.loginWithGoogle(req.user as GoogleProfile);
+      redirectUrl.searchParams.set("code", code);
+    } catch (error) {
+      // Registro cerrado: Google no puede crear cuentas nuevas por ahora.
+      if (!(error instanceof ForbiddenException)) throw error;
+      redirectUrl.searchParams.set("error", "registration_closed");
+    }
     res.redirect(redirectUrl.toString());
   }
 

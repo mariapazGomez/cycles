@@ -4,6 +4,7 @@ import { useAuth } from "../hooks/useAuth";
 import { AuthCard } from "../components/AuthCard";
 import { GoogleButton } from "../components/GoogleButton";
 import { ApiError } from "../services/httpClient";
+import { REGISTRATION_OPEN } from "../lib/features";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -85,9 +86,11 @@ export function LoginPage() {
       <div className="divider">o</div>
       <GoogleButton />
 
-      <p className="auth-footer">
-        ¿No tienes cuenta? <Link to="/register">Regístrate</Link>
-      </p>
+      {REGISTRATION_OPEN && (
+        <p className="auth-footer">
+          ¿No tienes cuenta? <Link to="/register">Regístrate</Link>
+        </p>
+      )}
     </AuthCard>
   );
 }

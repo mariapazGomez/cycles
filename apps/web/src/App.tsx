@@ -6,6 +6,7 @@ import { useAuth } from "./hooks/useAuth";
 import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
+import { REGISTRATION_OPEN } from "./lib/features";
 import { CheckEmailPage } from "./pages/CheckEmailPage";
 import { VerifyEmailPage } from "./pages/VerifyEmailPage";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
@@ -52,9 +53,13 @@ export function App() {
       <Route
         path="/register"
         element={
-          <PublicOnlyRoute>
-            <RegisterPage />
-          </PublicOnlyRoute>
+          REGISTRATION_OPEN ? (
+            <PublicOnlyRoute>
+              <RegisterPage />
+            </PublicOnlyRoute>
+          ) : (
+            <Navigate to="/login" replace />
+          )
         }
       />
       <Route
