@@ -37,6 +37,9 @@ export function AppLayout() {
               <NavLink to="/" end className={navLinkClass}>
                 Hoy
               </NavLink>
+              <NavLink to="/calendar" className={navLinkClass}>
+                Calendario
+              </NavLink>
               <NavLink to="/cycles" className={navLinkClass}>
                 Mis planes
               </NavLink>

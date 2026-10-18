@@ -12,6 +12,7 @@ import "./styles/tracking.css";
 import "./styles/routines.css";
 import "./styles/home.css";
 import "./styles/plan.css";
+import "./styles/calendar.css";
 import "./styles/landing.css";
 
 warmUpApi();

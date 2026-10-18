@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Plan del atleta Cycles</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&display=swap">
+<style>
+/* Concepto: el atleta no arma el plan, lo recorre. Una tarjeta oscura con "dónde voy" y el botón de la sesión que le toca; debajo, solo la semana que eligió, con sus sesiones como filas grandes. Mismo lenguaje que Calendario de la app. Solo modo claro. Datos de ejemplo. */
+:root{
+  --font-display:"Bricolage Grotesque","Inter",system-ui,sans-serif; --font-body:"Inter",system-ui,sans-serif;
+  --brand:#3080fc; --blue:#1a66dd; --b100:#eaf2ff; --b200:#d6e4ff; --b300:#a9c8fd;
+  --bg:#fff; --ink:#1f2228; --ink2:#5c6068; --gray:#f6f7f9; --line:#dfe2e7; --mid:#8a8f98; --ctl:#8a8f98;
+  --ok-bg:#e9f5ec; --ok-ink:#1e6b32; --warn-bg:#fff1e3; --warn-ink:#9a4a00; --warn-fill:#e08a2e;
+  --track:#3a3f48; --muted:#bfc4cc;
+  --page:#f3f5f8; --shadow:0 1px 2px rgba(31,34,40,.05),0 6px 18px -8px rgba(31,34,40,.14);
+  --pop:0 2px 4px rgba(31,34,40,.06),0 16px 36px -12px rgba(31,34,40,.22); color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5}
+button,a{font:inherit;color:inherit}
+button{cursor:pointer}
+svg{display:block}
+.bar{max-width:1120px;margin:0 auto;padding:20px 24px 0;display:flex;flex-wrap:wrap;gap:8px 28px;align-items:center}
+.bar h1{font-family:var(--font-display);font-size:1.35rem;margin:0 12px 0 0}
+.seg{display:flex;flex-wrap:wrap;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{border:0;background:none;padding:6px 14px;border-radius:999px;font-size:.88rem;font-weight:600;color:var(--ink2)}
+.seg button.on{background:var(--ink);color:#fff}
+.stage{max-width:1120px;margin:0 auto;padding:24px}
+.hide{display:none!important}
+.note{margin:14px 0 0;font-size:.85rem;color:var(--ink2);max-width:760px}
+
+/* ===== Web ===== */
+.web{background:var(--bg);border:1px solid var(--line);border-radius:14px;overflow:hidden;position:relative}
+.web.narrow{max-width:390px}
+.hdr{display:flex;align-items:center;gap:32px;padding:14px 24px;border-bottom:1px solid var(--line)}
+.hdr img{height:26px}
+.nav{display:flex;gap:20px;flex:1}
+.nav a{font-size:.92rem;font-weight:600;color:var(--ink2);padding:6px 2px;border-bottom:2px solid transparent;text-decoration:none}
+.nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--ink);color:#fff;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.body{background:var(--page);padding:28px 24px 40px}
+.col{max-width:760px;margin:0 auto}
+.narrow .hdr{gap:14px;padding:12px}
+.narrow .body{padding:18px 14px 30px}
+.back{font-size:.88rem;font-weight:600;color:var(--ink2);text-decoration:none}
+h1.t{font-family:var(--font-display);font-size:2rem;line-height:1.1;margin:8px 0 6px}
+.obj{margin:0 0 18px;color:var(--ink2);font-size:.95rem}
+.narrow h1.t{font-size:1.6rem}
+
+/* tarjeta oscura */
+.hero{background:var(--ink);color:#fff;border-radius:18px;padding:22px 24px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.hero .art{position:absolute;right:-10px;top:-6px;width:240px;height:100%;opacity:.9;pointer-events:none}
+.hero>*:not(.art){position:relative}
+.big{font-family:var(--font-display);font-size:3.2rem;line-height:1;margin:0;font-weight:800}
+.big small{font-family:var(--font-body);font-size:.95rem;font-weight:600;color:var(--muted);margin-left:8px}
+.big.text{font-size:1.7rem}
+.chain{display:flex;align-items:center;margin:14px 0 12px}
+.chain i{width:14px;height:14px;border-radius:50%;background:var(--track);flex:none}
+.chain u{height:3px;width:22px;background:var(--track);flex:none}
+.chain i.done,.chain u.done{background:var(--brand)}
+.chain i.now{background:#fff;box-shadow:0 0 0 4px rgba(48,128,252,.45)}
+.line{margin:0;color:var(--muted);font-size:.92rem;max-width:420px}
+.cta{margin-top:16px;display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--ink);border:0;border-radius:999px;padding:11px 20px;font-weight:700;font-size:.95rem;text-decoration:none;min-height:44px}
+.cta:focus-visible,.chip:focus-visible,.row:focus-visible,.dayb:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+/* semana */
+.card{background:var(--bg);border-radius:18px;box-shadow:var(--shadow)}
+.weeks{display:flex;gap:8px;overflow-x:auto;padding:14px 14px;margin:14px 0}
+.chip{flex:none;min-width:48px;height:40px;padding:0 14px;border-radius:20px;border:1.5px solid var(--line);background:var(--bg);font-weight:700;font-size:.88rem;color:var(--ink2);position:relative}
+.chip.cur{border-color:var(--brand);color:var(--blue)}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip.done::after{content:"";position:absolute;right:5px;top:5px;width:7px;height:7px;border-radius:50%;background:var(--brand)}
+.wh{display:flex;align-items:baseline;justify-content:space-between;margin:4px 4px 10px}
+.wh h2{font-family:var(--font-display);font-size:1.3rem;margin:0}
+.wh span{font-size:.88rem;color:var(--ink2)}
+.strip{display:flex;justify-content:space-between;padding:12px 12px;margin-bottom:12px}
+.day{width:40px;text-align:center}
+.day b{display:block;font-size:.72rem;color:var(--ink2);font-weight:600}
+.day span{display:flex;width:32px;height:32px;margin:3px auto 2px;border-radius:50%;align-items:center;justify-content:center;font-weight:700;font-size:.9rem}
+.day.today span{background:var(--blue);color:#fff}
+.day i{display:block;width:6px;height:6px;border-radius:50%;margin:0 auto;background:transparent}
+.day i.has{background:var(--ink)} .day i.ok{background:var(--ok-ink)}
+
+.rows{display:flex;flex-direction:column;gap:10px}
+.row{display:flex;align-items:center;gap:14px;padding:14px 16px;min-height:72px;text-decoration:none;border:0;width:100%;text-align:left}
+.row.next{box-shadow:0 0 0 2px var(--brand),var(--shadow)}
+.node{width:36px;height:36px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:700;border:1.5px solid var(--line);color:var(--ink2);background:var(--bg)}
+.node.done{background:var(--blue);border-color:var(--blue);color:#fff}
+.node.warn{background:var(--warn-bg);border-color:var(--warn-fill);color:var(--warn-ink)}
+.next .node{border-color:var(--blue);color:var(--blue)}
+.info{flex:1;min-width:0}
+.nm{font-weight:700;font-size:1rem;line-height:1.3}
+.dayl{display:inline-block;margin-top:2px;font-size:.88rem;color:var(--ink2);background:none;border:0;padding:6px 0 0;min-height:32px}
+.dayl.none{color:var(--blue);font-weight:600}
+.dayl.btn{text-decoration:underline;text-underline-offset:3px}
+.pill{font-size:.78rem;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--gray);color:var(--ink2);white-space:nowrap}
+.pill.ok{background:var(--ok-bg);color:var(--ok-ink)} .pill.warn{background:var(--warn-bg);color:var(--warn-ink)} .pill.next{background:var(--b100);color:var(--blue)}
+.chev{color:var(--mid);flex:none}
+.empty{padding:26px 22px;text-align:center}
+.empty h3{font-family:var(--font-display);margin:0 0 4px}
+.empty p{margin:0;color:var(--ink2)}
+
+/* elegir día */
+.sheet{position:absolute;left:50%;transform:translateX(-50%);top:360px;width:min(420px,calc(100% - 28px));background:var(--bg);border:1px solid var(--line);border-radius:18px;box-shadow:var(--pop);padding:18px;z-index:3}
+.sheet h3{font-family:var(--font-display);margin:0 0 2px;font-size:1.15rem}
+.sheet .sn{margin:0 0 12px;color:var(--ink2);font-size:.9rem}
+.sw{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-size:.88rem;color:var(--ink2)}
+.sw b{color:var(--ink)}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.dayb{height:58px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700}
+.dayb small{font-size:.7rem;color:var(--ink2);font-weight:600}
+.dayb.on{background:var(--ink);border-color:var(--ink);color:#fff}.dayb.on small{color:var(--muted)}
+.dayb[disabled]{opacity:.4;cursor:default}
+.sheet .clear{margin-top:12px;border:0;background:none;color:var(--blue);font-weight:600;font-size:.88rem;padding:8px 0;min-height:44px}
+.scrim{position:absolute;inset:0;background:rgba(31,34,40,.28);z-index:2}
+
+/* Mis planes */
+.plist{display:flex;flex-direction:column;gap:12px}
+.plan{padding:18px 20px;display:block;text-decoration:none}
+.plan h3{font-family:var(--font-display);font-size:1.2rem;margin:0}
+.plan .top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.seglist{display:flex;gap:4px;margin:12px 0 10px}
+.seglist i{flex:1;height:6px;border-radius:3px;background:var(--gray);border:1px solid var(--line)}
+.seglist i.done{background:var(--blue);border-color:var(--blue)} .seglist i.cur{border-color:var(--brand);background:var(--b200)}
+.plan p{margin:0;font-size:.9rem;color:var(--ink2)}
+.plan p b{color:var(--ink)}
+.stitle{font-family:var(--font-display);font-size:1rem;margin:20px 4px 10px}
+/* Calendario tipo hábito: cada día entrenado se marca, los días seguidos se unen en una cadena */
+.mhead{display:flex;align-items:center;justify-content:space-between;margin:14px 4px 8px}
+.mhead h2{font-family:var(--font-display);font-size:1.3rem;margin:0;text-transform:capitalize}
+.mnav{display:flex;gap:4px}
+.mnav button{width:44px;height:44px;border-radius:50%;border:0;background:none;color:var(--ink);display:flex;align-items:center;justify-content:center}
+.mnav button:hover{background:var(--gray)}
+.mnav button[disabled]{opacity:.35;cursor:default}
+.cal{padding:14px 10px 10px}
+.dow,.wk{display:grid;grid-template-columns:repeat(7,1fr)}
+.dow b{text-align:center;font-size:.72rem;color:var(--ink2);font-weight:600;padding:2px 0 8px}
+.cell{position:relative;height:50px;display:flex;align-items:center;justify-content:center;border:0;background:none;padding:0}
+.cell .m{position:relative;z-index:1;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.92rem;color:var(--ink)}
+.cell.out .m{color:var(--muted)}
+.cell.done .m{background:var(--blue);color:#fff}
+.cell.done .m svg{width:20px;height:20px}
+.cell.band::before{content:"";position:absolute;left:-1px;right:-1px;top:50%;height:22px;margin-top:-11px;background:var(--b200)}
+.cell.band.first::before{left:50%}
+.cell.band.last::before{right:50%}
+.cell.band.first.last::before{display:none}
+.cell.skip .m{background:var(--warn-bg);box-shadow:inset 0 0 0 1.5px var(--warn-fill);color:var(--warn-ink)}
+.cell.plan .m{box-shadow:inset 0 0 0 1.5px var(--brand);color:var(--blue)}
+.cell.today .m{font-weight:800;box-shadow:0 0 0 3px rgba(48,128,252,.35)}
+.cell.today.plan .m{box-shadow:inset 0 0 0 1.5px var(--brand),0 0 0 3px rgba(48,128,252,.35)}
+.cell.sel .m{outline:2px solid var(--ink);outline-offset:2px}
+.cell:focus-visible .m{outline:2px solid var(--blue);outline-offset:2px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;padding:10px 12px 4px;border-top:1px solid var(--line);margin-top:6px;font-size:.82rem;color:var(--ink2)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:16px;height:16px;border-radius:50%;display:inline-block}
+.legend i.d{background:var(--blue)} .legend i.p{box-shadow:inset 0 0 0 1.5px var(--brand)} .legend i.s{background:var(--warn-bg);box-shadow:inset 0 0 0 1.5px var(--warn-fill)}
+.weekdots{display:flex;gap:6px;margin:14px 0 12px}
+.weekdots i{width:12px;height:12px;border-radius:50%;background:var(--track)}
+.weekdots i.done{background:var(--brand)}
+.dayhead{font-family:var(--font-display);font-size:1.1rem;margin:18px 4px 10px}
+@media (max-width:760px){.hdr{gap:12px;padding:12px}.nav{gap:12px}.body{padding:18px 14px 30px}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <h1>Plan del atleta</h1>
+  <div class="seg" id="seg-s">
+    <button class="on" data-s="run">Semana en curso</button>
+    <button data-s="pick">Elegir día</button>
+    <button data-s="up">Empieza pronto</button>
+    <button data-s="end">Terminó</button>
+    <button data-s="none">Sin sesiones</button>
+    <button data-s="list">Mis planes</button>
+    <button data-s="cal">Calendario</button>
+    <button data-s="calnew">Calendario: primera semana</button>
+  </div>
+  <div class="seg" id="seg-w"><button class="on" data-w="wide">Computador</button><button data-w="narrow">Celular</button></div>
+</div>
+
+<div class="stage">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="art" viewBox="0 0 240 160"><g fill="#3080fc"><circle cx="30" cy="120" r="6" opacity=".3"/><circle cx="58" cy="98" r="9" opacity=".45"/><circle cx="92" cy="86" r="6" opacity=".35"/><circle cx="124" cy="96" r="10" opacity=".55"/><circle cx="150" cy="120" r="6" opacity=".35"/><circle cx="178" cy="112" r="8" opacity=".5"/><circle cx="206" cy="84" r="6" opacity=".35"/><circle cx="224" cy="56" r="9" opacity=".4"/></g></symbol>
+</defs></svg>
+
+<div class="web" id="web">
+  <header class="hdr">
+    <img src="../../brand/img/logo_cycles.png" alt="Cycles">
+    <nav class="nav" id="nav"></nav>
+    <div class="avatar">MG</div>
+  </header>
+  <div class="body" id="body"></div>
+</div>
+<p class="note" id="note"></p>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const ico=n=>`<svg width="18" height="18"><use href="#${n}"/></svg>`;
+function chain(total,cur,end){let h='';for(let w=1;w<=total;w++){const c=end||w<cur?'done':w===cur?'now':'';h+=`<i class="${c}"></i>`;if(w<total)h+=`<u class="${(end||w<cur)?'done':''}"></u>`}return `<div class="chain" role="img" aria-label="${end?'Plan terminado':`Semana ${cur} de ${total}`}">${h}</div>`}
+function hero(k){
+  const art=`<svg class="art" viewBox="0 0 240 160" preserveAspectRatio="xMaxYMid meet"><use href="#art"/></svg>`;
+  if(k==='run'||k==='pick')return `<section class="hero" aria-label="Avance del plan">${art}<p class="big">2<small>de 5 semanas</small></p>${chain(5,2)}<p class="line">Esta semana llevas 1 de 3 sesiones. En total, 4 de 15.</p><a class="cta" href="#">Te toca Torso B ${ico('chev')}</a></section>`;
+  if(k==='up')return `<section class="hero">${art}<p class="big text">Empieza el 20 de octubre</p>${chain(5,0)}<p class="line">Tu coach asignó 9 sesiones.</p></section>`;
+  if(k==='end')return `<section class="hero">${art}<p class="big text">El plan terminó</p>${chain(5,0,true)}<p class="line">Completaste 13 de 15 sesiones.</p></section>`;
+  return `<section class="hero">${art}<p class="big text">Todavía sin sesiones</p><p class="line" style="margin-top:10px">Tu coach aún no asigna rutinas a este plan.</p></section>`;
+}
+function weekChips(sel,cur,doneWeeks){let h='';for(let w=1;w<=5;w++)h+=`<button class="chip ${w===sel?'on':''} ${w===cur&&w!==sel?'cur':''} ${doneWeeks.includes(w)?'done':''}" aria-pressed="${w===sel}">S${w}</button>`;return `<div class="card weeks" role="group" aria-label="Semanas">${h}</div>`}
+function strip(){
+  const d=[['L',12,''],['M',13,'ok'],['X',14,''],['J',15,''],['V',16,'has'],['S',17,''],['D',18,'']];
+  return `<div class="card strip" aria-label="Días de la semana">${d.map(x=>`<div class="day ${x[1]===16?'today':''}"><b>${x[0]}</b><span>${x[1]}</span><i class="${x[2]}"></i></div>`).join('')}</div>`
+}
+function rows(){
+  return `<div class="rows">
+   <a class="card row" href="#"><span class="node done">${ico('check')}</span><span class="info"><div class="nm">Pierna A</div><button class="dayl btn" aria-label="Cambiar el día de Pierna A">Martes 13</button></span><span class="pill ok">Completada</span><span class="chev">${ico('chev')}</span></a>
+   <a class="card row next" href="#" aria-label="Siguiente: Torso B"><span class="node">2</span><span class="info"><div class="nm">Torso B</div><button class="dayl btn">Hoy, viernes 16</button></span><span class="pill next">Siguiente</span><span class="chev">${ico('chev')}</span></a>
+   <a class="card row" href="#"><span class="node">3</span><span class="info"><div class="nm">Full body C</div><button class="dayl none">Elegir día</button></span><span class="pill">Pendiente</span><span class="chev">${ico('chev')}</span></a>
+  </div>`;
+}
+function planPage(k){
+  let h=`<div class="col"><a class="back" href="#">← Mis planes</a><h1 class="t">Bloque de fuerza</h1><p class="obj">Subir fuerza en sentadilla y press.</p>${hero(k)}`;
+  if(k==='run'||k==='pick'){
+    h+=weekChips(2,2,[1])+`<div class="wh"><h2>Semana 2</h2><span>12 al 18 de octubre</span></div>${strip()}${rows()}`;
+  }
+  if(k==='up'){
+    h+=weekChips(1,0,[])+`<div class="wh"><h2>Semana 1</h2><span>20 al 26 de octubre</span></div><div class="rows"><a class="card row" href="#"><span class="node">1</span><span class="info"><div class="nm">Pierna A</div><button class="dayl none">Elegir día</button></span><span class="pill">Pendiente</span><span class="chev">${ico('chev')}</span></a><a class="card row" href="#"><span class="node">2</span><span class="info"><div class="nm">Torso B</div><button class="dayl none">Elegir día</button></span><span class="pill">Pendiente</span><span class="chev">${ico('chev')}</span></a><a class="card row" href="#"><span class="node">3</span><span class="info"><div class="nm">Full body C</div><button class="dayl none">Elegir día</button></span><span class="pill">Pendiente</span><span class="chev">${ico('chev')}</span></a></div>`;
+  }
+  if(k==='end'){
+    h+=weekChips(5,6,[1,2,3,4,5])+`<div class="wh"><h2>Semana 5</h2><span>9 al 15 de noviembre</span></div><div class="rows"><a class="card row" href="#"><span class="node done">${ico('check')}</span><span class="info"><div class="nm">Pierna A</div><span class="dayl">Martes 10</span></span><span class="pill ok">Completada</span><span class="chev">${ico('chev')}</span></a><a class="card row" href="#"><span class="node warn">3</span><span class="info"><div class="nm">Full body C</div><span class="dayl">Sábado 14</span></span><span class="pill warn">Omitida</span><span class="chev">${ico('chev')}</span></a></div>`;
+  }
+  if(k==='none'){ h+=`<div class="card empty" style="margin-top:14px"><h3>Todavía sin sesiones</h3><p>Cuando tu coach asigne rutinas, las verás aquí.</p></div>` }
+  h+='</div>';
+  if(k==='pick'){
+    h+=`<div class="scrim"></div><div class="sheet" role="dialog" aria-label="Elegir día"><h3>¿Qué día harás esta sesión?</h3><p class="sn">Full body C</p><div class="sw"><span><b>Semana 2</b></span><span>12 al 18 de octubre</span></div><div class="days">${[['L',12],['M',13],['X',14],['J',15],['V',16],['S',17],['D',18]].map(d=>`<button class="dayb ${d[1]===18?'on':''}" ${d[1]<16?'disabled':''}><small>${d[0]}</small>${d[1]}</button>`).join('')}</div><button class="clear">Quitar el día asignado</button></div>`;
+  }
+  return h;
+}
+function listPage(){
+  return `<div class="col"><h1 class="t">Mis planes</h1>
+   <div class="stitle">Activo</div>
+   <div class="plist"><a class="card plan" href="#"><div class="top"><h3>Bloque de fuerza</h3><span class="pill next">Semana 2 de 5</span></div><div class="seglist"><i class="done"></i><i class="cur"></i><i></i><i></i><i></i></div><p>Te toca <b>Torso B</b>. Esta semana llevas 1 de 3.</p></a></div>
+   <div class="stitle">Terminados</div>
+   <div class="plist"><a class="card plan" href="#"><div class="top"><h3>Base de verano</h3><span class="pill ok">Terminó</span></div><div class="seglist"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i></div><p>Completaste 11 de 12 sesiones.</p></a></div></div>`;
+}
+const ICO_CHECK='<svg><use href="#check"/></svg>';
+// octubre de 2026 empieza en jueves; las semanas empiezan en lunes
+function calPage(k){
+  const first=k==='cal';
+  const done=first?[1,2,5,7,8,12,13,15]:[];
+  const skip=first?[9]:[];
+  const plan=first?[16,19,21,23,26,28,30]:[16,19,21];
+  const today=16, sel=16;
+  const cells=[];
+  [28,29,30].forEach(d=>cells.push({d,out:true}));
+  for(let d=1;d<=31;d++)cells.push({d});
+  while(cells.length%7)cells.push({d:cells.length%7,out:true});
+  const rowsH=[];
+  for(let r=0;r<cells.length/7;r++){
+    const row=cells.slice(r*7,r*7+7);
+    rowsH.push('<div class="wk" role="row">'+row.map((c,i)=>{
+      const isDone=!c.out&&done.includes(c.d);
+      const prev=i>0&&!row[i-1].out&&done.includes(row[i-1].d);
+      const next=i<6&&!row[i+1].out&&done.includes(row[i+1].d);
+      const cls=['cell'];
+      if(c.out)cls.push('out');
+      if(isDone){cls.push('done');if(prev||next){cls.push('band');if(!prev)cls.push('first');if(!next)cls.push('last')}}
+      if(!c.out&&skip.includes(c.d))cls.push('skip');
+      if(!c.out&&plan.includes(c.d))cls.push('plan');
+      if(!c.out&&c.d===today)cls.push('today');
+      if(!c.out&&c.d===sel)cls.push('sel');
+      const label=c.out?'':(isDone?`${c.d} de octubre, entrenaste`:skip.includes(c.d)?`${c.d} de octubre, sesión omitida`:plan.includes(c.d)?`${c.d} de octubre, sesión programada`:`${c.d} de octubre`);
+      return `<button class="${cls.join(' ')}" ${c.out?'tabindex="-1" aria-hidden="true"':''} aria-label="${label}"><span class="m">${isDone?ICO_CHECK:c.d}</span></button>`;
+    }).join('')+'</div>');
+  }
+  const art=`<svg class="art" viewBox="0 0 240 160" preserveAspectRatio="xMaxYMid meet"><use href="#art"/></svg>`;
+  const heroH=first
+   ?`<section class="hero" aria-label="Tu constancia">${art}<p class="big">8<small>entrenamientos en octubre</small></p><div class="weekdots" role="img" aria-label="3 semanas seguidas"><i class="done"></i><i class="done"></i><i class="done"></i><i></i></div><p class="line">Llevas 3 semanas seguidas entrenando.</p></section>`
+   :`<section class="hero" aria-label="Tu constancia">${art}<p class="big text">Tu primera sesión es hoy</p><div class="weekdots"><i></i><i></i><i></i><i></i></div><p class="line">Cada día que entrenes quedará marcado aquí.</p></section>`;
+  const nextRoutine=first?'Torso B':'Pierna A', nodeNo=first?2:1;
+  const dayH=`<div class="dayhead">Hoy, viernes 16</div><div class="rows"><a class="card row next" href="#" aria-label="Siguiente: ${nextRoutine}"><span class="node">${nodeNo}</span><span class="info"><div class="nm">${nextRoutine}</div><span class="dayl">Bloque de fuerza</span></span><span class="pill next">Siguiente</span><span class="chev">${ico('chev')}</span></a></div>`;
+  return `<div class="col"><h1 class="t">Calendario</h1>${heroH}
+   <div class="mhead"><h2>octubre 2026</h2><div class="mnav"><button aria-label="Mes anterior">${ico('chev').replace('<svg','<svg style="transform:rotate(180deg)"')}</button><button aria-label="Mes siguiente" disabled>${ico('chev')}</button></div></div>
+   <div class="card cal" role="grid" aria-label="Octubre 2026"><div class="dow" role="row">${['L','M','X','J','V','S','D'].map(x=>`<b role="columnheader">${x}</b>`).join('')}</div>${rowsH.join('')}
+   <div class="legend"><span><i class="d"></i>Entrenaste</span><span><i class="p"></i>Programada</span><span><i class="s"></i>Omitida</span></div></div>
+   ${dayH}</div>`;
+}
+const notes={
+ run:'Una sola columna de 760 px. La tarjeta oscura dice dónde vas y trae el botón «Te toca {Rutina}», que abre el registro de esa sesión. Debajo, solo la semana elegida (empieza en la actual) con sus sesiones como filas de 72 px. La fila de la siguiente sesión lleva borde azul y la etiqueta «Siguiente». No hay tabla, ni «Asignar», ni «Editar plan».',
+ pick:'Elegir el día se hace aquí mismo, en una hoja sobre la lista (igual que en la app). Los días pasados quedan deshabilitados. «Quitar el día asignado» deja la sesión sin día.',
+ up:'Antes de empezar: la tarjeta dice cuándo empieza y cuántas sesiones hay. Se puede elegir día desde ya.',
+ end:'Plan terminado: la cadena queda completa y las semanas siguen navegables para ver el historial. Las omitidas llevan etiqueta ámbar, sin culpa.',
+ none:'Plan sin rutinas todavía: la tarjeta oscura lo dice y debajo no hay nada que armar.',
+ cal:'Calendario del mes, como un marcador de hábito: cada día entrenado se sella con un círculo azul y un check, y los días seguidos se unen con una banda azul clara (la cadena de la marca). Las sesiones programadas son un círculo con borde azul; las omitidas, ámbar y sin culpa; hoy lleva un halo. La tarjeta oscura celebra lo logrado (entrenamientos del mes y semanas seguidas) y no marca nada en rojo. Tocar un día muestra sus sesiones debajo. Se ve el historial hacia atrás con la flecha del mes.',
+ calnew:'Primera semana, sin historial: el calendario no se ve vacío ni triste. La tarjeta oscura invita («Cada día que entrenes quedará marcado aquí»), las sesiones programadas ya aparecen con borde azul y la de hoy tiene su halo. El primer check será el estreno.',
+ list:'Una tarjeta por plan: nombre, semana en curso, segmentos por semana (llena = completa, borde = en curso) y una línea con lo que toca. Los terminados van abajo.'
+};
+let s='run',w='wide';
+function render(){
+  const isCal=s==='cal'||s==='calnew';
+  $('nav').innerHTML=`<a href="#">Hoy</a><a class="${isCal?'on':''}" href="#">Calendario</a><a class="${isCal?'':'on'}" href="#">Mis planes</a>`;
+  $('body').innerHTML=isCal?calPage(s):s==='list'?listPage():planPage(s);
+  $('note').textContent=notes[s];
+  $('web').classList.toggle('narrow',w==='narrow');
+  document.querySelectorAll('#seg-s button').forEach(b=>b.classList.toggle('on',b.dataset.s===s));
+  document.querySelectorAll('#seg-w button').forEach(b=>b.classList.toggle('on',b.dataset.w===w));
+}
+document.querySelectorAll('#seg-s button').forEach(b=>b.onclick=()=>{s=b.dataset.s;render()});
+document.querySelectorAll('#seg-w button').forEach(b=>b.onclick=()=>{w=b.dataset.w;render()});
+render();
+</script>
+</body>
+</html>
