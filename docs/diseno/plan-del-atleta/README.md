@@ -1,7 +1,7 @@
 ---
 type: design
 parent: "[[PRD-RutinasYProgramacion]]"
-status: proposed
+status: decided
 tags: [diseno, plan, atleta]
 created: 2026-10-16
 updated: 2026-10-16
@@ -9,7 +9,7 @@ updated: 2026-10-16
 
 # Plan del atleta: diseño (T-172)
 
-> Diseño de la pantalla del plan (`/cycles/:id`) para el **atleta** en la web, y de la lista «Mis planes». Resuelve el issue 2 de [`ISSUES.md`](../../ISSUES.md): hoy coach y atleta ven la misma grilla y el atleta no necesita armar nada. **Pendiente de aprobación.** Se construye en T-080.
+> Diseño de la pantalla del plan (`/cycles/:id`) para el **atleta** en la web, y de la lista «Mis planes». Resuelve el issue 2 de [`ISSUES.md`](../../ISSUES.md): hoy coach y atleta ven la misma grilla y el atleta no necesita armar nada. **Aprobado y construido en la web (2026-10-19).**
 
 ## Cómo verlo
 
