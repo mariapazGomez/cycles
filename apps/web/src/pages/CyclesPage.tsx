@@ -59,7 +59,7 @@ export function CyclesPage() {
       queryClient.invalidateQueries({ queryKey: ["cycles"] });
     },
     onError: (error: unknown) => {
-      setFormError(error instanceof ApiError ? error.message : "No se pudo crear el plan.");
+      setFormError(error instanceof ApiError ? error.message : "No se pudo crear el ciclo.");
     },
   });
 
@@ -81,7 +81,7 @@ export function CyclesPage() {
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
-          <h1 className="page-title">{isCoach ? "Planes" : "Mis planes"}</h1>
+          <h1 className="page-title">{isCoach ? "Ciclos" : "Mis ciclos"}</h1>
         </div>
         {isCoach && (
           <button
@@ -90,7 +90,7 @@ export function CyclesPage() {
             style={{ width: "auto" }}
             onClick={() => setShowForm((v) => !v)}
           >
-            {showForm ? "Cancelar" : "Crear plan"}
+            {showForm ? "Cancelar" : "Crear ciclo"}
           </button>
         )}
       </div>
@@ -124,7 +124,7 @@ export function CyclesPage() {
           </div>
 
           <div className="field">
-            <label htmlFor="cycleType">Tipo de plan</label>
+            <label htmlFor="cycleType">Tipo de ciclo</label>
             <select
               id="cycleType"
               value={cycleType}
@@ -207,7 +207,7 @@ export function CyclesPage() {
             style={{ width: "auto" }}
             disabled={createMutation.isPending || activeAthletes.length === 0}
           >
-            {createMutation.isPending ? "Creando…" : "Crear plan"}
+            {createMutation.isPending ? "Creando…" : "Crear ciclo"}
           </button>
         </form>
       )}
@@ -218,8 +218,8 @@ export function CyclesPage() {
         {cyclesQuery.data && cyclesQuery.data.length === 0 && (
           <p>
             {isCoach
-              ? "Todavía no creaste ningún plan."
-              : "Todavía no tienes planes. Cuando tu coach te asigne uno, aparecerá aquí."}
+              ? "Todavía no creaste ningún ciclo."
+              : "Todavía no tienes ciclos. Cuando tu coach te asigne uno, aparecerá aquí."}
           </p>
         )}
 

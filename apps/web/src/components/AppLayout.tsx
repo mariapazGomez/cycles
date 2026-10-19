@@ -25,7 +25,7 @@ export function AppLayout() {
                 Atletas
               </NavLink>
               <NavLink to="/cycles" className={navLinkClass}>
-                Planes
+                Ciclos
               </NavLink>
               <NavLink to="/routines" className={navLinkClass}>
                 Rutinas
@@ -41,7 +41,7 @@ export function AppLayout() {
                 Calendario
               </NavLink>
               <NavLink to="/cycles" className={navLinkClass}>
-                Mis planes
+                Mis ciclos
               </NavLink>
             </nav>
           )}

@@ -20,7 +20,7 @@ export class CyclesService {
     });
     if (!relation || relation.status !== "active") {
       throw new ForbiddenException(
-        "Solo puedes crear planes para atletas con una relación activa contigo.",
+        "Solo puedes crear ciclos para atletas con una relación activa contigo.",
       );
     }
 
@@ -32,7 +32,7 @@ export class CyclesService {
 
     const isContainer = dto.cycleType === "macrocycle";
     if (!isContainer && !dto.sessionsPerWeek) {
-      throw new BadRequestException("Define cuántas sesiones por semana tiene este plan.");
+      throw new BadRequestException("Define cuántas sesiones por semana tiene este ciclo.");
     }
 
     let parentCycle = null;
@@ -42,7 +42,7 @@ export class CyclesService {
         throw new BadRequestException("El macrociclo indicado no existe o no es tuyo.");
       }
       if (parentCycle.cycleType !== "macrocycle") {
-        throw new BadRequestException("Un plan solo puede vivir dentro de un macrociclo.");
+        throw new BadRequestException("Un ciclo solo puede vivir dentro de un macrociclo.");
       }
       if (parentCycle.athleteId !== dto.athleteId) {
         throw new BadRequestException("El macrociclo es de otro atleta.");
@@ -101,7 +101,7 @@ export class CyclesService {
     }
     await this.assertAccess(user, parent);
     if (parent.cycleType !== "macrocycle") {
-      throw new BadRequestException("Este plan no es un macrociclo, no tiene hijos.");
+      throw new BadRequestException("Este ciclo no es un macrociclo, no tiene hijos.");
     }
 
     return this.prisma.trainingCycle.findMany({
@@ -123,7 +123,7 @@ export class CyclesService {
   private async assertAccess(user: AuthenticatedUser, cycle: { coachId: string; athleteId: string }): Promise<void> {
     const isOwner = user.role === "coach" ? cycle.coachId === user.id : cycle.athleteId === user.id;
     if (!isOwner) {
-      throw new ForbiddenException("No tienes acceso a este plan.");
+      throw new ForbiddenException("No tienes acceso a este ciclo.");
     }
     // El coach además necesita la relación activa; el atleta siempre ve lo suyo.
     if (user.role === "coach") {

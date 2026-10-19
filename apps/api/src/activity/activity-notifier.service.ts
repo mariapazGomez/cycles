@@ -77,7 +77,7 @@ export class ActivityNotifier {
       if (count !== 1) return;
       const coach = await this.prisma.user.findUniqueOrThrow({ where: { id: coachId } });
       const weeks = Math.max(1, Math.round((plan.endDate.getTime() - plan.startDate.getTime()) / WEEK_MS));
-      return `:clipboard: *${shortName(coach.name)}* creó su primer plan: ${plan.name} (${weeks} ${weeks === 1 ? "semana" : "semanas"})`;
+      return `:clipboard: *${shortName(coach.name)}* creó su primer ciclo: ${plan.name} (${weeks} ${weeks === 1 ? "semana" : "semanas"})`;
     });
   }
 
@@ -136,7 +136,7 @@ export class ActivityNotifier {
       `• Coaches nuevos: ${coaches}`,
       `• Invitaciones enviadas: ${invitations}`,
       `• Atletas nuevos: ${athletes}`,
-      `• Planes creados: ${plans}`,
+      `• Ciclos creados: ${plans}`,
       `• Sesiones registradas: ${completed}`,
       `• Sesiones omitidas: ${skipped}`,
       `• Ajustes de carga aplicados: ${adjustments}`,

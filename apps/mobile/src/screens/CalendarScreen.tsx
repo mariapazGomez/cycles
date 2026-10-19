@@ -165,7 +165,7 @@ export function CalendarScreen() {
           <View style={[styles.card, styles.emptyCard]}>
             <ChainBackground />
             <View style={styles.emptyBox}>
-              <Text style={styles.emptyTitle}>Aún no tienes un plan activo</Text>
+              <Text style={styles.emptyTitle}>Aún no tienes un ciclo activo</Text>
               <Text style={styles.emptyText}>Cuando tu coach active uno, verás tus sesiones aquí.</Text>
             </View>
           </View>

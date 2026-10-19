@@ -83,7 +83,7 @@ export class ExecutionService {
         include,
       });
       if (!chosen) {
-        throw new NotFoundException("Esa sesión no está pendiente en tus planes activos.");
+        throw new NotFoundException("Esa sesión no está pendiente en tus ciclos activos.");
       }
       const cycle = usable.find((c) => c.id === chosen.cycleId)!;
       return { cycle: cycleInfo(cycle), session: chosen, assignedToday };
@@ -124,7 +124,7 @@ export class ExecutionService {
       const first = startOfUtcDay(session.cycle.startDate);
       const last = startOfUtcDay(session.cycle.endDate);
       if (day < first || day > last) {
-        throw new BadRequestException("El día debe estar dentro de las fechas del plan.");
+        throw new BadRequestException("El día debe estar dentro de las fechas del ciclo.");
       }
       scheduledDate = day;
     }
@@ -282,10 +282,10 @@ export class ExecutionService {
   async muscleSummary(athleteId: string, cycleId: string) {
     const cycle = await this.prisma.trainingCycle.findUnique({ where: { id: cycleId } });
     if (!cycle) {
-      throw new NotFoundException("Plan no encontrado.");
+      throw new NotFoundException("Ciclo no encontrado.");
     }
     if (cycle.athleteId !== athleteId) {
-      throw new ForbiddenException("Este plan no es tuyo.");
+      throw new ForbiddenException("Este ciclo no es tuyo.");
     }
 
     const sessions = await this.prisma.trainingSession.findMany({
@@ -371,10 +371,10 @@ export class ExecutionService {
       throw new ForbiddenException("Esta sesión no es tuya.");
     }
     if (!(await this.hasActiveRelation(session.cycle.coachId, athleteId))) {
-      throw new ForbiddenException("Ya no tienes una relación activa con el coach de este plan.");
+      throw new ForbiddenException("Ya no tienes una relación activa con el coach de este ciclo.");
     }
     if (session.cycle.status !== "active") {
-      throw new BadRequestException("Solo puedes registrar sesiones de un plan activo.");
+      throw new BadRequestException("Solo puedes registrar sesiones de un ciclo activo.");
     }
     return session;
   }

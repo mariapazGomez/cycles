@@ -286,7 +286,7 @@ export function SessionDetailScreen({ route }: Props) {
                     </TouchableOpacity>
                   );
                 })}
-                <Text style={styles.footnote}>Siguiente se marca solo: es la primera sesión pendiente de tu plan.</Text>
+                <Text style={styles.footnote}>Siguiente se marca solo: es la primera sesión pendiente de tu ciclo.</Text>
               </>
             )}
 

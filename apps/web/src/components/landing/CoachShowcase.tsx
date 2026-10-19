@@ -11,7 +11,7 @@ import planes from "../../assets/landing/coach-planes.jpg";
 const VIEWS = [
   { label: "Inicio", src: inicio, alt: "Inicio del coach: atletas que necesitan atención y lista de atletas" },
   { label: "Rutinas", src: rutinas, alt: "Editor de rutinas: ejercicios con series, repeticiones y carga, y resumen de la carga de la sesión" },
-  { label: "Planes", src: planes, alt: "Visualizador de un plan: avance por semanas y sesiones de cada semana" },
+  { label: "Ciclos", src: planes, alt: "Visualizador de un ciclo: avance por semanas y sesiones de cada semana" },
 ];
 const INTERVAL_MS = 4500;
 
