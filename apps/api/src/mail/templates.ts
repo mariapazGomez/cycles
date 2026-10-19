@@ -104,11 +104,11 @@ export function athleteInvitationEmail(url: string, coachName: string): EmailCon
     subject: `${coachName} te invitó a entrenar en Cycles`,
     html: layout({
       heading: `${coach} te invitó a Cycles`,
-      body: `${coach} va a planificar tus entrenamientos en Cycles. Crea tu cuenta para ver tu plan y registrar cada sesión desde el celular.`,
+      body: `${coach} va a planificar tus entrenamientos en Cycles. Crea tu cuenta para ver tu ciclo y registrar cada sesión desde el celular.`,
       cta: "Crear mi cuenta",
       url,
       note: "La invitación vence en 7 días. Si no conoces a quien te invitó, ignora este mensaje.",
     }),
-    text: `${coachName} te invitó a entrenar en Cycles. Crea tu cuenta para ver tu plan y registrar cada sesión:\n\n${url}\n\nLa invitación vence en 7 días. Si no conoces a quien te invitó, ignora este mensaje.`,
+    text: `${coachName} te invitó a entrenar en Cycles. Crea tu cuenta para ver tu ciclo y registrar cada sesión:\n\n${url}\n\nLa invitación vence en 7 días. Si no conoces a quien te invitó, ignora este mensaje.`,
   };
 }

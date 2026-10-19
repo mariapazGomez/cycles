@@ -184,7 +184,7 @@ export function LandingPage() {
                 <ul className="lp-pl">
                   <li>Arma rutinas con el catálogo de ejercicios y asígnalas desde un solo lugar.</li>
                   <li>Tu atleta las recibe en su celular, sin Excel ni PDF.</li>
-                  <li>Mira la cadena de semanas de cada plan de un vistazo.</li>
+                  <li>Mira la cadena de semanas de cada ciclo de un vistazo.</li>
                 </ul>
               </div>
               <div className="lp-col">
@@ -201,7 +201,7 @@ export function LandingPage() {
                 </ul>
               </div>
             </div>
-            <p className="lp-after-benefits">No cambia cómo entrenas. Tú sigues diseñando el plan.</p>
+            <p className="lp-after-benefits">No cambia cómo entrenas. Tú sigues diseñando el ciclo.</p>
           </div>
         </section>
 
@@ -254,7 +254,7 @@ export function LandingPage() {
               <div className="lp-cmp lp-before">
                 <h3>Hoy</h3>
                 <ul>
-                  <li>Le mandas el plan a cada atleta en un Excel.</li>
+                  <li>Le mandas el ciclo a cada atleta en un Excel.</li>
                   <li>Entrena y te cuenta cómo le fue por WhatsApp, o se le olvida.</li>
                   <li>Te enteras de un problema cuando ya pasó.</li>
                   <li>Un Excel y una conversación por cada atleta.</li>
@@ -348,7 +348,7 @@ export function LandingPage() {
               <div className="lp-browser-top"><i /><i /><i /></div>
               <picture>
                     <source media="(max-width: 820px)" srcSet={mPlan} />
-                    <img src={plan} alt="Plan por semanas con dos sesiones omitidas y la nota de cada una" />
+                    <img src={plan} alt="Ciclo por semanas con dos sesiones omitidas y la nota de cada una" />
                   </picture>
             </div>
           </div>

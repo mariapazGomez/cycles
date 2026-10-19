@@ -282,10 +282,10 @@ export class TrackingService {
       include: CYCLE_WITH_EXECUTION,
     });
     if (!cycle) {
-      throw new NotFoundException("Plan no encontrado.");
+      throw new NotFoundException("Ciclo no encontrado.");
     }
     if (cycle.coachId !== coachId) {
-      throw new ForbiddenException("No eres el coach de este plan.");
+      throw new ForbiddenException("No eres el coach de este ciclo.");
     }
     await this.assertActiveRelation(coachId, cycle.athleteId);
 
@@ -326,10 +326,10 @@ export class TrackingService {
   async createLoadAdjustment(coachId: string, cycleId: string, dto: CreateLoadAdjustmentDto) {
     const cycle = await this.prisma.trainingCycle.findUnique({ where: { id: cycleId } });
     if (!cycle) {
-      throw new NotFoundException("Plan no encontrado.");
+      throw new NotFoundException("Ciclo no encontrado.");
     }
     if (cycle.coachId !== coachId) {
-      throw new ForbiddenException("No eres el coach de este plan.");
+      throw new ForbiddenException("No eres el coach de este ciclo.");
     }
     await this.assertActiveRelation(coachId, cycle.athleteId);
 

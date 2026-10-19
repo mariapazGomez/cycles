@@ -58,7 +58,7 @@ function initialsOf(name: string): string {
 export function notificationCopy(n: AppNotification): NotificationCopy {
   const p = n.payload;
   const coach = str(p.coachName, "Tu coach");
-  const plan = str(p.planName, "tu plan");
+  const plan = str(p.planName, "tu ciclo");
   const routine = str(p.routineName, "tu sesión");
   const day = str(p.dayLabel);
   const athlete = str(p.athleteName, "Un atleta");
@@ -68,7 +68,7 @@ export function notificationCopy(n: AppNotification): NotificationCopy {
   switch (n.type) {
     case "plan_assigned":
       return {
-        title: "Plan nuevo",
+        title: "Ciclo nuevo",
         text: `${coach} te asignó ${plan}. Ya puedes verlo.`,
         icon: "plan",
         target: planTarget,

@@ -127,7 +127,7 @@ export function CalendarPage() {
   let heroLine: string;
   if (plans.length === 0) {
     heroTitle = "Todavía sin sesiones";
-    heroLine = "Cuando tu coach te asigne un plan, lo verás aquí.";
+    heroLine = "Cuando tu coach te asigne un ciclo, lo verás aquí.";
   } else if (!everDone) {
     heroTitle = !firstUpcoming
       ? "Tu primera sesión te espera"

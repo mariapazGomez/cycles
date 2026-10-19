@@ -199,7 +199,7 @@ export function NotificationBell() {
   const emptyText =
     user?.role === "coach"
       ? "Cuando tus atletas programen o registren una sesión, lo verás aquí."
-      : "Cuando tu coach cambie algo en tu plan, lo verás aquí.";
+      : "Cuando tu coach cambie algo en tu ciclo, lo verás aquí.";
 
   return (
     <div className="notif" ref={containerRef}>

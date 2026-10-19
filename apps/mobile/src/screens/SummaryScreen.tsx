@@ -151,7 +151,7 @@ export function SummaryScreen() {
         <View style={[styles.card, styles.emptyCard]}>
           <ChainBackground />
           <View style={styles.emptyBox}>
-            <Text style={styles.emptyTitle}>Aún no tienes un plan activo</Text>
+            <Text style={styles.emptyTitle}>Aún no tienes un ciclo activo</Text>
             <Text style={styles.emptyText}>Cuando tu coach active uno, verás tu progreso aquí.</Text>
           </View>
         </View>
@@ -269,7 +269,7 @@ export function SummaryScreen() {
                       style={[styles.weekChip, mapWeek === w && styles.weekChipOn]}
                       onPress={() => setMapWeek(w)}>
                       <Text style={[styles.weekChipText, mapWeek === w && styles.weekChipTextOn]}>
-                        {w === 'all' ? 'Todo el plan' : `S${w}`}
+                        {w === 'all' ? 'Todo el ciclo' : `S${w}`}
                       </Text>
                     </TouchableOpacity>
                   ))}
@@ -303,7 +303,7 @@ export function SummaryScreen() {
               </View>
 
               <View style={styles.card}>
-                <Text style={styles.cardTitle}>Foco del plan</Text>
+                <Text style={styles.cardTitle}>Foco del ciclo</Text>
                 <ShareBar values={allTotals} />
                 <ShareList values={allTotals} unit={UNIT[metric]} />
               </View>

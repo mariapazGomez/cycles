@@ -143,7 +143,7 @@ export function NotificationsScreen({ navigation }: Props) {
                 <ChainBackground />
               </View>
               <Text style={styles.stateTitle}>Todo al día.</Text>
-              <Text style={styles.stateText}>Cuando tu coach cambie algo en tu plan, lo verás aquí.</Text>
+              <Text style={styles.stateText}>Cuando tu coach cambie algo en tu ciclo, lo verás aquí.</Text>
             </View>
           )}
 

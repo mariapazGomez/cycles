@@ -58,13 +58,13 @@ export function CycleDetailPage() {
       queryClient.invalidateQueries({ queryKey: ["cycles"] });
     },
     onError: (error: unknown) => {
-      setEditError(error instanceof ApiError ? error.message : "No se pudo actualizar el plan.");
+      setEditError(error instanceof ApiError ? error.message : "No se pudo actualizar el ciclo.");
     },
   });
 
   if (cycleQuery.isLoading) return <LoadingScreen />;
   if (cycleQuery.isError || !cycleQuery.data) {
-    return <div className="error-banner">No se pudo cargar este plan.</div>;
+    return <div className="error-banner">No se pudo cargar este ciclo.</div>;
   }
 
   const cycle = cycleQuery.data;
@@ -88,7 +88,7 @@ export function CycleDetailPage() {
   return (
     <div className="pl-page">
       <Link className="rt-back" to="/cycles">
-        ← Planes
+        ← Ciclos
       </Link>
 
       <div className="page-header" style={{ marginTop: 8 }}>
@@ -118,7 +118,7 @@ export function CycleDetailPage() {
         </div>
         {isCoach && (
           <button type="button" className="button-secondary pl-edit" onClick={() => setShowEdit((v) => !v)}>
-            {showEdit ? "Cancelar" : "Editar plan"}
+            {showEdit ? "Cancelar" : "Editar ciclo"}
           </button>
         )}
       </div>
@@ -234,7 +234,7 @@ function MacrocycleChildren({
       queryClient.invalidateQueries({ queryKey: ["cycles", cycleId, "children"] });
     },
     onError: (error: unknown) => {
-      setFormError(error instanceof ApiError ? error.message : "No se pudo crear el plan.");
+      setFormError(error instanceof ApiError ? error.message : "No se pudo crear el ciclo.");
     },
   });
 
@@ -247,7 +247,7 @@ function MacrocycleChildren({
   return (
     <div style={{ marginTop: 32 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h2 style={{ fontSize: "1.1rem", margin: 0 }}>Planes dentro de este macrociclo</h2>
+        <h2 style={{ fontSize: "1.1rem", margin: 0 }}>Ciclos dentro de este macrociclo</h2>
         {isCoach && (
           <button
             type="button"
@@ -255,7 +255,7 @@ function MacrocycleChildren({
             style={{ width: "auto" }}
             onClick={() => setShowForm((v) => !v)}
           >
-            {showForm ? "Cancelar" : "Agregar plan"}
+            {showForm ? "Cancelar" : "Agregar ciclo"}
           </button>
         )}
       </div>
@@ -328,13 +328,13 @@ function MacrocycleChildren({
             style={{ width: "auto" }}
             disabled={createMutation.isPending}
           >
-            {createMutation.isPending ? "Creando…" : "Agregar plan"}
+            {createMutation.isPending ? "Creando…" : "Agregar ciclo"}
           </button>
         </form>
       )}
 
       <div style={{ marginTop: 16 }}>
-        {childrenQuery.data && childrenQuery.data.length === 0 && <p>Todavía no hay planes aquí.</p>}
+        {childrenQuery.data && childrenQuery.data.length === 0 && <p>Todavía no hay ciclos aquí.</p>}
         {childrenQuery.data && childrenQuery.data.length > 0 && (
           <ul style={{ listStyle: "none", padding: 0 }}>
             {childrenQuery.data.map((child) => (
@@ -479,7 +479,7 @@ function CycleGrid({
       {readyNotice && (
         <div className="success-banner" role="status">
           <strong>{athlete ? `${athlete.name} ya puede entrenar.` : "Tu atleta ya puede entrenar."}</strong> Verá este
-          plan en Hoy y le llegará un aviso en unos minutos.
+          ciclo en Hoy y le llegará un aviso en unos minutos.
         </div>
       )}
       {applied && (
@@ -562,7 +562,7 @@ function CycleGrid({
       )}
 
       <div className="pl-section-head">
-        <h2>Semanas del plan</h2>
+        <h2>Semanas del ciclo</h2>
         {stats.assigned > 0 && <span className="pl-hint">Toca una sesión para verla</span>}
       </div>
 
