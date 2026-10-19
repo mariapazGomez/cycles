@@ -6,6 +6,7 @@ import { useAuth } from "./hooks/useAuth";
 import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
+import { CalendarPage } from "./pages/CalendarPage";
 import { REGISTRATION_OPEN } from "./lib/features";
 import { CheckEmailPage } from "./pages/CheckEmailPage";
 import { VerifyEmailPage } from "./pages/VerifyEmailPage";
@@ -90,6 +91,7 @@ export function App() {
         <Route index element={<HomePage />} />
         <Route path="athletes" element={<AthletesPage />} />
         <Route path="athletes/:athleteId" element={<AthleteSummaryPage />} />
+        <Route path="calendar" element={<CalendarPage />} />
         <Route path="cycles" element={<CyclesPage />} />
         <Route path="routines" element={<RoutinesPage />} />
         <Route path="routines/new" element={<RoutineEditorPage />} />

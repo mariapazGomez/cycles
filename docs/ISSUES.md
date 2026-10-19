@@ -30,6 +30,8 @@ Cada issue se trabaja como una solución separada cuando se pida, no todas junta
 - **Coach:** vista más técnica — la grid de semanas × sesiones tal como está hoy (o más densa), pensada para armar y ajustar la programación.
 - **Atleta:** vista más simple y llamativa — pensada para mirar rápido qué le toca hoy/esta semana, no para editar. Menos tabla, más foco en la próxima sesión.
 
+**Calendario del atleta (agregado 2026-10-18):** el atleta debe poder ver un calendario con los entrenamientos que hizo y los que va a hacer, y debe verse alentador cuando hay actividad, como marcar en un hábito los días que se cumplió, para generar adherencia. Diseño aprobado en `docs/diseno/plan-del-atleta` (estado Calendario) y construido en la web como pestaña **Calendario** del atleta (`/calendar`). Queda pendiente el resto del diseño del plan del atleta (una semana a la vez, «Te toca…», elegir día).
+
 **Dónde:** `apps/web/src/pages/CycleDetailPage.tsx` (`CycleGrid` es un solo componente compartido con un flag `isCoach`, no dos vistas). Relevante: la app móvil (`apps/mobile/src/screens/TodayScreen.tsx`) ya resolvió esto para el caso "atleta ejecutando" con una vista simple centrada en la sesión de hoy — podría ser el punto de partida para cómo se ve una vista de atleta más simple en la web.
 
 **Estado:** abierto, sin resolver.
