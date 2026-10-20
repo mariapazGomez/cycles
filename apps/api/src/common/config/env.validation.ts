@@ -18,6 +18,7 @@ const PRODUCTION_REQUIRED = [
 ];
 
 const MIN_SECRET_LENGTH = 64;
+const MIN_ACCESS_CODE_LENGTH = 16;
 
 export function validateEnv(config: Record<string, unknown>): Record<string, unknown> {
   const errors: string[] = [];
@@ -62,6 +63,11 @@ export function validateEnv(config: Record<string, unknown>): Record<string, unk
     if (value(key) && !value(key).startsWith(SLACK_WEBHOOK_PREFIX)) {
       errors.push(`${key} debe ser una URL de webhook de Slack (${SLACK_WEBHOOK_PREFIX}…).`);
     }
+  }
+  // Código de acceso del piloto: permite registrarse con el registro cerrado.
+  // Opcional; si se define, debe ser largo para que no se pueda adivinar.
+  if (value("PILOT_ACCESS_CODE") && value("PILOT_ACCESS_CODE").length < MIN_ACCESS_CODE_LENGTH) {
+    errors.push(`PILOT_ACCESS_CODE debe tener al menos ${MIN_ACCESS_CODE_LENGTH} caracteres.`);
   }
   // Protege el endpoint del resumen diario (docs/deploy/PLAN-Deploy.md, paso 8).
   if (value("ACTIVITY_CRON_SECRET") && value("ACTIVITY_CRON_SECRET").length < MIN_SECRET_LENGTH) {

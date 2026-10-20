@@ -58,3 +58,5 @@ No cambia: la vista del coach, los macrociclos y la app (su Calendario ya cumple
 **Dónde:** `apps/api/src/auth/auth.service.ts` (`register`, `loginWithGoogle`), `auth.controller.ts` (callback de Google), `apps/web/src/lib/features.ts`, `App.tsx`, `LoginPage.tsx`, `LandingPage.tsx`, `OAuthCallbackPage.tsx`.
 
 **Estado:** resuelto y mergeado en `main` (PR #69, 2026-10-18). Para abrir el registro de nuevo: `REGISTRATION_OPEN=true` en Render y `VITE_REGISTRATION_OPEN=true` en Vercel.
+
+**Cómo entran los coaches del piloto (T-177, 2026-10-19):** con un **enlace privado con código de acceso** (`/register?codigo=…`, variable `PILOT_ACCESS_CODE` en Render) que mantiene el registro cerrado al público. Procedimiento en [`docs/deploy/ACCESO-PILOTO.md`](./deploy/ACCESO-PILOTO.md).

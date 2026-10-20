@@ -1,4 +1,4 @@
-import { IsBoolean, IsEmail, IsIn, IsOptional, IsString, MinLength } from "class-validator";
+import { IsBoolean, IsEmail, IsIn, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
 import { UserRole } from "@prisma/client";
 import { NormalizeEmail } from "../../common/validation/normalize-email";
 
@@ -22,4 +22,11 @@ export class RegisterDto {
   @IsOptional()
   @IsBoolean()
   dataConsent?: boolean;
+
+  // Código de acceso del piloto (PILOT_ACCESS_CODE): deja crear una cuenta de
+  // coach aunque el registro esté cerrado al público.
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  accessCode?: string;
 }
