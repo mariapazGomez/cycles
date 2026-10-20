@@ -14,6 +14,7 @@ import { ExerciseLogScreen } from '../screens/ExerciseLogScreen';
 import { SessionFeedbackScreen } from '../screens/SessionFeedbackScreen';
 import { SessionDetailScreen } from '../screens/SessionDetailScreen';
 import { NotificationsScreen } from '../screens/NotificationsScreen';
+import { PolicyAcceptanceScreen } from '../screens/PolicyAcceptanceScreen';
 import type { AppStackParamList, TabParamList } from './types';
 import { colors } from '../theme/colors';
 
@@ -36,7 +37,7 @@ function Tabs() {
 }
 
 export function RootNavigator() {
-  const { status } = useAuth();
+  const { status, user } = useAuth();
 
   if (status === 'loading') {
     return (
@@ -44,6 +45,12 @@ export function RootNavigator() {
         <Spinner size={44} />
       </View>
     );
+  }
+
+  // Quien aún no aceptó la versión vigente de los Términos y la Política no
+  // entra a la app hasta aceptarla (T-147).
+  if (status === 'signedIn' && user?.needsPolicyAcceptance) {
+    return <PolicyAcceptanceScreen />;
   }
 
   return (

@@ -9,6 +9,8 @@ interface AuthContextValue {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  // Acepta los Términos y la Política vigentes y recarga el perfil (T-147).
+  acceptPolicy: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -66,7 +68,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const value = useMemo(() => ({ status, user, login, logout }), [status, user]);
+  const acceptPolicy = async () => {
+    await authApi.acceptPolicy();
+    setUser(await authApi.fetchCurrentUser());
+  };
+
+  const value = useMemo(() => ({ status, user, login, logout, acceptPolicy }), [status, user]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

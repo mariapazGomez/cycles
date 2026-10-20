@@ -22,6 +22,14 @@ export function logout(refreshToken: string) {
   });
 }
 
+// Quien ya tenía cuenta acepta la versión vigente de los Términos y la Política.
+export function acceptPolicy() {
+  return apiRequest<void>('/users/me/policy-acceptance', {
+    method: 'POST',
+    body: { acceptPolicy: true },
+  });
+}
+
 export function fetchCurrentUser() {
   return apiRequest<User>('/users/me');
 }

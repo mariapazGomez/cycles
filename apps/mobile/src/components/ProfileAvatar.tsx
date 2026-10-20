@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Linking, Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../store/AuthContext';
 import { colors } from '../theme/colors';
 import { cardShadow } from '../theme/elevation';
+import { PRIVACY_URL, TERMS_URL } from '../config/legal';
 
 // Avatar con las iniciales de la persona; abre un menú con su nombre,
 // correo y la salida. Va arriba a la derecha de las pantallas principales.
@@ -31,6 +32,18 @@ export function ProfileAvatar() {
           <View style={[styles.menu, { top: insets.top + 56 }]}>
             <Text style={styles.name} numberOfLines={1}>{user?.name}</Text>
             <Text style={styles.email} numberOfLines={1}>{user?.email}</Text>
+            <TouchableOpacity
+              style={styles.item}
+              onPress={() => Linking.openURL(PRIVACY_URL)}
+              accessibilityRole="link">
+              <Text style={styles.linkText}>Política de privacidad</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.item}
+              onPress={() => Linking.openURL(TERMS_URL)}
+              accessibilityRole="link">
+              <Text style={styles.linkText}>Términos de uso</Text>
+            </TouchableOpacity>
             <TouchableOpacity
               style={styles.item}
               onPress={() => {
@@ -68,6 +81,7 @@ const styles = StyleSheet.create({
   },
   name: { fontSize: 15, fontWeight: '700', color: colors.ink },
   email: { fontSize: 12, color: colors.inkSecondary, marginTop: 2, marginBottom: 10 },
-  item: { borderTopWidth: 1, borderTopColor: colors.grayBorder, paddingTop: 12 },
+  item: { borderTopWidth: 1, borderTopColor: colors.grayBorder, minHeight: 44, justifyContent: 'center' },
+  linkText: { color: colors.ink, fontSize: 15, fontWeight: '600' },
   itemText: { color: colors.painInk, fontSize: 15, fontWeight: '600' },
 });
