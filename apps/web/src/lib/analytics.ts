@@ -15,8 +15,8 @@ import type { CaptureResult } from "posthog-js";
 // - Las direcciones se limpian antes de salir: sin query ni identificadores.
 
 const KEY = (import.meta.env.VITE_POSTHOG_KEY ?? "").trim();
-// Región UE por defecto (decisión 2026-10-20).
-const HOST = (import.meta.env.VITE_POSTHOG_HOST ?? "https://eu.i.posthog.com").trim();
+// Región EE. UU. por defecto (decisión 2026-10-20: el proyecto quedó en EE. UU.).
+const HOST = (import.meta.env.VITE_POSTHOG_HOST ?? "https://us.i.posthog.com").trim();
 
 let started = false;
 
