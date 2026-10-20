@@ -44,7 +44,7 @@ Estas brechas son las más importantes. La política dice que se resuelven **por
 
 - **No hay eliminar cuenta ni exportar datos** en la API ni en la app. Se haría con scripts manuales.
 - **No hay retiro de consentimiento** de estadísticas desde la app (solo por correo).
-- **El atleta no consiente nada al aceptar la invitación**: el PR solo agrega un aviso con enlaces; la aceptación **no se guarda**. Solo se guarda el consentimiento opcional de estadísticas (fecha y versión).
+- ~~**El atleta no consiente nada al aceptar la invitación**~~ **Resuelto (T-147, 2026-10-20):** ahora hay una casilla explícita al registrarse, al aceptar la invitación y en el perfil con Google, y la aceptación se guarda con su versión y fecha (`PolicyAcceptance`). Quien ya tenía cuenta ve la pantalla «Antes de seguir». Falta la misma pantalla en la app iOS. Detalle en `docs/prds/features/PRD-PrivacidadYTerminos.md` §7.
 - **La app móvil no enlaza** a la política ni a los términos.
 
 ## 3. Inventario de datos (resumen)

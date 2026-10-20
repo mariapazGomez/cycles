@@ -12,6 +12,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { MailService } from "../mail/mail.service";
 import { SecurityAlertService } from "../common/alerts/security-alert.service";
 import { createHash, timingSafeEqual } from "crypto";
+import { POLICY_VERSION, policyAcceptanceData } from "../common/policy";
 import { ActivityNotifier } from "../activity/activity-notifier.service";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
@@ -91,6 +92,7 @@ export class AuthService {
         authProvider: "local",
         dataConsentAt: dto.dataConsent ? new Date() : null,
         dataConsentVersion: dto.dataConsent ? DATA_CONSENT_VERSION : null,
+        policyAcceptances: { create: policyAcceptanceData("register") },
       },
     });
 
@@ -191,14 +193,21 @@ export class AuthService {
       throw new ConflictException("El rol ya fue asignado y no puede cambiarse aquí.");
     }
 
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        role: dto.role,
-        dataConsentAt: dto.dataConsent ? new Date() : user.dataConsentAt,
-        dataConsentVersion: dto.dataConsent ? DATA_CONSENT_VERSION : user.dataConsentVersion,
-      },
-    });
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          role: dto.role,
+          dataConsentAt: dto.dataConsent ? new Date() : user.dataConsentAt,
+          dataConsentVersion: dto.dataConsent ? DATA_CONSENT_VERSION : user.dataConsentVersion,
+        },
+      }),
+      this.prisma.policyAcceptance.upsert({
+        where: { userId_version: { userId, version: POLICY_VERSION } },
+        update: {},
+        create: { userId, ...policyAcceptanceData("google_profile") },
+      }),
+    ]);
     this.activity.coachJoined(userId);
   }
 

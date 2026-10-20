@@ -17,6 +17,7 @@ export function register(data: {
   email: string;
   password: string;
   dataConsent: boolean;
+  acceptPolicy: boolean;
   accessCode?: string;
 }) {
   return apiRequest<{ id: string; email: string }>("/auth/register", {
@@ -89,10 +90,18 @@ export function confirmPasswordReset(token: string, newPassword: string) {
 
 // El rol siempre es 'coach': es la única opción que acepta el backend en
 // este endpoint (los atletas no completan perfil, se crean por invitación).
-export function completeProfile(data: { dataConsent: boolean }) {
+export function completeProfile(data: { dataConsent: boolean; acceptPolicy: boolean }) {
   return apiRequest<MessageResponse>("/auth/complete-profile", {
     method: "POST",
     body: { role: "coach", ...data },
+  });
+}
+
+// Quien ya tiene cuenta acepta la versión vigente de los Términos y la Política.
+export function acceptPolicy() {
+  return apiRequest<void>("/users/me/policy-acceptance", {
+    method: "POST",
+    body: { acceptPolicy: true },
   });
 }
 

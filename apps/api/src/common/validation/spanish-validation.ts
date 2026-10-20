@@ -63,6 +63,7 @@ const FIELD_LABELS: Record<string, string> = {
   percentChange: "El porcentaje de cambio",
   fromWeek: "La semana de inicio",
   dataConsent: "El consentimiento",
+  acceptPolicy: "La aceptación de los términos",
 };
 
 // Concordancia con el nombre del campo ("La contraseña es obligatoria", "Las
