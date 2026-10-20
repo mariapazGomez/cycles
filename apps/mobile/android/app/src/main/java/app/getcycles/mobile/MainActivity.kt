@@ -1,4 +1,4 @@
-package com.cyclesmobile
+package app.getcycles.mobile
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
