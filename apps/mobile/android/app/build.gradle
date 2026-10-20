@@ -8,6 +8,8 @@ apply plugin: "com.facebook.react"
  */
 react {
     codegenDir = file("../../../../node_modules/@react-native/codegen")
+    // El compilador de Hermes también está en el node_modules de la raíz.
+    hermesCommand = "$rootDir/../../../node_modules/hermes-compiler/hermesc/%OS-BIN%/hermesc"
 
     /* Folders */
     //   The root of your project, i.e. where "package.json" lives. Default is '../..'
