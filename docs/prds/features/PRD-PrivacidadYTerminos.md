@@ -39,7 +39,7 @@ Cada afirmación se respalda en el código o en una decisión previa; si cambia 
 | Al terminar la relación el coach pierde acceso y el atleta conserva su historial | PRD-General, "Fin de relación" |
 | Estadísticas agregadas y anónimas solo con consentimiento; análisis cruzados futuros pedirán un nuevo consentimiento | VISION, "Principios de diseño de datos" |
 | Proveedores y ubicación (Supabase y Render en EE. UU., Vercel, Cloudflare, Resend, Slack, Google, Apple) | `docs/deploy/PLAN-Deploy.md` |
-| Sin publicidad. Analítica de uso de la web con PostHog (EE. UU.), sin cookies ni almacenamiento local, sin datos de salud, que respeta «No rastrear». El almacenamiento local solo guarda la sesión | `apps/web/src/lib/analytics.ts` y `docs/deploy/POSTHOG.md` (versión 1.1, T-179) |
+| Sin publicidad. Analítica de uso de la web con PostHog (UE), sin cookies ni almacenamiento local, sin datos de salud, que respeta «No rastrear». El almacenamiento local solo guarda la sesión | `apps/web/src/lib/analytics.ts` y `docs/deploy/POSTHOG.md` (versión 1.1, T-179) |
 
 ## 4. Compromisos que hay que poder cumplir (confirmar antes de publicar)
 

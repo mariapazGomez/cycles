@@ -7,19 +7,19 @@ Sirve para ver cómo usan Cycles los coaches del piloto. **Está apagada hasta q
 | | |
 |---|---|
 | Dónde se mide | La **web** (`app.getcycles.app`) y la **landing**. La app iOS no, por ahora (pediría un SDK nativo y declararlo en App Store Connect, T-121) |
-| Región | **Estados Unidos** (`https://us.i.posthog.com`). Se evaluó la UE (mejor para GDPR) y se eligió EE. UU., igual que el resto de los proveedores (Supabase, Render) |
+| Región | **Unión Europea** (`https://eu.i.posthog.com`) |
 | Grabación de pantalla | **No** |
 | Cookies | **Ninguna**: no guarda nada en el navegador (`persistence: "memory"`) |
 
 ## Cómo activarlo (tareas tuyas)
 
-1. **Crea el proyecto:** entra a `us.posthog.com`, crea la cuenta (plan gratuito) y un proyecto llamado `Cycles`. La región es **EE. UU.**: no se puede cambiar después sin crear otro proyecto.
+1. **Crea el proyecto:** entra a `eu.posthog.com`, crea la cuenta (plan gratuito) y un proyecto llamado `Cycles`. La región debe ser **UE**.
 2. **Ajustes del proyecto** (*Project settings*):
    - **Discard client IP data**: activado (no guardar IP).
    - **Autocapture**, **Session replay**, **Surveys**, **Heatmaps** y **Web vitals**: apagados (el código ya los desactiva, esto es un seguro doble).
    - **Person profiles**: dejar «identified only».
 3. **Copia la *Project API key*** (empieza con `phc_`). Es una clave de solo escritura que viaja en el navegador, pero no la pegues en el repo ni en un chat: guárdala en el gestor de contraseñas.
-4. **Vercel** → proyecto de la web → *Settings → Environment Variables* → Production: `VITE_POSTHOG_KEY` = la clave, y `VITE_POSTHOG_HOST` = `https://us.i.posthog.com`. Redespliega (la variable se incorpora al construir).
+4. **Vercel** → proyecto de la web → *Settings → Environment Variables* → Production: `VITE_POSTHOG_KEY` = la clave, y `VITE_POSTHOG_HOST` = `https://eu.i.posthog.com`. Redespliega (la variable se incorpora al construir).
 5. **Antes de redesplegar, mergea el PR de esta tarea**: sube la versión de privacidad a 1.1 (menciona PostHog) y todas las personas verán **«Antes de seguir»** para aceptarla.
 
 ## Qué se mide
