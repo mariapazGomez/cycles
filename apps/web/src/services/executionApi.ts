@@ -61,3 +61,12 @@ export function submitFeedback(sessionId: string, data: FeedbackInput) {
     body: data,
   });
 }
+
+// El atleta elige (o quita, con `null`) el día de una sesión pendiente. El día
+// debe caer dentro de las fechas del ciclo.
+export function scheduleSession(sessionId: string, date: string | null) {
+  return apiRequest<TrainingSession>(`/sessions/${sessionId}/schedule`, {
+    method: "PATCH",
+    body: { date },
+  });
+}

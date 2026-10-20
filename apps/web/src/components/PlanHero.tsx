@@ -16,7 +16,7 @@ interface PlanHeroProps {
 
 // Cadena de semanas: una cuenta por semana, llena hasta la semana en curso.
 // Con muchas semanas se quitan los conectores para que no se desborde.
-function WeekChain({ weeks, currentWeek }: { weeks: number; currentWeek: number }) {
+export function WeekChain({ weeks, currentWeek }: { weeks: number; currentWeek: number }) {
   const items = [];
   for (let week = 1; week <= weeks; week++) {
     const cls = week < currentWeek ? "pl-chain-bead pl-chain-done" : week === currentWeek ? "pl-chain-bead pl-chain-now" : "pl-chain-bead";
