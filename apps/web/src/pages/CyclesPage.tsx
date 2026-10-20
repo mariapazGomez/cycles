@@ -7,6 +7,7 @@ import * as athletesApi from "../services/athletesApi";
 import { ApiError } from "../services/httpClient";
 import { useAuth } from "../hooks/useAuth";
 import { AthleteCycleList } from "../components/AthleteCycleList";
+import { track } from "../lib/analytics";
 
 const STATUS_LABEL: Record<CycleStatus, string> = {
   active: "Activo",
@@ -48,7 +49,8 @@ export function CyclesPage() {
 
   const createMutation = useMutation({
     mutationFn: cyclesApi.createCycle,
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      track("cycle_created", { type: variables.cycleType });
       setShowForm(false);
       setAthleteId("");
       setName("");

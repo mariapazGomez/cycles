@@ -6,7 +6,7 @@ import { PolicyAcceptanceSource } from "@prisma/client";
 // /privacidad y /terminos (apps/web/public). Al cambiar los textos de forma
 // importante, súbela: quien aceptó la anterior verá la pantalla de aceptar de
 // nuevo (necesita aceptar la versión vigente). T-147.
-export const POLICY_VERSION = "1.0";
+export const POLICY_VERSION = "1.1";
 
 export const POLICY_ACCEPTANCE_MESSAGE =
   "Debes aceptar los Términos de uso y la Política de privacidad para continuar.";

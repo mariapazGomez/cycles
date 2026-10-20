@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as athletesApi from "../services/athletesApi";
 import { ApiError } from "../services/httpClient";
+import { track } from "../lib/analytics";
 
 const STATUS_LABEL: Record<athletesApi.CoachAthleteStatus, string> = {
   pending: "Pendiente",
@@ -40,6 +41,7 @@ export function AthletesPanel() {
   const inviteMutation = useMutation({
     mutationFn: athletesApi.inviteAthlete,
     onSuccess: () => {
+      track("athlete_invited");
       setName("");
       setEmail("");
       queryClient.invalidateQueries({ queryKey: ["athletes"] });

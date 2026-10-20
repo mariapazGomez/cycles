@@ -14,9 +14,11 @@ import "./styles/home.css";
 import "./styles/plan.css";
 import "./styles/calendar.css";
 import "./styles/athlete-cycle.css";
+import { initAnalytics } from "./lib/analytics";
 import "./styles/landing.css";
 
 warmUpApi();
+initAnalytics();
 
 const queryClient = new QueryClient();
 

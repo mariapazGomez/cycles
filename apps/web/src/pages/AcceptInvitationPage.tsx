@@ -6,6 +6,7 @@ import { AuthCard } from "../components/AuthCard";
 import * as athletesApi from "../services/athletesApi";
 import { ApiError } from "../services/httpClient";
 import { PolicyCheckbox } from "../components/PolicyCheckbox";
+import { track } from "../lib/analytics";
 
 export function AcceptInvitationPage() {
   const [searchParams] = useSearchParams();
@@ -20,6 +21,7 @@ export function AcceptInvitationPage() {
   const mutation = useMutation({
     mutationFn: () => athletesApi.acceptInvitation({ token: token ?? "", password, acceptPolicy }),
     onSuccess: async (tokens) => {
+      track("athlete_joined");
       await loginWithTokens(tokens);
       navigate("/", { replace: true });
     },

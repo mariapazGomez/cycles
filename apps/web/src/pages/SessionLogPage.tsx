@@ -8,6 +8,7 @@ import { LoadingScreen } from "../components/LoadingScreen";
 import { RestTimer } from "../components/RestTimer";
 import { formatKg, formatNumber, formatRir } from "../lib/format";
 import { newId } from "../lib/uuid";
+import { track } from "../lib/analytics";
 
 // Registro de una sesión por el atleta, pensado para el celular: un
 // ejercicio a la vez, cada serie pre-llenada con el objetivo, la pregunta de
@@ -294,6 +295,7 @@ function FinishStep({ session }: { session: sessionsApi.SessionDetail }) {
         notes: notes.trim() || undefined,
       }),
     onSuccess: () => {
+      track("session_closed", { outcome: "completed" });
       queryClient.invalidateQueries({ queryKey: ["sessions", session.id] });
       queryClient.invalidateQueries({ queryKey: ["today"] });
     },

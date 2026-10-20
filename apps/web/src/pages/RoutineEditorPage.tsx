@@ -10,6 +10,7 @@ import { EmptyState } from "../components/EmptyState";
 import { muscleGroupLabel } from "../lib/muscleGroups";
 import { formatInteger, formatNumber } from "../lib/format";
 import { computeRoutineStats, isRowComplete, parseNumber } from "../lib/routineStats";
+import { track } from "../lib/analytics";
 
 // Tono de cada cuenta de la cadena; se repite en ciclo.
 const BEAD_TONES = ["var(--color-brand)", "var(--color-blue)", "var(--color-blue-700)"];
@@ -110,6 +111,7 @@ export function RoutineEditorPage() {
       return id ? routinesApi.updateRoutine(id, data) : routinesApi.createRoutine(data);
     },
     onSuccess: () => {
+      if (!id) track("routine_created", { exercises: rows.length });
       queryClient.invalidateQueries({ queryKey: ["routines"] });
       navigate("/routines");
     },

@@ -15,6 +15,7 @@ import { CierreDevice, HoyDevice, SerieDevice } from "../components/landing/Phon
 import { RotatingAudience } from "../components/landing/RotatingAudience";
 import { startPhoneDemos } from "../components/landing/phoneStory";
 import * as contactApi from "../services/contactApi";
+import { track } from "../lib/analytics";
 
 // Landing para coaches (textos en docs/brand/landing.md; diseño aprobado el
 // 2026-10-06). Es lo que ve quien entra a "/" sin sesión. Estructura al estilo
@@ -87,7 +88,7 @@ export function LandingPage() {
   const [website, setWebsite] = useState("");
   const openedAt = useRef(Date.now());
   const root = useRef<HTMLDivElement>(null);
-  const mutation = useMutation({ mutationFn: contactApi.sendContact });
+  const mutation = useMutation({ mutationFn: contactApi.sendContact, onSuccess: () => track("contact_requested") });
   // Si el envío tarda, casi siempre es la API despertando (Render gratis): se avisa.
   const [slow, setSlow] = useState(false);
   useEffect(() => {
