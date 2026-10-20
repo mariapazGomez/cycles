@@ -5,8 +5,10 @@ import { AuthCard } from "../components/AuthCard";
 import { GoogleButton } from "../components/GoogleButton";
 import * as authApi from "../services/authApi";
 import { ApiError } from "../services/httpClient";
+import { REGISTRATION_OPEN, clearAccessCode } from "../lib/features";
 
-export function RegisterPage() {
+// `accessCode` viene del enlace privado del piloto; con el registro abierto no hace falta.
+export function RegisterPage({ accessCode }: { accessCode?: string | null }) {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -17,6 +19,7 @@ export function RegisterPage() {
   const mutation = useMutation({
     mutationFn: authApi.register,
     onSuccess: (_, variables) => {
+      clearAccessCode();
       navigate(`/check-email?email=${encodeURIComponent(variables.email)}`);
     },
     onError: (error: unknown) => {
@@ -33,7 +36,7 @@ export function RegisterPage() {
       return;
     }
 
-    mutation.mutate({ name, email, password, dataConsent });
+    mutation.mutate({ name, email, password, dataConsent, ...(accessCode ? { accessCode } : {}) });
   }
 
   return (
@@ -99,8 +102,13 @@ export function RegisterPage() {
         </button>
       </form>
 
-      <div className="divider">o</div>
-      <GoogleButton />
+      {/* Google no puede crear cuentas nuevas mientras el registro esté cerrado. */}
+      {REGISTRATION_OPEN && (
+        <>
+          <div className="divider">o</div>
+          <GoogleButton />
+        </>
+      )}
 
       <p className="auth-footer">
         ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>

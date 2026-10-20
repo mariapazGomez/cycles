@@ -11,6 +11,7 @@ import { User } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { MailService } from "../mail/mail.service";
 import { SecurityAlertService } from "../common/alerts/security-alert.service";
+import { createHash, timingSafeEqual } from "crypto";
 import { ActivityNotifier } from "../activity/activity-notifier.service";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
@@ -29,6 +30,8 @@ const DATA_CONSENT_VERSION = "v1";
 
 export const REGISTRATION_CLOSED_MESSAGE =
   "El registro está cerrado por ahora: Cycles es solo para usuarios que ya tienen cuenta.";
+
+export const ACCESS_CODE_INVALID_MESSAGE = "El código de acceso no es válido. Pídele uno nuevo al equipo de Cycles.";
 
 export interface AuthTokens {
   accessToken: string;
@@ -53,9 +56,19 @@ export class AuthService {
     return this.config.get<string>("REGISTRATION_OPEN")?.trim() === "true";
   }
 
+  // Código de acceso del piloto: con el registro cerrado, quien tenga el enlace
+  // privado puede crear su cuenta. Se compara en tiempo constante (con hashes,
+  // para no revelar el largo) y es opcional: sin PILOT_ACCESS_CODE no existe.
+  private hasValidAccessCode(code: string | undefined): boolean {
+    const expected = this.config.get<string>("PILOT_ACCESS_CODE")?.trim();
+    if (!expected || !code) return false;
+    const digest = (value: string) => createHash("sha256").update(value).digest();
+    return timingSafeEqual(digest(code.trim()), digest(expected));
+  }
+
   async register(dto: RegisterDto): Promise<{ id: string; email: string }> {
-    if (!this.registrationOpen) {
-      throw new ForbiddenException(REGISTRATION_CLOSED_MESSAGE);
+    if (!this.registrationOpen && !this.hasValidAccessCode(dto.accessCode)) {
+      throw new ForbiddenException(dto.accessCode ? ACCESS_CODE_INVALID_MESSAGE : REGISTRATION_CLOSED_MESSAGE);
     }
     if (dto.role === "athlete") {
       throw new ForbiddenException(

@@ -17,6 +17,7 @@ export function register(data: {
   email: string;
   password: string;
   dataConsent: boolean;
+  accessCode?: string;
 }) {
   return apiRequest<{ id: string; email: string }>("/auth/register", {
     method: "POST",

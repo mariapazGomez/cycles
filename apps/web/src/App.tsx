@@ -1,4 +1,5 @@
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { useEffect } from "react";
+import { Navigate, Route, Routes, useLocation, useSearchParams } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { PublicOnlyRoute } from "./components/PublicOnlyRoute";
 import { AppLayout } from "./components/AppLayout";
@@ -7,7 +8,7 @@ import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { CalendarPage } from "./pages/CalendarPage";
-import { REGISTRATION_OPEN } from "./lib/features";
+import { ACCESS_CODE_PARAM, REGISTRATION_OPEN, loadAccessCode, storeAccessCode } from "./lib/features";
 import { CheckEmailPage } from "./pages/CheckEmailPage";
 import { VerifyEmailPage } from "./pages/VerifyEmailPage";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
@@ -40,6 +41,29 @@ function RootGate() {
   );
 }
 
+// El registro está cerrado al público (early adopters): se entra con el enlace
+// privado del piloto, /register?codigo=…, que el equipo da a cada coach.
+function RegisterRoute() {
+  const [params, setParams] = useSearchParams();
+  const fromUrl = params.get(ACCESS_CODE_PARAM);
+
+  useEffect(() => {
+    if (fromUrl) {
+      storeAccessCode(fromUrl);
+      // El código no se queda en la barra de direcciones ni en el historial.
+      setParams({}, { replace: true });
+    }
+  }, [fromUrl, setParams]);
+
+  const code = fromUrl ?? loadAccessCode();
+  if (!REGISTRATION_OPEN && !code) return <Navigate to="/login" replace />;
+  return (
+    <PublicOnlyRoute>
+      <RegisterPage accessCode={code} />
+    </PublicOnlyRoute>
+  );
+}
+
 export function App() {
   return (
     <Routes>
@@ -53,15 +77,7 @@ export function App() {
       />
       <Route
         path="/register"
-        element={
-          REGISTRATION_OPEN ? (
-            <PublicOnlyRoute>
-              <RegisterPage />
-            </PublicOnlyRoute>
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        }
+        element={<RegisterRoute />}
       />
       <Route
         path="/forgot-password"

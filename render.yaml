@@ -59,6 +59,10 @@ services:
         sync: false
       - key: ACTIVITY_CRON_SECRET
         sync: false
+      # Código de acceso del piloto: deja registrarse con el registro cerrado
+      # (enlace privado /register?codigo=…). Opcional; mínimo 16 caracteres.
+      - key: PILOT_ACCESS_CODE
+        sync: false
       - key: SLACK_SECURITY_WEBHOOK_URL
         sync: false
       - key: SLACK_ACTIVITY_WEBHOOK_URL
