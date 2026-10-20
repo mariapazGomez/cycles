@@ -24,7 +24,7 @@ export function listAthletes() {
   return apiRequest<AthleteRelation[]>("/athletes");
 }
 
-export function acceptInvitation(data: { token: string; password: string }) {
+export function acceptInvitation(data: { token: string; password: string; acceptPolicy: boolean }) {
   return apiRequest<AuthTokens>("/athletes/invitations/accept", {
     method: "POST",
     auth: false,

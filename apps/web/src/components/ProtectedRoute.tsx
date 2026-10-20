@@ -26,6 +26,12 @@ export function ProtectedRoute({ children, require = "withRole" }: ProtectedRout
     return <Navigate to="/complete-profile" replace />;
   }
 
+  // Quien aún no aceptó la versión vigente de los Términos y la Política no
+  // sigue hasta aceptarla (T-147).
+  if (require === "withRole" && user?.needsPolicyAcceptance) {
+    return <Navigate to="/accept-policy" replace />;
+  }
+
   if (require === "withoutRole" && user?.role) {
     return <Navigate to="/" replace />;
   }

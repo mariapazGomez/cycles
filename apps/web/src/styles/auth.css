@@ -217,3 +217,14 @@
   color: var(--color-ink-secondary);
   text-underline-offset: 3px;
 }
+
+/* Botón con aspecto de enlace (p. ej. «Cerrar sesión» en la pantalla de aceptar los términos). */
+.link-button {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: var(--color-blue);
+  text-decoration: underline;
+  cursor: pointer;
+}

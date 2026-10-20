@@ -5,6 +5,7 @@ import { useAuth } from "../hooks/useAuth";
 import { AuthCard } from "../components/AuthCard";
 import * as athletesApi from "../services/athletesApi";
 import { ApiError } from "../services/httpClient";
+import { PolicyCheckbox } from "../components/PolicyCheckbox";
 
 export function AcceptInvitationPage() {
   const [searchParams] = useSearchParams();
@@ -13,10 +14,11 @@ export function AcceptInvitationPage() {
   const { loginWithTokens } = useAuth();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [acceptPolicy, setAcceptPolicy] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   const mutation = useMutation({
-    mutationFn: () => athletesApi.acceptInvitation({ token: token ?? "", password }),
+    mutationFn: () => athletesApi.acceptInvitation({ token: token ?? "", password, acceptPolicy }),
     onSuccess: async (tokens) => {
       await loginWithTokens(tokens);
       navigate("/", { replace: true });
@@ -38,6 +40,11 @@ export function AcceptInvitationPage() {
     }
     if (password !== confirmPassword) {
       setFormError("Las contraseñas no coinciden.");
+      return;
+    }
+
+    if (!acceptPolicy) {
+      setFormError("Debes aceptar los Términos de uso y la Política de privacidad para continuar.");
       return;
     }
 
@@ -88,9 +95,11 @@ export function AcceptInvitationPage() {
           />
         </div>
 
-        <p className="legal-accept">
-          Al activar tu cuenta aceptas los <a href="/terminos">Términos de uso</a> y la <a href="/privacidad">Política de privacidad</a>. Tu coach verá tus entrenamientos y lo que cuentes, incluidas las notas de dolor.
-        </p>
+        <PolicyCheckbox
+          checked={acceptPolicy}
+          onChange={setAcceptPolicy}
+          extra="Tu coach verá tus entrenamientos y lo que cuentes, incluidas las notas de dolor."
+        />
 
         <button type="submit" className="button-primary" disabled={mutation.isPending}>
           {mutation.isPending ? "Activando…" : "Activar cuenta"}

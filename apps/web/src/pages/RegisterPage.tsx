@@ -5,6 +5,7 @@ import { AuthCard } from "../components/AuthCard";
 import { GoogleButton } from "../components/GoogleButton";
 import * as authApi from "../services/authApi";
 import { ApiError } from "../services/httpClient";
+import { PolicyCheckbox } from "../components/PolicyCheckbox";
 import { REGISTRATION_OPEN, clearAccessCode } from "../lib/features";
 
 // `accessCode` viene del enlace privado del piloto; con el registro abierto no hace falta.
@@ -14,6 +15,7 @@ export function RegisterPage({ accessCode }: { accessCode?: string | null }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [dataConsent, setDataConsent] = useState(false);
+  const [acceptPolicy, setAcceptPolicy] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   const mutation = useMutation({
@@ -36,7 +38,12 @@ export function RegisterPage({ accessCode }: { accessCode?: string | null }) {
       return;
     }
 
-    mutation.mutate({ name, email, password, dataConsent, ...(accessCode ? { accessCode } : {}) });
+    if (!acceptPolicy) {
+      setFormError("Debes aceptar los Términos de uso y la Política de privacidad para continuar.");
+      return;
+    }
+
+    mutation.mutate({ name, email, password, dataConsent, acceptPolicy, ...(accessCode ? { accessCode } : {}) });
   }
 
   return (
@@ -93,9 +100,7 @@ export function RegisterPage({ accessCode }: { accessCode?: string | null }) {
           </span>
         </label>
 
-        <p className="legal-accept">
-          Al crear tu cuenta aceptas los <a href="/terminos">Términos de uso</a> y la <a href="/privacidad">Política de privacidad</a>.
-        </p>
+        <PolicyCheckbox checked={acceptPolicy} onChange={setAcceptPolicy} />
 
         <button type="submit" className="button-primary" disabled={mutation.isPending}>
           {mutation.isPending ? "Creando cuenta…" : "Crear cuenta"}

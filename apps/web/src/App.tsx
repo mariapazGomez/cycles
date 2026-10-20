@@ -8,6 +8,7 @@ import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { CalendarPage } from "./pages/CalendarPage";
+import { AcceptPolicyPage } from "./pages/AcceptPolicyPage";
 import { ACCESS_CODE_PARAM, REGISTRATION_OPEN, loadAccessCode, storeAccessCode } from "./lib/features";
 import { CheckEmailPage } from "./pages/CheckEmailPage";
 import { VerifyEmailPage } from "./pages/VerifyEmailPage";
@@ -92,6 +93,14 @@ export function App() {
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/oauth-callback" element={<OAuthCallbackPage />} />
       <Route path="/accept-invitation" element={<AcceptInvitationPage />} />
+      <Route
+        path="/accept-policy"
+        element={
+          <ProtectedRoute require="any">
+            <AcceptPolicyPage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/complete-profile"
         element={

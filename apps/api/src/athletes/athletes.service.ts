@@ -6,6 +6,7 @@ import { ActivityNotifier } from "../activity/activity-notifier.service";
 import { AuthService, AuthTokens } from "../auth/auth.service";
 import { generateRawToken, hashToken } from "../auth/token.util";
 import { InviteAthleteDto } from "./dto/invite-athlete.dto";
+import { POLICY_VERSION, policyAcceptanceData } from "../common/policy";
 
 const INVITATION_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 7 días
 
@@ -92,6 +93,12 @@ export class AthletesService {
       this.prisma.user.update({
         where: { id: record.coachAthlete.athleteId },
         data: { passwordHash, emailVerifiedAt: new Date() },
+      }),
+      // La aceptación de los Términos y la Política queda guardada con su versión.
+      this.prisma.policyAcceptance.upsert({
+        where: { userId_version: { userId: record.coachAthlete.athleteId, version: POLICY_VERSION } },
+        update: {},
+        create: { userId: record.coachAthlete.athleteId, ...policyAcceptanceData("invitation") },
       }),
     ]);
 

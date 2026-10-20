@@ -5,6 +5,7 @@ import { useAuth } from "../hooks/useAuth";
 import { AuthCard } from "../components/AuthCard";
 import * as authApi from "../services/authApi";
 import { ApiError } from "../services/httpClient";
+import { PolicyCheckbox } from "../components/PolicyCheckbox";
 
 // Solo la ven cuentas creadas por Google que aún no tienen rol asignado.
 // El único rol posible aquí es 'coach': los atletas se crean por invitación
@@ -13,10 +14,11 @@ export function CompleteProfilePage() {
   const navigate = useNavigate();
   const { refreshCurrentUser } = useAuth();
   const [dataConsent, setDataConsent] = useState(false);
+  const [acceptPolicy, setAcceptPolicy] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   const mutation = useMutation({
-    mutationFn: () => authApi.completeProfile({ dataConsent }),
+    mutationFn: () => authApi.completeProfile({ dataConsent, acceptPolicy }),
     onSuccess: async () => {
       await refreshCurrentUser();
       navigate("/", { replace: true });
@@ -29,6 +31,10 @@ export function CompleteProfilePage() {
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setFormError(null);
+    if (!acceptPolicy) {
+      setFormError("Debes aceptar los Términos de uso y la Política de privacidad para continuar.");
+      return;
+    }
     mutation.mutate();
   }
 
@@ -51,9 +57,7 @@ export function CompleteProfilePage() {
           </span>
         </label>
 
-        <p className="legal-accept">
-          Al continuar aceptas los <a href="/terminos">Términos de uso</a> y la <a href="/privacidad">Política de privacidad</a>.
-        </p>
+        <PolicyCheckbox checked={acceptPolicy} onChange={setAcceptPolicy} />
 
         <button type="submit" className="button-primary" disabled={mutation.isPending}>
           {mutation.isPending ? "Guardando…" : "Continuar"}

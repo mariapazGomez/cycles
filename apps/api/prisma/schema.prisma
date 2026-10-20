@@ -96,6 +96,7 @@ model User {
   refreshTokens           RefreshToken[]
   oauthExchangeCodes      OAuthExchangeCode[]
   notifications           Notification[]
+  policyAcceptances       PolicyAcceptance[]
 }
 
 // Refresh tokens persistidos (hasheados) para poder rotarlos y revocarlos,
@@ -437,4 +438,31 @@ model Notification {
 
   @@index([userId, visibleAt])
   @@index([userId, groupKey, readAt])
+}
+
+// Dónde aceptó la persona los Términos de uso y la Política de privacidad.
+enum PolicyAcceptanceSource {
+  register
+  invitation
+  google_profile
+  reaccept
+}
+
+// Aceptación explícita y versionada de los Términos de uso y la Política de
+// privacidad (T-147). Una fila por persona y por versión: no se borra ni se
+// sobrescribe, queda como evidencia de qué texto aceptó y cuándo. Distinta del
+// consentimiento opcional de estadísticas (User.dataConsentAt). Ver
+// docs/prds/features/PRD-PrivacidadYTerminos.md.
+model PolicyAcceptance {
+  id         String                 @id @default(uuid())
+  userId     String
+  // Versión de los textos legales aceptada (POLICY_VERSION al momento de aceptar).
+  version    String
+  source     PolicyAcceptanceSource
+  acceptedAt DateTime               @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, version])
+  @@index([userId])
 }

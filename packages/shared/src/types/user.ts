@@ -14,5 +14,10 @@ export interface User {
   weightUnit: WeightUnit;
   emailVerified: boolean;
   dataConsentAt?: string;
+  // Aceptación de los Términos de uso y la Política de privacidad (T-147).
+  // needsPolicyAcceptance: aún no aceptó la versión vigente (policyVersion).
+  policyAcceptedAt?: string | null;
+  policyVersion?: string;
+  needsPolicyAcceptance?: boolean;
   createdAt: string;
 }
