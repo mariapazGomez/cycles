@@ -117,7 +117,7 @@ test('un error al guardar el día se muestra en la hoja', async () => {
 test('sin planes activos muestra el estado vacío', async () => {
   cycles.mockResolvedValue([]);
   const t = texts(await mount());
-  expect(t).toContain('Aún no tienes un plan activo');
+  expect(t).toContain('Aún no tienes un ciclo activo');
 });
 
 test('si falla la carga muestra el error', async () => {

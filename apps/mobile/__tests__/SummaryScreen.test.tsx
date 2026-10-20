@@ -76,7 +76,7 @@ test('arranca en series y permite cambiar a carga en kilos', async () => {
   const tree = await mount();
   expect(texts(tree)).toContain(' series');
   expect(texts(tree)).toContain('En qué grupos entrenas');
-  expect(texts(tree)).toContain('Foco del plan');
+  expect(texts(tree)).toContain('Foco del ciclo');
   expect(texts(tree)).not.toContain(' kg');
   await press(tree, 'Carga (kg)');
   expect(texts(tree)).toContain(' kg');
@@ -99,7 +99,7 @@ test('permite ver el detalle por semana', async () => {
 
 test('sin planes activos muestra el estado vacío', async () => {
   cycles.mockResolvedValue([]);
-  expect(texts(await mount())).toContain('Aún no tienes un plan activo');
+  expect(texts(await mount())).toContain('Aún no tienes un ciclo activo');
 });
 
 test('si falla la carga muestra el error', async () => {

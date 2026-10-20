@@ -66,7 +66,7 @@ test('muestra otra sesión asignada para hoy y permite hacerla', async () => {
   });
   expect(fetchTodayMock.mock.calls[1][0].sessionId).toBe('b');
   expect(texts(tree)).toContain('Asignada para hoy');
-  expect(texts(tree)).toContain('Volver a la siguiente sesión del plan');
+  expect(texts(tree)).toContain('Volver a la siguiente sesión del ciclo');
 });
 
 test('si la sesión elegida ya no está pendiente, vuelve a la siguiente del plan', async () => {
