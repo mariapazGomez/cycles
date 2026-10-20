@@ -5,6 +5,7 @@ import * as executionApi from "../services/executionApi";
 import { ApiError } from "../services/httpClient";
 import { EmptyState } from "../components/EmptyState";
 import { formatKg } from "../lib/format";
+import { track } from "../lib/analytics";
 
 // Inicio del atleta: la próxima sesión pendiente de su plan activo.
 export function TodayPage() {
@@ -24,6 +25,7 @@ export function TodayPage() {
     mutationFn: ({ sessionId, notes }: { sessionId: string; notes?: string }) =>
       executionApi.submitFeedback(sessionId, { outcome: "skipped", notes }),
     onSuccess: () => {
+      track("session_closed", { outcome: "skipped" });
       setSkipping(false);
       queryClient.invalidateQueries({ queryKey: ["today"] });
     },

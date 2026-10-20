@@ -5,6 +5,7 @@ import { AuthCard } from "../components/AuthCard";
 import { GoogleButton } from "../components/GoogleButton";
 import { ApiError } from "../services/httpClient";
 import { REGISTRATION_OPEN } from "../lib/features";
+import { track } from "../lib/analytics";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ export function LoginPage() {
 
     try {
       const user = await login(email, password);
+      track("login_succeeded", { method: "password" });
       navigate(user.role ? "/" : "/complete-profile", { replace: true });
     } catch (error) {
       if (error instanceof ApiError && error.status === 403) {

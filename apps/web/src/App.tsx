@@ -9,6 +9,7 @@ import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { CalendarPage } from "./pages/CalendarPage";
 import { AcceptPolicyPage } from "./pages/AcceptPolicyPage";
+import { AnalyticsBridge } from "./components/AnalyticsBridge";
 import { ACCESS_CODE_PARAM, REGISTRATION_OPEN, loadAccessCode, storeAccessCode } from "./lib/features";
 import { CheckEmailPage } from "./pages/CheckEmailPage";
 import { VerifyEmailPage } from "./pages/VerifyEmailPage";
@@ -67,6 +68,8 @@ function RegisterRoute() {
 
 export function App() {
   return (
+    <>
+      <AnalyticsBridge />
     <Routes>
       <Route
         path="/login"
@@ -127,5 +130,6 @@ export function App() {
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   );
 }

@@ -17,6 +17,7 @@ import { useAuth } from "../hooks/useAuth";
 import { ApiError } from "../services/httpClient";
 import { LoadingScreen } from "../components/LoadingScreen";
 import { AthleteCycle } from "../components/AthleteCycle";
+import { track } from "../lib/analytics";
 
 const CYCLE_STATUS_LABEL: Record<CycleStatus, string> = {
   active: "Activo",
@@ -233,6 +234,7 @@ function MacrocycleChildren({
         endDate,
       }),
     onSuccess: () => {
+      track("cycle_created", { type: cycleType, inMacrocycle: true });
       setShowForm(false);
       setName("");
       setSessionsPerWeek("");
@@ -447,7 +449,8 @@ function CycleGrid({
         throw new Error(done > 0 ? `Se asignaron ${done} de ${targetWeeks.length} semanas. ${reason}` : reason);
       }
     },
-    onSuccess: () => {
+    onSuccess: (_, targetWeeks) => {
+      track("routine_assigned", { weeks: targetWeeks.length });
       setAssigningCell(null);
       setRoutineId("");
       if (sessions.length === 0) setReadyNotice(true);

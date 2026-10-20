@@ -7,6 +7,7 @@ import * as authApi from "../services/authApi";
 import { ApiError } from "../services/httpClient";
 import { PolicyCheckbox } from "../components/PolicyCheckbox";
 import { REGISTRATION_OPEN, clearAccessCode } from "../lib/features";
+import { track } from "../lib/analytics";
 
 // `accessCode` viene del enlace privado del piloto; con el registro abierto no hace falta.
 export function RegisterPage({ accessCode }: { accessCode?: string | null }) {
@@ -22,6 +23,7 @@ export function RegisterPage({ accessCode }: { accessCode?: string | null }) {
     mutationFn: authApi.register,
     onSuccess: (_, variables) => {
       clearAccessCode();
+      track("coach_registered");
       navigate(`/check-email?email=${encodeURIComponent(variables.email)}`);
     },
     onError: (error: unknown) => {

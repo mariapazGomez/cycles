@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { AuthCard } from "../components/AuthCard";
 import { exchangeGoogleCode } from "../services/authApi";
+import { track } from "../lib/analytics";
 
 export function OAuthCallbackPage() {
   const [searchParams] = useSearchParams();
@@ -31,6 +32,7 @@ export function OAuthCallbackPage() {
     exchangeGoogleCode(code)
       .then((tokens) => loginWithTokens(tokens))
       .then((user) => {
+        track("login_succeeded", { method: "google" });
         navigate(user.role ? "/" : "/complete-profile", { replace: true });
       })
       .catch(() => setError(true));
