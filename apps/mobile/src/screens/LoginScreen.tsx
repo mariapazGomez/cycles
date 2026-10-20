@@ -20,6 +20,7 @@ import { PressableScale } from '../components/PressableScale';
 import { Spinner } from '../components/Spinner';
 import { colors } from '../theme/colors';
 import { cardShadow } from '../theme/elevation';
+import { PRIVACY_URL, TERMS_URL } from '../config/legal';
 
 // Si el login tarda más que esto, se avisa que el servidor está despertando.
 const SLOW_LOGIN_MS = 6000;
@@ -161,6 +162,21 @@ export function LoginScreen() {
               <Text style={styles.forgotText}>Olvidé mi contraseña</Text>
             </TouchableOpacity>
           </View>
+
+          <View style={styles.legalRow}>
+            <TouchableOpacity
+              style={styles.legalLink}
+              onPress={() => Linking.openURL(PRIVACY_URL)}
+              accessibilityRole="link">
+              <Text style={styles.legalText}>Privacidad</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.legalLink}
+              onPress={() => Linking.openURL(TERMS_URL)}
+              accessibilityRole="link">
+              <Text style={styles.legalText}>Términos de uso</Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -222,4 +238,8 @@ const styles = StyleSheet.create({
   slowNote: { color: colors.inkSecondary, fontSize: 13, textAlign: 'center', marginTop: 12 },
   forgot: { alignItems: 'center', marginTop: 16 },
   forgotText: { color: colors.blue, fontSize: 14, fontWeight: '600' },
+  legalRow: { flexDirection: 'row', justifyContent: 'center', gap: 8, marginTop: 14 },
+  // Área táctil de al menos 44 px de alto.
+  legalLink: { minHeight: 44, paddingHorizontal: 10, justifyContent: 'center' },
+  legalText: { color: colors.inkSecondary, fontSize: 13, textDecorationLine: 'underline' },
 });

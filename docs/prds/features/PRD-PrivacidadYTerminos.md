@@ -58,7 +58,7 @@ Son plazos y reglas que la política promete y que hoy dependen de personas, no 
 - **Revisión legal:** el texto lo redactó Claude sobre los datos reales del producto y no ha sido revisado por una persona abogada. Conviene hacerlo antes de abrir el piloto, sobre todo por los **datos de salud** (categoría especial en el RGPD, que aplica con usuarios en España) y la ley chilena de protección de datos personales.
 - ~~**El consentimiento sigue siendo un aviso, no un registro**~~ **Resuelto (T-147, 2026-10-20):** la aceptación de los Términos y la Política es explícita (casilla sin marcar) y versionada. Ver §7.
 - **Retirar el consentimiento de estadísticas** y **pedir la eliminación o la copia de los datos** hoy son trámites por correo; lo ideal es hacerlos desde la app.
-- **App móvil:** falta el enlace a la política y a los términos dentro de la app (pantalla de inicio de sesión o perfil) y declarar los datos en las "etiquetas de privacidad" de App Store Connect.
+- **App móvil:** ~~falta el enlace a la política y a los términos~~ **resuelto (T-149, 2026-10-20):** la pantalla de inicio de sesión y el menú del perfil enlazan `/privacidad` y `/terminos`. Falta declarar los datos en las "etiquetas de privacidad" de App Store Connect (T-121).
 - **Google OAuth:** al publicar la app, cargar `/privacidad` como política y `/terminos` como términos en *Branding*.
 
 ## 6. Fuera de alcance
@@ -77,4 +77,4 @@ Banner de cookies (no hay cookies no esenciales) y versión en inglés.
   | Perfil con Google | `google_profile` |
   | Pantalla «Antes de seguir» | `reaccept` |
 - **Cuentas anteriores o versión nueva:** `GET /users/me` trae `needsPolicyAcceptance`. En la web, `ProtectedRoute` lleva a `/accept-policy` hasta que acepte (`POST /users/me/policy-acceptance`, idempotente).
-- **Pendiente:** la app iOS todavía no muestra esa pantalla (T-149 agrega los enlaces). Los atletas nuevos aceptan en la web al activar su cuenta, así que ya quedan cubiertos; un atleta anterior a esto que solo use la app no verá la pantalla hasta que se agregue.
+- **App iOS (T-149):** `PolicyAcceptanceScreen` frena el acceso hasta aceptar la versión vigente, con la misma casilla sin marcar y el aviso de que el coach verá las notas de dolor. Escrita y tipada, **sin probar en un dispositivo ni simulador** (ver P-23). Los atletas nuevos aceptan en la web al activar su cuenta.
