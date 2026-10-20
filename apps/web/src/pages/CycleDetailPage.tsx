@@ -16,6 +16,7 @@ import { PlanWeeks } from "../components/PlanWeeks";
 import { useAuth } from "../hooks/useAuth";
 import { ApiError } from "../services/httpClient";
 import { LoadingScreen } from "../components/LoadingScreen";
+import { AthleteCycle } from "../components/AthleteCycle";
 
 const CYCLE_STATUS_LABEL: Record<CycleStatus, string> = {
   active: "Activo",
@@ -71,6 +72,12 @@ export function CycleDetailPage() {
   const athlete = isCoach
     ? (athletesQuery.data ?? []).map((r) => r.athlete).find((a) => a.id === cycle.athleteId) ?? null
     : null;
+
+  // El atleta no arma nada: ve su ciclo semana a semana. Un macrociclo se queda
+  // con la vista de siempre (docs/diseno/plan-del-atleta).
+  if (!isCoach && cycle.cycleType !== "macrocycle") {
+    return <AthleteCycle cycle={cycle} />;
+  }
 
   function handleEditSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

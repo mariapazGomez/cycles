@@ -6,6 +6,7 @@ import * as cyclesApi from "../services/cyclesApi";
 import * as athletesApi from "../services/athletesApi";
 import { ApiError } from "../services/httpClient";
 import { useAuth } from "../hooks/useAuth";
+import { AthleteCycleList } from "../components/AthleteCycleList";
 
 const STATUS_LABEL: Record<CycleStatus, string> = {
   active: "Activo",
@@ -223,7 +224,9 @@ export function CyclesPage() {
           </p>
         )}
 
-        {cyclesQuery.data && cyclesQuery.data.length > 0 && (
+        {!isCoach && cyclesQuery.data && cyclesQuery.data.length > 0 && <AthleteCycleList cycles={cyclesQuery.data} />}
+
+        {isCoach && cyclesQuery.data && cyclesQuery.data.length > 0 && (
           <ul style={{ listStyle: "none", padding: 0 }}>
             {cyclesQuery.data.map((cycle) => (
               <li key={cycle.id} style={{ borderBottom: "1px solid var(--color-gray-border)" }}>

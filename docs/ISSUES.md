@@ -30,16 +30,23 @@ Cada issue se trabaja como una solución separada cuando se pida, no todas junta
 - **Coach:** vista más técnica — la grid de semanas × sesiones tal como está hoy (o más densa), pensada para armar y ajustar la programación.
 - **Atleta:** vista más simple y llamativa — pensada para mirar rápido qué le toca hoy/esta semana, no para editar. Menos tabla, más foco en la próxima sesión.
 
-**Calendario del atleta (agregado 2026-10-18):** el atleta debe poder ver un calendario con los entrenamientos que hizo y los que va a hacer, y debe verse alentador cuando hay actividad, como marcar en un hábito los días que se cumplió, para generar adherencia. Diseño aprobado en `docs/diseno/plan-del-atleta` (estado Calendario) y construido en la web como pestaña **Calendario** del atleta (`/calendar`). Queda pendiente el resto del diseño del plan del atleta (una semana a la vez, «Te toca…», elegir día).
+**Calendario del atleta (agregado 2026-10-18):** el atleta debe poder ver un calendario con los entrenamientos que hizo y los que va a hacer, y debe verse alentador cuando hay actividad, como marcar en un hábito los días que se cumplió, para generar adherencia. Diseño aprobado en `docs/diseno/plan-del-atleta` (estado Calendario) y construido en la web como pestaña **Calendario** del atleta (`/calendar`). 
+
+**Lo que faltaba, verificado el 2026-10-19 (ya construido):** en la web el atleta sigue viendo el mismo componente (`CycleGrid`: todas las semanas apiladas, con las etiquetas de tipo y fechas del coach); solo se le ocultan los controles de edición. Del diseño `docs/diseno/plan-del-atleta` falta construir:
+1. **Pantalla del ciclo del atleta (`/cycles/:id`):** una semana a la vez con chips de semana, tira de días y sesiones como filas grandes; tarjeta oscura con textos del atleta y el botón **«Te toca {Rutina}»**.
+2. **Elegir día desde la fila** (hoja flotante). El endpoint `PATCH /sessions/:id/schedule` ya existe y la app lo usa, pero la web no lo llama: hoy el atleta no puede elegir el día de una sesión en la web.
+3. **Lista «Mis ciclos»:** tarjetas con segmentos por semana y la línea de lo que toca, en secciones Activo y Terminados.
+
+No cambia: la vista del coach, los macrociclos y la app (su Calendario ya cumple el diseño).
 
 **Dónde:** `apps/web/src/pages/CycleDetailPage.tsx` (`CycleGrid` es un solo componente compartido con un flag `isCoach`, no dos vistas). Relevante: la app móvil (`apps/mobile/src/screens/TodayScreen.tsx`) ya resolvió esto para el caso "atleta ejecutando" con una vista simple centrada en la sesión de hoy — podría ser el punto de partida para cómo se ve una vista de atleta más simple en la web.
 
-**Estado:** abierto, sin resolver.
+**Estado:** resuelto (2026-10-19): calendario, pantalla del ciclo del atleta con «Te toca…», elegir día desde la fila y lista «Mis ciclos».
 
 ### 3. Cerrar el registro durante la fase de early adopters
 **Reportado:** 2026-10-18, por la usuaria.
 
-**Qué pasa hoy:** cualquiera puede crear una cuenta de coach desde la landing ("Inicia sesión" → "Regístrate") o con Google. En la fase de early adopters solo deben entrar personas que ya tienen cuenta.
+**Qué pasaba antes de #69:** cualquiera podía crear una cuenta de coach desde la landing ("Inicia sesión" → "Regístrate") o con Google. En la fase de early adopters solo deben entrar personas que ya tienen cuenta.
 
 **Qué se espera:**
 - La landing dice **«Ya tengo una cuenta»** en lugar de «Inicia sesión» (cabecera y pie), y lleva al login.
@@ -50,6 +57,6 @@ Cada issue se trabaja como una solución separada cuando se pida, no todas junta
 
 **Dónde:** `apps/api/src/auth/auth.service.ts` (`register`, `loginWithGoogle`), `auth.controller.ts` (callback de Google), `apps/web/src/lib/features.ts`, `App.tsx`, `LoginPage.tsx`, `LandingPage.tsx`, `OAuthCallbackPage.tsx`.
 
-**Estado:** resuelto en la rama `feat/registro-cerrado` (2026-10-18). Para abrir el registro de nuevo: `REGISTRATION_OPEN=true` en Render y `VITE_REGISTRATION_OPEN=true` en Vercel.
+**Estado:** resuelto y mergeado en `main` (PR #69, 2026-10-18). Para abrir el registro de nuevo: `REGISTRATION_OPEN=true` en Render y `VITE_REGISTRATION_OPEN=true` en Vercel.
 
 **Cómo entran los coaches del piloto (T-177, 2026-10-19):** con un **enlace privado con código de acceso** (`/register?codigo=…`, variable `PILOT_ACCESS_CODE` en Render) que mantiene el registro cerrado al público. Procedimiento en [`docs/deploy/ACCESO-PILOTO.md`](./deploy/ACCESO-PILOTO.md).
