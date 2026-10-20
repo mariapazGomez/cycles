@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ejercicios Cycles</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&display=swap">
+<style>
+/* Concepto: la pestaña Ejercicios es una herramienta de trabajo del coach. Lista corta con búsqueda y grupos, y un formulario que pide lo mínimo: nombre y grupo; descripción y video son opcionales. Lenguaje de las pantallas de trabajo del coach: fondo gris azulado, tarjetas blancas con sombra suave. Solo modo claro. Datos de ejemplo. */
+:root{
+  --font-display:"Bricolage Grotesque","Inter",system-ui,sans-serif; --font-body:"Inter",system-ui,sans-serif;
+  --brand:#3080fc; --blue:#1a66dd; --blue-hover:#155ccc; --b50:#f3f8ff; --b100:#eaf2ff; --b200:#d6e4ff;
+  --bg:#fff; --ink:#1f2228; --ink2:#5c6068; --gray:#f6f7f9; --line:#dfe2e7; --ctl:#8a8f98; --mid:#8a8f98;
+  --ok-bg:#e9f5ec; --ok-ink:#1e6b32; --warn-bg:#fff1e3; --warn-ink:#9a4a00; --warn-fill:#e08a2e; --pain-bg:#fdecec; --pain-ink:#a3282c;
+  --err-bg:#fdecec; --err-line:#f3b9b9; --page:#f3f5f8;
+  --shadow:0 1px 2px rgba(31,34,40,.05),0 6px 18px -8px rgba(31,34,40,.14);
+  --pop:0 8px 24px -8px rgba(0,0,0,.18); color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5}
+button,a,input,textarea{font:inherit;color:inherit}button{cursor:pointer}svg{display:block}
+.bar{max-width:1120px;margin:0 auto;padding:20px max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));display:flex;flex-wrap:wrap;gap:8px 24px;align-items:center}
+.bar h1{font-family:var(--font-display);font-size:1.35rem;margin:0 12px 0 0}
+.seg{display:flex;flex-wrap:wrap;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{border:0;background:none;padding:6px 14px;border-radius:999px;font-size:.88rem;font-weight:600;color:var(--ink2)}
+.seg button.on{background:var(--ink);color:#fff}
+.stage{max-width:1120px;margin:0 auto;padding:24px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px))}
+.note{margin:14px 0 0;max-width:760px;font-size:.88rem;color:var(--ink2)}
+.hide{display:none!important}
+
+/* ===== Marco web ===== */
+.frame{background:var(--bg);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:0 auto;position:relative}
+.frame.phone{width:390px;max-width:100%}
+.hdr{display:flex;align-items:center;gap:32px;padding:14px 24px;border-bottom:1px solid var(--line);background:var(--bg)}
+.hdr img{height:26px}
+.nav{display:flex;gap:20px;flex:1}
+.nav a{font-size:.92rem;font-weight:600;color:var(--ink2);padding:6px 2px;border-bottom:2px solid transparent;text-decoration:none;white-space:nowrap}
+.nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.hr{display:flex;align-items:center;gap:6px}
+.bell{width:44px;height:44px;border:0;background:none;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--ink);color:#fff;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+.phone .hdr{display:block;padding:10px 14px 0}
+.phone .hdr .top{display:flex;align-items:center;justify-content:space-between}
+.phone .nav{overflow-x:auto;gap:18px;margin-top:6px}
+.body{background:var(--page);padding:28px 24px 36px;min-height:560px}
+.phone .body{padding:18px 14px 28px}
+.col{max-width:760px;margin:0 auto}
+.ph{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.ph h1{font-family:var(--font-display);font-size:2rem;line-height:1.1;margin:0}
+.phone .ph h1{font-size:1.6rem}
+.btn{height:44px;padding:0 20px;border-radius:999px;border:1.5px solid var(--ctl);background:var(--bg);font-weight:600;font-size:.95rem;white-space:nowrap}
+.btn.p{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.p:hover{background:var(--blue-hover)}
+.btn.sm{height:36px;padding:0 14px;font-size:.85rem}
+.btn:focus-visible,input:focus-visible,textarea:focus-visible,.chip:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.card{background:var(--bg);border-radius:18px;box-shadow:var(--shadow);padding:20px}
+.card+.card,.card+.banner,.banner+.card{margin-top:14px}
+.tabs{display:flex;gap:4px;background:var(--gray);border-radius:999px;padding:3px;width:max-content;max-width:100%;margin-bottom:14px}
+.tabs button{border:0;background:none;padding:7px 16px;border-radius:999px;font-weight:600;font-size:.88rem;color:var(--ink2)}
+.tabs button.on{background:var(--bg);color:var(--ink);box-shadow:0 1px 2px rgba(31,34,40,.08)}
+.inp{width:100%;height:48px;border:1.5px solid var(--ctl);border-radius:8px;padding:0 14px;display:flex;align-items:center;background:var(--bg);color:var(--ink);font-size:.95rem}
+.inp.ph0{color:var(--mid)}
+.inp.err{border-color:var(--pain-ink)}
+.ta{height:92px;align-items:flex-start;padding-top:12px}
+.field{margin-top:16px}.field:first-child{margin-top:0}
+.field label,.lbl{display:block;font-size:.85rem;font-weight:600;margin-bottom:6px}
+.opt{font-weight:400;color:var(--ink2)}
+.errt{margin:6px 0 0;font-size:.85rem;color:var(--pain-ink)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--bg);font-weight:600;font-size:.88rem;display:flex;align-items:center;color:var(--ink)}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.chips.scroll{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
+.chips.scroll .chip{flex:none}
+.acts{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap}
+.search{margin:0 0 12px}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.pill.eq{background:var(--b100);color:var(--blue)}
+.chip.bw{border-style:dashed}
+.sep{width:1px;background:var(--line);margin:4px 2px;align-self:stretch}
+.help{margin:6px 0 0;font-size:.85rem;color:var(--ink2)}
+.have{border-radius:12px;background:var(--b50);border:1px solid var(--b200);padding:14px 16px;margin-bottom:14px}
+.have b{display:block;margin-bottom:8px}
+.list{list-style:none;margin:14px 0 0;padding:0}
+.row{display:flex;align-items:center;gap:12px;padding:12px 4px;border-top:1px solid var(--line);min-height:60px}
+.row:first-child{border-top:0}
+.row.new{background:var(--b100);border-radius:12px;border-top-color:transparent;padding:12px}
+.row .nm{font-weight:700;flex:1;min-width:0}
+.pill{font-size:.78rem;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--gray);color:var(--ink2);white-space:nowrap}
+.pill.blue{background:var(--b100);color:var(--blue)}.pill.ok{background:var(--ok-bg);color:var(--ok-ink)}
+.link{border:0;background:none;color:var(--blue);font-weight:600;font-size:.88rem;padding:10px 6px;min-height:44px}
+.banner{border-radius:8px;padding:12px 16px;font-size:.9rem;margin-bottom:14px}
+.banner.ok{background:#eaf6ec;border:1px solid #b9dcc0;color:var(--ok-ink)}
+.banner.warn{background:var(--warn-bg);border:1px solid #f0cfa8;color:var(--warn-ink)}
+.confirm{background:var(--gray);border-radius:12px;padding:14px 16px;margin:6px 0}
+.confirm b{display:block}.confirm p{margin:4px 0 0;font-size:.9rem;color:var(--ink2)}
+.empty{text-align:center;padding:36px 20px;position:relative;overflow:hidden}
+.empty h2{font-family:var(--font-display);font-size:1.3rem;margin:0 0 6px}
+.empty p{margin:0 auto 16px;max-width:340px;color:var(--ink2)}
+.empty svg.chain{position:absolute;inset:0;width:100%;height:100%;opacity:.5;pointer-events:none}
+.empty>*:not(.chain){position:relative}
+.rt-add{margin-top:14px}
+.res{list-style:none;margin:8px 0 0;padding:0;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.res li{padding:12px 14px;border-top:1px solid var(--line);display:flex;align-items:center;gap:10px;min-height:48px}
+.res li:first-child{border-top:0}
+.res .create{color:var(--blue);font-weight:700;background:var(--b50)}
+.sect{font-family:var(--font-display);font-size:1.1rem;margin:0 0 12px}
+.web-only{display:flex;gap:10px;align-items:center;margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--gray);font-size:.88rem}
+
+/* ===== App del coach (opcional) ===== */
+.appph{width:340px;height:690px;background:var(--page);border:8px solid var(--ink);border-radius:38px;position:relative;overflow:hidden;margin:0 auto}
+.appph .st{height:44px;padding:0 22px 4px;display:flex;align-items:flex-end;justify-content:space-between;font-size:.72rem;font-weight:700}
+.scrim{position:absolute;inset:0;background:rgba(31,34,40,.3)}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--bg);border-radius:24px 24px 0 0;box-shadow:var(--pop);padding:10px 16px 20px}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 12px}
+.sheet h3{font-family:var(--font-display);font-size:1.15rem;margin:0 0 4px}
+</style>
+</head>
+<body>
+<div class="bar">
+  <h1>Ejercicios</h1>
+  <div class="seg" id="seg-s">
+    <button class="on" data-s="list">Lista</button>
+    <button data-s="form">Nuevo ejercicio</button>
+    <button data-s="errors">Con errores</button>
+    <button data-s="saved">Guardado</button>
+    <button data-s="empty">Sin ejercicios</button>
+    <button data-s="stop">Dejar de usar</button>
+    <button data-s="catalog">Catálogo</button>
+    <button data-s="search">Por implementos</button>
+    <button data-s="routine">Desde una rutina</button>
+    <button data-s="app">En la app (opcional)</button>
+  </div>
+  <div class="seg" id="seg-d"><button class="on" data-d="web">Computador</button><button data-d="phone">Celular</button></div>
+</div>
+<div class="stage">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="bell" viewBox="0 0 24 24"><path d="M6 9.5a6 6 0 0 1 12 0c0 4.2 1.4 5.6 2 6.5H4c.6-.9 2-2.3 2-6.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 19.5a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="plus" viewBox="0 0 24 24"><path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></symbol>
+  <symbol id="chain" viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"><g fill="#3080fc"><circle cx="20" cy="150" r="5" opacity=".25"/><circle cx="42" cy="132" r="7" opacity=".35"/><circle cx="68" cy="118" r="9" opacity=".5"/><circle cx="98" cy="112" r="6" opacity=".4"/><circle cx="124" cy="120" r="8" opacity=".55"/><circle cx="146" cy="138" r="5" opacity=".3"/><circle cx="170" cy="150" r="7" opacity=".45"/><circle cx="198" cy="146" r="9" opacity=".6"/><circle cx="226" cy="130" r="6" opacity=".4"/><circle cx="250" cy="112" r="8" opacity=".5"/><circle cx="276" cy="100" r="5" opacity=".3"/><circle cx="300" cy="96" r="7" opacity=".25"/></g></symbol>
+</defs></svg>
+<div id="out"></div>
+<p class="note" id="note"></p>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const GROUPS=['Pecho','Espalda','Piernas','Glúteos','Hombros','Brazos','Core','Cardio','Otro'];
+const chips=(sel,scroll)=>`<div class="chips ${scroll?'scroll':''}" role="${scroll?'group':'radiogroup'}">${(scroll?['Todos',...GROUPS]:GROUPS).map(g=>`<button class="chip ${g===sel?'on':''}" role="${scroll?'button':'radio'}" aria-${scroll?'pressed':'checked'}="${g===sel}">${g}</button>`).join('')}</div>`;
+const EQUIP=['Barra','Discos','Mancuernas','Kettlebell','Banco','Rack','Polea','Máquina','Banda elástica','Barra de dominadas','Paralelas','Suspensión','Balón medicinal','Cajón'];
+const eqChips=(sel=[],body=false)=>`<div class="chips" role="group" aria-label="Implementos">${EQUIP.map(g=>`<button class="chip ${sel.includes(g)?'on':''}" aria-pressed="${sel.includes(g)}">${g}</button>`).join('')}<span class="sep" aria-hidden="true"></span><button class="chip bw ${body?'on':''}" aria-pressed="${body}">Peso corporal</button></div>`;
+const pills=(a)=>a&&a.length?`<div class="pills">${a.map(x=>`<span class="pill eq">${x}</span>`).join('')}</div>`:'';
+const bellIc=`<button class="bell" aria-label="Avisos"><svg width="24" height="24"><use href="#bell"/></svg></button>`;
+const NAV=`<a href="#">Inicio</a><a href="#">Atletas</a><a href="#">Ciclos</a><a href="#">Rutinas</a><a class="on" href="#">Ejercicios</a>`;
+function chrome(inner,dev){
+  if(dev==='phone')return `<div class="frame phone"><header class="hdr"><div class="top"><img src="../../brand/img/logo_cycles.png" alt="Cycles" height="26"><div class="hr">${bellIc}<div class="avatar">CR</div></div></div><nav class="nav" aria-label="Principal">${NAV}</nav></header><div class="body">${inner}</div></div>`;
+  return `<div class="frame"><header class="hdr"><img src="../../brand/img/logo_cycles.png" alt="Cycles" height="26"><nav class="nav" aria-label="Principal">${NAV}</nav><div class="hr">${bellIc}<div class="avatar">CR</div></div></header><div class="body">${inner}</div></div>`;
+}
+const head=(btn=true)=>`<div class="ph"><h1>Ejercicios</h1>${btn?`<button class="btn p">Nuevo ejercicio</button>`:''}</div>`;
+const tabs=(on)=>`<div class="tabs" role="tablist"><button role="tab" class="${on==='m'?'on':''}">Míos</button><button role="tab" class="${on==='c'?'on':''}">Catálogo</button></div>`;
+const tools=()=>`<div class="inp ph0 search">Busca por nombre</div>${chips('Todos',true)}`;
+const row=(n,g,extra='',cls='',eq=[])=>`<li class="row ${cls}"><span class="nm">${n}${pills(eq)}</span>${extra}<span class="pill">${g}</span><button class="link">Dejar de usar</button></li>`;
+const form=(o={})=>{
+  const e=o.err||{};
+  return `<div class="card" role="form" aria-label="Nuevo ejercicio"><h2 class="sect">Nuevo ejercicio</h2>
+  <div class="field"><label>Nombre</label><div class="inp ${e.name?'err':''} ${o.name?'':'ph0'}">${o.name||''}</div>${e.name?`<p class="errt" role="alert">${e.name}</p>`:''}</div>
+  <div class="field"><span class="lbl">Grupo muscular</span>${chips(o.group)}${e.group?`<p class="errt" role="alert">${e.group}</p>`:''}</div>
+  <div class="field"><span class="lbl">Implementos</span>${eqChips(o.equip,o.bodyOnly)}${e.equip?`<p class="errt" role="alert">${e.equip}</p>`:`<p class="help">Elige todo lo que necesita, o «Peso corporal» si no usa nada.</p>`}</div>
+  <div class="field"><label>Descripción <span class="opt">(opcional)</span></label><div class="inp ta ${o.desc?'':'ph0'}">${o.desc||''}</div></div>
+  <div class="field"><label>Enlace del video <span class="opt">(opcional)</span></label><div class="inp ${e.video?'err':''} ${o.video?'':'ph0'}">${o.video||'https://'}</div>${e.video?`<p class="errt" role="alert">${e.video}</p>`:''}</div>
+  <div class="acts"><button class="btn p">Guardar ejercicio</button><button class="btn">Cancelar</button></div></div>`};
+const listCard=(rows)=>`<div class="card">${tabs('m')}${tools()}<ul class="list">${rows}</ul></div>`;
+const base=row('Press militar con mancuerna','Hombros','','',['Mancuernas','Banco'])+row('Remo en máquina','Espalda','','',['Máquina'])+row('Sentadilla búlgara','Piernas','','',['Mancuernas','Banco']);
+const SC={
+ list:()=>head()+listCard(base),
+ form:()=>head(false)+form({name:'Remo con barra',group:'Espalda',equip:['Barra','Discos']})+listCard(base),
+ errors:()=>head(false)+`<div class="banner warn" role="alert">Ya tienes un ejercicio llamado «Press banca». Búscalo en la lista y úsalo en tu rutina.</div>`+form({name:'Press banca',err:{group:'Elige un grupo muscular.',equip:'Elige los implementos o marca «Peso corporal».',video:'Pega un enlace que empiece con https://'},video:'youtube.com/watch'}),
+ saved:()=>head()+`<div class="banner ok" role="status">Ejercicio guardado.</div>`+listCard(row('Remo con barra','Espalda','<span class="pill blue">Nuevo</span>','new',['Barra','Discos'])+base),
+ empty:()=>head()+`<div class="card empty"><svg class="chain" viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"><use href="#chain"/></svg><h2>Todavía no creaste ejercicios</h2><p>Aquí van los que crees tú. El catálogo de Cycles ya tiene 54 para empezar.</p><button class="btn p">Nuevo ejercicio</button></div>`,
+ stop:()=>head()+`<div class="card">${tabs('m')}<ul class="list">${row('Press militar con mancuerna','Hombros','','',['Mancuernas','Banco'])}<li class="confirm"><b>¿Dejar de usar «Remo en máquina»?</b><p>Ya no aparecerá al armar rutinas. Las sesiones donde lo usaste lo conservan.</p><div class="acts" style="margin-top:12px"><button class="btn sm p">Dejar de usar</button><button class="btn sm">Cancelar</button></div></li>${row('Sentadilla búlgara','Piernas','','',['Mancuernas','Banco'])}</ul></div>`,
+ catalog:()=>head()+`<div class="card">${tabs('c')}${tools()}<ul class="list"><li class="row"><span class="nm">Press banca${pills(['Barra','Discos','Banco'])}</span><span class="pill">Pecho</span></li><li class="row"><span class="nm">Press inclinado con mancuernas${pills(['Mancuernas','Banco'])}</span><span class="pill">Pecho</span></li><li class="row"><span class="nm">Remo con barra${pills(['Barra','Discos'])}</span><span class="pill">Espalda</span></li><li class="row"><span class="nm">Plancha${pills(['Peso corporal'])}</span><span class="pill">Core</span></li></ul><div class="web-only">El catálogo de Cycles es de todos y no se edita. Si falta un ejercicio, créalo en «Míos».</div></div>`,
+ search:()=>head(false)+`<div class="card"><div class="have"><b>Tengo estos implementos</b>${eqChips(['Barra','Discos','Banco'])}</div><h2 class="sect">Puedes hacer 3 ejercicios</h2><ul class="list"><li class="row"><span class="nm">Press banca${pills(['Barra','Discos','Banco'])}</span><span class="pill">Pecho</span></li><li class="row"><span class="nm">Remo con barra${pills(['Barra','Discos'])}</span><span class="pill">Espalda</span></li><li class="row"><span class="nm">Plancha${pills(['Peso corporal'])}</span><span class="pill">Core</span></li></ul><div class="web-only">Solo aparecen ejercicios con todos sus implementos marcados. Los que aún no tienen implementos asignados no entran en esta búsqueda.</div></div>`,
+ routine:()=>`<div class="ph"><h1>Editar rutina</h1></div><div class="card"><div class="field"><label>Nombre</label><div class="inp">Torso B</div></div><div class="rt-add"><label class="lbl" style="margin-top:16px">Agregar ejercicio</label><div class="inp">Press militar con mancuerna</div><ul class="res"><li class="create"><svg width="18" height="18"><use href="#plus"/></svg>Crear «Press militar con mancuerna»</li></ul></div></div><div class="card"><h2 class="sect">Nuevo ejercicio</h2><div class="field"><label>Nombre</label><div class="inp">Press militar con mancuerna</div></div><div class="field"><span class="lbl">Grupo muscular</span>${chips('Hombros')}</div><div class="field"><span class="lbl">Implementos</span>${eqChips(['Mancuernas','Banco'])}</div><button class="link" style="padding-left:0">Descripción y video (opcional)</button><div class="acts" style="margin-top:8px"><button class="btn p">Crear y agregar a la rutina</button><button class="btn">Cancelar</button></div></div>`
+};
+const NOTES={
+ list:'Lista de Míos con búsqueda por nombre y chips por grupo (se desplazan en horizontal). Cada fila muestra el nombre, el grupo y «Dejar de usar»; sin líneas grises debajo del nombre. «Nuevo ejercicio» arriba a la derecha abre el formulario en la misma página, sin modal.',
+ form:'El formulario se abre arriba de la lista, en una tarjeta. Pide nombre, grupo muscular e implementos (obligatorios); descripción y enlace de video son opcionales. Los implementos son chips de selección múltiple (por ejemplo, Remo con barra: Barra y Discos), más «Peso corporal» para lo que no usa nada. El botón principal dice qué hace: «Guardar ejercicio».',
+ search:'Más adelante: buscar por lo que el coach tiene a mano. Marca sus implementos y la lista muestra los ejercicios cuyos implementos están todos marcados; «Peso corporal» siempre entra. Por eso cada ejercicio debe guardar sus implementos como lista cerrada, no como texto libre.',
+ errors:'Errores en línea, debajo de cada campo (también si no se elige ningún implemento ni «Peso corporal»), con texto que explica qué hacer. Si el nombre ya existe (propio o del catálogo), un aviso arriba lo dice y propone usar el que ya está, en vez de crear un duplicado.',
+ saved:'Al guardar, el formulario se cierra, aparece «Ejercicio guardado.» y el ejercicio nuevo queda arriba de la lista con fondo azul claro y la etiqueta «Nuevo».',
+ empty:'Sin ejercicios propios: tarjeta con la cadena de proteína solo detrás del texto, una frase que explica y el botón de crear. Recuerda que el catálogo ya trae 54.',
+ stop:'«Dejar de usar» pide confirmación dentro de la propia lista (sin diálogo del navegador). Explica que el ejercicio ya no aparece al armar rutinas y que el historial se conserva.',
+ catalog:'El catálogo de Cycles es de solo lectura: sin acciones por fila. Un recordatorio dice dónde crear lo que falta.',
+ routine:'Atajo dentro del editor de rutinas: si el buscador no encuentra el ejercicio, aparece «Crear «{texto}»». Abre el formulario con el nombre ya escrito, pide el grupo y los implementos (descripción y video quedan plegados) y al guardar agrega el ejercicio a la rutina sin sacar al coach de lo que estaba haciendo.',
+ app:'Opcional: así se vería dentro de la app del coach. Hoy NO está en el alcance de la app (crear contenido nuevo de la biblioteca falla la segunda pregunta de la regla). Solo se construiría si decides ampliar ese alcance; mientras tanto la app ofrece «Abrir en la web».'
+};
+let s='list',d='web';
+function app(){
+  return `<div class="appph"><div class="st"><span>9:41</span><span>5G</span></div><div style="padding:6px 14px"><div class="ph" style="margin-top:8px"><h1 style="font-family:var(--font-display);font-size:1.7rem;margin:0">Rutinas</h1></div></div><div class="scrim"></div><div class="sheet"><div class="grab"></div><h3>Nuevo ejercicio</h3><div class="field"><label>Nombre</label><div class="inp">Press militar con mancuerna</div></div><div class="field"><span class="lbl">Grupo muscular</span>${chips('Hombros')}</div><div class="field"><span class="lbl">Implementos</span>${eqChips(['Mancuernas','Banco'])}</div><div class="web-only">Descripción y video se agregan desde la web.</div><button class="btn p" style="width:100%;margin-top:14px;height:48px">Crear y agregar</button></div></div>`;
+}
+function render(){
+  $('out').innerHTML=s==='app'?app():chrome(`<div class="col">${SC[s]()}</div>`,d);
+  $('note').textContent=NOTES[s];
+  document.querySelectorAll('#seg-s button').forEach(b=>b.classList.toggle('on',b.dataset.s===s));
+  document.querySelectorAll('#seg-d button').forEach(b=>b.classList.toggle('on',b.dataset.d===d));
+  $('seg-d').classList.toggle('hide',s==='app');
+}
+document.querySelectorAll('#seg-s button').forEach(b=>b.onclick=()=>{s=b.dataset.s;render()});
+document.querySelectorAll('#seg-d button').forEach(b=>b.onclick=()=>{d=b.dataset.d;render()});
+render();
+</script>
+</body>
+</html>
