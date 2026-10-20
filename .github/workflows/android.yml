@@ -1,0 +1,120 @@
+# Compila la app de Android en la nube y comprueba que abre en un emulador.
+# No hay Android Studio en el Mac, así que esta es la forma de saber que
+# Android funciona. Ver docs/deploy/PLAN-ANDROID-SEMANA.md.
+#
+# - En cada PR que toca la app móvil: compila un APK para el emulador (solo
+#   x86_64, para que sea rápido), lo instala y comprueba que aparece la
+#   pantalla de inicio de sesión. Deja la captura y el registro como
+#   artefactos.
+# - A mano (Run workflow): además compila un APK para teléfono (arm64) que se
+#   puede instalar para probar. Va firmado con la llave de depuración: sirve
+#   para pruebas, no para Google Play.
+
+name: Android
+
+on:
+  pull_request:
+    paths:
+      - "apps/mobile/**"
+      - "packages/shared/**"
+      - ".github/workflows/android.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  emulador:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Instalar dependencias
+        run: npm ci --workspace apps/mobile --workspace packages/shared --include-workspace-root
+
+      - name: Compilar el APK para el emulador
+        working-directory: apps/mobile/android
+        run: ./gradlew assembleRelease -PreactNativeArchitectures=x86_64
+
+      - name: Guardar el APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-emulador
+          path: apps/mobile/android/app/build/outputs/apk/release/*.apk
+          retention-days: 7
+
+      - name: Activar KVM para el emulador
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Abrir la app en el emulador
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          script: bash apps/mobile/scripts/android-smoke.sh apps/mobile/android/app/build/outputs/apk/release/app-release.apk
+
+      - name: Guardar la captura y el registro
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prueba-de-arranque
+          path: |
+            pantalla-login.png
+            logcat.txt
+            ui.xml
+          if-no-files-found: ignore
+          retention-days: 7
+
+  apk-telefono:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Instalar dependencias
+        run: npm ci --workspace apps/mobile --workspace packages/shared --include-workspace-root
+
+      - name: Compilar el APK para teléfono
+        working-directory: apps/mobile/android
+        run: ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk-telefono
+          path: apps/mobile/android/app/build/outputs/apk/release/*.apk
+          retention-days: 7
