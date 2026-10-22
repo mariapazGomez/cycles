@@ -25,6 +25,8 @@ Se analizaron las páginas de marketing (landing pages dirigidas al coach) de 5 
 - No se evaluó accesibilidad, performance, ni el flujo de uso real (onboarding, app del atleta).
 - Los screenshots de referencia están guardados junto a este documento (`docs/brand/investigacion-competitiva/*.png`) por si la página de origen cambia.
 
+> Competidor adyacente analizado aparte (resistencia, con onboarding probado): [[trainerplan|TrainerPlan]].
+
 ## Tabla comparativa
 
 | | [TrainHeroic](https://www.trainheroic.com/coach/) | [TrueCoach](https://truecoach.co/) | [Trainerize](https://www.trainerize.com/) | [Everfit](https://everfit.io/) | [CoachRx](https://www.coachrx.app/) |
