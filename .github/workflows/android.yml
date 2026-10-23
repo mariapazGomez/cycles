@@ -9,6 +9,11 @@
 # - A mano (Run workflow): además compila un APK para teléfono (arm64) que se
 #   puede instalar para probar. Va firmado con la llave de depuración: sirve
 #   para pruebas, no para Google Play.
+# - A mano también: genera el AAB firmado con la llave de subida (el archivo
+#   que se sube a Google Play). Necesita los secretos ANDROID_KEYSTORE_BASE64,
+#   ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS y ANDROID_KEY_PASSWORD, que
+#   carga apps/mobile/scripts/android-crear-llave.sh. Ver
+#   docs/deploy/PUBLICAR-ANDROID.md.
 
 name: Android
 
@@ -118,3 +123,62 @@ jobs:
           name: apk-telefono
           path: apps/mobile/android/app/build/outputs/apk/release/*.apk
           retention-days: 7
+
+  aab-firmado:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      CYCLES_UPLOAD_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      CYCLES_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      CYCLES_UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+    steps:
+      - name: Comprobar que están los secretos de firma
+        run: |
+          faltan=""
+          [ -n "$ANDROID_KEYSTORE_BASE64" ] || faltan="$faltan ANDROID_KEYSTORE_BASE64"
+          [ -n "$CYCLES_UPLOAD_STORE_PASSWORD" ] || faltan="$faltan ANDROID_KEYSTORE_PASSWORD"
+          [ -n "$CYCLES_UPLOAD_KEY_ALIAS" ] || faltan="$faltan ANDROID_KEY_ALIAS"
+          [ -n "$CYCLES_UPLOAD_KEY_PASSWORD" ] || faltan="$faltan ANDROID_KEY_PASSWORD"
+          if [ -n "$faltan" ]; then
+            echo "::error::Faltan los secretos:$faltan. Corre apps/mobile/scripts/android-crear-llave.sh."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Instalar dependencias
+        run: npm ci --workspace apps/mobile --workspace packages/shared --include-workspace-root
+
+      - name: Dejar la llave en un archivo temporal
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/cycles-upload.keystore"
+          echo "CYCLES_UPLOAD_STORE_FILE=$RUNNER_TEMP/cycles-upload.keystore" >> "$GITHUB_ENV"
+
+      - name: Compilar el AAB firmado
+        working-directory: apps/mobile/android
+        run: ./gradlew bundleRelease -PCYCLES_VERSION_CODE=${{ github.run_number }}
+
+      - name: Comprobar la firma
+        run: |
+          jarsigner -verify -verbose:summary apps/mobile/android/app/build/outputs/bundle/release/app-release.aab | tail -5
+          keytool -printcert -jarfile apps/mobile/android/app/build/outputs/bundle/release/app-release.aab | grep -E "Owner|SHA256"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aab-firmado
+          path: apps/mobile/android/app/build/outputs/bundle/release/*.aab
+          retention-days: 30
