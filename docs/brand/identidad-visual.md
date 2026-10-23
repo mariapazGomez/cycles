@@ -95,4 +95,16 @@ Ver [[especificaciones-diseno]] — solo los valores (color, tipografía, espaci
 
 - No se decidió nada sobre la **landing page** (marketing) — el usuario fue explícito en que eso se diseña después, por separado.
 - No se decidieron radios de borde, espaciado, ni sistema de sombras — se mantienen los valores ya existentes en `auth.css` hasta que se pida cambiarlos.
-- Los logos existen como archivos de imagen (sección de arriba), pero **todavía no se aplicaron** en ningún lado de la app (favicon, header, etc.) ni se eligió cuál variante usar en cada contexto.
+- Los logos existen como archivos de imagen (sección de arriba). Ya están aplicados en los correos, la web y la app móvil. Falta elegir variante para otros contextos.
+
+## Favicon de la web (2026-10-23)
+
+Decisión: el favicon es el **isotipo, el anillo azul `#3080fc` sobre fondo transparente** (no el cuadrado oscuro de `Cycles_06`, que es solo una maqueta de 500×300 con texto). Se ve bien en pestañas claras y oscuras.
+
+| Archivo en `apps/web/public/` | Uso |
+|---|---|
+| `favicon.png` (32×32) | Pestaña del navegador |
+| `favicon-192.png` (192×192) | Pantallas de alta densidad y accesos directos |
+| `apple-touch-icon.png` (180×180) | iPhone al guardar en la pantalla de inicio: anillo sobre `#1f2228`, porque iOS pinta de negro el fondo transparente |
+
+Los tres salen de `public/email/isotipo-cycles.png`. `index.html` los declara y define `theme-color` como `#1f2228`. El ícono de la app iOS es aparte (`icon-1024.png`).
