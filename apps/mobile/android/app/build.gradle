@@ -65,6 +65,9 @@ react {
 // R8: reduce y ofusca el código del release (T-140).
 def enableProguardInReleaseBuilds = true
 
+// Google Play exige que versionCode suba con cada subida.
+def cyclesVersionCode = (project.findProperty("CYCLES_VERSION_CODE") ?: "1").toString().toInteger()
+
 /**
  * The preferred build flavor of JavaScriptCore (JSC)
  *
@@ -88,9 +91,8 @@ android {
         applicationId "app.getcycles.mobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        // Google Play exige que versionCode suba con cada subida. El flujo de
-        // GitHub lo pasa con -PCYCLES_VERSION_CODE; en local queda en 1.
-        versionCode (project.findProperty("CYCLES_VERSION_CODE") ?: "1").toInteger()
+        // El flujo de GitHub pasa -PCYCLES_VERSION_CODE; en local queda en 1.
+        versionCode cyclesVersionCode
         versionName "1.0.0"
     }
     // Llave de subida a Google Play. Los datos llegan por variables de entorno
