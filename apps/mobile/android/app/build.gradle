@@ -62,7 +62,11 @@ react {
 /**
  * Set this to true to Run Proguard on Release builds to minify the Java bytecode.
  */
-def enableProguardInReleaseBuilds = false
+// R8: reduce y ofusca el código del release (T-140).
+def enableProguardInReleaseBuilds = true
+
+// Google Play exige que versionCode suba con cada subida.
+def cyclesVersionCode = (project.findProperty("CYCLES_VERSION_CODE") ?: "1").toString().toInteger()
 
 /**
  * The preferred build flavor of JavaScriptCore (JSC)
@@ -87,9 +91,14 @@ android {
         applicationId "app.getcycles.mobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        // El flujo de GitHub pasa -PCYCLES_VERSION_CODE; en local queda en 1.
+        versionCode cyclesVersionCode
+        versionName "1.0.0"
     }
+    // Llave de subida a Google Play. Los datos llegan por variables de entorno
+    // (secretos de GitHub); nada de esto vive en el repositorio. Ver
+    // docs/deploy/PUBLICAR-ANDROID.md.
+    def uploadStoreFile = System.getenv("CYCLES_UPLOAD_STORE_FILE")
     signingConfigs {
         debug {
             storeFile file('debug.keystore')
@@ -97,15 +106,24 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        if (uploadStoreFile) {
+            release {
+                storeFile file(uploadStoreFile)
+                storeType "pkcs12"
+                storePassword System.getenv("CYCLES_UPLOAD_STORE_PASSWORD")
+                keyAlias System.getenv("CYCLES_UPLOAD_KEY_ALIAS")
+                keyPassword System.getenv("CYCLES_UPLOAD_KEY_PASSWORD")
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            // Sin la llave de subida (por ejemplo, en un PR) se firma con la de
+            // depuración, solo para probar. Ese archivo no sirve para Google Play.
+            signingConfig uploadStoreFile ? signingConfigs.release : signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
