@@ -1,50 +1,52 @@
 import { Link } from "react-router-dom";
-import { HERO_PATTERN } from "../assets/patterns";
-import { firstLine, firstName } from "../lib/coachHome";
-import type { AttentionItem } from "../services/trackingApi";
 
 interface CoachHeroProps {
   attentionCount: number;
-  first: AttentionItem | null;
   hasAthletes: boolean;
+  // Sesiones de hoy entre todos los atletas; null si todavía se están cargando.
+  today: { planned: number; done: number } | null;
 }
 
-// Tarjeta oscura de arriba del Inicio: dice cuántos atletas necesitan atención
-// y por quién empezar. Tiene tres estados: con avisos, todo al día y sin
-// atletas todavía.
-export function CoachHero({ attentionCount, first, hasAthletes }: CoachHeroProps) {
+// Franja oscura de arriba del Inicio: cuántas sesiones hay hoy y cuántos
+// atletas necesitan atención. Con tres estados: con atletas, sin atletas y
+// cargando (docs/diseno/ciclo-en-calendario).
+export function CoachHero({ attentionCount, hasAthletes, today }: CoachHeroProps) {
+  if (!hasAthletes) {
+    return (
+      <section className="cy-strip" aria-label="Resumen de tus atletas">
+        <b className="cy-strip-title">Empieza invitando a un atleta</b>
+        <p className="cy-strip-line">Cuando acepte tu invitación, aquí verás cómo le va.</p>
+        <Link className="cy-strip-cta" to="/athletes">
+          Invitar atleta
+        </Link>
+      </section>
+    );
+  }
+
+  const attention =
+    attentionCount === 0
+      ? "Ningún atleta necesita tu atención."
+      : attentionCount === 1
+        ? "1 atleta necesita tu atención."
+        : `${attentionCount} atletas necesitan tu atención.`;
+
+  if (!today) return null;
+
+  const title = today.planned === 0 ? "Hoy no hay sesiones" : today.planned === 1 ? "1 sesión hoy" : `${today.planned} sesiones hoy`;
+  const progress =
+    today.planned === 0
+      ? ""
+      : today.done === 0
+        ? "Ninguna completada todavía. "
+        : `${today.done} de ${today.planned} completadas. `;
+
   return (
-    <section className="hm-hero" aria-label="Resumen de tus atletas">
-      <div className="hm-hero-art" style={{ backgroundImage: `url(${HERO_PATTERN})` }} aria-hidden="true" />
-      <div className="hm-hero-body">
-        {first ? (
-          <>
-            <p className="hm-hero-big">
-              {attentionCount}
-              <small>{attentionCount === 1 ? "atleta necesita tu atención" : "atletas necesitan tu atención"}</small>
-            </p>
-            <p className="hm-hero-line">
-              Empieza por <b>{first.athlete.name}</b>: {firstLine(first.kind)}
-            </p>
-            <Link className="hm-hero-cta" to={`/athletes/${first.athlete.id}`}>
-              Ver a {firstName(first.athlete.name)}
-            </Link>
-          </>
-        ) : hasAthletes ? (
-          <>
-            <p className="hm-hero-big">Todo al día</p>
-            <p className="hm-hero-line">Ningún atleta necesita tu atención ahora.</p>
-          </>
-        ) : (
-          <>
-            <p className="hm-hero-big hm-hero-big-text">Empieza invitando a un atleta</p>
-            <p className="hm-hero-line">Cuando acepte tu invitación, aquí verás cómo le va.</p>
-            <Link className="hm-hero-cta" to="/athletes">
-              Invitar atleta
-            </Link>
-          </>
-        )}
-      </div>
+    <section className="cy-strip" aria-label="Resumen de tus atletas">
+      <b className="cy-strip-title">{title}</b>
+      <p className="cy-strip-line">
+        {progress}
+        {attention}
+      </p>
     </section>
   );
 }

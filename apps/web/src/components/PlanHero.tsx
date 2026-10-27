@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { HERO_PATTERN } from "../assets/patterns";
 import { HeroKind, PlanStats } from "../lib/planGrid";
 import { firstName } from "../lib/coachHome";
 import { formatShortDate } from "../lib/format";
@@ -32,61 +31,59 @@ export function WeekChain({ weeks, currentWeek }: { weeks: number; currentWeek: 
   );
 }
 
-// Tarjeta oscura de arriba del plan: en qué semana va y cuántas sesiones lleva.
+// Franja oscura de arriba del ciclo: en qué semana va y cuántas sesiones lleva.
+// Es delgada para que el calendario quede a la vista (docs/diseno/ciclo-en-calendario).
 export function PlanHero({ kind, stats, weeks, currentWeek, startDate, isCoach, athlete }: PlanHeroProps) {
   const name = athlete ? firstName(athlete.name) : null;
   return (
-    <section className="hm-hero" aria-label="Avance del ciclo">
-      <div className="hm-hero-art" style={{ backgroundImage: `url(${HERO_PATTERN})` }} aria-hidden="true" />
-      <div className="hm-hero-body">
-        {kind === "empty" && (
-          <>
-            <p className="hm-hero-big hm-hero-big-text">{isCoach ? "Arma el primer ciclo" : "Todavía sin sesiones"}</p>
-            <p className="hm-hero-line">
-              {isCoach
-                ? `Asigna una rutina a cada sesión. ${name ?? "Tu atleta"} las verá en su celular apenas las asignes.`
-                : "Tu coach aún no asigna rutinas a este ciclo."}
-            </p>
-          </>
-        )}
-        {kind === "upcoming" && (
-          <>
-            <p className="hm-hero-big hm-hero-big-text">Empieza el {formatShortDate(startDate)}</p>
-            <p className="hm-hero-line">
-              {stats.assigned} {stats.assigned === 1 ? "sesión asignada" : "sesiones asignadas"}.
-            </p>
-          </>
-        )}
-        {kind === "running" && (
-          <>
-            <p className="hm-hero-big">
-              {currentWeek}
-              <small>de {weeks} semanas</small>
-            </p>
-            <WeekChain weeks={weeks} currentWeek={currentWeek} />
-            <p className="hm-hero-line">
-              {stats.weekAssigned > 0
-                ? `Esta semana lleva ${stats.weekCompleted} de ${stats.weekAssigned} sesiones. `
-                : "Esta semana no tiene sesiones asignadas. "}
-              En total, {stats.completed} de {stats.assigned} completadas.
-            </p>
-          </>
-        )}
-        {kind === "ended" && (
-          <>
-            <p className="hm-hero-big hm-hero-big-text">El ciclo terminó</p>
-            <WeekChain weeks={weeks} currentWeek={weeks + 1} />
-            <p className="hm-hero-line">
-              En total, {stats.completed} de {stats.assigned} sesiones completadas.
-            </p>
-          </>
-        )}
-        {isCoach && athlete && kind !== "empty" && (
-          <Link className="hm-hero-cta" to={`/athletes/${athlete.id}`}>
-            Ver resumen de {name}
-          </Link>
-        )}
-      </div>
+    <section className="cy-strip" aria-label="Avance del ciclo">
+      {kind === "empty" && (
+        <>
+          <b className="cy-strip-title">{isCoach ? "Ciclo nuevo" : "Todavía sin sesiones"}</b>
+          <p className="cy-strip-line">
+            {isCoach
+              ? `Toca un día para asignarle una rutina. ${name ?? "Tu atleta"} la verá en su celular apenas la asignes.`
+              : "Tu coach aún no asigna rutinas a este ciclo."}
+          </p>
+        </>
+      )}
+      {kind === "upcoming" && (
+        <>
+          <b className="cy-strip-title">Empieza el {formatShortDate(startDate)}</b>
+          <p className="cy-strip-line">
+            {stats.assigned} {stats.assigned === 1 ? "sesión asignada" : "sesiones asignadas"}.
+          </p>
+        </>
+      )}
+      {kind === "running" && (
+        <>
+          <div className="cy-strip-week">
+            <b className="cy-strip-title">Semana {currentWeek}</b>
+            <span>de {weeks}</span>
+          </div>
+          <WeekChain weeks={weeks} currentWeek={currentWeek} />
+          <p className="cy-strip-line">
+            {stats.weekAssigned > 0
+              ? `Esta semana lleva ${stats.weekCompleted} de ${stats.weekAssigned} sesiones. `
+              : "Esta semana no tiene sesiones asignadas. "}
+            En total, {stats.completed} de {stats.assigned} completadas.
+          </p>
+        </>
+      )}
+      {kind === "ended" && (
+        <>
+          <b className="cy-strip-title">El ciclo terminó</b>
+          <WeekChain weeks={weeks} currentWeek={weeks + 1} />
+          <p className="cy-strip-line">
+            En total, {stats.completed} de {stats.assigned} sesiones completadas.
+          </p>
+        </>
+      )}
+      {isCoach && athlete && kind !== "empty" && (
+        <Link className="cy-strip-cta" to={`/athletes/${athlete.id}`}>
+          Ver resumen
+        </Link>
+      )}
     </section>
   );
 }

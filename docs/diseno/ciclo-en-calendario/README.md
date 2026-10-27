@@ -1,15 +1,17 @@
 ---
 type: design
 parent: "[[PRD-RutinasYProgramacion]]"
-status: proposal
+status: implemented
 tags: [diseno, ciclo, calendario, inicio, coach]
 created: 2026-10-23
-updated: 2026-10-23
+updated: 2026-10-27
 ---
 
 # Ciclo en calendario y nuevo Inicio del coach
 
-> Propuesta, sin decisión tomada. Parte del calendario y de los planes de [[trainerplan|TrainerPlan]] para dibujar un ciclo como semanas de lunes a domingo, y de ahí deriva una visión nueva del Inicio del coach. Se suma a la decisión de [[grilla-del-plan|la grilla del plan]] (la cadena de semanas, opción B, sigue siendo la oficial): esta sería una tercera forma de ver el mismo ciclo.
+> **Implementado en la web** (2026-10-27): el detalle del ciclo del coach (`/cycles/:id`) usa el calendario y el Inicio del coach usa el tablero «Esta semana». Reemplaza a la cadena de semanas (opción B) en esa pantalla. Decisiones que se tomaron al construirlo están al final, en «Cómo quedó construido». Lo de abajo es la propuesta original.
+>
+> Propuesta original: Parte del calendario y de los planes de [[trainerplan|TrainerPlan]] para dibujar un ciclo como semanas de lunes a domingo, y de ahí deriva una visión nueva del Inicio del coach. Se suma a la decisión de [[grilla-del-plan|la grilla del plan]] (la cadena de semanas, opción B, sigue siendo la oficial): esta sería una tercera forma de ver el mismo ciclo.
 
 ## Cómo verla
 
@@ -93,3 +95,13 @@ Qué resuelve respecto al Inicio actual: hoy el coach ve solo quién necesita at
 - **Inicio con muchos atletas:** con 50 o más atletas la tarjeta "Esta semana" necesita filtros (por grupo, por ciclo) y paginación. No se resuelve en esta maqueta.
 - **Decisión abierta:** si el calendario reemplaza a la cadena de semanas, la complementa como vista alternativa (como se planteó para la matriz) o solo se usa en el Inicio.
 - **Duplicar semana** sigue necesitando un endpoint nuevo, como en [[grilla-del-plan]].
+
+## Cómo quedó construido
+
+- **Qué día cae cada sesión.** Si la sesión tiene un día elegido (`scheduledDate`) y cae en esa semana, se usa ese. Si no, se usa un día por defecto según cuántas sesiones tiene la semana, contado desde el primer día de la semana del ciclo: 1 sesión, el día 1; 2, los días 1 y 4; 3, los días 1, 3 y 5; 4, los días 1, 2, 4 y 5; 5, de lunes a viernes. Todavía no se elige el día al crear el ciclo, así que el coach no puede moverlas; queda como mejora. Lo calcula `apps/web/src/lib/weekCalendar.ts`.
+- **Encabezados de los días.** La semana de un ciclo empieza el día en que empieza el ciclo, así que los encabezados rotan si no empieza en lunes. En el Inicio, la semana es siempre de lunes a domingo.
+- **Asignar rutina.** Sigue funcionando por semana y sesión, con el mismo endpoint; el panel ahora dice el día ("Asignar rutina el miércoles 21 oct").
+- **Inicio del coach.** Cada atleta con ciclo activo pide sus sesiones de la semana por separado, así la lista aparece de inmediato y cada tarjeta se llena cuando llega. Los macrociclos usan los ciclos que contienen. Las acciones de los avisos (aplicar o descartar un ajuste) se conservan: al tocar el motivo bajo el nombre se abre la lista de avisos del atleta.
+- **Atletas sin ciclo o con invitación pendiente.** Su tarjeta lo dice en vez de mostrar días.
+- **Fondo de página.** Se dejó `#f3f5f8` (Design System); el `#eceff4` de la maqueta queda como propuesta.
+- **Carga.** Esqueletos con la forma final en el ciclo y en el Inicio, con el aviso de que el servidor está despertando si tarda más de 4 segundos.

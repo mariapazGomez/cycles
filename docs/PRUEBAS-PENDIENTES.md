@@ -3,7 +3,7 @@ type: reference
 tags: [pruebas, qa]
 status: vigente
 created: 2026-09-26
-updated: 2026-10-10
+updated: 2026-10-27
 ---
 
 # Pruebas pendientes
@@ -18,6 +18,7 @@ updated: 2026-10-10
 
 | # | Qué probar | Cómo | Quién | Depende de | Origen |
 |---|---|---|---|---|---|
+| P-25 | **Calendario del ciclo e Inicio del coach con la API real** | En `app.getcycles.app`: (1) abrir un ciclo con 3 sesiones por semana y ver las sesiones en lunes, miércoles y viernes, con la semana en curso destacada y las pasadas plegadas; (2) tocar un día vacío, asignar una rutina y ver que aparece en ese día, con y sin «Repetir…»; (3) un ciclo que no empiece en lunes: los encabezados de los días deben empezar el día de inicio; (4) un ciclo con sesiones hechas, omitidas y con dolor: check verde, «Omitida» y «Dolor»; (5) un macrociclo con ciclos dentro; (6) el Inicio con varios atletas: una tarjeta por atleta, sin barra horizontal, el filtro **Necesitan atención**, abrir el aviso y aplicar o descartar un ajuste; (7) todo en el celular; (8) la primera visita del día con la API dormida: deben verse los esqueletos y el aviso de que el servidor está despertando. Probado solo con datos de ejemplo en local, no con la API real. | Usuaria | PR de «Ciclo en calendario» mezclado y desplegado | Ciclo en calendario |
 | P-24 | **PostHog recibe eventos y no filtra nada** | Después de cargar `VITE_POSTHOG_KEY` en Vercel y redesplegar: en PostHog (*Activity → Live events*) entrar a `app.getcycles.app` y ver `$pageview` con `area`. Abrir un enlace con clave (`/reset-password?token=…`) y comprobar que el evento trae solo `/reset-password`. Iniciar sesión y ver `login_succeeded` y a la persona con un UUID y `role`, **sin correo ni nombre**. Crear una rutina, invitar a un atleta y ver los eventos. Revisar en las propiedades de cualquier evento que no haya cookies (`document.cookie` vacío), ninguna nota, dolor ni carga, y que **«Discard client IP data»** esté activo. Con la señal «No rastrear» del navegador no debe salir nada. | Usuaria | PR de T-179 mezclado, proyecto creado y clave en Vercel | T-179 |
 | P-23 | **Privacidad y términos en la app iOS** | En un iPhone con la app de TestFlight: (1) en la pantalla de entrada tocar **Privacidad** y **Términos de uso** y ver que abren las páginas en el navegador; (2) entrar y en el avatar de **Hoy** ver **Política de privacidad** y **Términos de uso** en el menú; (3) con un atleta **anterior a T-147** (sin aceptación guardada) ver la pantalla **Antes de seguir**: sin marcar la casilla muestra el error, al marcarla y tocar **Aceptar y continuar** entra a Hoy, y **Salir** vuelve al login; (4) volver a abrir la app y comprobar que no la pide otra vez. Escrito y tipado, no probado en simulador ni dispositivo. | Usuaria | PR de T-149 mezclado y nueva compilación de TestFlight | T-149 |
 | P-06 | **Botones −15 s / +15 s del descanso** | En el registro por serie, durante un descanso: tocar +15 s y ver que el total sube a 1:45 (con 1:30 de base), y −15 s para volver a 1:30. La prueba anterior los ejecutó sin error, pero no verificó el total en pantalla. | Claude | — | PR #4 (descanso entre series) |
