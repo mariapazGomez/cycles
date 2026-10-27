@@ -23,6 +23,9 @@ export interface TrainingCycle {
   status: CycleStatus;
   isTemplate: boolean;
   templateId?: string;
+  // Solo en las plantillas (isTemplate = true), que además no tienen atleta:
+  // athleteId llega vacío y las fechas son de referencia. Ver docs/diseno/biblioteca.
+  templateWeeks?: number | null;
   cycleType: CycleType;
   // null cuando cycleType = 'macrocycle' (un macrociclo es un contenedor,
   // no tiene grid propio).

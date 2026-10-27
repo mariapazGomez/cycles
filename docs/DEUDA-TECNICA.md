@@ -9,6 +9,7 @@ Lista de deuda técnica conocida, para atacar cuando haya espacio. No es un PRD 
 ### 1. No hay tests automatizados en ningún workspace
 `apps/api`, `apps/web` y `apps/mobile` no tienen un solo test (ni siquiera los specs por defecto que genera NestJS). Todo el desarrollo hasta ahora se verificó a mano: probando el flujo en el navegador/simulador y, para el backend, con `curl` directo.
 **Impacto:** alto — cualquier cambio puede romper algo silenciosamente; el auth (con su historial de bugs de refresh token) y el motor de ejecución (Fase 3) son los candidatos más críticos para empezar.
+**Avance (2026-10-27):** `apps/api` ya tiene Jest (`npm test --workspace apps/api`, sin base de datos: Prisma simulado) con pruebas de plantillas, sesiones por día, acceso y roles de las rutas nuevas. Siguen sin pruebas `apps/web`, `apps/mobile` y el resto de la API (auth, ejecución, seguimiento).
 
 ### 2. ESLint no está realmente instalado en `apps/web` ni `apps/api`
 Ambos tienen un script `"lint": "eslint src"` en su `package.json`, pero **ninguno de los dos declara `eslint` como dependencia ni tiene un archivo de configuración** (`.eslintrc*` / `eslint.config.*`). El comando "funciona" hoy solo porque `apps/mobile` sí trae ESLint (heredado del template de React Native) y npm workspaces lo hoistea al `node_modules` raíz — es decir, funciona de pura casualidad de instalación, no por diseño.

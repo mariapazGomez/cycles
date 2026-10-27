@@ -6,6 +6,9 @@ import { CurrentUser, AuthenticatedUser } from "../common/decorators/current-use
 import { CyclesService } from "./cycles.service";
 import { CreateCycleDto } from "./dto/create-cycle.dto";
 import { UpdateCycleDto } from "./dto/update-cycle.dto";
+import { CreateTemplateDto } from "./dto/create-template.dto";
+import { UpdateTemplateDto } from "./dto/update-template.dto";
+import { AssignCycleDto } from "./dto/assign-cycle.dto";
 import { ListCyclesQueryDto } from "./dto/list-cycles.query.dto";
 
 @UseGuards(JwtAuthGuard)
@@ -18,6 +21,32 @@ export class CyclesController {
   @Post()
   create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateCycleDto) {
     return this.cyclesService.create(user.id, dto);
+  }
+
+  // Plantillas (ciclos sin atleta). Estas rutas van antes de ":id".
+  @UseGuards(RolesGuard)
+  @Roles("coach")
+  @Post("templates")
+  createTemplate(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateTemplateDto) {
+    return this.cyclesService.createTemplate(user.id, dto);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles("coach")
+  @Patch("templates/:id")
+  updateTemplate(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("id") id: string,
+    @Body() dto: UpdateTemplateDto,
+  ) {
+    return this.cyclesService.updateTemplate(user.id, id, dto);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles("coach")
+  @Post(":id/assign")
+  assign(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string, @Body() dto: AssignCycleDto) {
+    return this.cyclesService.assign(user.id, id, dto);
   }
 
   @Get()

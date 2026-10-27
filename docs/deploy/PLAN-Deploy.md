@@ -3,7 +3,7 @@ type: plan
 tags: [deploy, infra]
 status: draft
 created: 2026-09-25
-updated: 2026-10-01
+updated: 2026-10-27
 ---
 
 # Plan de deploy de Cycles
@@ -267,6 +267,17 @@ Leyendo `SUPABASE_DATABASE_URL` del `.env` sin mostrarla en pantalla:
 - **Necesita `pg_dump` 17 o más nuevo** (Supabase usa Postgres 17; un `pg_dump` más viejo se niega a funcionar). En el Mac de la fundadora, macOS 14 ya no tiene soporte de Homebrew y `brew` no logró descargarlo, así que se compiló solo el cliente desde la fuente oficial (`postgresql-17.11`, suma sha256 contrastada con la de Homebrew) en `~/.local/pg17`; el script lo busca primero ahí.
 - **Respaldos hechos:** 2026-10-06 y 2026-10-10 (este último ya con la migración del PR #44, que agregó `ExerciseLog.active`; esa migración no tuvo respaldo previo propio, la cubre el del 06-10). El recordatorio recurrente de los lunes lo crea la usuaria (T-024).
 - **Restauración probada** (2026-10-06): se restauró en una base local descartable y los conteos de 10 tablas coincidieron con producción. Al restaurar en un Postgres anterior al 17 sale el aviso inofensivo `unrecognized configuration parameter "transaction_timeout"`. Para restaurar: `~/.local/pg17/bin/pg_restore --no-owner --no-acl -d <base> <archivo>`.
+
+### 2.5.1 Migración de los ciclos plantilla (2026-10-27, CYC-166)
+
+La migración `20261027140000_ciclo_plantilla` hace opcional `TrainingCycle.athleteId` y agrega `templateWeeks`. Es compatible hacia atrás (una columna que admite nulos y otra nueva): la web y la app iOS actuales siguen funcionando con la base ya migrada. Se probó solo en la base local `cycles_dev`.
+
+Como Render corre `prisma migrate deploy` al construir cada deploy, **la migración se aplica sola al desplegar el PR en `main`**. Orden seguro:
+
+1. Antes de mezclar el PR: `bash apps/api/scripts/respaldo-supabase.sh` (2.5).
+2. Mezclar el PR y esperar a que Render termine el deploy.
+3. Comprobar que `GET https://api.getcycles.app/health` responde y que `prisma migrate status` no tiene migraciones pendientes.
+4. Probar a mano: crear una sesión por día en un ciclo de prueba y comprobar que la app iOS sigue mostrando «Hoy».
 
 ### 2.6 Listo cuando
 

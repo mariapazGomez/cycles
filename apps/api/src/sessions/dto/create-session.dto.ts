@@ -1,13 +1,20 @@
 import { IsDateString, IsInt, IsOptional, IsPositive, IsString } from "class-validator";
 
+// Dos formas de ubicar la sesión:
+//  - por día: solo scheduledDate; el servidor calcula la semana y el espacio, y
+//    permite varias sesiones el mismo día (Biblioteca del coach);
+//  - por celda: weekNumber y slotNumber (la grilla anterior, con tope de
+//    sesiones por semana).
 export class CreateSessionDto {
+  @IsOptional()
   @IsInt()
   @IsPositive()
-  weekNumber!: number;
+  weekNumber?: number;
 
+  @IsOptional()
   @IsInt()
   @IsPositive()
-  slotNumber!: number;
+  slotNumber?: number;
 
   @IsString()
   routineId!: string;
