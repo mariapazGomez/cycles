@@ -20,6 +20,7 @@ import { CyclePageSkeleton, PlanCalendarSkeleton, Skeleton } from "../components
 import { useAuth } from "../hooks/useAuth";
 import { ApiError } from "../services/httpClient";
 import { AthleteCycle } from "../components/AthleteCycle";
+import { libraryPath } from "../lib/library";
 import { track } from "../lib/analytics";
 
 const CYCLE_STATUS_LABEL: Record<CycleStatus, string> = {
@@ -100,8 +101,8 @@ export function CycleDetailPage() {
 
   return (
     <div className="pl-page">
-      <Link className="rt-back" to="/cycles">
-        ← Ciclos
+      <Link className="rt-back" to={libraryPath("cycle")}>
+        ← Biblioteca
       </Link>
 
       <div className="page-header" style={{ marginTop: 8 }}>
@@ -533,7 +534,7 @@ function CycleGrid({
 
       {isCoach && routinesQuery.data && routinesQuery.data.length === 0 && (
         <p style={{ color: "var(--color-ink-secondary)" }}>
-          Todavía no tienes rutinas. <Link to="/routines">Arma una primero</Link> para poder asignarla aquí.
+          Todavía no tienes rutinas. <Link to="/routines/new">Arma una primero</Link> para poder asignarla aquí.
         </p>
       )}
 

@@ -24,11 +24,8 @@ export function AppLayout() {
               <NavLink to="/athletes" className={navLinkClass}>
                 Atletas
               </NavLink>
-              <NavLink to="/cycles" className={navLinkClass}>
-                Ciclos
-              </NavLink>
-              <NavLink to="/routines" className={navLinkClass}>
-                Rutinas
+              <NavLink to="/biblioteca" className={navLinkClass}>
+                Biblioteca
               </NavLink>
             </nav>
           )}
