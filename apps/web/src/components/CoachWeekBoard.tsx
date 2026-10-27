@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import type { TrainingCycle } from "@cycles/shared";
 import type { AthleteStatus } from "../lib/coachHome";
+import { libraryPath } from "../lib/library";
 import type { AttentionItem } from "../services/trackingApi";
 import { dayOfMonth, weekRangeLabel, weekdayShort } from "../lib/weekCalendar";
 import { attentionBadge, BoardSession, sessionsByDay, weekDays, weekSummary } from "../lib/weekBoard";
@@ -181,7 +182,7 @@ export function CoachWeekBoard({ rows, monday, todayIso, onDismiss, onApplied }:
                     {row.status === "no_plan" && (
                       <>
                         {" "}
-                        <Link to="/cycles">Crear ciclo</Link>
+                        <Link to={libraryPath("cycle", "ciclo")}>Crear ciclo</Link>
                       </>
                     )}
                   </p>

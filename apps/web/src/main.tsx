@@ -16,6 +16,7 @@ import "./styles/calendar.css";
 import "./styles/athlete-cycle.css";
 import "./styles/week-views.css";
 import "./styles/athletes.css";
+import "./styles/library.css";
 import { initAnalytics } from "./lib/analytics";
 import "./styles/landing.css";
 
