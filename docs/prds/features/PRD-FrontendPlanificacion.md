@@ -5,7 +5,7 @@ parent: "[[PRD-General]]"
 status: in-progress
 phase: "Fase 2 — Planificación"
 created: 2026-09-22
-updated: 2026-09-23
+updated: 2026-10-27
 tags: [prd, feature/frontend-planificacion]
 related: ["[[PRD-CRUDCiclos]]", "[[PRD-CRUDSesiones]]", "[[PRD-CatalogoEjercicios]]"]
 ---
@@ -39,7 +39,7 @@ Dado que la identidad de marca se decide después, el frontend de esta pieza se 
 |---|---|---|
 | `/` (layout con nav) | Reemplaza el `HomePage` actual; header con navegación | — |
 | `/athletes` | Lo que hoy vive en `HomePage` (`AthletesPanel`), movido a su propia ruta | `GET/POST /athletes` |
-| `/cycles` | Lista de ciclos propios + formulario de creación inline (atleta de sus relaciones `active`, nombre, objetivo, fechas) | `GET/POST /cycles`, `GET /athletes` |
+| `/biblioteca` | **Desde 2026-10-27** reúne las rutinas y los ciclos del coach en una lista con filtros (Todo, Rutinas, Ciclos), buscador y botón Crear (Rutina o Ciclo). El formulario de creación de ciclo (atleta de sus relaciones `active`, nombre, objetivo, fechas) se abre inline desde ahí. Reemplaza a `/cycles` y `/routines` del coach, que redirigen a `/biblioteca?tipo=ciclos` y `/biblioteca?tipo=rutinas`. Diseño en `docs/diseno/biblioteca` | `GET/POST /cycles`, `GET /routines`, `DELETE /routines/:id`, `GET /athletes` |
 | `/cycles/:id` | Detalle editable del ciclo + lista de sus sesiones + botón "Agregar sesión" | `GET/PATCH /cycles/:id`, `GET /cycles/:id/sessions` |
 | `/sessions/:id` | Detalle editable de la sesión + lista de ejercicios con sus metas + selector para agregar ejercicios del catálogo | `GET/PATCH/DELETE /sessions/:id`, `POST/PATCH/DELETE /sessions/.../exercises`, `GET /exercises` |
 | `/exercises` (opcional, prioridad baja) | Catálogo completo + formulario para crear un ejercicio propio | `GET/POST /exercises`, `PATCH /exercises/:id/deactivate` |

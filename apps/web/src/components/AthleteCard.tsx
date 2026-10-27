@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { AthleteStatus } from "../lib/coachHome";
 import { planWeekOf } from "../lib/format";
+import { libraryPath } from "../lib/library";
 import { totalWeeks } from "../lib/planGrid";
 import { attentionBadge, sessionsByDay, weekDays, type BoardSession } from "../lib/weekBoard";
 import { dayOfMonth, weekdayShort } from "../lib/weekCalendar";
@@ -157,7 +158,7 @@ export function AthleteCard({ row, monday, todayIso, adherence, adherenceLoading
           </Link>
         )}
         {row.status === "no_plan" && (
-          <Link className="button-primary" to="/cycles">
+          <Link className="button-primary" to={libraryPath("cycle", "ciclo")}>
             Crear ciclo
           </Link>
         )}

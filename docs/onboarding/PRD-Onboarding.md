@@ -77,7 +77,7 @@ Cada rol tiene su recorrido con **punto de partida, primer valor, pasos, estados
 | Paso | Qué hace | Qué ve hoy | Qué debería ver [hipótesis] |
 |---|---|---|---|
 | C1 | Crea cuenta y verifica | Pantalla *Revisa tu email*, luego login | Igual, pero al entrar llega a una bienvenida con el recorrido |
-| C2 | Crea su primera rutina | Menú **Rutinas** vacío | Estado vacío con acción *Crea tu primera rutina* |
+| C2 | Crea su primera rutina | Menú **Biblioteca** vacío | Estado vacío con acción *Crea tu primera rutina* |
 | C3 | Invita a su primer atleta | Menú **Atletas** | Estado vacío con acción *Invita a tu primera atleta* |
 | C4 | Crea el plan | Menú **Planes**, solo atletas activos en la lista | Si no hay atletas activos, explicar que hay que esperar la aceptación |
 | C5 | Asigna la primera sesión | Hay que ir además a *Editar plan → Estado: Activo* | Al asignar la primera sesión el plan se activa solo, con aviso (§5.4) |

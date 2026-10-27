@@ -39,7 +39,7 @@ Hay dos formas. Las dos terminan en una cuenta de coach.
 
 Las rutinas son la base del plan: se arman una vez y se reutilizan en muchas sesiones.
 
-1. Menú **Rutinas** → **Crear rutina**.
+1. Menú **Biblioteca** → **Crear** → **Rutina**.
 2. Ponerle **nombre** (por ejemplo, "Torso A").
 3. Agregar ejercicios del catálogo, cada uno con **series**, **reps**, **descanso** en segundos y, si quiere, las **reps en reserva** objetivo.
 4. **Crear rutina**.

@@ -9,6 +9,7 @@ import { ExercisePicker } from "../components/ExercisePicker";
 import { EmptyState } from "../components/EmptyState";
 import { muscleGroupLabel } from "../lib/muscleGroups";
 import { formatInteger, formatNumber } from "../lib/format";
+import { libraryPath } from "../lib/library";
 import { computeRoutineStats, isRowComplete, parseNumber } from "../lib/routineStats";
 import { track } from "../lib/analytics";
 
@@ -113,7 +114,7 @@ export function RoutineEditorPage() {
     onSuccess: () => {
       if (!id) track("routine_created", { exercises: rows.length });
       queryClient.invalidateQueries({ queryKey: ["routines"] });
-      navigate("/routines");
+      navigate(libraryPath("routine"));
     },
     onError: (error: unknown) => {
       setFormError(error instanceof ApiError ? error.message : "No se pudo guardar la rutina.");
@@ -185,8 +186,8 @@ export function RoutineEditorPage() {
   if (id && routineQuery.isError) {
     return (
       <div className="stack">
-        <Link className="rt-back" to="/routines">
-          ← Rutinas
+        <Link className="rt-back" to={libraryPath("routine")}>
+          ← Biblioteca
         </Link>
         <div className="error-banner">No se encontró la rutina.</div>
       </div>
@@ -203,8 +204,8 @@ export function RoutineEditorPage() {
 
   return (
     <form className="rt-page" onSubmit={handleSubmit} noValidate>
-      <Link className="rt-back" to="/routines">
-        ← Rutinas
+      <Link className="rt-back" to={libraryPath("routine")}>
+        ← Biblioteca
       </Link>
       <div className="page-header" style={{ marginTop: 8 }}>
         <h1 className="page-title">{id ? "Editar rutina" : "Nueva rutina"}</h1>
@@ -455,7 +456,7 @@ export function RoutineEditorPage() {
             <button type="submit" className="button-primary" disabled={saveMutation.isPending}>
               {saveLabel}
             </button>
-            <Link className="button-secondary" to="/routines">
+            <Link className="button-secondary" to={libraryPath("routine")}>
               Cancelar
             </Link>
           </div>

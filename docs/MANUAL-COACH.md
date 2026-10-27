@@ -27,7 +27,7 @@ Durante la fase de early adopters **el registro está cerrado**: solo entran per
 
 Una rutina es una sesión de entrenamiento que armas una vez y reutilizas en todos los ciclos que quieras (por ejemplo, "Torso A").
 
-1. Menú **Rutinas** → **Crear rutina**.
+1. Menú **Biblioteca** → **Crear** → **Rutina**.
 2. Ponle un **nombre**.
 3. Busca y agrega ejercicios del catálogo.
 4. En cada ejercicio define **series**, **reps**, **peso** (si quieres), **descanso** en segundos y **reps en reserva** objetivo.
@@ -61,7 +61,7 @@ Tu atleta aparece en *Mis atletas* como **Pendiente**. Le llega un correo con un
 
 Un ciclo organiza las semanas de entrenamiento de un atleta. Solo aparecen en la lista los atletas que ya aceptaron.
 
-1. Menú **Ciclos** → **Crear ciclo**.
+1. Menú **Biblioteca** → **Crear** → **Ciclo**.
 2. Elige:
    - **Atleta**
    - **Tipo de ciclo**: *microciclo* (pocas semanas), *mesociclo* (un bloque) o *macrociclo* (agrupa otros ciclos)

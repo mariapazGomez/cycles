@@ -1,0 +1,198 @@
+/* Biblioteca del coach: rutinas y ciclos en una sola lista. Diseño en
+   docs/diseno/biblioteca. Reutiliza los filtros y el buscador de athletes.css. */
+
+.lb-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lb-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-e1);
+  transition: box-shadow 150ms ease, transform 150ms ease;
+}
+
+.lb-row:hover {
+  box-shadow: var(--shadow-e2);
+  transform: translateY(-1px);
+}
+
+.lb-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.lb-main h2 {
+  margin: 0;
+  overflow: hidden;
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lb-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  min-width: 0;
+}
+
+.lb-who {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.lb-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.lb-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Ícono de tipo: rutina sobre azul pálido, ciclo sobre tinta oscura. */
+.lb-icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+}
+
+.lb-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.lb-icon-routine {
+  background: var(--color-blue-100);
+  color: var(--color-blue);
+}
+
+.lb-icon-cycle {
+  background: var(--color-ink);
+  color: #ffffff;
+}
+
+.lb-icon-sm {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+}
+
+.lb-icon-sm svg {
+  width: 16px;
+  height: 16px;
+}
+
+.lb-pill-cycle {
+  background: var(--color-ink);
+  color: #ffffff;
+}
+
+/* Menú Crear */
+.lb-menu {
+  position: relative;
+}
+
+.lb-menu-list {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 10;
+  min-width: 200px;
+  padding: 6px;
+  border-radius: 14px;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-e3);
+}
+
+.lb-menu-list button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  font: 600 0.9rem Inter, system-ui, sans-serif;
+  color: var(--color-ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.lb-menu-list button:hover,
+.lb-menu-list button:focus-visible {
+  background: var(--color-gray-light);
+}
+
+.lb-form {
+  padding: 20px;
+  border-radius: 18px;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-e1);
+}
+
+.lb-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lb-error span {
+  flex: 1;
+}
+
+.lb-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+@media (max-width: 640px) {
+  .lb-row {
+    gap: 8px 12px;
+  }
+
+  .lb-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .lb-main h2 {
+    white-space: normal;
+  }
+
+  .at-search {
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+}

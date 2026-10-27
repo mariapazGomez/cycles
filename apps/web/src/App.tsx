@@ -23,10 +23,11 @@ import { AthletesPage } from "./pages/AthletesPage";
 import { CyclesPage } from "./pages/CyclesPage";
 import { CycleDetailPage } from "./pages/CycleDetailPage";
 import { SessionDetailPage } from "./pages/SessionDetailPage";
-import { RoutinesPage } from "./pages/RoutinesPage";
+import { BibliotecaPage } from "./pages/BibliotecaPage";
 import { RoutineEditorPage } from "./pages/RoutineEditorPage";
 import { AthleteSummaryPage } from "./pages/AthleteSummaryPage";
 import { SessionLogPage } from "./pages/SessionLogPage";
+import { libraryPath } from "./lib/library";
 
 // "/" es la landing para quien no tiene sesión y el inicio de la app para quien
 // sí; el resto de rutas bajo "/" siguen exigiendo sesión.
@@ -41,6 +42,13 @@ function RootGate() {
       <AppLayout />
     </ProtectedRoute>
   );
+}
+
+// «Ciclos» del coach ahora vive en la Biblioteca; el atleta conserva «Mis ciclos».
+function CyclesRoute() {
+  const { user } = useAuth();
+  if (user?.role === "coach") return <Navigate to={libraryPath("cycle")} replace />;
+  return <CyclesPage />;
 }
 
 // El registro está cerrado al público (early adopters): se entra con el enlace
@@ -120,8 +128,9 @@ export function App() {
         <Route path="athletes" element={<AthletesPage />} />
         <Route path="athletes/:athleteId" element={<AthleteSummaryPage />} />
         <Route path="calendar" element={<CalendarPage />} />
-        <Route path="cycles" element={<CyclesPage />} />
-        <Route path="routines" element={<RoutinesPage />} />
+        <Route path="biblioteca" element={<BibliotecaPage />} />
+        <Route path="cycles" element={<CyclesRoute />} />
+        <Route path="routines" element={<Navigate to={libraryPath("routine")} replace />} />
         <Route path="routines/new" element={<RoutineEditorPage />} />
         <Route path="routines/:id" element={<RoutineEditorPage />} />
         <Route path="cycles/:id" element={<CycleDetailPage />} />

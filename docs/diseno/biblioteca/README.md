@@ -1,7 +1,7 @@
 ---
 type: design
 parent: "[[PRD-RutinasYProgramacion]]"
-status: approved
+status: partially-implemented
 tags: [diseno, biblioteca, rutinas, ciclos, coach]
 created: 2026-10-27
 updated: 2026-10-27
@@ -9,7 +9,7 @@ updated: 2026-10-27
 
 # Biblioteca del coach
 
-> **Diseño aprobado el 2026-10-27, sin construir.** Reemplaza las pestañas **Ciclos** y **Rutinas** del coach por una sola, **Biblioteca**, y suma un «+» visible en cada día del calendario del ciclo, que vive en la **pestaña del atleta**, no en la Biblioteca. La Biblioteca es además la fuente de material que más adelante podrá consultar el agente; hoy es solo una lista y no se menciona IA en la interfaz (ver [[marca-personal-storytelling]]: la IA es horizonte, no producto).
+> **Diseño aprobado el 2026-10-27. La Biblioteca (pantalla 1) está implementada en la web (PR `feat/biblioteca`, CYC-165); la pestaña del atleta con calendario y los ciclos plantilla (pantalla 2, CYC-166) siguen sin construir.** Reemplaza las pestañas **Ciclos** y **Rutinas** del coach por una sola, **Biblioteca**, y suma un «+» visible en cada día del calendario del ciclo, que vive en la **pestaña del atleta**, no en la Biblioteca. La Biblioteca es además la fuente de material que más adelante podrá consultar el agente; hoy es solo una lista y no se menciona IA en la interfaz (ver [[marca-personal-storytelling]]: la IA es horizonte, no producto).
 
 ## Cómo verla
 
@@ -58,7 +58,7 @@ Hoy el calendario está en una página aparte (`/cycles/:id`) y la pestaña del 
 - **Plantilla sin fechas:** se define por nombre, objetivo, número de semanas y sesiones por semana (la guía); la fecha de inicio se pide al asignarla. La plantilla **no lleva rutinas dentro**: las rutinas se ponen con el «+» en el calendario del atleta, ya con el ciclo asignado. Si más adelante se quiere una plantilla con rutinas ya puestas, habría que sumar un editor de plantillas.
 - **Ruta del atleta:** el calendario pasaría de `/cycles/:id` a la pestaña del atleta, por ejemplo `/athletes/:id?ciclo=…`. `/cycles/:id` redirigiría ahí.
 
-## Qué se construiría después (PR 2 y PR 3)
+## Cómo se construye (PR 2 y PR 3)
 
 | PR | Qué | API y base de datos |
 |---|---|---|
@@ -66,3 +66,12 @@ Hoy el calendario está en una página aparte (`/cycles/:id`) y la pestaña del 
 | 3 | Pestaña del atleta con vistas Ciclo y Resumen y selector de ciclo, «+» por día, y ciclo plantilla | Migración que hace `athleteId` opcional, crear y asignar plantilla, y sesiones por fecha |
 
 El atleta conserva «Mis ciclos» y la app móvil no cambia en el PR 2.
+
+## Cómo quedó la Biblioteca construida (PR 2)
+
+- Ruta `/biblioteca`, página `BibliotecaPage`; la lógica de filtros y buscador está en `apps/web/src/lib/library.ts`, los íconos en `TypeIcon` y el formulario de ciclo extraído a `CreateCycleForm`.
+- Una sola lista ordenada por nombre. Los ciclos muestran al atleta con su avatar; las rutinas, sus grupos musculares. El buscador ignora mayúsculas y tildes y mira el nombre, el atleta y los grupos.
+- El botón **Crear** abre un menú: **Rutina** va al constructor y **Ciclo** abre el formulario sobre la lista. Los botones «Crear ciclo» del Inicio y de las tarjetas de atletas llevan a `/biblioteca?crear=ciclo`.
+- `/routines` y `/cycles` redirigen a la Biblioteca solo para el coach. El atleta conserva `/cycles` como «Mis ciclos». Quien no es coach y abre `/biblioteca` vuelve al inicio.
+- Hoy el ciclo todavía pide un atleta: el ciclo plantilla sin atleta llega con el PR 3. Las filas de ciclo dicen **Abrir** y llevan a `/cycles/:id`; pasarán a **Ver en el atleta** cuando el calendario viva en la ficha del atleta.
+- No hay ejecutor de pruebas en `apps/web` (ni Jest ni Vitest), así que el filtro y el buscador se probaron en el navegador con una API simulada. Queda pendiente sumar pruebas automáticas cuando exista ese ejecutor (ver `docs/DEUDA-TECNICA.md`).
