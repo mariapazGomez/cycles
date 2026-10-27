@@ -38,8 +38,10 @@ function toDateInput(iso: string): string {
   return iso.slice(0, 10);
 }
 
+// Las fechas del ciclo se guardan a medianoche UTC: se leen en UTC para que un
+// 21 de octubre no se vea como 20 en una zona al oeste de Greenwich.
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" });
+  return new Date(iso).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" });
 }
 
 export function CycleDetailPage() {
