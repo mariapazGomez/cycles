@@ -73,5 +73,16 @@ El atleta conserva «Mis ciclos» y la app móvil no cambia en el PR 2.
 - Una sola lista ordenada por nombre. Los ciclos muestran al atleta con su avatar; las rutinas, sus grupos musculares. El buscador ignora mayúsculas y tildes y mira el nombre, el atleta y los grupos.
 - El botón **Crear** abre un menú: **Rutina** va al constructor y **Ciclo** abre el formulario sobre la lista. Los botones «Crear ciclo» del Inicio y de las tarjetas de atletas llevan a `/biblioteca?crear=ciclo`.
 - `/routines` y `/cycles` redirigen a la Biblioteca solo para el coach. El atleta conserva `/cycles` como «Mis ciclos». Quien no es coach y abre `/biblioteca` vuelve al inicio.
-- Hoy el ciclo todavía pide un atleta: el ciclo plantilla sin atleta llega con el PR 3. Las filas de ciclo dicen **Abrir** y llevan a `/cycles/:id`; pasarán a **Ver en el atleta** cuando el calendario viva en la ficha del atleta.
+- Hoy el ciclo todavía pide un atleta: el ciclo plantilla sin atleta llega con el PR 3. Las filas de ciclo dicen **Ver en el atleta** y llevan a `/cycles/:id`, que redirige a la ficha del atleta (PR 3b-1).
 - No hay ejecutor de pruebas en `apps/web` (ni Jest ni Vitest), así que el filtro y el buscador se probaron en el navegador con una API simulada. Queda pendiente sumar pruebas automáticas cuando exista ese ejecutor (ver `docs/DEUDA-TECNICA.md`).
+
+## Cómo quedó la ficha del atleta construida (PR 3b-1, 2026-10-27)
+
+- Ruta `/athletes/:athleteId`, página `AthletePage`. Dos vistas, **Ciclo** (la de entrada) y **Resumen**, como botones y no como rutas: solo el ciclo elegido va en la URL (`?ciclo=<id>`). Resumen es la vista anterior (`AthleteSummaryView`) sin cambios.
+- **Selector de ciclo:** los ciclos del atleta (sin plantillas), el activo primero y después el más reciente. Si el atleta no tiene ninguno, se invita a asignar uno de la Biblioteca o crear uno. Un macrociclo se abre en su página de siempre.
+- **Calendario** (`CycleCalendarView` y `PlanCalendar`): cada día de la semana tiene un «+» siempre visible; en un día con sesiones el «+» es pequeño y tenue. Las sesiones se ubican por fecha (`scheduledDate`) y se crean sin elegir semana ni espacio (`POST /cycles/:id/sessions` solo con `routineId` y `scheduledDate`). «Repetir este día en las semanas que siguen vacías» crea una sesión el mismo día de cada semana siguiente que no tenga sesión ese día. El resumen de cada semana dice «2 de 4 planificadas»: es una guía, no un tope.
+- **Celular:** cada semana es una lista de los siete días, todos con su «+»; los días sin sesión ya no se ocultan para el coach.
+- **Asignar ciclo de la Biblioteca:** panel con la lista de plantillas (`GET /cycles?templates=only`) y la fecha de inicio; crea la copia (`POST /cycles/:id/assign`) y la deja seleccionada. Mientras no existan plantillas (se crean en el PR 3b-2) el panel invita a crearlas en la Biblioteca.
+- **«Editar ciclo»** pasó a `CycleEditForm`, compartido con la página del macrociclo.
+- `/cycles/:id` redirige al coach a la ficha del atleta con ese ciclo seleccionado; los enlaces de avisos, notificaciones y sesiones siguen funcionando por esa redirección.
+- Probado en el navegador con una API simulada: dos sesiones el mismo día, asignar con repetición (seis fechas enviadas), cambio de ciclo, panel de asignar plantilla y vista de celular. No se probó contra la API real.

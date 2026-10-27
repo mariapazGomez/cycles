@@ -25,7 +25,7 @@ import { CycleDetailPage } from "./pages/CycleDetailPage";
 import { SessionDetailPage } from "./pages/SessionDetailPage";
 import { BibliotecaPage } from "./pages/BibliotecaPage";
 import { RoutineEditorPage } from "./pages/RoutineEditorPage";
-import { AthleteSummaryPage } from "./pages/AthleteSummaryPage";
+import { AthletePage } from "./pages/AthletePage";
 import { SessionLogPage } from "./pages/SessionLogPage";
 import { libraryPath } from "./lib/library";
 
@@ -126,7 +126,7 @@ export function App() {
       >
         <Route index element={<HomePage />} />
         <Route path="athletes" element={<AthletesPage />} />
-        <Route path="athletes/:athleteId" element={<AthleteSummaryPage />} />
+        <Route path="athletes/:athleteId" element={<AthletePage />} />
         <Route path="calendar" element={<CalendarPage />} />
         <Route path="biblioteca" element={<BibliotecaPage />} />
         <Route path="cycles" element={<CyclesRoute />} />

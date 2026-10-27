@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import * as trackingApi from "../services/trackingApi";
 import { ApiError } from "../services/httpClient";
@@ -20,8 +19,8 @@ function effortPill(exercise: Exercise) {
   return <span className="pill">En objetivo</span>;
 }
 
-export function AthleteSummaryPage() {
-  const { athleteId = "" } = useParams();
+// Vista «Resumen» de la ficha del atleta (AthletePage): carga, adherencia y ejercicios.
+export function AthleteSummaryView({ athleteId }: { athleteId: string }) {
   const summaryQuery = useQuery({
     queryKey: ["athletes", athleteId, "summary"],
     queryFn: () => trackingApi.getAthleteSummary(athleteId),
@@ -46,15 +45,6 @@ export function AthleteSummaryPage() {
 
   return (
     <div className="stack">
-      <div>
-        <Link className="page-back" to="/athletes">
-          ← Atletas
-        </Link>
-        <div className="page-header" style={{ marginBottom: 0 }}>
-          <h1 className="page-title">{summary.athlete.name}</h1>
-        </div>
-      </div>
-
       {applied && (
         <div className="success-banner" role="status">
           <strong>Ajuste aplicado.</strong> {applied}

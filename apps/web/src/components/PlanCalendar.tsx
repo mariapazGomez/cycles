@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import type { TrainingSession } from "@cycles/shared";
 import type { CycleProgress } from "../services/trackingApi";
-import { cellKey, weekState } from "../lib/planGrid";
+import { weekState } from "../lib/planGrid";
 import {
   addDays,
   columnLabels,
@@ -20,20 +20,20 @@ type ProgressSession = CycleProgress["sessions"][number];
 interface PlanCalendarProps {
   startDate: string;
   weeks: number;
+  // Sesiones por semana que sugiere el ciclo: es una guía, no un tope.
   slots: number;
   currentWeek: number;
   // Día de hoy ("AAAA-MM-DD") para marcarlo en la grilla.
   todayIso: string;
-  sessionByCell: Map<string, TrainingSession>;
+  sessions: TrainingSession[];
   progressById: Map<string, ProgressSession>;
   isCoach: boolean;
-  onAssign: (week: number, slot: number) => void;
+  // Día elegido para sumar una sesión ("AAAA-MM-DD").
+  onAssign: (dayIso: string) => void;
+  // Día con el panel de asignar abierto, para resaltar su «+».
+  assigningDay?: string | null;
 }
 
-interface DayEntry {
-  slot: number;
-  session?: TrainingSession;
-}
 
 function formatEffort(value: number): string {
   return String(Math.round(value * 10) / 10).replace(".", ",");
@@ -92,10 +92,11 @@ export function PlanCalendar({
   slots,
   currentWeek,
   todayIso,
-  sessionByCell,
+  sessions,
   progressById,
   isCoach,
   onAssign,
+  assigningDay,
 }: PlanCalendarProps) {
   const [toggled, setToggled] = useState<Record<number, boolean>>({});
   const labels = columnLabels(startDate);
@@ -111,7 +112,7 @@ export function PlanCalendar({
     );
     return diff < 0 || diff > 6;
   };
-  const hasTentative = [...sessionByCell.values()].some((s) => isTentative(s, s.weekNumber));
+  const hasTentative = sessions.some((s) => isTentative(s, s.weekNumber));
 
   return (
     <div className="pc">
@@ -134,24 +135,24 @@ export function PlanCalendar({
           const first = weekStartIso(startDate, week);
           const open = toggled[week] ?? (ended || state !== "past");
 
-          const days: DayEntry[][] = Array.from({ length: 7 }, () => []);
+          const days: TrainingSession[][] = Array.from({ length: 7 }, () => []);
+          const inWeek = sessions
+            .filter((session) => session.weekNumber === week)
+            .sort((x, y) => x.slotNumber - y.slotNumber);
           let assigned = 0;
           let completed = 0;
           let series = 0;
           const efforts: number[] = [];
-          for (let slot = 1; slot <= slots; slot++) {
-            const session = sessionByCell.get(cellKey(week, slot));
-            const offset = sessionOffset(startDate, week, slot, slots, session?.scheduledDate);
-            days[offset].push({ slot, session });
-            if (session) {
-              assigned += 1;
-              if (session.status === "completed") {
-                completed += 1;
-                const progress = progressById.get(session.id);
-                series += progress?.exercises.reduce((sum, e) => sum + e.actual.sets.length, 0) ?? 0;
-                const srpe = progress?.feedback?.srpe;
-                if (typeof srpe === "number") efforts.push(srpe);
-              }
+          for (const session of inWeek) {
+            const offset = sessionOffset(startDate, week, session.slotNumber, slots, session.scheduledDate);
+            days[offset].push(session);
+            assigned += 1;
+            if (session.status === "completed") {
+              completed += 1;
+              const progress = progressById.get(session.id);
+              series += progress?.exercises.reduce((sum, e) => sum + e.actual.sets.length, 0) ?? 0;
+              const srpe = progress?.feedback?.srpe;
+              if (typeof srpe === "number") efforts.push(srpe);
             }
           }
           const effort = efforts.length ? efforts.reduce((a, b) => a + b, 0) / efforts.length : null;
@@ -179,53 +180,50 @@ export function PlanCalendar({
                 days.map((entries, offset) => {
                   const iso = addDays(first, offset);
                   const isToday = iso === todayIso;
+                  const addButton = isCoach && (
+                    <button
+                      type="button"
+                      className={`pc-add${entries.length > 0 ? " pc-add-more" : ""}${assigningDay === iso ? " pc-add-open" : ""}`}
+                      aria-label={`${entries.length > 0 ? "Agregar otra sesión" : "Asignar rutina"} el ${weekdayShort(iso)} ${dayOfMonth(iso)}`}
+                      aria-pressed={assigningDay === iso}
+                      onClick={() => onAssign(iso)}
+                    >
+                      <span className="pc-cell-day" aria-hidden="true">
+                        {dayOfMonth(iso)}
+                      </span>
+                      +
+                    </button>
+                  );
                   return (
-                    <div key={offset} className={`pc-day${isToday ? " pc-day-today" : ""}${entries.length === 0 ? " pc-day-rest" : ""}`}>
+                    <div key={offset} className={`pc-day${isToday ? " pc-day-today" : ""}${entries.length === 0 && !isCoach ? " pc-day-rest" : ""}`}>
                       <span className="pc-day-name" aria-hidden="true">
                         {labels[offset]} {dayOfMonth(iso)}
                       </span>
-                      {entries.map(({ slot, session }) =>
-                        session ? (
-                          <SessionCell
-                            key={slot}
-                            session={session}
-                            progress={progressById.get(session.id)}
-                            dayNumber={dayOfMonth(iso)}
-                            dayName={weekdayShort(iso)}
-                            tentative={session.status === "pending" && isTentative(session, week)}
-                          />
-                        ) : isCoach ? (
-                          <button
-                            key={slot}
-                            type="button"
-                            className="pc-add"
-                            aria-label={`Asignar rutina el ${weekdayShort(iso)} ${dayOfMonth(iso)}`}
-                            onClick={() => onAssign(week, slot)}
-                          >
-                            <span className="pc-cell-day" aria-hidden="true">
-                              {dayOfMonth(iso)}
-                            </span>
-                            + Asignar
-                          </button>
-                        ) : (
-                          <span key={slot} className="pc-none" aria-label="Sin sesión asignada" />
-                        ),
-                      )}
+                      {entries.map((session) => (
+                        <SessionCell
+                          key={session.id}
+                          session={session}
+                          progress={progressById.get(session.id)}
+                          dayNumber={dayOfMonth(iso)}
+                          dayName={weekdayShort(iso)}
+                          tentative={session.status === "pending" && isTentative(session, week)}
+                        />
+                      ))}
+                      {addButton || (entries.length === 0 && <span className="pc-none" aria-label="Sin sesión asignada" />)}
                     </div>
                   );
                 })
               ) : (
                 <div className="pc-mini">
-                  {days.some((entries) => entries.some((e) => e.session)) ? (
+                  {days.some((entries) => entries.length > 0) ? (
                     days.map((entries, offset) =>
-                      entries.map(({ slot, session }) => {
-                        if (!session) return null;
+                      entries.map((session) => {
                         const progress = progressById.get(session.id);
                         const done = session.status === "completed";
                         const skipped = session.status === "skipped";
                         return (
                           <Link
-                            key={`${offset}-${slot}`}
+                            key={session.id}
                             to={`/sessions/${session.id}`}
                             className={`pc-chip${done ? " pc-chip-done" : skipped ? " pc-chip-skip" : ""}`}
                             aria-label={`${session.name}, ${weekdayShort(addDays(first, offset))} ${dayOfMonth(addDays(first, offset))}, ${done ? "completada" : skipped ? "omitida" : "pendiente"}`}
@@ -251,6 +249,11 @@ export function PlanCalendar({
                     <b>
                       {completed} de {assigned}
                     </b>
+                    {slots > 0 && (
+                      <span>
+                        {assigned} de {slots} planificadas
+                      </span>
+                    )}
                     {series > 0 && <span>{series} series</span>}
                     {effort !== null && <span>Esfuerzo {formatEffort(effort)}</span>}
                   </>
