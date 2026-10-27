@@ -1,0 +1,354 @@
+/* Pestaña Atletas: tarjetas por atleta, filtros y búsqueda. Comparte el
+   lenguaje de elevación del calendario (--shadow-e1/e2/e3, ver global.css y
+   week-views.css). Espaciado en escala de 4 px. */
+.at-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.at-invite-btn {
+  width: auto;
+  padding: 8px 20px;
+}
+
+/* ---------- Invitar ---------- */
+.at-invite {
+  margin-bottom: 16px;
+  padding: 18px 20px;
+  border-radius: 18px;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-e3);
+  animation: cy-rise 220ms ease-out both;
+}
+
+.at-invite h2 {
+  margin: 0 0 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.at-invite-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 16px;
+}
+
+.at-invite-form .field {
+  flex: 1 1 220px;
+  max-width: 320px;
+  margin: 0;
+}
+
+.at-invite-form .button-primary {
+  width: auto;
+  padding: 10px 20px;
+}
+
+/* ---------- Filtros y búsqueda ---------- */
+.at-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.at-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cb-chip em.at-count {
+  background: var(--color-gray-light);
+  color: var(--color-ink-secondary);
+}
+
+.cb-chip[aria-pressed="true"] em.at-count {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.at-search {
+  margin-left: auto;
+  min-width: 220px;
+}
+
+.at-search input {
+  width: 100%;
+  height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-e1);
+  font: 500 0.88rem Inter, system-ui, sans-serif;
+  color: var(--color-ink);
+  transition: box-shadow 150ms ease;
+}
+
+.at-search input:hover {
+  box-shadow: var(--shadow-e2);
+}
+
+.at-search input:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
+}
+
+.at-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.at-none {
+  padding: 32px;
+  border-radius: 18px;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-e1);
+  color: var(--color-ink-secondary);
+  text-align: center;
+}
+
+/* ---------- Tarjetas ---------- */
+.at-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.at-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: 18px;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-e1);
+  transition: box-shadow 150ms ease, transform 150ms ease;
+  animation: cy-rise 220ms ease-out both;
+}
+
+.at-card:hover {
+  box-shadow: var(--shadow-e2);
+  transform: translateY(-1px);
+}
+
+.at-card-pain {
+  box-shadow: inset 4px 0 0 #d5484d, var(--shadow-e1);
+}
+
+.at-card-warn {
+  box-shadow: inset 4px 0 0 var(--color-warn-fill), var(--shadow-e1);
+}
+
+.at-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.at-id {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.at-id a,
+.at-id b {
+  overflow: hidden;
+  color: var(--color-ink);
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.at-id a:hover {
+  text-decoration: underline;
+}
+
+.at-id small {
+  overflow: hidden;
+  font-size: 0.8rem;
+  color: var(--color-ink-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.at-badge {
+  align-self: flex-start;
+  text-decoration: none;
+}
+
+.at-badge:hover {
+  filter: brightness(0.96);
+}
+
+.at-note {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-ink-secondary);
+}
+
+.at-cycle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+
+.at-cycle a {
+  color: var(--color-ink);
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.at-cycle a:hover {
+  text-decoration: underline;
+}
+
+.at-cycle span {
+  font-size: 0.82rem;
+  color: var(--color-ink-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Semana: siete casillas con la marca de cada sesión. */
+.at-week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.at-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+  border-radius: 10px;
+}
+
+.at-day-today {
+  background: var(--color-blue-50);
+}
+
+.at-day-name {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-ink-secondary);
+}
+
+.at-day-today .at-day-name {
+  color: var(--color-blue);
+}
+
+.at-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+}
+
+.at-mark-none {
+  background: var(--color-gray-light);
+  width: 6px;
+  height: 6px;
+  margin: 6px 0;
+}
+
+.at-mark-pending {
+  box-shadow: inset 0 0 0 2px var(--color-control-border);
+}
+
+.at-mark-skip {
+  background: var(--color-warn-fill);
+  color: #ffffff;
+}
+
+.at-mark-skip svg {
+  width: 11px;
+  height: 11px;
+}
+
+.at-adherence {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--color-ink-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.at-bar {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--color-gray-light);
+  box-shadow: inset 0 1px 2px rgba(31, 34, 40, 0.1);
+}
+
+.at-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-ok-ink);
+}
+
+.at-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.at-actions .button-secondary,
+.at-actions .button-primary {
+  width: auto;
+  padding: 8px 16px;
+  text-decoration: none;
+}
+
+.at-card-sk {
+  pointer-events: none;
+}
+
+@media (max-width: 520px) {
+  .at-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .at-search {
+    flex: 1 1 100%;
+    margin-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .at-card,
+  .at-invite {
+    animation: none;
+    transition: none;
+  }
+
+  .at-card:hover {
+    transform: none;
+  }
+}

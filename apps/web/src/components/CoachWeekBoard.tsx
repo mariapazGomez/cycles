@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import type { TrainingCycle } from "@cycles/shared";
 import type { AthleteStatus } from "../lib/coachHome";
 import type { AttentionItem } from "../services/trackingApi";
 import { dayOfMonth, weekRangeLabel, weekdayShort } from "../lib/weekCalendar";
@@ -11,8 +12,11 @@ import { Skeleton } from "./Skeleton";
 export interface BoardRow {
   id: string;
   name: string;
+  email: string;
   status: AthleteStatus;
   cycleName: string | null;
+  // Ciclo activo del atleta (el de más arriba si vive dentro de un macrociclo).
+  cycle: TrainingCycle | null;
   // null mientras no se sabe (cargando) o si el atleta no tiene ciclo.
   week: BoardSession[] | null;
   weekLoading: boolean;
