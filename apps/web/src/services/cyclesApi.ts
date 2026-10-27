@@ -5,6 +5,16 @@ export function listCycles() {
   return apiRequest<TrainingCycle[]>("/cycles");
 }
 
+// Solo las plantillas del coach (ciclos sin atleta de la Biblioteca).
+export function listTemplates() {
+  return apiRequest<TrainingCycle[]>("/cycles?templates=only");
+}
+
+// Copia una plantilla para un atleta, con fechas reales desde startDate.
+export function assignTemplate(templateId: string, data: { athleteId: string; startDate: string }) {
+  return apiRequest<TrainingCycle>(`/cycles/${templateId}/assign`, { method: "POST", body: data });
+}
+
 export function getCycle(id: string) {
   return apiRequest<TrainingCycle>(`/cycles/${id}`);
 }

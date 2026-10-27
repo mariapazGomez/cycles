@@ -344,11 +344,11 @@
   position: relative;
   flex: 1;
   min-height: 88px;
-  border: 1.5px dashed transparent;
+  border: 1.5px dashed var(--color-control-border);
   border-radius: 12px;
   background: transparent;
-  color: transparent;
-  font: 600 0.84rem Inter, system-ui, sans-serif;
+  color: var(--color-ink-secondary);
+  font: 600 1.15rem Inter, system-ui, sans-serif;
   cursor: pointer;
   transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
 }
@@ -357,10 +357,32 @@
   color: #a2a7b0;
 }
 
-.pc-day:hover .pc-add,
-.pc-add:focus-visible {
+/* Otra sesión en un día ocupado: un «+» pequeño y tenue bajo las sesiones. */
+.pc-add-more {
+  flex: none;
+  min-height: 28px;
+  border-color: transparent;
+  color: #a2a7b0;
+  font-size: 1rem;
+}
+
+.pc-add-more .pc-cell-day {
+  display: none;
+}
+
+.pc-day:hover .pc-add-more,
+.pc-add-more:focus-visible {
   border-color: var(--color-control-border);
   color: var(--color-ink-secondary);
+}
+
+/* Panel de asignar abierto sobre este día. */
+.pc-add-open,
+.pc-add-open:hover {
+  border-style: solid;
+  border-color: var(--color-brand);
+  background: var(--color-blue-50);
+  color: var(--color-blue);
 }
 
 .pc-add:hover {
@@ -902,6 +924,16 @@
   .pc-cell,
   .pc-add {
     flex: 1;
+    min-height: 72px;
+  }
+
+  .pc-add > .pc-cell-day {
+    display: none;
+  }
+
+  .pc-add-more {
+    flex: none;
+    width: 40px;
     min-height: 72px;
   }
 

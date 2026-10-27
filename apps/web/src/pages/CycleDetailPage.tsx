@@ -1,27 +1,17 @@
-import { FormEvent, useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { FormEvent, useState } from "react";
+import { Link, Navigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CycleStatus, CycleType } from "@cycles/shared";
 import * as cyclesApi from "../services/cyclesApi";
-import * as sessionsApi from "../services/sessionsApi";
-import * as routinesApi from "../services/routinesApi";
-import * as trackingApi from "../services/trackingApi";
 import * as athletesApi from "../services/athletesApi";
-import { AttentionList, useDismissedAlerts } from "../components/AttentionList";
-import { planWeekOf } from "../lib/format";
-import { cellKey, emptyWeeksFrom, heroKind, planStats, totalWeeks } from "../lib/planGrid";
-import { toLocalDay } from "../lib/calendar";
-import { addDays, sessionOffset, shortDate, weekStartIso, weekdayName } from "../lib/weekCalendar";
 import { usePageBackground } from "../hooks/usePageBackground";
-import { PlanHero } from "../components/PlanHero";
-import { PlanCalendar } from "../components/PlanCalendar";
-import { CheckBadge } from "../components/CheckBadge";
-import { CyclePageSkeleton, PlanCalendarSkeleton, Skeleton } from "../components/Skeleton";
+import { CyclePageSkeleton } from "../components/Skeleton";
+import { CycleEditForm } from "../components/CycleEditForm";
 import { useAuth } from "../hooks/useAuth";
 import { ApiError } from "../services/httpClient";
 import { AthleteCycle } from "../components/AthleteCycle";
-import { libraryPath } from "../lib/library";
 import { track } from "../lib/analytics";
+import { libraryPath } from "../lib/library";
 
 const CYCLE_STATUS_LABEL: Record<CycleStatus, string> = {
   active: "Activo",
@@ -35,10 +25,6 @@ const CYCLE_TYPE_LABEL: Record<CycleType, string> = {
   macrocycle: "Macrociclo",
 };
 
-function toDateInput(iso: string): string {
-  return iso.slice(0, 10);
-}
-
 // Las fechas del ciclo se guardan a medianoche UTC: se leen en UTC para que un
 // 21 de octubre no se vea como 20 en una zona al oeste de Greenwich.
 function formatDate(iso: string): string {
@@ -49,27 +35,12 @@ export function CycleDetailPage() {
   const { id = "" } = useParams();
   const { user } = useAuth();
   const isCoach = user?.role === "coach";
-  const queryClient = useQueryClient();
 
   usePageBackground();
   const cycleQuery = useQuery({ queryKey: ["cycles", id], queryFn: () => cyclesApi.getCycle(id) });
   const athletesQuery = useQuery({ queryKey: ["athletes"], queryFn: athletesApi.listAthletes, enabled: isCoach });
 
   const [showEdit, setShowEdit] = useState(false);
-  const [editError, setEditError] = useState<string | null>(null);
-
-  const updateCycleMutation = useMutation({
-    mutationFn: (data: Parameters<typeof cyclesApi.updateCycle>[1]) => cyclesApi.updateCycle(id, data),
-    onSuccess: () => {
-      setShowEdit(false);
-      queryClient.invalidateQueries({ queryKey: ["cycles", id] });
-      queryClient.invalidateQueries({ queryKey: ["cycles"] });
-    },
-    onError: (error: unknown) => {
-      setEditError(error instanceof ApiError ? error.message : "No se pudo actualizar el ciclo.");
-    },
-  });
-
   if (cycleQuery.isLoading) return <CyclePageSkeleton />;
   if (cycleQuery.isError || !cycleQuery.data) {
     return <div className="error-banner">No se pudo cargar este ciclo.</div>;
@@ -86,17 +57,9 @@ export function CycleDetailPage() {
     return <AthleteCycle cycle={cycle} />;
   }
 
-  function handleEditSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setEditError(null);
-    const form = new FormData(event.currentTarget);
-    updateCycleMutation.mutate({
-      name: String(form.get("name")),
-      objective: String(form.get("objective") || "") || undefined,
-      startDate: String(form.get("startDate")),
-      endDate: String(form.get("endDate")),
-      status: form.get("status") as CycleStatus,
-    });
+  // El calendario del coach vive en la ficha del atleta (docs/diseno/biblioteca).
+  if (isCoach && cycle.cycleType !== "macrocycle" && cycle.athleteId) {
+    return <Navigate to={`/athletes/${cycle.athleteId}?ciclo=${cycle.id}`} replace />;
   }
 
   return (
@@ -137,69 +100,14 @@ export function CycleDetailPage() {
         )}
       </div>
 
-      {showEdit && (
-        <form onSubmit={handleEditSubmit} noValidate className="hm-card pl-form">
-          {editError && <div className="error-banner">{editError}</div>}
-
-          <div className="field">
-            <label htmlFor="editName">Nombre</label>
-            <input id="editName" name="name" type="text" required defaultValue={cycle.name} />
-          </div>
-
-          <div className="field">
-            <label htmlFor="editObjective">Objetivo</label>
-            <input id="editObjective" name="objective" type="text" defaultValue={cycle.objective ?? ""} />
-          </div>
-
-          <div style={{ display: "flex", gap: 12 }}>
-            <div className="field" style={{ flex: 1 }}>
-              <label htmlFor="editStart">Inicio</label>
-              <input
-                id="editStart"
-                name="startDate"
-                type="date"
-                required
-                defaultValue={toDateInput(cycle.startDate)}
-              />
-            </div>
-            <div className="field" style={{ flex: 1 }}>
-              <label htmlFor="editEnd">Fin</label>
-              <input
-                id="editEnd"
-                name="endDate"
-                type="date"
-                required
-                defaultValue={toDateInput(cycle.endDate)}
-              />
-            </div>
-          </div>
-
-          <div className="field">
-            <label htmlFor="editStatus">Estado</label>
-            <select id="editStatus" name="status" defaultValue={cycle.status}>
-              {Object.entries(CYCLE_STATUS_LABEL).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <button
-            type="submit"
-            className="button-primary"
-            style={{ width: "auto" }}
-            disabled={updateCycleMutation.isPending}
-          >
-            {updateCycleMutation.isPending ? "Guardando…" : "Guardar cambios"}
-          </button>
-        </form>
-      )}
+      {showEdit && <CycleEditForm cycle={cycle} onClose={() => setShowEdit(false)} />}
 
       {cycle.cycleType === "macrocycle" ? (
         <MacrocycleChildren cycleId={cycle.id} athleteId={cycle.athleteId} isCoach={isCoach} />
       ) : (
-        <CycleGrid cycle={cycle} isCoach={isCoach} athlete={athlete} />
+        <p className="hm-card pl-form">
+          Este ciclo no tiene atleta. Asígnalo a uno desde la ficha del atleta para planificar sus días.
+        </p>
       )}
     </div>
   );
@@ -377,250 +285,6 @@ function MacrocycleChildren({
           </ul>
         )}
       </div>
-    </div>
-  );
-}
-
-function CycleGrid({
-  cycle,
-  isCoach,
-  athlete,
-}: {
-  cycle: Awaited<ReturnType<typeof cyclesApi.getCycle>>;
-  isCoach: boolean;
-  athlete: { id: string; name: string } | null;
-}) {
-  const queryClient = useQueryClient();
-  const sessionsQuery = useQuery({
-    queryKey: ["cycles", cycle.id, "sessions"],
-    queryFn: () => sessionsApi.listSessions(cycle.id),
-  });
-  const routinesQuery = useQuery({
-    queryKey: ["routines"],
-    queryFn: routinesApi.listRoutines,
-    enabled: isCoach,
-  });
-  // Lo que el atleta registró en cada celda (esfuerzo, minutos, dolor) y los
-  // avisos de este plan. Solo el coach los ve.
-  const progressQuery = useQuery({
-    queryKey: ["cycles", cycle.id, "progress"],
-    queryFn: () => trackingApi.getCycleProgress(cycle.id),
-    enabled: isCoach,
-  });
-  const attentionQuery = useQuery({ queryKey: ["attention"], queryFn: trackingApi.getAttention, enabled: isCoach });
-  const { isDismissed, dismiss } = useDismissedAlerts();
-  const [applied, setApplied] = useState<string | null>(null);
-  // Al asignar la primera sesión del plan, un mensaje informativo (sin botones
-  // ni preguntas) dice que el atleta ya puede entrenar. Se va solo.
-  const [readyNotice, setReadyNotice] = useState(false);
-  useEffect(() => {
-    if (!readyNotice) return;
-    const timer = window.setTimeout(() => setReadyNotice(false), 10_000);
-    return () => window.clearTimeout(timer);
-  }, [readyNotice]);
-  const planAlerts = (attentionQuery.data ?? []).filter(
-    (item) => item.cycle.id === cycle.id && item.kind !== "low_adherence" && !isDismissed(item),
-  );
-  const progressById = new Map((progressQuery.data?.sessions ?? []).map((p) => [p.id, p]));
-  const currentWeek = planWeekOf(cycle.startDate);
-
-  const [assigningCell, setAssigningCell] = useState<{ week: number; slot: number } | null>(null);
-  const [routineId, setRoutineId] = useState("");
-  const [repeat, setRepeat] = useState(true);
-  const [assignError, setAssignError] = useState<string | null>(null);
-  const panelRef = useRef<HTMLElement>(null);
-
-  const weeks = totalWeeks(cycle.startDate, cycle.endDate);
-  const slots = cycle.sessionsPerWeek ?? 0;
-  const sessions = sessionsQuery.data ?? [];
-  const sessionByCell = new Map(sessions.map((session) => [cellKey(session.weekNumber, session.slotNumber), session]));
-  const stats = planStats(sessions, currentWeek);
-
-  // Semanas, desde la elegida, en que esa sesión sigue sin rutina.
-  const emptyWeeks = assigningCell
-    ? emptyWeeksFrom(new Set(sessionByCell.keys()), assigningCell.week, assigningCell.slot, weeks)
-    : [];
-
-  const assignMutation = useMutation({
-    mutationFn: async (targetWeeks: number[]) => {
-      if (!assigningCell) throw new Error("sin celda");
-      let done = 0;
-      try {
-        for (const weekNumber of targetWeeks) {
-          await sessionsApi.createSession(cycle.id, { weekNumber, slotNumber: assigningCell.slot, routineId });
-          done += 1;
-        }
-      } catch (error) {
-        const reason = error instanceof ApiError ? error.message : "No se pudo asignar la rutina.";
-        throw new Error(done > 0 ? `Se asignaron ${done} de ${targetWeeks.length} semanas. ${reason}` : reason);
-      }
-    },
-    onSuccess: (_, targetWeeks) => {
-      track("routine_assigned", { weeks: targetWeeks.length });
-      setAssigningCell(null);
-      setRoutineId("");
-      if (sessions.length === 0) setReadyNotice(true);
-    },
-    onError: (error: unknown) => {
-      setAssignError(error instanceof Error ? error.message : "No se pudo asignar la rutina.");
-    },
-    // Con éxito o con error parcial, la grilla se vuelve a leer.
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ["cycles", cycle.id, "sessions"] }),
-  });
-
-  // "miércoles 21 oct": el día de la semana del ciclo en que cae la celda elegida.
-  const assignDay = assigningCell
-    ? (() => {
-        const offset = sessionOffset(cycle.startDate, assigningCell.week, assigningCell.slot, slots);
-        const iso = addDays(weekStartIso(cycle.startDate, assigningCell.week), offset);
-        return `${weekdayName(iso)} ${shortDate(iso)}`;
-      })()
-    : "";
-
-  function openAssign(week: number, slot: number) {
-    setAssignError(null);
-    setRoutineId("");
-    setRepeat(true);
-    setAssigningCell({ week, slot });
-    // El panel está arriba de las semanas: se lleva a la vista y el foco al selector.
-    setTimeout(() => {
-      panelRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-      document.getElementById("assignRoutine")?.focus();
-    }, 0);
-  }
-
-  return (
-    <div className="pl-grid-area">
-      {sessionsQuery.isLoading ? (
-        <div className="cy-strip cy-sk-strip" aria-busy="true" aria-label="Cargando el avance del ciclo">
-          <Skeleton width={150} height={24} />
-          <Skeleton width={260} height={12} />
-        </div>
-      ) : heroKind(stats, currentWeek, weeks) === "ended" ? null : (
-        <PlanHero
-          kind={heroKind(stats, currentWeek, weeks)}
-          stats={stats}
-          weeks={weeks}
-          currentWeek={currentWeek}
-          startDate={cycle.startDate}
-          isCoach={isCoach}
-          athlete={athlete}
-        />
-      )}
-
-      {readyNotice && (
-        <div className="success-banner" role="status">
-          <strong>{athlete ? `${athlete.name} ya puede entrenar.` : "Tu atleta ya puede entrenar."}</strong> Verá este
-          ciclo en Hoy y le llegará un aviso en unos minutos.
-        </div>
-      )}
-      {applied && (
-        <div className="success-banner" role="status">
-          <strong>Ajuste aplicado.</strong> {applied}
-        </div>
-      )}
-      {planAlerts.length > 0 && (
-        <section className="hm-card" style={{ marginBottom: 16 }}>
-          <AttentionList
-            items={planAlerts}
-            onDismiss={dismiss}
-            onApplied={(message) => {
-              setApplied(message);
-              queryClient.invalidateQueries({ queryKey: ["cycles", cycle.id, "progress"] });
-            }}
-          />
-        </section>
-      )}
-
-      {isCoach && routinesQuery.data && routinesQuery.data.length === 0 && (
-        <p style={{ color: "var(--color-ink-secondary)" }}>
-          Todavía no tienes rutinas. <Link to="/routines/new">Arma una primero</Link> para poder asignarla aquí.
-        </p>
-      )}
-
-      {assigningCell && (
-        <section className="hm-card pl-panel" ref={panelRef}>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              setAssignError(null);
-              if (!routineId) {
-                setAssignError("Elige una rutina.");
-                return;
-              }
-              assignMutation.mutate(repeat ? emptyWeeks : [assigningCell.week]);
-            }}
-            noValidate
-          >
-            <h2>Asignar rutina el {assignDay}</h2>
-            {assignError && (
-              <div className="error-banner" role="alert">
-                {assignError}
-              </div>
-            )}
-            <div className="field">
-              <label htmlFor="assignRoutine">Rutina</label>
-              <select id="assignRoutine" required value={routineId} onChange={(e) => setRoutineId(e.target.value)}>
-                <option value="" disabled>
-                  Elige una rutina
-                </option>
-                {(routinesQuery.data ?? []).map((routine) => (
-                  <option key={routine.id} value={routine.id}>
-                    {routine.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {emptyWeeks.length > 1 && (
-              <label className="pl-check">
-                <input type="checkbox" checked={repeat} onChange={(e) => setRepeat(e.target.checked)} />
-                <span>
-                  Repetir en las semanas que siguen vacías ({emptyWeeks.length - 1} más)
-                </span>
-              </label>
-            )}
-            <div className="pl-panel-actions">
-              <button type="submit" className="button-primary" disabled={assignMutation.isPending}>
-                {assignMutation.isPending ? "Asignando…" : "Asignar"}
-              </button>
-              <button type="button" className="button-secondary" onClick={() => setAssigningCell(null)}>
-                Cancelar
-              </button>
-            </div>
-          </form>
-        </section>
-      )}
-
-      <div className="pl-section-head">
-        <h2>Calendario del ciclo</h2>
-        <span className="pc-legend" aria-hidden="true">
-          <span>
-            <CheckBadge small label="Hecha" /> Hecha
-          </span>
-          <span>
-            <i className="pc-legend-swatch" /> Pendiente
-          </span>
-          <span>
-            <i className="pc-legend-swatch pc-legend-skip" /> Omitida
-          </span>
-        </span>
-      </div>
-
-      {sessionsQuery.isLoading ? (
-        <PlanCalendarSkeleton />
-      ) : (
-        <PlanCalendar
-          startDate={cycle.startDate}
-          weeks={weeks}
-          slots={slots}
-          currentWeek={currentWeek}
-          todayIso={toLocalDay(new Date())}
-          sessionByCell={sessionByCell}
-          progressById={progressById}
-          isCoach={isCoach}
-          onAssign={openAssign}
-        />
-      )}
     </div>
   );
 }

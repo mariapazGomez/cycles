@@ -28,7 +28,7 @@ export function listSessions(cycleId: string) {
 
 export function createSession(
   cycleId: string,
-  data: { weekNumber: number; slotNumber: number; routineId: string; scheduledDate?: string },
+  data: { routineId: string; scheduledDate: string } | { weekNumber: number; slotNumber: number; routineId: string; scheduledDate?: string },
 ) {
   return apiRequest<SessionDetail>(`/cycles/${cycleId}/sessions`, {
     method: "POST",

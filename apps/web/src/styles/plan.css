@@ -180,3 +180,53 @@
 .pl-section-head .pc-legend {
   margin-left: auto;
 }
+
+/* Ficha del atleta: vistas Ciclo y Resumen, y selector de ciclo. */
+.pl-views {
+  display: inline-flex;
+  gap: 4px;
+  margin: 8px 0 16px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-e1);
+}
+
+.pl-view {
+  min-height: 36px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-ink-secondary);
+  font: 600 0.9rem Inter, system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.pl-view-on {
+  background: var(--color-ink);
+  color: #fff;
+}
+
+.pl-view:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
+}
+
+.pl-cycle-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.pl-cycle-select select {
+  min-height: 40px;
+  max-width: 280px;
+  padding: 0 12px;
+  border: 1px solid var(--color-control-border);
+  border-radius: 10px;
+  background: var(--color-bg);
+  font: 600 0.95rem Inter, system-ui, sans-serif;
+}

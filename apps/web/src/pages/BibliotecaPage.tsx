@@ -125,7 +125,7 @@ function CycleRow({ entry }: { entry: CycleEntry }) {
       </div>
       <div className="lb-actions">
         <Link className="rt-ghost" to={`/cycles/${entry.id}`}>
-          Abrir
+          Ver en el atleta
         </Link>
       </div>
     </li>

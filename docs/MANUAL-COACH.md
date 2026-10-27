@@ -68,7 +68,7 @@ Un ciclo organiza las semanas de entrenamiento de un atleta. Solo aparecen en la
    - **Sesiones por semana**
    - **Nombre** y **Objetivo** (opcional)
    - Fechas de **Inicio** y **Fin**
-3. Toca **Crear ciclo**. Se abre el detalle con las **semanas del ciclo**: una fila por semana y una columna por sesión.
+3. Toca **Crear ciclo**. Se abre la ficha del atleta con el **calendario del ciclo**: una fila por semana y una columna por día.
 
 > **Si eliges macrociclo:** no tiene semanas propias. Desde su detalle, en *Ciclos dentro de este macrociclo*, agregas los mesociclos o microciclos que lo componen. Para empezar, un microciclo o un mesociclo es lo más simple.
 
@@ -76,12 +76,13 @@ Un ciclo organiza las semanas de entrenamiento de un atleta. Solo aparecen en la
 
 ## 5. Asigna rutinas al ciclo
 
-1. En el detalle del ciclo, en una sesión vacía toca **+ Asignar**.
+1. En la ficha del atleta (menú **Atletas**), en la vista **Ciclo**, toca el **+** del día en que quieres la sesión. Si el atleta tiene varios ciclos, elige el ciclo en el selector de arriba.
 2. Elige la **Rutina** y toca **Asignar**. La sesión se crea con los ejercicios de esa rutina.
-3. Si hay más semanas vacías, puedes marcar **Repetir en las semanas que siguen vacías** para llenarlas de una vez.
-4. Para ajustar una sesión (ejercicios, pesos o fecha), tócala: *Toca una sesión para verla*.
+3. Puedes marcar **Repetir este día en las semanas que siguen vacías** para llenar ese día en las semanas siguientes de una vez.
+4. Un día puede tener más de una sesión: toca el **+** pequeño que queda bajo la sesión. «Sesiones por semana» es solo una guía y el resumen de cada semana lo dice («2 de 4 planificadas»).
+5. Para ajustar una sesión (ejercicios, pesos o fecha), tócala. Una sesión sin fecha aparece en un día tentativo, con borde punteado.
 
-Si todavía no tienes rutinas, el ciclo te lo avisa y te lleva a **Rutinas**.
+Si todavía no tienes rutinas, el calendario te lo avisa y te lleva a la **Biblioteca**. También puedes dar a un atleta un ciclo ya armado con **Asignar ciclo de la Biblioteca**.
 
 **No hay nada que activar.** Un ciclo nace activo. Al asignar la primera sesión, Cycles te avisa que tu atleta ya puede entrenar, y a ella o él le llega un aviso unos minutos después de tu último cambio. Verá su próxima sesión en **Hoy**.
 
