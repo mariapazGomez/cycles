@@ -158,12 +158,17 @@ main{padding:20px 24px 64px}
 .wk .dr .dl{width:52px;font-size:.82rem;font-weight:600;color:var(--ink2);flex:none}
 .wk .dr .sn{flex:1;min-width:0;font-size:.9rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .wk .dr.done{background:#e3f1e7}
+.seg2{display:inline-flex;border-radius:999px;padding:3px;background:var(--bg);box-shadow:var(--e1)}
+.seg2 button{border:0;background:transparent;border-radius:999px;padding:5px 16px;font-size:.84rem;font-weight:700;color:var(--ink2);cursor:pointer}
+.seg2 button.on{background:var(--b100);color:var(--ink)}
+.sel{display:inline-flex;align-items:center;gap:8px;background:var(--bg);border-radius:999px;padding:4px 12px 4px 6px;box-shadow:var(--e1)}
+.sel select{border:0;background:none;font-size:.9rem;font-weight:600;outline:0;max-width:220px}
 .note{margin:24px 24px 0;font-size:.8rem;color:#aab2c0}
 </style>
 </head>
 <body>
 <div class="mock" role="toolbar" aria-label="Controles de la maqueta">
-  <div class="g"><label>Pantalla</label><div class="seg" id="s-pantalla"><button data-v="biblioteca" aria-pressed="true">Biblioteca</button><button data-v="calendario" aria-pressed="false">Calendario del ciclo</button></div></div>
+  <div class="g"><label>Pantalla</label><div class="seg" id="s-pantalla"><button data-v="biblioteca" aria-pressed="true">Biblioteca</button><button data-v="calendario" aria-pressed="false">Atleta: calendario del ciclo</button></div></div>
   <div class="g" id="g-variante"><label>Variante</label><div class="seg" id="s-variante"><button data-v="A" aria-pressed="true">A · Filas</button><button data-v="B" aria-pressed="false">B · Tarjetas</button></div></div>
   <div class="g"><label>Estado</label><div class="seg" id="s-estado"><button data-v="normal" aria-pressed="true">Con datos</button><button data-v="vacio" aria-pressed="false">Vacío</button><button data-v="carga" aria-pressed="false">Cargando</button><button data-v="error" aria-pressed="false">Error</button></div></div>
   <div class="g"><label>Ancho</label><div class="seg" id="s-ancho"><button data-v="esc" aria-pressed="true">Escritorio</button><button data-v="cel" aria-pressed="false">Celular</button></div></div>
@@ -205,8 +210,8 @@ function pills(i){
 }
 function actions(i){
   if(i.t==='rt') return '<button class="ghost">Editar</button><button class="ghost">Borrar</button>';
-  if(i.plantilla) return '<button class="ghost">Asignar a un atleta</button><button class="ghost">Abrir</button>';
-  return '<button class="ghost">Abrir</button>';
+  if(i.plantilla) return '<button class="ghost">Asignar a un atleta</button><button class="ghost">Editar</button>';
+  return '<button class="ghost">Ver en el atleta</button>';
 }
 function rowA(i){
   const who = i.atleta ? `<span class="who"><span class="avatar sm">${i.ini}</span>${i.atleta}</span>` : '';
@@ -218,7 +223,7 @@ function cardB(i){
 }
 
 function header(){
-  return `<header class="hdr"><div class="hdr-in"><span class="logo">${I.logo}Cycles</span><nav class="nav"><a href="#">Inicio</a><a href="#">Atletas</a><a href="#" class="on">Biblioteca</a></nav><span class="avatar">MG</span></div></header>`;
+  return `<header class="hdr"><div class="hdr-in"><span class="logo">${I.logo}Cycles</span><nav class="nav"><a href="#">Inicio</a><a href="#" class="${S.pantalla==='calendario'?'on':''}">Atletas</a><a href="#" class="${S.pantalla==='biblioteca'?'on':''}">Biblioteca</a></nav><span class="avatar">MG</span></div></header>`;
 }
 
 function biblioteca(){
@@ -249,15 +254,16 @@ const SEM=[
   {n:2,r:'2 – 8 nov',d:[2,3,4,5,6,7,8],s:{0:{n:'Empuje A'},2:{n:'Tirón A'},4:{n:'Pierna completa'}}},
   {n:3,r:'9 – 15 nov',d:[9,10,11,12,13,14,15],s:{}}
 ];
+const wide=()=>S.ancho==='esc'&&innerWidth>=900; // por debajo de 900 px la grilla pasa a lista vertical
 const TODAY_IDX=1; // martes 27
 function calendario(){
   const vacio=S.estado==='vacio';
   const sem=SEM.map(w=>({...w,s:vacio?{}:w.s}));
-  if(S.estado==='carga') return `<main>${crumb()}${S.ancho==='esc'?`<div class="weeks">${[0,1,2].map(()=>`<div class="wr" style="min-height:128px"><div class="sk" style="height:40px"></div>${[0,1,2,3,4,5,6].map(()=>'<div class="sk" style="height:104px;border-radius:12px"></div>').join('')}<div class="sk" style="height:40px"></div></div>`).join('')}</div>`:[0,1].map(()=>'<div class="wk"><div class="sk" style="height:200px"></div></div>').join('')}</main>`;
+  if(S.estado==='carga') return `<main>${crumb()}${wide()?`<div class="weeks">${[0,1,2].map(()=>`<div class="wr" style="min-height:128px"><div class="sk" style="height:40px"></div>${[0,1,2,3,4,5,6].map(()=>'<div class="sk" style="height:104px;border-radius:12px"></div>').join('')}<div class="sk" style="height:40px"></div></div>`).join('')}</div>`:[0,1].map(()=>'<div class="wk"><div class="sk" style="height:200px"></div></div>').join('')}</main>`;
   if(S.estado==='error') return `<main>${crumb()}<div class="err" role="alert"><span>No se pudo cargar el ciclo.</span><button class="btn">Reintentar</button></div></main>`;
   const asg = S.asg ? `<div class="asg" role="region" aria-label="Asignar rutina"><b>${S.asg}</b><select aria-label="Rutina"><option>Empuje A</option><option>Tirón A</option><option>Pierna completa</option></select><label><input type="checkbox"> Repetir este día en las semanas que siguen vacías</label><button class="btn p" data-act="asignar">Asignar</button><button class="btn" data-act="cancelar">Cancelar</button></div>` : '';
   let grid='';
-  if(S.ancho==='esc'){
+  if(wide()){
     grid=`<div class="gh"><span></span>${DIAS.map((d,i)=>`<span class="${i===TODAY_IDX?'today':''}">${d}</span>`).join('')}<span>Resumen</span></div><div class="weeks">${sem.map(w=>weekRow(w)).join('')}</div>`;
   } else {
     grid=sem.map(w=>weekCel(w)).join('');
@@ -265,7 +271,7 @@ function calendario(){
   return `<main>${crumb()}${asg}${grid}<div class="legend"><span><i style="background:var(--b50);box-shadow:inset 0 0 0 2px var(--brand)"></i>Hoy</span><span><i style="background:#e3f1e7"></i>Completada</span><span><span class="plus faint" style="width:16px;height:16px;pointer-events:none">${I.plus}</span>Agregar una rutina ese día</span></div></main>`;
 }
 function crumb(){
-  return `<div class="crumb"><a class="back" href="#">Biblioteca</a><h1>Hipertrofia de Camila</h1><span class="who"><span class="avatar sm">CR</span>Camila Rojas</span><span class="pill ok">Activo</span><span class="pill">Mesociclo</span><span class="sp"></span><button class="btn">Editar ciclo</button></div>`;
+  return `<div class="crumb"><a class="back" href="#">← Atletas</a></div><div class="crumb"><span class="avatar">CR</span><h1>Camila Rojas</h1><span class="sp"></span><button class="btn">${I.cy}Asignar ciclo de la Biblioteca</button></div><div class="bar"><div class="seg2" role="tablist" aria-label="Vista del atleta"><button role="tab" aria-selected="true" class="on">Ciclo</button><button role="tab" aria-selected="false">Resumen</button></div><label class="sel">${icon('cy',1)}<select aria-label="Ciclo seleccionado"><option>Hipertrofia de Camila</option><option>Volumen de Camila (completado)</option></select></label><span class="pill ok">Activo</span><span class="pill">Mesociclo</span><span class="sp"></span><button class="btn">Editar ciclo</button></div>`;
 }
 function dayCell(w,i){
   const s=w.s[i]; const today=w.cur&&i===TODAY_IDX; const key=`s${w.n}d${i}`;
@@ -295,6 +301,7 @@ function render(){
   document.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>{S.asg=null;render()});
 }
 ['pantalla','variante','estado','ancho'].forEach(k=>document.getElementById('s-'+k).addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S[k]=b.dataset.v;S.asg=null;S.menu=false;render()}));
+window.addEventListener('resize',()=>{if(S.pantalla==='calendario')render()});
 render();
 </script>
 </body>
