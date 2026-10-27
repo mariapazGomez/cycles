@@ -10,12 +10,15 @@ import * as athletesApi from "../services/athletesApi";
 import { AttentionList, useDismissedAlerts } from "../components/AttentionList";
 import { planWeekOf } from "../lib/format";
 import { cellKey, emptyWeeksFrom, heroKind, planStats, totalWeeks } from "../lib/planGrid";
+import { toLocalDay } from "../lib/calendar";
+import { addDays, sessionOffset, shortDate, weekStartIso, weekdayName } from "../lib/weekCalendar";
 import { usePageBackground } from "../hooks/usePageBackground";
 import { PlanHero } from "../components/PlanHero";
-import { PlanWeeks } from "../components/PlanWeeks";
+import { PlanCalendar } from "../components/PlanCalendar";
+import { CheckBadge } from "../components/CheckBadge";
+import { CyclePageSkeleton, PlanCalendarSkeleton, Skeleton } from "../components/Skeleton";
 import { useAuth } from "../hooks/useAuth";
 import { ApiError } from "../services/httpClient";
-import { LoadingScreen } from "../components/LoadingScreen";
 import { AthleteCycle } from "../components/AthleteCycle";
 import { track } from "../lib/analytics";
 
@@ -35,8 +38,10 @@ function toDateInput(iso: string): string {
   return iso.slice(0, 10);
 }
 
+// Las fechas del ciclo se guardan a medianoche UTC: se leen en UTC para que un
+// 21 de octubre no se vea como 20 en una zona al oeste de Greenwich.
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" });
+  return new Date(iso).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" });
 }
 
 export function CycleDetailPage() {
@@ -64,7 +69,7 @@ export function CycleDetailPage() {
     },
   });
 
-  if (cycleQuery.isLoading) return <LoadingScreen />;
+  if (cycleQuery.isLoading) return <CyclePageSkeleton />;
   if (cycleQuery.isError || !cycleQuery.data) {
     return <div className="error-banner">No se pudo cargar este ciclo.</div>;
   }
@@ -462,6 +467,15 @@ function CycleGrid({
     onSettled: () => queryClient.invalidateQueries({ queryKey: ["cycles", cycle.id, "sessions"] }),
   });
 
+  // "miércoles 21 oct": el día de la semana del ciclo en que cae la celda elegida.
+  const assignDay = assigningCell
+    ? (() => {
+        const offset = sessionOffset(cycle.startDate, assigningCell.week, assigningCell.slot, slots);
+        const iso = addDays(weekStartIso(cycle.startDate, assigningCell.week), offset);
+        return `${weekdayName(iso)} ${shortDate(iso)}`;
+      })()
+    : "";
+
   function openAssign(week: number, slot: number) {
     setAssignError(null);
     setRoutineId("");
@@ -476,15 +490,22 @@ function CycleGrid({
 
   return (
     <div className="pl-grid-area">
-      <PlanHero
-        kind={heroKind(stats, currentWeek, weeks)}
-        stats={stats}
-        weeks={weeks}
-        currentWeek={currentWeek}
-        startDate={cycle.startDate}
-        isCoach={isCoach}
-        athlete={athlete}
-      />
+      {sessionsQuery.isLoading ? (
+        <div className="cy-strip cy-sk-strip" aria-busy="true" aria-label="Cargando el avance del ciclo">
+          <Skeleton width={150} height={24} />
+          <Skeleton width={260} height={12} />
+        </div>
+      ) : (
+        <PlanHero
+          kind={heroKind(stats, currentWeek, weeks)}
+          stats={stats}
+          weeks={weeks}
+          currentWeek={currentWeek}
+          startDate={cycle.startDate}
+          isCoach={isCoach}
+          athlete={athlete}
+        />
+      )}
 
       {readyNotice && (
         <div className="success-banner" role="status">
@@ -530,9 +551,7 @@ function CycleGrid({
             }}
             noValidate
           >
-            <h2>
-              Asignar rutina a la semana {assigningCell.week}, sesión {assigningCell.slot}
-            </h2>
+            <h2>Asignar rutina el {assignDay}</h2>
             {assignError && (
               <div className="error-banner" role="alert">
                 {assignError}
@@ -572,17 +591,29 @@ function CycleGrid({
       )}
 
       <div className="pl-section-head">
-        <h2>Semanas del ciclo</h2>
-        {stats.assigned > 0 && <span className="pl-hint">Toca una sesión para verla</span>}
+        <h2>Calendario del ciclo</h2>
+        <span className="pc-legend" aria-hidden="true">
+          <span>
+            <CheckBadge small label="Hecha" /> Hecha
+          </span>
+          <span>
+            <i className="pc-legend-swatch" /> Pendiente
+          </span>
+          <span>
+            <i className="pc-legend-swatch pc-legend-skip" /> Omitida
+          </span>
+        </span>
       </div>
 
       {sessionsQuery.isLoading ? (
-        <p>Cargando…</p>
+        <PlanCalendarSkeleton />
       ) : (
-        <PlanWeeks
+        <PlanCalendar
+          startDate={cycle.startDate}
           weeks={weeks}
           slots={slots}
           currentWeek={currentWeek}
+          todayIso={toLocalDay(new Date())}
           sessionByCell={sessionByCell}
           progressById={progressById}
           isCoach={isCoach}
