@@ -1,6 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
+import { athleteIdOf } from "../common/access";
 import {
   CURRENT_FEEDBACK,
   CURRENT_LOG,
@@ -92,6 +93,7 @@ export class TrackingService {
 
     const items: AttentionItem[] = [];
     for (const cycle of cycles) {
+      if (!cycle.athleteId) continue;
       const athlete = athleteById.get(cycle.athleteId)!;
       const ref = { id: cycle.id, name: cycle.name };
       const currentWeek = planWeekAt(cycle.startDate, now);
@@ -287,7 +289,7 @@ export class TrackingService {
     if (cycle.coachId !== coachId) {
       throw new ForbiddenException("No eres el coach de este ciclo.");
     }
-    await this.assertActiveRelation(coachId, cycle.athleteId);
+    await this.assertActiveRelation(coachId, athleteIdOf(cycle));
 
     return {
       cycle: { id: cycle.id, name: cycle.name, currentWeek: planWeekAt(cycle.startDate, new Date()) },
@@ -331,7 +333,7 @@ export class TrackingService {
     if (cycle.coachId !== coachId) {
       throw new ForbiddenException("No eres el coach de este ciclo.");
     }
-    await this.assertActiveRelation(coachId, cycle.athleteId);
+    await this.assertActiveRelation(coachId, athleteIdOf(cycle));
 
     const targets = await this.prisma.sessionExercise.findMany({
       where: {

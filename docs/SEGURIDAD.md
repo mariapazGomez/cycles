@@ -3,7 +3,7 @@ type: reference
 tags: [seguridad, reglas]
 status: vigente
 created: 2026-09-26
-updated: 2026-10-01
+updated: 2026-10-27
 ---
 
 # Seguridad de Cycles
@@ -51,7 +51,8 @@ updated: 2026-10-01
 | `apps/api/src/auth/strategies/google.strategy.ts` | OAuth con Google (scopes `email` y `profile`). |
 | `apps/api/src/auth/dto/complete-profile.dto.ts` | Impide que alguien se asigne el rol `athlete` sin invitación. |
 | `apps/api/src/common/guards/jwt-auth.guard.ts`, `roles.guard.ts`, `decorators/roles.decorator.ts` | Exigen sesión y rol por endpoint. |
-| `apps/api/src/common/access.ts` | Chequeo compartido de relación coach–atleta activa (regla R5). |
+| `apps/api/src/common/access.ts` | Chequeo compartido de relación coach–atleta activa (regla R5) y `athleteIdOf`, que rechaza un ciclo plantilla (sin atleta) donde hace falta un atleta. |
+| `apps/api/src/cycles/cycles.service.ts` (`createTemplate`, `updateTemplate`, `assign`, `findOwnTemplate`) | Ciclos plantilla (2026-10-27): rutas `POST /cycles/templates`, `PATCH /cycles/templates/:id` y `POST /cycles/:id/assign`, todas solo para coach y con chequeo de propiedad. Una plantilla solo la ve su coach dueño; el atleta no la recibe en ninguna lista ni en `/me/today`; asignarla exige relación activa con el atleta. |
 | `apps/api/src/common/throttle/throttle.ts` | Límites de intentos por IP y por email, en un solo lugar para ajustarlos. |
 | `apps/api/src/common/config/env.validation.ts` | Valida las variables al arrancar: la API no arranca si falta un secreto o si en producción falta el email real. |
 | `apps/api/src/main.ts` | `helmet`, CORS restringido y `trust proxy`. |

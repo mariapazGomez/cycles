@@ -3,7 +3,7 @@ type: plan
 tags: [seguridad, plan]
 status: draft
 created: 2026-09-26
-updated: 2026-10-01
+updated: 2026-10-27
 ---
 
 # Plan de correcciones de seguridad
@@ -214,6 +214,8 @@ Los umbrales son iniciales: van como constantes, igual que los límites de 1B.
 - Hacerlo **antes de mergear o publicar** la app. Coordinarlo con la sesión que trabaja en esa rama.
 
 ### 2C · Tests de autorización y CI (S-11 · R12)
+
+> **Primer paso (2026-10-27):** `apps/api` tiene Jest con pruebas unitarias de los servicios de ciclos y sesiones (Prisma simulado) que cubren los casos prohibidos de las rutas nuevas de plantillas. Faltan la matriz e2e contra una base de prueba, el resto de endpoints y el CI.
 
 - **Tests e2e de la API** (Jest + supertest) contra una base de prueba, con una matriz por endpoint:
 

@@ -1,11 +1,16 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { ActivityNotifier } from "../activity/activity-notifier.service";
 import { PrismaService } from "../prisma/prisma.service";
-import { assertActiveRelation } from "../common/access";
+import { assertActiveRelation, athleteIdOf } from "../common/access";
+import { startOfUtcDay } from "../common/training";
 import { AuthenticatedUser } from "../common/decorators/current-user.decorator";
 import { CreateCycleDto } from "./dto/create-cycle.dto";
 import { UpdateCycleDto } from "./dto/update-cycle.dto";
 import { ListCyclesQueryDto } from "./dto/list-cycles.query.dto";
+import { CreateTemplateDto } from "./dto/create-template.dto";
+import { UpdateTemplateDto } from "./dto/update-template.dto";
+import { AssignCycleDto } from "./dto/assign-cycle.dto";
+import { endDateForWeeks, templateDates } from "./template-dates";
 
 @Injectable()
 export class CyclesService {
@@ -71,13 +76,25 @@ export class CyclesService {
   // se consultan vía getChildren(), anidados bajo su contenedor.
   async list(user: AuthenticatedUser, query: ListCyclesQueryDto) {
     if (user.role === "coach") {
+      // Solo planes de atletas con relación activa (docs/SEGURIDAD.md, R5).
+      const ofActiveAthletes = {
+        athlete: { athleteRelations: { some: { coachId: user.id, status: "active" as const } } },
+        ...(query.athleteId ? { athleteId: query.athleteId } : {}),
+      };
+      // Las plantillas (sin atleta) solo se traen si el coach las pide, y nunca
+      // junto con el filtro de un atleta.
+      const templates = query.athleteId ? undefined : query.templates;
+      const scope =
+        templates === "only"
+          ? { isTemplate: true }
+          : templates === "include"
+            ? { OR: [{ isTemplate: true }, ofActiveAthletes] }
+            : ofActiveAthletes;
       return this.prisma.trainingCycle.findMany({
         where: {
           coachId: user.id,
           parentCycleId: null,
-          // Solo planes de atletas con relación activa (docs/SEGURIDAD.md, R5).
-          athlete: { athleteRelations: { some: { coachId: user.id, status: "active" } } },
-          ...(query.athleteId ? { athleteId: query.athleteId } : {}),
+          ...scope,
           ...(query.status ? { status: query.status } : {}),
         },
         orderBy: { createdAt: "desc" },
@@ -120,13 +137,18 @@ export class CyclesService {
     return cycle;
   }
 
-  private async assertAccess(user: AuthenticatedUser, cycle: { coachId: string; athleteId: string }): Promise<void> {
+  // Una plantilla (athleteId nulo) solo la ve su coach dueño y no exige relación
+  // activa: no hay atleta. Un atleta nunca la ve.
+  private async assertAccess(
+    user: AuthenticatedUser,
+    cycle: { coachId: string; athleteId: string | null },
+  ): Promise<void> {
     const isOwner = user.role === "coach" ? cycle.coachId === user.id : cycle.athleteId === user.id;
     if (!isOwner) {
       throw new ForbiddenException("No tienes acceso a este ciclo.");
     }
     // El coach además necesita la relación activa; el atleta siempre ve lo suyo.
-    if (user.role === "coach") {
+    if (user.role === "coach" && cycle.athleteId) {
       await assertActiveRelation(this.prisma, user.id, cycle.athleteId);
     }
   }
@@ -139,7 +161,10 @@ export class CyclesService {
     if (cycle.coachId !== coachId) {
       throw new ForbiddenException("Solo el coach dueño puede editar este ciclo.");
     }
-    await assertActiveRelation(this.prisma, coachId, cycle.athleteId);
+    if (cycle.isTemplate) {
+      throw new BadRequestException("Las plantillas se editan en PATCH /cycles/templates/:id.");
+    }
+    await assertActiveRelation(this.prisma, coachId, athleteIdOf(cycle));
 
     const startDate = dto.startDate ? new Date(dto.startDate) : cycle.startDate;
     const endDate = dto.endDate ? new Date(dto.endDate) : cycle.endDate;
@@ -157,5 +182,76 @@ export class CyclesService {
         ...(dto.status !== undefined ? { status: dto.status } : {}),
       },
     });
+  }
+
+  // Plantilla: un ciclo sin atleta que el coach guarda en su Biblioteca. No lleva
+  // rutinas dentro; estas se ponen en el calendario del atleta, ya asignada.
+  async createTemplate(coachId: string, dto: CreateTemplateDto) {
+    return this.prisma.trainingCycle.create({
+      data: {
+        coachId,
+        name: dto.name,
+        objective: dto.objective,
+        cycleType: dto.cycleType,
+        sessionsPerWeek: dto.sessionsPerWeek,
+        isTemplate: true,
+        templateWeeks: dto.weeks,
+        ...templateDates(dto.weeks),
+      },
+    });
+  }
+
+  // Cambiar una plantilla no cambia los ciclos que ya se copiaron de ella.
+  async updateTemplate(coachId: string, id: string, dto: UpdateTemplateDto) {
+    const template = await this.findOwnTemplate(coachId, id);
+    return this.prisma.trainingCycle.update({
+      where: { id: template.id },
+      data: {
+        ...(dto.name !== undefined ? { name: dto.name } : {}),
+        ...(dto.objective !== undefined ? { objective: dto.objective } : {}),
+        ...(dto.cycleType !== undefined ? { cycleType: dto.cycleType } : {}),
+        ...(dto.sessionsPerWeek !== undefined ? { sessionsPerWeek: dto.sessionsPerWeek } : {}),
+        ...(dto.weeks !== undefined ? { templateWeeks: dto.weeks, ...templateDates(dto.weeks) } : {}),
+      },
+    });
+  }
+
+  // Asigna una plantilla a un atleta: crea una copia (templateId) con fechas
+  // reales a partir de startDate. La plantilla no cambia.
+  async assign(coachId: string, id: string, dto: AssignCycleDto) {
+    const template = await this.findOwnTemplate(coachId, id);
+    await assertActiveRelation(this.prisma, coachId, dto.athleteId);
+
+    const startDate = startOfUtcDay(new Date(dto.startDate));
+    const weeks = template.templateWeeks ?? 1;
+    const cycle = await this.prisma.trainingCycle.create({
+      data: {
+        coachId,
+        athleteId: dto.athleteId,
+        name: template.name,
+        objective: template.objective,
+        cycleType: template.cycleType,
+        sessionsPerWeek: template.sessionsPerWeek,
+        templateId: template.id,
+        startDate,
+        endDate: endDateForWeeks(startDate, weeks),
+      },
+    });
+    this.activity.planCreated(coachId, cycle);
+    return cycle;
+  }
+
+  private async findOwnTemplate(coachId: string, id: string) {
+    const template = await this.prisma.trainingCycle.findUnique({ where: { id } });
+    if (!template) {
+      throw new NotFoundException("Ciclo no encontrado.");
+    }
+    if (template.coachId !== coachId) {
+      throw new ForbiddenException("Solo el coach dueño puede usar esta plantilla.");
+    }
+    if (!template.isTemplate) {
+      throw new BadRequestException("Este ciclo no es una plantilla.");
+    }
+    return template;
   }
 }

@@ -5,7 +5,7 @@ parent: "[[PRD-General]]"
 status: superseded-parcial
 phase: "Fase 2 — Planificación"
 created: 2026-09-22
-updated: 2026-09-23
+updated: 2026-10-27
 tags: [prd, feature/crud-ciclos]
 related: ["[[PRD-InvitacionAtletas]]", "[[PRD-RutinasYProgramacion]]"]
 ---
@@ -50,14 +50,26 @@ Sin un ciclo no hay dónde colgar las sesiones (historia 4) ni qué mostrarle a 
 
 ## 5. Modelo de datos (delta)
 
-Ninguno — usa `TrainingCycle` tal como está definido desde el scaffold inicial (`apps/api/prisma/schema.prisma`), sin cambios de schema.
+Hasta 2026-10-26 ninguno. **Desde 2026-10-27 (ciclos plantilla, CYC-166):** migración `20261027140000_ciclo_plantilla`.
+
+- `TrainingCycle.athleteId` pasa a ser **opcional**: una plantilla (`isTemplate = true`) no tiene atleta. La clave foránea conserva `ON DELETE RESTRICT`.
+- Columna nueva `templateWeeks` (semanas de la plantilla).
+- Una plantilla guarda **fechas de referencia fijas** (lunes 2001-01-01 y el fin según sus semanas, `apps/api/src/cycles/template-dates.ts`), porque toda la app lee `startDate` y `endDate`. Las fechas reales se ponen al asignarla.
+- La plantilla **no lleva rutinas dentro**: las rutinas se ponen en el calendario del atleta, con el ciclo ya asignado.
+- Asignar una plantilla crea una **copia** (`templateId` apunta a la plantilla). Editar la plantilla después no cambia las copias.
 
 ## 6. Diseño de API — implementado en `apps/api/src/cycles`
 
 - `POST /cycles` (rol `coach`) — body `{ athleteId, name, objective?, startDate, endDate }`.
 - `GET /cycles` (coach o atleta) — query opcional `{ athleteId?, status? }` (`athleteId` solo aplica si el que consulta es coach).
 - `GET /cycles/:id` (coach o atleta, dueño/asignado).
-- `PATCH /cycles/:id` (rol `coach`, dueño) — body parcial `{ name?, objective?, startDate?, endDate?, status? }`.
+- `PATCH /cycles/:id` (rol `coach`, dueño) — body parcial `{ name?, objective?, startDate?, endDate?, status? }`. No edita plantillas (400).
+- **Plantillas (2026-10-27):**
+  - `POST /cycles/templates` (rol `coach`) — body `{ name, objective?, cycleType: "microcycle" | "mesocycle", weeks (1-52), sessionsPerWeek (1-14) }`.
+  - `PATCH /cycles/templates/:id` (rol `coach`, dueño) — body parcial con los mismos campos; cambiar `weeks` recalcula el fin de referencia.
+  - `POST /cycles/:id/assign` (rol `coach`, dueño de la plantilla) — body `{ athleteId, startDate }`; el atleta debe tener relación activa. Devuelve el ciclo copiado.
+  - `GET /cycles?templates=include|only` (solo coach): por defecto la lista **no** trae plantillas; `include` las suma a los ciclos de sus atletas y `only` trae solo las plantillas. Con `athleteId` se ignora. Un atleta nunca las recibe.
+  - `GET /cycles/:id` de una plantilla: solo su coach dueño (sin exigir relación, porque no hay atleta); el atleta y otro coach reciben 403.
 
 ## 7. UI/UX
 
@@ -78,5 +90,5 @@ Ninguno adicional a los del PRD general.
 
 ## 11. Estado y decisiones abiertas
 
-- **Plantillas y borrado quedaron fuera deliberadamente** (ver sección 3) — se retoman si hay demanda real.
+- **Plantillas: implementadas el 2026-10-27** (ver secciones 5 y 6; la interfaz llega con CYC-171). **El borrado sigue fuera.**
 - **Sin validación de máquina de estados**: hoy `PATCH` deja pasar cualquier transición de `status` (incluso "rarezas" como volver de `completed` a `active` sin querer). Se decidió no restringirlo todavía para no adivinar reglas de negocio que el usuario no pidió explícitamente; se ajusta cuando haya un caso real que lo justifique.

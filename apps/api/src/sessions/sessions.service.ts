@@ -8,7 +8,10 @@ import {
 import { PrismaService } from "../prisma/prisma.service";
 import { AuthenticatedUser } from "../common/decorators/current-user.decorator";
 import { CURRENT_FEEDBACK, CURRENT_LOG } from "../common/training";
-import { assertActiveRelation } from "../common/access";
+import { assertActiveRelation, athleteIdOf } from "../common/access";
+import { startOfUtcDay } from "../common/training";
+import { Prisma } from "@prisma/client";
+import { reassignSlots, weekOfDate } from "./slots";
 import { NotificationsService } from "../notifications/notifications.service";
 import { CreateSessionDto } from "./dto/create-session.dto";
 import { UpdateSessionDto } from "./dto/update-session.dto";
@@ -22,10 +25,16 @@ export class SessionsService {
     private readonly notifications: NotificationsService,
   ) {}
 
-  // Una celda del grid: instancia una rutina de la biblioteca en
-  // (weekNumber, slotNumber). Los SessionExercise se copian de la rutina
-  // (editables después sin afectar la rutina original) — ver
-  // docs/prds/features/PRD-RutinasYProgramacion.md.
+  // Instancia una rutina de la biblioteca como una sesión del ciclo. Los
+  // SessionExercise se copian de la rutina (editables después sin afectar la
+  // rutina original) — ver docs/prds/features/PRD-RutinasYProgramacion.md.
+  //
+  // Hay dos formas de ubicarla:
+  //  - por celda (weekNumber y slotNumber): la grilla anterior, con tope de
+  //    «sesiones por semana» y una sola sesión por celda;
+  //  - por día (solo scheduledDate): el servidor calcula la semana y el espacio.
+  //    Puede haber varias sesiones el mismo día y «sesiones por semana» es una
+  //    guía, no un tope (docs/diseno/biblioteca).
   async createSession(coachId: string, cycleId: string, dto: CreateSessionDto) {
     const cycle = await this.prisma.trainingCycle.findUnique({ where: { id: cycleId } });
     if (!cycle) {
@@ -34,14 +43,12 @@ export class SessionsService {
     if (cycle.coachId !== coachId) {
       throw new ForbiddenException("No eres el coach de este ciclo.");
     }
-    await assertActiveRelation(this.prisma, coachId, cycle.athleteId);
+    if (cycle.isTemplate) {
+      throw new BadRequestException("Una plantilla no tiene sesiones. Asígnala a un atleta primero.");
+    }
+    await assertActiveRelation(this.prisma, coachId, athleteIdOf(cycle));
     if (cycle.cycleType === "macrocycle") {
       throw new BadRequestException("Un macrociclo no tiene sesiones propias.");
-    }
-    if (!cycle.sessionsPerWeek || dto.slotNumber > cycle.sessionsPerWeek) {
-      throw new BadRequestException(
-        `Este ciclo tiene ${cycle.sessionsPerWeek ?? 0} sesiones por semana.`,
-      );
     }
 
     const routine = await this.prisma.routine.findUnique({
@@ -52,43 +59,109 @@ export class SessionsService {
       throw new BadRequestException("La rutina elegida no está disponible.");
     }
 
-    const existing = await this.prisma.trainingSession.findUnique({
-      where: {
-        cycleId_weekNumber_slotNumber: {
-          cycleId,
-          weekNumber: dto.weekNumber,
-          slotNumber: dto.slotNumber,
-        },
-      },
-    });
-    if (existing) {
-      throw new ConflictException("Ya hay una sesión asignada en esa celda del grid.");
+    const byCell = dto.weekNumber !== undefined && dto.slotNumber !== undefined;
+    if (!byCell && !dto.scheduledDate) {
+      throw new BadRequestException("Indica el día de la sesión.");
     }
 
-    const created = await this.prisma.trainingSession.create({
-      data: {
-        cycleId,
-        name: routine.name,
-        weekNumber: dto.weekNumber,
-        slotNumber: dto.slotNumber,
-        scheduledDate: dto.scheduledDate ? new Date(dto.scheduledDate) : undefined,
-        routineId: routine.id,
-        sessionExercises: {
-          create: routine.routineExercises.map((re) => ({
-            exerciseId: re.exerciseId,
-            orderIndex: re.orderIndex,
-            targetSets: re.defaultSets,
-            targetReps: re.defaultReps,
-            targetWeight: re.defaultWeight,
-            targetRestSeconds: re.defaultRestSeconds,
-            targetRir: re.defaultRir,
-          })),
+    const exercises = routine.routineExercises.map((re) => ({
+      exerciseId: re.exerciseId,
+      orderIndex: re.orderIndex,
+      targetSets: re.defaultSets,
+      targetReps: re.defaultReps,
+      targetWeight: re.defaultWeight,
+      targetRestSeconds: re.defaultRestSeconds,
+      targetRir: re.defaultRir,
+    }));
+    const include = { sessionExercises: { include: { exercise: true }, orderBy: { orderIndex: "asc" as const } } };
+
+    let created;
+    if (byCell) {
+      if (!cycle.sessionsPerWeek || dto.slotNumber! > cycle.sessionsPerWeek) {
+        throw new BadRequestException(
+          `Este ciclo tiene ${cycle.sessionsPerWeek ?? 0} sesiones por semana.`,
+        );
+      }
+      const existing = await this.prisma.trainingSession.findUnique({
+        where: {
+          cycleId_weekNumber_slotNumber: {
+            cycleId,
+            weekNumber: dto.weekNumber!,
+            slotNumber: dto.slotNumber!,
+          },
         },
-      },
-      include: { sessionExercises: { include: { exercise: true }, orderBy: { orderIndex: "asc" } } },
-    });
+      });
+      if (existing) {
+        throw new ConflictException("Ya hay una sesión asignada en esa celda del grid.");
+      }
+      created = await this.prisma.trainingSession.create({
+        data: {
+          cycleId,
+          name: routine.name,
+          weekNumber: dto.weekNumber!,
+          slotNumber: dto.slotNumber!,
+          scheduledDate: dto.scheduledDate ? new Date(dto.scheduledDate) : undefined,
+          routineId: routine.id,
+          sessionExercises: { create: exercises },
+        },
+        include,
+      });
+    } else {
+      const day = startOfUtcDay(new Date(dto.scheduledDate!));
+      if (day < startOfUtcDay(cycle.startDate) || day > startOfUtcDay(cycle.endDate)) {
+        throw new BadRequestException("Ese día queda fuera del ciclo.");
+      }
+      const weekNumber = weekOfDate(cycle.startDate, day);
+      try {
+        const id = await this.prisma.$transaction(async (tx) => {
+          const last = await tx.trainingSession.findFirst({
+            where: { cycleId, weekNumber },
+            orderBy: { slotNumber: "desc" },
+            select: { slotNumber: true },
+          });
+          const session = await tx.trainingSession.create({
+            data: {
+              cycleId,
+              name: routine.name,
+              weekNumber,
+              slotNumber: (last?.slotNumber ?? 0) + 1,
+              scheduledDate: day,
+              routineId: routine.id,
+              sessionExercises: { create: exercises },
+            },
+            select: { id: true },
+          });
+          await this.reassignWeekSlots(tx, cycleId, weekNumber);
+          return session.id;
+        });
+        created = await this.prisma.trainingSession.findUniqueOrThrow({ where: { id }, include });
+      } catch (error) {
+        // Dos sesiones agregadas a la vez pueden pedir el mismo espacio.
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+          throw new ConflictException("Se estaba agregando otra sesión a la vez. Inténtalo de nuevo.");
+        }
+        throw error;
+      }
+    }
     this.notifications.coachEditedSession(created.id, "added");
     return created;
+  }
+
+  // La app móvil ordena por (semana, espacio): los espacios de las sesiones con
+  // fecha siguen el orden de las fechas (ver reassignSlots). Se pasa por números
+  // negativos para no chocar con la restricción única (ciclo, semana, espacio).
+  private async reassignWeekSlots(tx: Prisma.TransactionClient, cycleId: string, weekNumber: number) {
+    const rows = await tx.trainingSession.findMany({
+      where: { cycleId, weekNumber },
+      select: { id: true, slotNumber: true, scheduledDate: true },
+    });
+    const changes = reassignSlots(rows);
+    for (const id of changes.keys()) {
+      await tx.trainingSession.update({ where: { id }, data: { slotNumber: -rows.find((r) => r.id === id)!.slotNumber } });
+    }
+    for (const [id, slotNumber] of changes) {
+      await tx.trainingSession.update({ where: { id }, data: { slotNumber } });
+    }
   }
 
   async listSessions(user: AuthenticatedUser, cycleId: string) {
@@ -226,7 +299,7 @@ export class SessionsService {
 
   private async assertCycleAccess(
     user: AuthenticatedUser,
-    cycle: { coachId: string; athleteId: string },
+    cycle: { coachId: string; athleteId: string | null },
   ): Promise<void> {
     const isOwnerCoach = user.role === "coach" && cycle.coachId === user.id;
     const isAssignedAthlete = user.role === "athlete" && cycle.athleteId === user.id;
@@ -234,7 +307,7 @@ export class SessionsService {
       throw new ForbiddenException("No tienes acceso a este ciclo.");
     }
     // El coach además necesita la relación activa; el atleta siempre ve lo suyo.
-    if (isOwnerCoach) {
+    if (isOwnerCoach && cycle.athleteId) {
       await assertActiveRelation(this.prisma, user.id, cycle.athleteId);
     }
   }
@@ -250,7 +323,7 @@ export class SessionsService {
     if (session.cycle.coachId !== coachId) {
       throw new ForbiddenException("No eres el coach de esta sesión.");
     }
-    await assertActiveRelation(this.prisma, coachId, session.cycle.athleteId);
+    await assertActiveRelation(this.prisma, coachId, athleteIdOf(session.cycle));
     return session;
   }
 
@@ -265,7 +338,7 @@ export class SessionsService {
     if (sessionExercise.session.cycle.coachId !== coachId) {
       throw new ForbiddenException("No eres el coach de esta sesión.");
     }
-    await assertActiveRelation(this.prisma, coachId, sessionExercise.session.cycle.athleteId);
+    await assertActiveRelation(this.prisma, coachId, athleteIdOf(sessionExercise.session.cycle));
     return sessionExercise;
   }
 }

@@ -73,7 +73,7 @@ export class ActivityNotifier {
   // Solo el primer plan de cada coach.
   planCreated(coachId: string, plan: { name: string; startDate: Date; endDate: Date }): void {
     this.run(async () => {
-      const count = await this.prisma.trainingCycle.count({ where: { coachId } });
+      const count = await this.prisma.trainingCycle.count({ where: { coachId, isTemplate: false } });
       if (count !== 1) return;
       const coach = await this.prisma.user.findUniqueOrThrow({ where: { id: coachId } });
       const weeks = Math.max(1, Math.round((plan.endDate.getTime() - plan.startDate.getTime()) / WEEK_MS));
@@ -126,7 +126,7 @@ export class ActivityNotifier {
       this.prisma.user.count({ where: { role: "coach", emailVerifiedAt: range } }),
       this.prisma.athleteInvitationToken.count({ where: { createdAt: range } }),
       this.prisma.athleteInvitationToken.count({ where: { usedAt: range } }),
-      this.prisma.trainingCycle.count({ where: { createdAt: range } }),
+      this.prisma.trainingCycle.count({ where: { createdAt: range, isTemplate: false } }),
       this.prisma.sessionFeedback.count({ where: { outcome: "completed", supersedesId: null, active: 1, submittedAt: range } }),
       this.prisma.sessionFeedback.count({ where: { outcome: "skipped", supersedesId: null, active: 1, submittedAt: range } }),
       this.prisma.loadAdjustment.count({ where: { createdAt: range } }),

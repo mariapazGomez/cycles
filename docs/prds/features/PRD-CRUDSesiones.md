@@ -5,7 +5,7 @@ parent: "[[PRD-General]]"
 status: superseded-parcial
 phase: "Fase 2 — Planificación"
 created: 2026-09-22
-updated: 2026-09-23
+updated: 2026-10-27
 tags: [prd, feature/crud-sesiones]
 related: ["[[PRD-CRUDCiclos]]", "[[PRD-CatalogoEjercicios]]", "[[PRD-RutinasYProgramacion]]"]
 ---
@@ -56,10 +56,13 @@ Ninguno — usa `TrainingSession` y `SessionExercise` tal como están definidos 
 
 ## 6. Diseño de API — implementado en `apps/api/src/sessions`
 
-- `POST /cycles/:cycleId/sessions` — body `{ name, scheduledDate? }`.
+- `POST /cycles/:cycleId/sessions` — body `{ routineId, scheduledDate?, weekNumber?, slotNumber? }` (la creación real instancia una rutina; ver `PRD-RutinasYProgramacion`). Dos formas de ubicar la sesión (**2026-10-27, CYC-166**):
+  - **Por día:** solo `scheduledDate`. El servidor calcula la semana (bloques de 7 días desde el inicio del ciclo), rechaza días fuera del ciclo, permite **varias sesiones el mismo día** y **no aplica el tope de «sesiones por semana»**, que pasa a ser una guía. Toma el siguiente espacio libre de la semana y luego reparte otra vez los espacios de las sesiones con fecha siguiendo el orden de las fechas (`apps/api/src/sessions/slots.ts`), porque la app móvil ordena por `(weekNumber, slotNumber)`. Las sesiones sin fecha no se tocan.
+  - **Por celda:** `weekNumber` y `slotNumber`, como antes (con tope de sesiones por semana y una sola sesión por celda).
+  - Una plantilla no tiene sesiones (400).
 - `GET /cycles/:cycleId/sessions` — sin body.
 - `GET /sessions/:id` — incluye `sessionExercises` con su `exercise` embebido.
-- `PATCH /sessions/:id` — body parcial `{ name?, scheduledDate?, status? }`.
+- `PATCH /sessions/:id` — body parcial `{ name?, scheduledDate?, status? }`. **Pendiente:** cambiar `scheduledDate` no mueve la sesión de semana ni reordena los espacios; se resuelve si se agrega arrastrar sesiones entre días.
 - `DELETE /sessions/:id` — 409 si tiene ejercicios.
 - `POST /sessions/:sessionId/exercises` — body `{ exerciseId, targetSets, targetReps, targetWeight?, targetRestSeconds? }`.
 - `PATCH /session-exercises/:id` — body parcial `{ targetSets?, targetReps?, targetWeight?, targetRestSeconds? }`.

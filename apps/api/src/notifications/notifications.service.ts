@@ -104,6 +104,7 @@ export class NotificationsService {
       const exercises = await this.prisma.sessionExercise.count({ where: { session: { cycleId: cycle.id } } });
       if (exercises === 0) return;
 
+      if (!cycle.athleteId) return;
       const userId = cycle.athleteId;
       const payload = {
         coachName: cycle.coach.name,
@@ -164,6 +165,7 @@ export class NotificationsService {
       });
       if (!session?.scheduledDate) return;
       const { cycle } = session;
+      if (!cycle.athleteId || !cycle.athlete) return;
       if (!(await this.hasActiveRelation(cycle.coachId, cycle.athleteId))) return;
 
       const groupKey = `scheduled:${cycle.athleteId}:${cycle.id}`;
@@ -202,6 +204,7 @@ export class NotificationsService {
       });
       if (!session) return;
       const { cycle } = session;
+      if (!cycle.athleteId || !cycle.athlete) return;
       if (!(await this.hasActiveRelation(cycle.coachId, cycle.athleteId))) return;
 
       let result: LoggedOutcome = outcome;
