@@ -8,6 +8,7 @@ import {
   columnLabels,
   dayOfMonth,
   sessionOffset,
+  utcDay,
   weekRangeLabel,
   weekStartIso,
   weekdayShort,
@@ -43,11 +44,13 @@ function SessionCell({
   progress,
   dayNumber,
   dayName,
+  tentative,
 }: {
   session: TrainingSession;
   progress?: ProgressSession;
   dayNumber: number;
   dayName: string;
+  tentative: boolean;
 }) {
   const feedback = progress?.feedback;
   const done = session.status === "completed";
@@ -56,8 +59,8 @@ function SessionCell({
   return (
     <Link
       to={`/sessions/${session.id}`}
-      className={`pc-cell${done ? " pc-cell-done" : ""}${skipped ? " pc-cell-skip" : ""}`}
-      aria-label={`${session.name}, ${dayName} ${dayNumber}, ${stateLabel}`}
+      className={`pc-cell${done ? " pc-cell-done" : ""}${skipped ? " pc-cell-skip" : ""}${tentative ? " pc-cell-tent" : ""}`}
+      aria-label={`${session.name}, ${dayName} ${dayNumber}, ${stateLabel}${tentative ? ", día tentativo" : ""}`}
       title={session.name}
     >
       <span className="pc-cell-day" aria-hidden="true">
@@ -68,6 +71,7 @@ function SessionCell({
         {done ? <CheckBadge /> : skipped ? <span className="pill pill-warn">Omitida</span> : <span className="pc-pending">Pendiente</span>}
         {feedback?.pain && <span className="pill pill-pain">Dolor</span>}
       </span>
+      {tentative && <span className="pc-tent">Día tentativo</span>}
       {feedback?.outcome === "completed" && feedback.srpe !== null && (
         <span className="pc-facts">
           <span>Esfuerzo {feedback.srpe}</span>
@@ -95,9 +99,27 @@ export function PlanCalendar({
 }: PlanCalendarProps) {
   const [toggled, setToggled] = useState<Record<number, boolean>>({});
   const labels = columnLabels(startDate);
+  // Un ciclo que ya terminó se abre completo: plegar todas sus semanas dejaría
+  // el calendario sin días a la vista.
+  const ended = currentWeek > weeks;
+  // Una sesión sin fecha propia (o con una fuera de su semana) cae en el día que
+  // sugiere su lugar: se marca como tentativa hasta que tenga fecha.
+  const isTentative = (session: TrainingSession, week: number) => {
+    if (!session.scheduledDate) return true;
+    const diff = Math.round(
+      (utcDay(session.scheduledDate) - utcDay(weekStartIso(startDate, week))) / 86_400_000,
+    );
+    return diff < 0 || diff > 6;
+  };
+  const hasTentative = [...sessionByCell.values()].some((s) => isTentative(s, s.weekNumber));
 
   return (
     <div className="pc">
+      {hasTentative && (
+        <p className="pc-tent-note">
+          Las sesiones sin fecha aparecen en los días que sugiere el ciclo, marcadas como tentativas.
+        </p>
+      )}
       <div className="pc-head" aria-hidden="true">
         <span />
         {labels.map((label, i) => (
@@ -110,7 +132,7 @@ export function PlanCalendar({
         {Array.from({ length: weeks }, (_, i) => i + 1).map((week) => {
           const state = weekState(week, currentWeek);
           const first = weekStartIso(startDate, week);
-          const open = toggled[week] ?? state !== "past";
+          const open = toggled[week] ?? (ended || state !== "past");
 
           const days: DayEntry[][] = Array.from({ length: 7 }, () => []);
           let assigned = 0;
@@ -170,6 +192,7 @@ export function PlanCalendar({
                             progress={progressById.get(session.id)}
                             dayNumber={dayOfMonth(iso)}
                             dayName={weekdayShort(iso)}
+                            tentative={session.status === "pending" && isTentative(session, week)}
                           />
                         ) : isCoach ? (
                           <button

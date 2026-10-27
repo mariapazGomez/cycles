@@ -1059,3 +1059,21 @@
     transform: none;
   }
 }
+
+/* Sesión sin fecha: cae en el día que sugiere el ciclo y se marca como tentativa. */
+.pc-cell-tent {
+  outline: 1.5px dashed var(--color-control-border);
+  outline-offset: -1.5px;
+}
+
+.pc-tent {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--color-ink-secondary);
+}
+
+.pc-tent-note {
+  margin: 0 0 12px;
+  font-size: 0.84rem;
+  color: var(--color-ink-secondary);
+}

@@ -496,7 +496,7 @@ function CycleGrid({
           <Skeleton width={150} height={24} />
           <Skeleton width={260} height={12} />
         </div>
-      ) : (
+      ) : heroKind(stats, currentWeek, weeks) === "ended" ? null : (
         <PlanHero
           kind={heroKind(stats, currentWeek, weeks)}
           stats={stats}
