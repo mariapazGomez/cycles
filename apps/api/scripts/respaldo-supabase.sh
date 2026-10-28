@@ -6,7 +6,7 @@
 # Uso, desde la raíz del proyecto:
 #   bash apps/api/scripts/respaldo-supabase.sh
 #
-# Lee SUPABASE_DATABASE_URL de apps/api/.env (o del entorno). La URL lleva la
+# Lee SUPABASE_DATABASE_URL de ~/.cycles-secretos/produccion.env (o del entorno). La URL lleva la
 # contraseña, así que este script nunca la imprime.
 #
 # El archivo trae datos de personas: se guarda en ~/Respaldos-Cycles con
@@ -18,17 +18,23 @@
 # Postgres 17): brew install libpq
 set -euo pipefail
 
+# La URL de producción vive fuera del repo y lejos del .env de desarrollo:
+# ~/.cycles-secretos/produccion.env (permisos 600). Si no está ahí, se prueba
+# con apps/api/.env y con el entorno.
+SECRETOS_FILE="$HOME/.cycles-secretos/produccion.env"
 ENV_FILE="$(cd "$(dirname "$0")/.." && pwd)/.env"
 DEST="${RESPALDO_DIR:-$HOME/Respaldos-Cycles}"
 
-if [ -z "${SUPABASE_DATABASE_URL:-}" ] && [ -f "$ENV_FILE" ]; then
-  set -a
-  # shellcheck disable=SC1090
-  . "$ENV_FILE"
-  set +a
-fi
+for archivo in "$SECRETOS_FILE" "$ENV_FILE"; do
+  if [ -z "${SUPABASE_DATABASE_URL:-}" ] && [ -f "$archivo" ]; then
+    set -a
+    # shellcheck disable=SC1090
+    . "$archivo"
+    set +a
+  fi
+done
 if [ -z "${SUPABASE_DATABASE_URL:-}" ]; then
-  echo "Falta SUPABASE_DATABASE_URL (en apps/api/.env o en el entorno)." >&2
+  echo "Falta SUPABASE_DATABASE_URL (en ~/.cycles-secretos/produccion.env o en el entorno)." >&2
   exit 1
 fi
 
