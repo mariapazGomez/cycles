@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -9,7 +9,7 @@ import { TodayScreen } from '../screens/TodayScreen';
 import { CalendarScreen } from '../screens/CalendarScreen';
 import { SummaryScreen } from '../screens/SummaryScreen';
 import { FloatingTabBar } from '../components/FloatingTabBar';
-import { Spinner } from '../components/Spinner';
+import { BrandSplash } from '../components/BrandSplash';
 import { ExerciseLogScreen } from '../screens/ExerciseLogScreen';
 import { SessionFeedbackScreen } from '../screens/SessionFeedbackScreen';
 import { SessionDetailScreen } from '../screens/SessionDetailScreen';
@@ -38,12 +38,17 @@ function Tabs() {
 
 export function RootNavigator() {
   const { status, user } = useAuth();
+  // La animación de marca corre una vez por apertura de la app, no al volver
+  // de segundo plano: el estado vive mientras la app esté abierta.
+  const [splashDone, setSplashDone] = useState(false);
+  const finishSplash = useCallback(() => setSplashDone(true), []);
 
-  if (status === 'loading') {
+  if (!splashDone) {
     return (
-      <View style={styles.centered}>
-        <Spinner size={44} />
-      </View>
+      <>
+        <StatusBar barStyle="light-content" />
+        <BrandSplash ready={status !== 'loading'} onFinish={finishSplash} />
+      </>
     );
   }
 
@@ -77,11 +82,3 @@ export function RootNavigator() {
     </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  centered: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

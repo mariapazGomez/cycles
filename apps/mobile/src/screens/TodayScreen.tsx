@@ -24,6 +24,7 @@ import { PressableScale } from '../components/PressableScale';
 import { BeadChain } from '../components/BeadChain';
 import { Icon } from '../components/Icon';
 import { Spinner } from '../components/Spinner';
+import { ScreenHeader } from '../components/ScreenHeader';
 import { ChainBackground } from '../components/ChainBackground';
 import { ProfileAvatar } from '../components/ProfileAvatar';
 import { NotificationBell } from '../components/NotificationBell';
@@ -141,13 +142,15 @@ export function TodayScreen({ navigation }: Props) {
       style={styles.container}
       contentContainerStyle={[styles.content, { paddingTop: insets.top + 8, paddingBottom: clearance }]}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Hoy</Text>
-        <View style={styles.headerRight}>
-          <NotificationBell onPress={() => navigation.navigate('Notifications')} />
-          <ProfileAvatar />
-        </View>
-      </View>
+      <ScreenHeader
+        title="Hoy"
+        right={
+          <>
+            <NotificationBell onPress={() => navigation.navigate('Notifications')} />
+            <ProfileAvatar />
+          </>
+        }
+      />
 
       {error && <Text style={styles.error}>{error}</Text>}
 
@@ -174,14 +177,16 @@ export function TodayScreen({ navigation }: Props) {
               )}
             </View>
             <Text style={styles.heroTitle}>{data.session.name}</Text>
-            <View style={styles.heroCount}>
-              <Text style={styles.heroNumber}>{doneCount}</Text>
-              <Text style={styles.heroOf}>de {exercises.length} ejercicios</Text>
-            </View>
-            <View style={styles.segments}>
-              {exercises.map(e => (
-                <View key={e.id} style={[styles.segment, isComplete(e) && styles.segmentDone]} />
-              ))}
+            <View style={styles.heroMid}>
+              <View style={styles.heroCount}>
+                <Text style={styles.heroNumber}>{doneCount}</Text>
+                <Text style={styles.heroOf}>de {exercises.length} ejercicios</Text>
+              </View>
+              <View style={styles.segments}>
+                {exercises.map(e => (
+                  <View key={e.id} style={[styles.segment, isComplete(e) && styles.segmentDone]} />
+                ))}
+              </View>
             </View>
 
             {routineStarted ? (
@@ -350,9 +355,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bgApp },
   content: { paddingHorizontal: 16 },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bgApp },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
-  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  title: { fontSize: 32, fontWeight: '800', color: colors.ink },
   heroButtonDone: { backgroundColor: colors.brand },
   statsRow: { flexDirection: 'row', gap: 10, marginBottom: 10 },
   statCard: { flex: 1 },
@@ -379,12 +381,12 @@ const styles = StyleSheet.create({
   emptyText: { fontSize: 14, color: colors.inkSecondary },
   hero: {
     backgroundColor: colors.ink,
-    borderRadius: 24,
-    padding: 18,
-    marginBottom: 16,
+    borderRadius: 22,
+    padding: 14,
+    marginBottom: 12,
     overflow: 'hidden',
   },
-  heroTop: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
+  heroTop: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 },
   heroWeek: { fontSize: 12, color: colors.inkMuted },
   assignedPill: { backgroundColor: colors.brand, borderRadius: 999, paddingVertical: 2, paddingHorizontal: 8 },
   assignedPillText: { fontSize: 11, fontWeight: '700', color: colors.ink },
@@ -394,18 +396,19 @@ const styles = StyleSheet.create({
   assignedName: { fontSize: 15, fontWeight: '600', color: colors.ink },
   assignedMeta: { fontSize: 12, color: colors.inkSecondary, marginTop: 2 },
   assignedAction: { color: colors.blue, fontSize: 14, fontWeight: '600' },
-  heroTitle: { fontSize: 26, fontWeight: '800', color: colors.onBlue, maxWidth: '75%', marginBottom: 16 },
-  heroCount: { flexDirection: 'row', alignItems: 'flex-end', gap: 6, marginBottom: 14 },
-  heroNumber: { fontSize: 48, lineHeight: 50, fontWeight: '800', color: colors.onBlue },
-  heroOf: { fontSize: 15, color: colors.inkMuted, marginBottom: 6 },
-  segments: { flexDirection: 'row', gap: 4, marginBottom: 18 },
+  heroTitle: { fontSize: 22, fontWeight: '800', color: colors.onBlue, maxWidth: '85%', marginBottom: 8 },
+  heroMid: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
+  heroCount: { flexDirection: 'row', alignItems: 'flex-end', gap: 5 },
+  heroNumber: { fontSize: 34, lineHeight: 36, fontWeight: '800', color: colors.onBlue },
+  heroOf: { fontSize: 13, color: colors.inkMuted, marginBottom: 4 },
+  segments: { flex: 1, flexDirection: 'row', gap: 4 },
   segment: { flex: 1, height: 6, borderRadius: 3, backgroundColor: colors.inkTrack },
   segmentDone: { backgroundColor: colors.brand },
   heroButton: {
     backgroundColor: colors.onBlue,
     borderRadius: 999,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 18,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -413,7 +416,7 @@ const styles = StyleSheet.create({
   },
   heroButtonText: { flex: 1, color: colors.ink, fontSize: 15, fontWeight: '700' },
   disabled: { opacity: 0.6 },
-  card: { backgroundColor: colors.bg, borderRadius: 18, padding: 14, ...cardShadow },
+  card: { backgroundColor: colors.bg, borderRadius: 18, padding: 12, ...cardShadow },
   restCard: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14 },
   restText: { flex: 1 },
   restTitle: { fontSize: 15, fontWeight: '600', color: colors.ink },
@@ -421,17 +424,17 @@ const styles = StyleSheet.create({
   exerciseCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginBottom: 10,
+    gap: 10,
+    marginBottom: 8,
     borderWidth: 2,
     borderColor: 'transparent',
   },
   exerciseCardCurrent: { borderColor: colors.blue },
   exerciseCardPending: { opacity: 0.92 },
   node: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -441,8 +444,8 @@ const styles = StyleSheet.create({
   nodeText: { fontSize: 13, fontWeight: '700', color: colors.inkSecondary },
   nodeTextCurrent: { color: colors.blue },
   exerciseInfo: { flex: 1 },
-  exerciseName: { fontSize: 16, fontWeight: '600', color: colors.ink },
-  exerciseTarget: { fontSize: 13, color: colors.inkSecondary, marginTop: 2 },
+  exerciseName: { fontSize: 15, fontWeight: '600', color: colors.ink },
+  exerciseTarget: { fontSize: 12.5, color: colors.inkSecondary, marginTop: 1 },
   progressPill: { borderRadius: 999, paddingVertical: 3, paddingHorizontal: 10 },
   progressPillDone: { backgroundColor: colors.okBg },
   progressPillCurrent: { backgroundColor: colors.blueTint },
