@@ -180,6 +180,9 @@ async function main() {
         const routine = ROUTINES[slot - 1];
         const outcome = plan(a.scenario, week, slot);
         const day = new Date(startDate.getTime() + ((week - 1) * 7 + SESSION_DAY_OFFSETS[slot - 1]) * DAY);
+        // La sesión lleva su fecha (a medianoche UTC, como las que fija la web) para que
+        // el calendario no la marque como «día tentativo».
+        const scheduledDate = new Date(day);
         day.setUTCHours(21, 30, 0, 0); // 18:30 en Chile
         const session = await prisma.trainingSession.create({
           data: {
@@ -188,6 +191,7 @@ async function main() {
             weekNumber: week,
             slotNumber: slot,
             routineId: routines[slot - 1].id,
+            scheduledDate,
             status: outcome.outcome,
             startedAt: outcome.outcome === "completed" ? new Date(day.getTime() - 62 * 60 * 1000) : null,
           },
