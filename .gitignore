@@ -3,6 +3,9 @@ dist/
 build/
 .env
 .env.local
+# Cualquier otro .env (.env.production, .env.staging…); los ejemplos sí van al repo.
+.env.*
+!.env.example
 *.log
 .DS_Store
 coverage/
@@ -13,3 +16,7 @@ apps/api/prisma/*.db
 
 # Obsidian (config local del vault de docs/prds)
 .obsidian/
+
+# Configuración local de Claude Code y copias de trabajo
+.claude/worktrees/
+.claude/settings.local.json
