@@ -33,7 +33,7 @@ En «Normal» la maqueta funciona de verdad: arrastra una rutina a un día, arra
 3. **Creador rápido de rutinas** en un cajón lateral, con lo mínimo (nombre, ejercicios, series y repeticiones). **Cualquier especificación adicional (peso, descanso, repeticiones en reserva) se captura en una ventana emergente** «Detalles del ejercicio», con los mismos campos y etiquetas del editor de rutinas de la web. Un enlace «Abrir en el editor completo» queda para todo lo demás. Un botón «Agrupar en bloque» deshabilitado con la etiqueta «Pronto» reserva el lugar de las superseries (CYC-108 y CYC-109).
 
 4. **Quitar una sesión es un borrado lógico.** La sesión se marca como quitada y deja de verse, pero no se destruye: **Deshacer** la restaura con todos sus ajustes de ejercicios. Una sesión quitada no aparece en ninguna lista (calendario del coach, «Hoy» y la app del atleta, seguimiento, avisos); su purga definitiva queda para la construcción (propuesta: pasadas 24 horas).
-5. **Un ciclo que terminó y sigue activo no acepta sesiones en días pasados.** Todos sus días salen con la etiqueta «Día pasado», sin «+», y no aceptan soltar. Para seguir planificando, el coach usa «Agregar una semana» o marca el ciclo como completado.
+5. **Las sesiones solo se pueden asignar a hoy o a los días siguientes del ciclo.** Asignar una sesión a un día que ya pasó no tiene sentido, así que todo día anterior a hoy sale con la etiqueta «Día pasado», sin «+», y no acepta soltar ni mover (vale para crear, mover y duplicar). Si el ciclo ya terminó y sigue activo, todos sus días son pasados; para seguir planificando, el coach usa «Agregar una semana» o marca el ciclo como completado. Las sesiones que ya estaban en días pasados (hechas, omitidas o sin hacer) se quedan donde están y se pueden consultar; las pendientes se pueden quitar, duplicar a un día vigente o mover a hoy o más adelante.
 6. **En tablet y táctil se edita con el «+» y el menú ⋯**; no se construye arrastre con el dedo. El arrastre es solo para ratón.
 
 ## La pantalla
@@ -66,7 +66,7 @@ En «Normal» la maqueta funciona de verdad: arrastra una rutina a un día, arra
 | **Duplicar** | Menú ⋯ → «Duplicar en otro día…». |
 | **Quitar** | Menú ⋯ → «Quitar de este día». Sin confirmación bloqueante: se quita (borrado lógico) y aparece el aviso con **Deshacer**, que la restaura. |
 | **Varias sesiones por día** | Se apilan en la celda en el orden en que se agregaron. El «+» pequeño agrega otra. |
-| **Soltar fuera del ciclo** | Los días fuera de Inicio–Fin salen rayados («Fuera del ciclo») y, al arrastrar, se tiñen de rosa y no aceptan la sesión. En un ciclo que ya terminó, todos sus días son «Día pasado» y tampoco aceptan sesiones. |
+| **Soltar fuera del ciclo** | Los días fuera de Inicio–Fin salen rayados («Fuera del ciclo») y, al arrastrar, se tiñen de rosa y no aceptan la sesión. Cualquier día anterior a hoy es «Día pasado» y tampoco acepta sesiones (en un ciclo que ya terminó, todos sus días lo son). |
 | **Otra semana** | Botón «Agregar una semana» bajo el calendario: mueve el fin del ciclo 7 días (avisa la nueva fecha) y tiene Deshacer. |
 | **Sesión hecha** | Bloqueada: no se arrastra, no tiene menú y su aviso dice «Ya se registró: no se puede mover ni quitar». |
 | **Crear rutina** | «Crear rutina nueva» abre el cajón (no cambia de página). «Guardar y usar» la agrega a la lista, lista para arrastrar. |
@@ -92,8 +92,8 @@ La pestaña **Hoja de estados** de la maqueta junta todos los estados visuales c
 
 | Estado | Cómo se ve | Sesiones | Fechas y datos |
 |---|---|---|---|
-| **Activo, en curso** | Pizarra completa | Agregar, mover, duplicar y quitar las que no están hechas | Editables |
-| **Activo, ya terminó** | Franja ámbar: «El ciclo terminó el 20 nov, pero sigue marcado como Activo»; todos los días son «Día pasado» | Se pueden quitar y duplicar las pendientes, pero no agregar ni mover a días pasados | Botones «Marcar como completado» y «Agregar una semana» |
+| **Activo, en curso** | Pizarra completa; los días anteriores a hoy salen como «Día pasado» | Agregar, mover y duplicar a hoy o a días siguientes; quitar las que no están hechas | Editables |
+| **Activo, ya terminó** | Franja ámbar: «El ciclo terminó el 20 nov, pero sigue marcado como Activo»; todos los días son «Día pasado» | Se pueden quitar las pendientes y duplicarlas o moverlas a un día vigente, pero no agregar ni mover a días pasados | Botones «Marcar como completado» y «Agregar una semana» |
 | **Completado** | Solo lectura; franja azul con «Reabrir ciclo» | Ninguna acción | Solo consultar |
 | **Archivado** | Solo lectura; franja azul con «Reactivar ciclo» | Ninguna acción | Solo consultar |
 
