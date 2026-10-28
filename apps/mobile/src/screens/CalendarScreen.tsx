@@ -19,6 +19,7 @@ import { Icon } from '../components/Icon';
 import { PressableScale } from '../components/PressableScale';
 import { ProfileAvatar } from '../components/ProfileAvatar';
 import { Spinner } from '../components/Spinner';
+import { ScreenHeader } from '../components/ScreenHeader';
 import { useTabBarClearance } from '../components/FloatingTabBar';
 import { scheduleSession } from '../services/executionApi';
 import type { AppStackParamList } from '../navigation/types';
@@ -154,10 +155,7 @@ export function CalendarScreen() {
         style={styles.container}
         contentContainerStyle={[styles.content, { paddingTop: insets.top + 8, paddingBottom: clearance }]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Calendario</Text>
-          <ProfileAvatar />
-        </View>
+        <ScreenHeader title="Calendario" right={<ProfileAvatar />} />
 
         {error && <Text style={styles.error}>{error}</Text>}
 
@@ -413,16 +411,14 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bgApp },
   content: { paddingHorizontal: 16 },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bgApp },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
-  title: { fontSize: 32, fontWeight: '800', color: colors.ink },
   error: { color: colors.painInk, marginBottom: 16 },
-  card: { backgroundColor: colors.bg, borderRadius: 18, padding: 14, marginBottom: 10, ...cardShadow },
+  card: { backgroundColor: colors.bg, borderRadius: 18, padding: 12, marginBottom: 8, ...cardShadow },
   chipRow: { gap: 8, paddingBottom: 12 },
   planChip: { backgroundColor: colors.bg, borderRadius: 999, paddingVertical: 8, paddingHorizontal: 14, maxWidth: 220, ...cardShadow },
   planChipOn: { backgroundColor: colors.ink },
   planChipText: { fontSize: 13, fontWeight: '600', color: colors.inkSecondary },
   planChipTextOn: { color: colors.onBlue },
-  hero: { backgroundColor: colors.ink, borderRadius: 22, padding: 16, marginBottom: 10, overflow: 'hidden' },
+  hero: { backgroundColor: colors.ink, borderRadius: 22, padding: 14, marginBottom: 8, overflow: 'hidden' },
   heroTitle: { fontSize: 21, fontWeight: '800', color: colors.onBlue, maxWidth: '72%', marginBottom: 8 },
   heroCount: { flexDirection: 'row', alignItems: 'flex-end', gap: 6 },
   heroNumber: { fontSize: 40, lineHeight: 42, fontWeight: '800', color: colors.onBlue },
