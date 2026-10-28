@@ -144,6 +144,8 @@ main{padding:16px 24px 64px}
 .dc.ok::after,.dc.bad::after{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);font-size:.7rem;font-weight:700;border-radius:999px;padding:1px 8px;white-space:nowrap;pointer-events:none}
 .dc.ok::after{content:"Soltar aquí";background:var(--blue);color:#fff}
 .dc.bad::after{content:"Fuera del ciclo";background:var(--pain-ink);color:#fff}
+.dc[data-why=past].out::after,.dc[data-why=past].bad::after{content:"Día pasado"}
+.dc.has.out::after{display:none}
 .dc.out::after{content:"Fuera del ciclo";position:absolute;left:50%;bottom:6px;transform:translateX(-50%);font-size:.68rem;font-weight:600;color:var(--ctl);white-space:nowrap}
 .dc.oksel{background:var(--b50);box-shadow:inset 0 0 0 2px var(--brand)}
 
@@ -334,13 +336,13 @@ function sesCard(s,o={}){
   return `<div class="${cls}" ${drag?`draggable="true" data-ses="${s.id}"`:''} tabindex="0" role="group" aria-label="${s.n}, ${st2}"><div class="nr"><b>${s.n}</b>${menu}</div><div class="st">${st}</div>${facts}${lock}</div>`;
 }
 function dayCell(w,d,ov={}){
-  const i=idx(w,d), out=i>endIdx, list=sessions().filter(s=>s.w===w&&s.d===d);
+  const i=idx(w,d), past=S.ciclo==='vencido'&&i<=endIdx, out=i>endIdx||past, list=sessions().filter(s=>s.w===w&&s.d===d);
   const x=dt(i);
   const dragging=S.estado==='arrastrando';
-  const cls=['dc',i===TODAY&&'today',out&&!(dragging)&&'out',out&&dragging&&'bad out',ro()&&'ro',ov.ok&&'ok'].filter(Boolean).join(' ');
+  const cls=['dc',i===TODAY&&'today',out&&!(dragging)&&'out',out&&dragging&&'bad out',ro()&&'ro',list.length&&'has',ov.ok&&'ok'].filter(Boolean).join(' ');
   const plus=(out||ro())?'':`<button class="plus${list.length?' faint':''}" data-add="${w}:${d}" aria-haspopup="dialog" aria-expanded="${S.ver==='agregar'&&S.ctx.w===w&&S.ctx.d===d}" aria-label="${list.length?'Agregar otra rutina':'Agregar rutina'} el ${DOWL[d]} ${x.getDate()}">${I.plus}</button>`;
   const cards=list.map(s=>sesCard(s,{lift:dragging&&s.id==='s8',save:S.estado==='guardando'&&s.id==='s4',fail:S.estado==='error'&&s.id==='s8'})).join('');
-  return `<div class="${cls}" data-cell="${w}:${d}" data-out="${out?1:0}"><div class="top">${plus||'<span></span>'}<span class="dn">${x.getDate()}</span></div><div class="cards">${cards}</div></div>`;
+  return `<div class="${cls}" data-cell="${w}:${d}" data-out="${out?1:0}" data-why="${past?'past':'out'}"><div class="top">${plus||'<span></span>'}<span class="dn">${x.getDate()}</span></div><div class="cards">${cards}</div></div>`;
 }
 function weekRow(w){
   const list=sessions().filter(s=>s.w===w), n=list.length, h=list.filter(s=>s.st==='hecha').length;
@@ -455,8 +457,9 @@ function catalogo(){
    ${fig(cell('',topPlus(true)+`<div class="cards">${c({n:'Empuje A'})}${c({n:'Core y movilidad'})}</div>`),'Varias sesiones','Se apilan en el orden en que se agregaron.')}
    ${fig(cell('today',`<div class="top"><button class="plus" aria-label="Agregar rutina">${I.plus}</button><span class="dn">30</span></div>`),'Hoy','Fondo azul pálido y anillo azul.')}
    ${fig(cell('ok',`<div class="top"><button class="plus">${I.plus}</button><span class="dn">5</span></div>`),'Destino válido','Al arrastrar: azul con «Soltar aquí».')}
-   ${fig(cell('bad out',`<div class="top"><span></span><span class="dn">21</span></div>`),'Destino inválido','Rosa con «Fuera del ciclo». Cursor de no permitido; no se puede soltar.')}
+   ${fig(cell('bad out',`<div class="top"><span></span><span class="dn">21</span></div>`),'Destino inválido','Rosa con «Fuera del ciclo» o «Día pasado». Cursor de no permitido; no se puede soltar.')}
    ${fig(cell('out',`<div class="top"><span></span><span class="dn">22</span></div>`),'Fuera del ciclo','Rayado gris, sin «+».')}
+   ${fig(cell('out',`<div class="top"><span></span><span class="dn">29</span></div>`,'data-why="past"'),'Día pasado','Ciclo que terminó y sigue activo: no acepta sesiones nuevas ni movidas.')}
    ${fig(cell('ro',`<div class="top"><span></span><span class="dn">3</span></div><div class="cards">${c({n:'Empuje A',st:'hecha',esf:7,min:58})}</div>`),'Solo lectura','Ciclo completado o archivado: sin «+», sin arrastrar.')}
   </div>
   <h2>Guardado</h2><div class="cat" style="grid-template-columns:repeat(auto-fill,minmax(290px,1fr))">

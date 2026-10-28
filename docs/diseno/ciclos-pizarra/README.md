@@ -1,7 +1,7 @@
 ---
 type: design
 parent: "[[PRD-RutinasYProgramacion]]"
-status: proposed
+status: approved
 tags: [diseno, ciclos, pizarra, calendario, coach]
 created: 2026-10-28
 updated: 2026-10-28
@@ -9,7 +9,7 @@ updated: 2026-10-28
 
 # Edición de ciclos como pizarra (CYC-172)
 
-> **Propuesta de diseño, sin construir.** El calendario del ciclo se convierte en una **pizarra**: el coach arrastra rutinas a los días, mueve, duplica y quita sesiones, y crea rutinas nuevas sin salir de la ventana. **Es solo para el coach**: el atleta sigue viendo su ciclo semana a semana, sin arrastrar ni editar.
+> **Diseño aprobado el 2026-10-28 (variante A), sin construir.** El calendario del ciclo se convierte en una **pizarra**: el coach arrastra rutinas a los días, mueve, duplica y quita sesiones, y crea rutinas nuevas sin salir de la ventana. **Es solo para el coach**: el atleta sigue viendo su ciclo semana a semana, sin arrastrar ni editar.
 
 ## Cómo verla
 
@@ -26,9 +26,15 @@ En «Normal» la maqueta funciona de verdad: arrastra una rutina a un día, arra
 
 ## Decisiones tomadas (2026-10-28)
 
+0. **Variante A (panel lateral).** La B queda descartada y se deja en la maqueta solo como referencia.
+
 1. **La pizarra reemplaza la vista Ciclo** de la ficha del atleta (`/athletes/:id`), donde ya vive el calendario desde CYC-171. El panel de rutinas vive dentro de esa vista.
 2. **Autoguardado.** Cada gesto (soltar, mover, duplicar, quitar) se guarda al instante. Un indicador en el encabezado dice **Guardando… / Guardado / No se guardó (Reintentar)**, y cada cambio trae un aviso con **Deshacer** por 6 segundos. No hay botón Guardar.
 3. **Creador rápido de rutinas** en un cajón lateral, con lo mínimo (nombre, ejercicios, series y repeticiones). **Cualquier especificación adicional (peso, descanso, repeticiones en reserva) se captura en una ventana emergente** «Detalles del ejercicio», con los mismos campos y etiquetas del editor de rutinas de la web. Un enlace «Abrir en el editor completo» queda para todo lo demás. Un botón «Agrupar en bloque» deshabilitado con la etiqueta «Pronto» reserva el lugar de las superseries (CYC-108 y CYC-109).
+
+4. **Quitar una sesión es un borrado lógico.** La sesión se marca como quitada y deja de verse, pero no se destruye: **Deshacer** la restaura con todos sus ajustes de ejercicios. Una sesión quitada no aparece en ninguna lista (calendario del coach, «Hoy» y la app del atleta, seguimiento, avisos); su purga definitiva queda para la construcción (propuesta: pasadas 24 horas).
+5. **Un ciclo que terminó y sigue activo no acepta sesiones en días pasados.** Todos sus días salen con la etiqueta «Día pasado», sin «+», y no aceptan soltar. Para seguir planificando, el coach usa «Agregar una semana» o marca el ciclo como completado.
+6. **En tablet y táctil se edita con el «+» y el menú ⋯**; no se construye arrastre con el dedo. El arrastre es solo para ratón.
 
 ## La pantalla
 
@@ -58,9 +64,9 @@ En «Normal» la maqueta funciona de verdad: arrastra una rutina a un día, arra
 | **Sin arrastrar** | El «+» de cada día abre un popover con buscador de rutinas; elegir una la agrega. Funciona con teclado y táctil. Cada rutina del panel también se activa con Enter. |
 | **Mover una sesión** | Arrastrarla a otro día o semana, o menú ⋯ → «Mover a otro día…» (elige semana y día). |
 | **Duplicar** | Menú ⋯ → «Duplicar en otro día…». |
-| **Quitar** | Menú ⋯ → «Quitar de este día». Sin confirmación bloqueante: se quita y aparece el aviso con **Deshacer**. |
+| **Quitar** | Menú ⋯ → «Quitar de este día». Sin confirmación bloqueante: se quita (borrado lógico) y aparece el aviso con **Deshacer**, que la restaura. |
 | **Varias sesiones por día** | Se apilan en la celda en el orden en que se agregaron. El «+» pequeño agrega otra. |
-| **Soltar fuera del ciclo** | Los días fuera de Inicio–Fin salen rayados («Fuera del ciclo») y, al arrastrar, se tiñen de rosa y no aceptan la sesión. |
+| **Soltar fuera del ciclo** | Los días fuera de Inicio–Fin salen rayados («Fuera del ciclo») y, al arrastrar, se tiñen de rosa y no aceptan la sesión. En un ciclo que ya terminó, todos sus días son «Día pasado» y tampoco aceptan sesiones. |
 | **Otra semana** | Botón «Agregar una semana» bajo el calendario: mueve el fin del ciclo 7 días (avisa la nueva fecha) y tiene Deshacer. |
 | **Sesión hecha** | Bloqueada: no se arrastra, no tiene menú y su aviso dice «Ya se registró: no se puede mover ni quitar». |
 | **Crear rutina** | «Crear rutina nueva» abre el cajón (no cambia de página). «Guardar y usar» la agrega a la lista, lista para arrastrar. |
@@ -87,7 +93,7 @@ La pestaña **Hoja de estados** de la maqueta junta todos los estados visuales c
 | Estado | Cómo se ve | Sesiones | Fechas y datos |
 |---|---|---|---|
 | **Activo, en curso** | Pizarra completa | Agregar, mover, duplicar y quitar las que no están hechas | Editables |
-| **Activo, ya terminó** | Franja ámbar: «El ciclo terminó el 20 nov, pero sigue marcado como Activo» | Igual que en curso, dentro de las fechas | Botones «Marcar como completado» y «Agregar una semana» |
+| **Activo, ya terminó** | Franja ámbar: «El ciclo terminó el 20 nov, pero sigue marcado como Activo»; todos los días son «Día pasado» | Se pueden quitar y duplicar las pendientes, pero no agregar ni mover a días pasados | Botones «Marcar como completado» y «Agregar una semana» |
 | **Completado** | Solo lectura; franja azul con «Reabrir ciclo» | Ninguna acción | Solo consultar |
 | **Archivado** | Solo lectura; franja azul con «Reactivar ciclo» | Ninguna acción | Solo consultar |
 
@@ -122,19 +128,18 @@ Esto resuelve la incoherencia de hoy, donde el banner dice «El ciclo terminó»
 
 ## Preguntas abiertas
 
-1. **Variante:** A o B (se recomienda A).
-2. **Deshacer al quitar:** la sesión puede tener ajustes puntuales de ejercicios. ¿Se borra de verdad y «Deshacer» la vuelve a crear desde la rutina (se perderían esos ajustes) o se hace un borrado lógico durante unos segundos? Se recomienda lo segundo.
-3. **Ciclo que ya terminó y sigue activo:** ¿se permite soltar sesiones en días pasados? La propuesta lo permite, para ponerse al día.
-4. **Arrastre táctil en tablet:** ¿basta con el «+» y el menú, o se construye arrastre con el dedo (con una librería de arrastre o eventos propios)?
-5. **Duplicar una sesión ajustada:** ¿copia la sesión tal como quedó (con sus ejercicios modificados) o vuelve a partir de la rutina? La propuesta es copiar la sesión.
-6. **Editar una rutina desde la pizarra:** ¿se abre el mismo cajón con la rutina cargada? Se recomienda que sí; cambiarla afecta solo a las sesiones futuras.
+Las cuatro primeras se cerraron el 2026-10-28 (ver «Decisiones tomadas»). Quedan para la construcción:
+
+1. **Duplicar una sesión ajustada:** ¿copia la sesión tal como quedó (con sus ejercicios modificados) o vuelve a partir de la rutina? La propuesta es copiar la sesión.
+2. **Editar una rutina desde la pizarra:** ¿se abre el mismo cajón con la rutina cargada? Se recomienda que sí; cambiarla afecta solo a las sesiones futuras.
+3. **Purga del borrado lógico:** cuánto tiempo se conserva una sesión quitada antes de borrarse (propuesta: 24 horas) y cómo se limpia.
 
 ## Qué cambia para construirlo (solo la lista; nada de esto está hecho)
 
 **API**
 
 - **Mover una sesión:** hoy `PATCH /sessions/:id` no cambia la semana ni reordena los espacios. Debe aceptar una nueva `scheduledDate`, recalcular la semana y repartir los espacios con la misma regla que la creación por día (`reassignSlots`).
-- **Quitar una sesión:** hoy `DELETE /sessions/:id` responde 409 si tiene ejercicios (hay que quitarlos antes). Hace falta borrarla junto con sus ejercicios cuando no tiene registros, o un borrado lógico para el «Deshacer».
+- **Quitar una sesión (borrado lógico):** hoy `DELETE /sessions/:id` responde 409 si tiene ejercicios. Se agrega un campo `deletedAt` en la sesión: quitar lo marca, **Deshacer** lo limpia (p. ej. `POST /sessions/:id/restore`) y todas las consultas lo excluyen (calendario del coach, `/me/today`, seguimiento, avisos y resumen de actividad). Una tarea programada purga las sesiones quitadas pasado el tiempo definido. Hace falta una migración.
 - **Proteger las sesiones hechas en el servidor:** rechazar mover o borrar una sesión con registro vigente (confirmar si ya ocurre y cubrirlo con pruebas).
 - **Duplicar:** crear con `POST /cycles/:id/sessions` (rutina y fecha) ya sirve; copiar una sesión ajustada pide un endpoint nuevo, p. ej. `POST /sessions/:id/duplicate` con la fecha destino.
 - **Agregar una semana:** `PATCH /cycles/:id` con una nueva `endDate` ya existe.
@@ -144,7 +149,7 @@ Esto resuelve la incoherencia de hoy, donde el banner dice «El ciclo terminó»
 
 - Reemplazar `CycleCalendarView` y `PlanCalendar` por la pizarra; el panel de rutinas, el creador en cajón y la ventana de detalles son componentes nuevos, reutilizando el selector de ejercicios del editor de rutinas.
 - Un solo lugar para las operaciones (agregar, mover, duplicar, quitar) con su función inversa para «Deshacer» y el indicador de guardado, apoyado en react-query (actualización optimista con reversión si falla).
-- Arrastrar y soltar: HTML5 nativo para ratón; decidir la solución para táctil (pregunta 4).
+- Arrastrar y soltar: HTML5 nativo para ratón. En táctil se usa el «+» y el menú ⋯ (decidido).
 - Un cambio de estado del ciclo («Marcar como completado», «Reabrir») usa `PATCH /cycles/:id` con `status`.
 
 ## Fuera de alcance
