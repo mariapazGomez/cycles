@@ -90,9 +90,9 @@ La seed deja la **semana 4** como la actual, con sesiones los lunes, miércoles 
 - **Para mostrar historial y progreso**, usa a Valentina: tiene la ejecución más limpia.
 - **Regenera la demo el mismo día que grabas.** Si grabas en dos días distintos, la demo del segundo día seguirá anclada al lunes de la semana en que se corrió la seed; regenerar entre un día y otro cambiaría los números y las fechas entre videos.
 
-### Limitación conocida: «día tentativo»
+### Fechas de las sesiones
 
-La seed crea las sesiones **sin fecha propia** (`scheduledDate` vacío). La web las ubica en los días que sugiere el ciclo y, desde 2026-10-27, **marca como «Día tentativo»** (borde punteado y etiqueta) las sesiones pendientes sin fecha. En una grabación del calendario del coach se verán esas marcas en las sesiones pendientes. Si no las quieres a cuadro, hay que hacer que la seed fije `scheduledDate` en cada sesión (una mejora pendiente de la seed, no hecha todavía) o asignar a mano algunas sesiones desde el «+» del calendario.
+Desde 2026-10-28 la seed fija la fecha (`scheduledDate`) de cada sesión: lunes, miércoles y viernes de cada semana, a medianoche UTC, como las que fija la web. Por eso el calendario del coach las ubica en su día y no las marca como «Día tentativo». Si ves esa marca, la base se creó con una versión antigua de la seed: regenérala (sección 2).
 
 ---
 

@@ -11,6 +11,7 @@ import { ProfileAvatar } from '../components/ProfileAvatar';
 import { ShareBar } from '../components/ShareBar';
 import { ShareList } from '../components/ShareList';
 import { Spinner } from '../components/Spinner';
+import { ScreenHeader } from '../components/ScreenHeader';
 import { fetchActiveCycles, fetchCycleSessions, fetchMuscleSummary } from '../services/planApi';
 import { colors, noLoadFill } from '../theme/colors';
 import { cardShadow } from '../theme/elevation';
@@ -140,10 +141,7 @@ export function SummaryScreen() {
       style={styles.container}
       contentContainerStyle={[styles.content, { paddingTop: insets.top + 8, paddingBottom: clearance }]}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Resumen</Text>
-        <ProfileAvatar />
-      </View>
+      <ScreenHeader title="Resumen" right={<ProfileAvatar />} />
 
       {error && <Text style={styles.error}>{error}</Text>}
 
@@ -319,10 +317,8 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bgApp },
   content: { paddingHorizontal: 16 },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bgApp },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
-  title: { fontSize: 32, fontWeight: '800', color: colors.ink },
   error: { color: colors.painInk, marginBottom: 16 },
-  card: { backgroundColor: colors.bg, borderRadius: 18, padding: 14, marginBottom: 10, ...cardShadow },
+  card: { backgroundColor: colors.bg, borderRadius: 18, padding: 12, marginBottom: 8, ...cardShadow },
   firstCard: { marginTop: 10 },
   cardTitle: { fontSize: 15, fontWeight: '700', color: colors.ink, marginBottom: 8 },
   chipRow: { gap: 8, paddingBottom: 8 },
@@ -330,7 +326,7 @@ const styles = StyleSheet.create({
   planChipOn: { backgroundColor: colors.ink },
   planChipText: { fontSize: 13, fontWeight: '600', color: colors.inkSecondary },
   planChipTextOn: { color: colors.onBlue },
-  hero: { backgroundColor: colors.ink, borderRadius: 22, padding: 16, marginBottom: 10 },
+  hero: { backgroundColor: colors.ink, borderRadius: 22, padding: 14, marginBottom: 8 },
   heroPlan: { fontSize: 12, color: colors.inkMuted },
   heroRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, marginTop: 2 },
   heroNumber: { fontSize: 40, lineHeight: 42, fontWeight: '800', color: colors.onBlue },
