@@ -241,7 +241,7 @@ Si se elige la opción de compañía (`cycles.<dominio>`), la misma idea se adap
 4. Copiar la conexión: botón **Connect** (arriba) → *Connection string* → método **Session pooler**. Tiene esta forma (sin la contraseña real):
    `postgresql://postgres.<ref>:[YOUR-PASSWORD]@aws-0-us-east-1.pooler.supabase.com:5432/postgres`
    Reemplazar `[YOUR-PASSWORD]` por la contraseña, agregar `?sslmode=require` al final y guardarla en el gestor.
-5. Para que Claude aplique las migraciones: agregarla **tú** en `apps/api/.env` como una variable aparte, `SUPABASE_DATABASE_URL=…`. `DATABASE_URL` sigue apuntando a la base local, para no tocar el desarrollo. Nunca pegarla en el chat (R1).
+5. Para que Claude aplique las migraciones: agregarla **tú** en `~/.cycles-secretos/produccion.env` (permisos 600) como `SUPABASE_DATABASE_URL=…`, **no** en `apps/api/.env` (desde 2026-10-28; ver `docs/AUDITORIA-SECRETOS.md`). `DATABASE_URL` sigue apuntando a la base local, para no tocar el desarrollo. Nunca pegarla en el chat (R1).
 
 ### 2.3 Lo que hace Claude
 
@@ -258,12 +258,12 @@ Leyendo `SUPABASE_DATABASE_URL` del `.env` sin mostrarla en pantalla:
 ### 2.4 Qué queda para el paso 3
 
 - En Render, `DATABASE_URL` es la misma URL del *session pooler*. Las migraciones de cada deploy se corren al construir (`prisma migrate deploy`), con la misma variable.
-- Después del paso 3, `SUPABASE_DATABASE_URL` puede quedarse en el `.env` local solo para los respaldos (2.5) o borrarse.
+- Después del paso 3, `SUPABASE_DATABASE_URL` puede quedarse en `~/.cycles-secretos/produccion.env` solo para los respaldos (2.5) o borrarse.
 
 ### 2.5 Respaldos durante el piloto
 
 - **Cada lunes por la mañana** (decisión del 2026-10-10) y antes de cada migración nueva: un `pg_dump` de la base de Supabase a un archivo local, guardado fuera del repo (por ejemplo, en una carpeta privada de Google Drive). Contiene datos de personas: nunca en el repo, que es público, ni en un chat.
-- **Script de un solo comando** (hecho el 2026-10-06): `bash apps/api/scripts/respaldo-supabase.sh`. Lee `SUPABASE_DATABASE_URL` de `apps/api/.env` (nunca la imprime), respalda solo el esquema `public` (sin los esquemas internos de Supabase) en formato comprimido y guarda el archivo en `~/Respaldos-Cycles` con permisos solo para ti. Si el respaldo falla, no deja un archivo a medias.
+- **Script de un solo comando** (hecho el 2026-10-06): `bash apps/api/scripts/respaldo-supabase.sh`. Lee `SUPABASE_DATABASE_URL` de `~/.cycles-secretos/produccion.env`, o de `apps/api/.env` si no está ahí (nunca la imprime), respalda solo el esquema `public` (sin los esquemas internos de Supabase) en formato comprimido y guarda el archivo en `~/Respaldos-Cycles` con permisos solo para ti. Si el respaldo falla, no deja un archivo a medias.
 - **Necesita `pg_dump` 17 o más nuevo** (Supabase usa Postgres 17; un `pg_dump` más viejo se niega a funcionar). En el Mac de la fundadora, macOS 14 ya no tiene soporte de Homebrew y `brew` no logró descargarlo, así que se compiló solo el cliente desde la fuente oficial (`postgresql-17.11`, suma sha256 contrastada con la de Homebrew) en `~/.local/pg17`; el script lo busca primero ahí.
 - **Respaldos hechos:** 2026-10-06 y 2026-10-10 (este último ya con la migración del PR #44, que agregó `ExerciseLog.active`; esa migración no tuvo respaldo previo propio, la cubre el del 06-10). El recordatorio recurrente de los lunes lo crea la usuaria (T-024).
 - **Restauración probada** (2026-10-06): se restauró en una base local descartable y los conteos de 10 tablas coincidieron con producción. Al restaurar en un Postgres anterior al 17 sale el aviso inofensivo `unrecognized configuration parameter "transaction_timeout"`. Para restaurar: `~/.local/pg17/bin/pg_restore --no-owner --no-acl -d <base> <archivo>`.

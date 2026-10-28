@@ -65,7 +65,7 @@ Notas:
 La app móvil en desarrollo siempre llama a `http://localhost:3000` (`apps/mobile/src/config/env.ts`). Por eso la forma más simple es **correr la API de la demo en el puerto 3000**, en lugar de tu API de desarrollo. Así la web y el celular funcionan sin cambiar nada.
 
 1. **Apaga tu API de desarrollo** (solo ese proceso, no uses `pkill` amplios: puede haber otra cosa corriendo).
-2. **Arranca la API con la base de la demo y sin envíos reales.** Tu `apps/api/.env` tiene claves reales de Resend (correo) y de Slack; si las dejas, una invitación o un aviso grabado **enviaría correos o mensajes de verdad**. Se vacían solo para este proceso:
+2. **Arranca la API con la base de la demo y sin envíos reales.** Desde 2026-10-28 tu `apps/api/.env` trae vacías las claves de Resend (correo) y de Slack, así que nada se envía. Si alguna vez las vuelves a poner, una invitación o un aviso grabado **enviaría correos o mensajes de verdad**: vacíalas solo para este proceso, como en este comando (no hace daño dejarlas):
    ```bash
    cd apps/api
    DATABASE_URL=postgresql://$USER@localhost:5432/cycles_demo \
