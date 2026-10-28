@@ -30,6 +30,7 @@ import { CreateLoadAdjustmentDto } from "./dto/create-load-adjustment.dto";
 // vigente, y por ejercicio los objetivos y las series vigentes.
 const CYCLE_WITH_EXECUTION = {
   sessions: {
+    where: { deletedAt: null },
     orderBy: [{ weekNumber: "asc" as const }, { slotNumber: "asc" as const }],
     include: {
       feedback: { where: CURRENT_FEEDBACK },
@@ -339,7 +340,7 @@ export class TrackingService {
       where: {
         exerciseId: dto.exerciseId,
         targetWeight: { not: null },
-        session: { cycleId, status: "pending", weekNumber: { gte: dto.fromWeek } },
+        session: { cycleId, status: "pending", deletedAt: null, weekNumber: { gte: dto.fromWeek } },
       },
     });
     if (targets.length === 0) {

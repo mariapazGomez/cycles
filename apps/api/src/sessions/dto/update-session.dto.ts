@@ -1,4 +1,4 @@
-import { IsDateString, IsEnum, IsOptional, IsString, MinLength } from "class-validator";
+import { IsDateString, IsEnum, IsOptional, IsString, Matches, MinLength } from "class-validator";
 import { SessionStatus } from "@prisma/client";
 
 export class UpdateSessionDto {
@@ -14,4 +14,9 @@ export class UpdateSessionDto {
   @IsOptional()
   @IsEnum(SessionStatus)
   status?: SessionStatus;
+
+  // Fecha local del coach (AAAA-MM-DD) al mover la sesión; ver createSession.
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  today?: string;
 }

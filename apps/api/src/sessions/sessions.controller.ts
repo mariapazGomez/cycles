@@ -17,6 +17,7 @@ import { CurrentUser, AuthenticatedUser } from "../common/decorators/current-use
 import { SessionsService } from "./sessions.service";
 import { CreateSessionDto } from "./dto/create-session.dto";
 import { UpdateSessionDto } from "./dto/update-session.dto";
+import { DuplicateSessionDto } from "./dto/duplicate-session.dto";
 import { AddSessionExerciseDto } from "./dto/add-session-exercise.dto";
 import { UpdateSessionExerciseDto } from "./dto/update-session-exercise.dto";
 
@@ -66,6 +67,24 @@ export class SessionsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   deleteSession(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string) {
     return this.sessionsService.deleteSession(user.id, id);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles("coach")
+  @Post("sessions/:id/restore")
+  restoreSession(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string) {
+    return this.sessionsService.restoreSession(user.id, id);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles("coach")
+  @Post("sessions/:id/duplicate")
+  duplicateSession(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("id") id: string,
+    @Body() dto: DuplicateSessionDto,
+  ) {
+    return this.sessionsService.duplicateSession(user.id, id, dto);
   }
 
   @UseGuards(RolesGuard)

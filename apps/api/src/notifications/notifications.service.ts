@@ -95,13 +95,13 @@ export class NotificationsService {
         where: { id: sessionId },
         include: { cycle: { include: { coach: true } } },
       });
-      if (!session || session.status !== "pending") return;
+      if (!session || session.deletedAt || session.status !== "pending") return;
       const { cycle } = session;
       if (cycle.status !== "active" || cycle.cycleType === "macrocycle") return;
 
       const logged = await this.prisma.exerciseLog.count({ where: { sessionExercise: { sessionId } } });
       if (logged > 0) return;
-      const exercises = await this.prisma.sessionExercise.count({ where: { session: { cycleId: cycle.id } } });
+      const exercises = await this.prisma.sessionExercise.count({ where: { session: { cycleId: cycle.id, deletedAt: null } } });
       if (exercises === 0) return;
 
       if (!cycle.athleteId) return;

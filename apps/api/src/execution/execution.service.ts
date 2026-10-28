@@ -70,7 +70,7 @@ export class ExecutionService {
       }
       if (usable.length > 0) {
         assignedToday = await this.prisma.trainingSession.findMany({
-          where: { cycleId: { in: usable.map((c) => c.id) }, status: "pending", scheduledDate: day },
+          where: { cycleId: { in: usable.map((c) => c.id) }, status: "pending", scheduledDate: day, deletedAt: null },
           orderBy: [{ weekNumber: "asc" }, { slotNumber: "asc" }],
           select: { id: true, name: true, cycleId: true, weekNumber: true, slotNumber: true },
         });
@@ -79,7 +79,7 @@ export class ExecutionService {
 
     if (query.sessionId) {
       const chosen = await this.prisma.trainingSession.findFirst({
-        where: { id: query.sessionId, status: "pending", cycleId: { in: usable.map((c) => c.id) } },
+        where: { id: query.sessionId, status: "pending", deletedAt: null, cycleId: { in: usable.map((c) => c.id) } },
         include,
       });
       if (!chosen) {
@@ -91,7 +91,7 @@ export class ExecutionService {
 
     for (const cycle of usable) {
       const session = await this.prisma.trainingSession.findFirst({
-        where: { cycleId: cycle.id, status: "pending" },
+        where: { cycleId: cycle.id, status: "pending", deletedAt: null },
         orderBy: [{ weekNumber: "asc" }, { slotNumber: "asc" }],
         include,
       });
@@ -289,7 +289,7 @@ export class ExecutionService {
     }
 
     const sessions = await this.prisma.trainingSession.findMany({
-      where: { cycleId, status: { not: "skipped" } },
+      where: { cycleId, status: { not: "skipped" }, deletedAt: null },
       orderBy: [{ weekNumber: "asc" }, { slotNumber: "asc" }],
       select: {
         id: true,
@@ -364,7 +364,7 @@ export class ExecutionService {
       where: { id: sessionId },
       include: { cycle: true },
     });
-    if (!session) {
+    if (!session || session.deletedAt) {
       throw new NotFoundException("Sesión no encontrada.");
     }
     if (session.cycle.athleteId !== athleteId) {

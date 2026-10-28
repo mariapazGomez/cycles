@@ -33,3 +33,15 @@ export function reassignSlots(rows: SlotRow[]): Map<string, number> {
   });
   return changes;
 }
+
+// Primer día en que se puede ubicar una sesión («solo desde hoy»). El servidor
+// no conoce la zona horaria del coach: la web manda su fecha local (`today`) y
+// se acepta si está a un día o menos del día UTC del servidor. Sin `today` se
+// tolera un día hacia atrás. Devuelve null si `today` no es válido.
+export function earliestAllowedDay(now: Date, today?: string): Date | null {
+  const utcToday = startOfUtcDay(now);
+  if (today === undefined) return new Date(utcToday.getTime() - DAY_MS);
+  const day = new Date(`${today}T00:00:00.000Z`);
+  if (Number.isNaN(day.getTime()) || Math.abs(day.getTime() - utcToday.getTime()) > DAY_MS) return null;
+  return day;
+}

@@ -265,6 +265,10 @@ model TrainingSession {
   routineId     String?
   // Lo marca el atleta al empezar; base para pre-calcular la duración.
   startedAt     DateTime?
+  // Borrado lógico (pizarra del ciclo): «Quitar» solo marca la sesión; Deshacer
+  // la restaura. Sigue ocupando su espacio (ciclo, semana, espacio). Se destruye
+  // solo si no tiene series ni cierre del atleta (regla R7).
+  deletedAt     DateTime?
 
   cycle            TrainingCycle     @relation(fields: [cycleId], references: [id])
   routine          Routine?          @relation(fields: [routineId], references: [id], onDelete: SetNull)
@@ -272,6 +276,7 @@ model TrainingSession {
   feedback         SessionFeedback[]
 
   @@unique([cycleId, weekNumber, slotNumber])
+  @@index([deletedAt])
 }
 
 model Exercise {
