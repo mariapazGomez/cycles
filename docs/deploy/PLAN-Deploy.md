@@ -439,11 +439,68 @@ Render gratis duerme la API tras 15 minutos sin tráfico y tarda hasta un minuto
   - **Actualización 2026-10-12:** la política y los términos están redactados como páginas estáticas en `/privacidad` y `/terminos` ([[PRD-PrivacidadYTerminos]]), pendientes de revisión legal, de crear el correo `privacidad@getcycles.app` y de confirmar los compromisos del PRD (sección 4). Cuando se publiquen, cargarlas en *Branding* de Google OAuth y en App Store Connect.
 - Actualizar `FRONTEND_URL`, `VITE_API_URL`, CORS y los *redirect URIs* de Google con las URLs definitivas.
 
-## Paso 7 · Prueba de punta a punta y piloto *(por detallar)*
+## Paso 7 · Prueba de punta a punta y piloto *(detallado 2026-10-29)*
 
-- **Antes de abrir el piloto:** resolver los hallazgos de severidad alta de `docs/SEGURIDAD.md` (S-01 límite de intentos, S-02 tokens de Google en la URL, S-03 dependencias).
-- Recorrer: registro de coach → invitación → atleta acepta → plan con grid → registro de una sesión desde el celular → avisos del coach.
-- Borrar los datos de prueba y dar acceso a los coaches del piloto.
+Borrador de Claude para que la fundadora lo ajuste (tarea CYC-47). Los números P-nn son las filas de `docs/PRUEBAS-PENDIENTES.md`. Nada de este paso se ejecuta sin que ella lo pida; lo que toca producción (crear cuentas, borrar datos, cargar el código de acceso) lo hace ella.
+
+### 7.1 Puertas antes de empezar
+
+| Puerta | Estado al 2026-10-29 | Dónde se cierra |
+|---|---|---|
+| Hallazgos altos de seguridad (S-01, S-02, S-03, S-13) | Resueltos | `docs/SEGURIDAD.md` |
+| Secretos: JWT de producción distintos a los de desarrollo y llave de Android respaldada | Pendiente de confirmar | CYC-177, política en `docs/SEGURIDAD.md` |
+| Respaldo de la base hecho **justo antes** del recorrido y respaldo semanal programado | Respaldo manual disponible (`respaldo-supabase.sh`); falta programarlo | CYC-43 / paso 2.5 |
+| La API no se duerme: monitor de `/health` activo y comprobado (P-20), o decisión de pasar a Starter | Monitor pendiente; decisión de Starter pendiente | paso 3.10 |
+| Privacidad cerrada: los 8 compromisos de la política confirmados, `privacidad@getcycles.app` existente, `/privacidad` y `/terminos` publicadas (P-21) | Pendiente | CYC-48, CYC-49 |
+| Avisos de Slack probados durante el recorrido | Pendiente | paso 8.5 |
+
+### 7.2 Ensayo general: recorrido de punta a punta (lo hace la fundadora)
+
+Un solo recorrido, con **una coach de prueba y 2 o 3 atletas**, en celular real (iPhone con TestFlight y Android con la web), usando alias de Gmail (`+coach`, `+atleta…`), no las cuentas reales. Absorbe CYC-33 (pantallas de auth e inicio, P-16), CYC-34 (avisos de Slack, 8.5), CYC-35 (constructor de rutinas con la API real, P-14), CYC-40 (registro de sesión en celular real, P-10) y las pruebas P-25 y P-26. Cada paso se marca en `PRUEBAS-PENDIENTES.md` con fecha y resultado; lo que falle pasa a un issue.
+
+1. **Entrada del coach:** abrir el enlace privado `app.getcycles.app/register?codigo=…` (el valor viene de 1Password), crear la cuenta, verificar el correo y aceptar la política y los términos. Comprobar que **sin el código** el registro sigue cerrado.
+2. **Invitar a varios atletas** (2 o 3 alias `+atleta`) y ver el Inicio del coach con todos: el correo llega a la bandeja (no a spam), el atleta lo abre **desde el celular**, crea su contraseña y acepta la política (P-01).
+3. **Armar el ciclo y los ejercicios:** crear un ejercicio y dejar un comentario por ejercicio (lo ve el atleta);  «Nuevo ciclo» desde la ficha, crear una rutina en el cajón, arrastrarla a los días de la pizarra y ver que el atleta ya puede entrenar; un segundo ciclo queda minimizado (P-25, P-26 y las pruebas de la pizarra).
+4. **Sesión del atleta en un celular real:** ver Hoy, empezar la sesión, registrar series con el descanso, cerrar con el esfuerzo y el dolor (P-10; P-07 es deseable).
+5. **Seguimiento del coach:** ver la sesión en Inicio y en la pizarra, y que el aviso de dolor o de carga aparece en «Necesitan atención» (P-21).
+6. **Recuperar la contraseña** de ambas cuentas (P-03) e **iniciar sesión con Google** (P-09, ya hecha).
+7. **Slack:** durante todo el recorrido deben llegar los avisos de actividad y, si se provoca, el de seguridad (8.5).
+   **Velocidad:** con el monitor activo, la API responde en menos de 2 s (P-20).
+8. **App iOS (TestFlight):** el mismo atleta entra y registra otra sesión; privacidad y términos abren (P-23).
+
+**Pruebas que deben estar cerradas para abrir:** P-01, P-03, P-10, P-14, P-16, P-19, P-20, P-21, P-25, P-26. **No bloquean:** P-06, P-07, P-15 (sin reproducir), P-18.
+
+### 7.3 Limpieza de los datos de prueba (propuesta, a confirmar)
+
+Antes de dar acceso a un coach real se borran los datos creados en el recorrido y los de las pruebas anteriores. La fundadora ejecuta un SQL en el editor de Supabase que Claude le entrega **solo después de un respaldo** y de acordar la lista exacta de qué se conserva.
+
+- **Se conserva:** la cuenta real de coach con Google (P-09), el plan «Rutina en Casa 1» y su atleta (datos reales de la fundadora), la cuenta de demostración de Apple (CYC-50) y todo lo de `cycles_demo` (otra base).
+- **Se borra:** las cuentas `+coach`, `+coach1`, `+atleta`, `+atleta1` y lo que cuelgue de ellas, y los ciclos, rutinas y sesiones de prueba del recorrido.
+- La limpieza **no se reutiliza** más adelante con coaches reales: después del piloto solo se borra a petición de la persona (ver política de privacidad).
+
+### 7.4 Abrir el piloto
+
+1. Respaldo de la base y confirmar que el monitor de `/health` está en verde.
+2. Crear `PILOT_ACCESS_CODE` (mínimo 16 caracteres, guardado en 1Password) y cargarlo en Render; el registro sigue cerrado para todos los demás.
+3. Enviar el enlace privado `…/register?codigo=…` al primer coach (el *early user*, que quiere empezar a principios de noviembre) y acompañar su alta y su primera sesión con `docs/MANUAL-COACH.md` (CYC-168).
+4. Armar el panel de PostHog del piloto (CYC-137, métricas en CYC-67) y tener a la vista el canal `#cycles-actividad`.
+5. Los coaches siguientes entran con el mismo enlace o con un código nuevo; para dejar de dar acceso, borrar o cambiar el código.
+
+**Primera semana:** mirar cada mañana el resumen diario de Slack, el estado de `/health` y los errores de Render; responder a las dudas del coach el mismo día; anotar lo que no entendió en vez de explicarlo (alimenta el onboarding).
+
+### 7.5 Si algo sale mal
+
+- **Cerrar el acceso:** borrar o cambiar `PILOT_ACCESS_CODE` en Render (inmediato; las cuentas existentes siguen funcionando).
+- **Datos dañados:** restaurar desde el último respaldo (`respaldo-supabase.sh`); por eso se respalda antes de cada paso de riesgo.
+- **Un despliegue malo:** revertir al despliegue anterior desde el panel de Vercel (web) o de Render (API).
+- **Un secreto expuesto:** seguir «Si se filtra un secreto» en `docs/SEGURIDAD.md`.
+
+### 7.6 Listo cuando
+
+- [ ] Las puertas de 7.1 están cerradas.
+- [ ] El recorrido de 7.2 se completó y las pruebas obligatorias están marcadas en `PRUEBAS-PENDIENTES.md`.
+- [ ] Los datos de prueba se limpiaron (7.3) y hay un respaldo posterior.
+- [ ] Un coach real recibió el enlace privado y creó su cuenta sin ayuda.
 
 ## Paso 8 · Avisos de actividad del piloto en Slack
 
