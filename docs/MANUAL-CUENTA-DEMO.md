@@ -2,7 +2,33 @@
 
 Guía para hacer una demo en vivo de Cycles en https://app.getcycles.app sin levantar nada. Complementa a [MANUAL-DEMOS.md](MANUAL-DEMOS.md), que explica cómo crear y reiniciar la demo (sección 6).
 
-> **Contraseña:** una sola para las nueve cuentas, en `~/.cycles-secretos/demo/DEMO_PASSWORD`. Nunca la escribas en un chat, en Linear ni en Notion, y cuida que no salga a cuadro. Para copiarla sin verla: `pbcopy < ~/.cycles-secretos/demo/DEMO_PASSWORD`.
+## 0. De dónde sale la contraseña
+
+Las nueve cuentas (el coach y los ocho atletas) comparten **una sola contraseña**. No está en el repo ni en ningún servicio: se la elige quien crea la demo y se guarda en un archivo del computador de quien la creó.
+
+- **Dónde está:** en el archivo `~/.cycles-secretos/demo/DEMO_PASSWORD` del Mac donde se creó la demo (carpeta de usuario → `.cycles-secretos` → `demo`). Es una carpeta oculta; en el Finder se ven con `Cmd + Shift + .`.
+- **Para copiarla sin verla** (queda en el portapapeles, lista para pegar en el login):
+
+  ```bash
+  pbcopy < ~/.cycles-secretos/demo/DEMO_PASSWORD
+  ```
+
+- **Para verla** (solo si estás a solas, nunca a cuadro ni compartiendo pantalla):
+
+  ```bash
+  cat ~/.cycles-secretos/demo/DEMO_PASSWORD
+  ```
+
+- **Si el archivo no existe** (computador nuevo, carpeta borrada): la contraseña se perdió. Genera una nueva y vuelve a crear la demo para que las cuentas queden con ella (sección 6 de [MANUAL-DEMOS.md](MANUAL-DEMOS.md)):
+
+  ```bash
+  mkdir -p ~/.cycles-secretos/demo && umask 077 && openssl rand -base64 18 | tr -d '/+=' | cut -c1-16 > ~/.cycles-secretos/demo/DEMO_PASSWORD
+  ```
+
+- **Respaldo:** guárdala también en tu gestor de contraseñas, con el nombre «Cycles demo». Así no depende de un solo computador.
+- **Regla:** nunca la escribas en el repo, en un chat, en Linear ni en Notion, y cuida que no salga a cuadro. El repo es público.
+
+Si le pasas la demo a otra persona, entrégale la contraseña por tu gestor de contraseñas, no por mensaje.
 
 ---
 
@@ -86,6 +112,6 @@ Entra con `valentina.soto@example.com` (o con Javiera si quieres mostrar el dolo
 |---|---|
 | La app tarda mucho en entrar | La API estaba dormida; espera 30–60 segundos y vuelve a intentar. |
 | «Esta semana» muestra fechas viejas | Reinicia la demo (sección 6 de MANUAL-DEMOS.md). |
-| Contraseña rechazada | Revisa el archivo `~/.cycles-secretos/demo/DEMO_PASSWORD` y que la demo se haya creado con esa misma contraseña. |
+| Contraseña rechazada | Usa la de la sección 0. Si el archivo cambió después de crear la demo, la demo quedó con otra: reiníciala para que use la actual. |
 | Falta un atleta o cambió algo | Reinicia la demo: borra y recrea las nueve cuentas. |
 | Aparece la pantalla de aceptar términos | Se subió la versión de los textos legales; reinicia la demo. |
