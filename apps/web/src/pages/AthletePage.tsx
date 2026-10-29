@@ -1,20 +1,19 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { TrainingCycle } from "@cycles/shared";
 import * as cyclesApi from "../services/cyclesApi";
 import * as athletesApi from "../services/athletesApi";
 import { ApiError } from "../services/httpClient";
-import { CYCLE_STATUS_LABEL, CYCLE_TYPE_LABEL, libraryPath } from "../lib/library";
+import { libraryPath } from "../lib/library";
 import { usePageBackground } from "../hooks/usePageBackground";
 import { usePageWide } from "../hooks/usePageWide";
 import { LoadingScreen } from "../components/LoadingScreen";
-import { CycleBoard } from "../components/board/CycleBoard";
-import { Popover } from "../components/board/Popover";
+import { CycleSection } from "../components/board/CycleSection";
 import { NewCycleDialog } from "../components/board/NewCycleDialog";
+import { orderSections, sectionKind } from "../lib/cycleSections";
 import { suggestStart } from "../lib/newCycle";
 import { toLocalDay } from "../lib/calendar";
-import { CycleEditForm } from "../components/CycleEditForm";
 import { AthleteSummaryView } from "./AthleteSummaryView";
 import { track } from "../lib/analytics";
 
@@ -29,34 +28,30 @@ function initials(name: string): string {
     .join("");
 }
 
-// Las fechas del ciclo se guardan a medianoche UTC: se leen en UTC para que un
-// 21 de octubre no se vea como 20 en una zona al oeste de Greenwich.
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" });
-}
-
-// Activo primero; después, el más reciente.
-function sortCycles(cycles: TrainingCycle[]): TrainingCycle[] {
-  return [...cycles].sort((a, b) => {
-    if ((a.status === "active") !== (b.status === "active")) return a.status === "active" ? -1 : 1;
-    return b.startDate.localeCompare(a.startDate);
-  });
-}
-
 // Ficha del atleta (docs/diseno/biblioteca): vista Ciclo, con el calendario y un
 // «+» en cada día, y vista Resumen, con la carga y la adherencia.
 export function AthletePage() {
   const { athleteId = "" } = useParams();
   const [params, setParams] = useSearchParams();
   const [view, setView] = useState<View>("ciclo");
-  const [dataAnchor, setDataAnchor] = useState<HTMLElement | null>(null);
+  // Lo que la coach abre o cierra a mano; sin tocar nada, solo el ciclo en curso va abierto.
+  const [toggled, setToggled] = useState<Record<string, boolean>>({});
   const [showAssign, setShowAssign] = useState(false);
   const [showNewCycle, setShowNewCycle] = useState(false);
+  // Ciclo que acaba de crearse o asignarse: cuando llega a la lista se abre y se muestra.
+  const [pendingScroll, setPendingScroll] = useState<string | null>(null);
   usePageBackground();
   usePageWide();
 
   const athletesQuery = useQuery({ queryKey: ["athletes"], queryFn: athletesApi.listAthletes });
   const cyclesQuery = useQuery({ queryKey: ["cycles"], queryFn: cyclesApi.listCycles });
+  useEffect(() => {
+    if (!pendingScroll) return;
+    const target = document.getElementById(`ciclo-${pendingScroll}`);
+    if (!target) return;
+    target.scrollIntoView({ block: "start", behavior: "smooth" });
+    setPendingScroll(null);
+  }, [pendingScroll, cyclesQuery.data]);
 
   if (athletesQuery.isLoading || cyclesQuery.isLoading) return <LoadingScreen />;
   const athlete = (athletesQuery.data ?? []).map((r) => r.athlete).find((a) => a.id === athleteId);
@@ -64,12 +59,20 @@ export function AthletePage() {
     return <div className="error-banner">No se pudo cargar a este atleta.</div>;
   }
 
-  const cycles = sortCycles((cyclesQuery.data ?? []).filter((c) => c.athleteId === athleteId && !c.isTemplate));
-  const selected = cycles.find((c) => c.id === params.get("ciclo")) ?? cycles[0] ?? null;
+  const today = toLocalDay(new Date());
+  const { cycles, current } = orderSections(
+    (cyclesQuery.data ?? []).filter((c) => c.athleteId === athleteId && !c.isTemplate),
+    today,
+  );
+  // Se abren por defecto el ciclo en curso y el que pida el enlace (?ciclo=).
+  const linked = params.get("ciclo");
+  const isOpen = (cycle: TrainingCycle) => toggled[cycle.id] ?? (cycle === current || cycle.id === linked);
 
+  // Abre el ciclo (p. ej. el recién creado) y lo deja a la vista.
   function selectCycle(id: string) {
-    setDataAnchor(null);
+    setToggled((prev) => ({ ...prev, [id]: true }));
     setParams({ ciclo: id }, { replace: true });
+    setPendingScroll(id);
   }
 
   return (
@@ -117,7 +120,7 @@ export function AthletePage() {
 
       {view === "resumen" ? (
         <AthleteSummaryView athleteId={athleteId} />
-      ) : !selected ? (
+      ) : cycles.length === 0 ? (
         <div className="hm-card pl-form">
           <p>
             {athlete.name} todavía no tiene ciclos. Asigna uno de la Biblioteca o crea uno nuevo aquí.
@@ -129,62 +132,31 @@ export function AthletePage() {
       ) : (
         <>
           <div className="pl-cycle-bar">
-            <label className="pl-cycle-select">
-              <select aria-label="Ciclo" value={selected.id} onChange={(e) => selectCycle(e.target.value)}>
-                {cycles.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <div className="pl-chips">
-              <span className={selected.status === "active" ? "pill pill-blue" : "pill"}>
-                {CYCLE_STATUS_LABEL[selected.status]}
-              </span>
-              <span className="pill">{CYCLE_TYPE_LABEL[selected.cycleType]}</span>
-              <span className="pill">
-                {formatDate(selected.startDate)} – {formatDate(selected.endDate)}
-              </span>
-            </div>
             <button type="button" className="button-secondary pl-edit" onClick={() => setShowNewCycle(true)}>
               Nuevo ciclo
             </button>
-            <button
-              type="button"
-              className="button-secondary pl-edit"
-              aria-haspopup="dialog"
-              aria-expanded={dataAnchor !== null}
-              onClick={(e) => setDataAnchor(dataAnchor ? null : e.currentTarget)}
-            >
-              Datos del ciclo
-            </button>
           </div>
-          {selected.objective && <p className="pl-objective">{selected.objective}</p>}
-
-          {dataAnchor && (
-            <Popover anchor={dataAnchor} label="Datos del ciclo" width={360} onClose={() => setDataAnchor(null)}>
-              <CycleEditForm cycle={selected} onClose={() => setDataAnchor(null)} />
-            </Popover>
-          )}
-
-          {selected.cycleType === "macrocycle" ? (
-            <div className="hm-card pl-form">
-              <p>
-                Un macrociclo agrupa otros ciclos. <Link to={`/cycles/${selected.id}`}>Abrir el macrociclo</Link>
-              </p>
-            </div>
-          ) : (
-            <CycleBoard key={selected.id} cycle={selected} athlete={{ id: athlete.id, name: athlete.name }} />
-          )}
+          <div className="cs-list">
+            {cycles.map((cycle) => (
+              <div key={cycle.id} id={`ciclo-${cycle.id}`} className="cs-anchor">
+                <CycleSection
+                  cycle={cycle}
+                  athlete={{ id: athlete.id, name: athlete.name }}
+                  kind={sectionKind(cycle, current, today)}
+                  open={isOpen(cycle)}
+                  onToggle={() => setToggled((prev) => ({ ...prev, [cycle.id]: !isOpen(cycle) }))}
+                />
+              </div>
+            ))}
+          </div>
         </>
       )}
       {showNewCycle && (
         <NewCycleDialog
           athleteName={athlete.name}
           athleteId={athleteId}
-          defaultStart={suggestStart(cycles, toLocalDay(new Date()))}
-          defaultSessions={selected?.sessionsPerWeek ?? undefined}
+          defaultStart={suggestStart(cycles, today)}
+          defaultSessions={current?.sessionsPerWeek ?? undefined}
           onClose={() => setShowNewCycle(false)}
           onCreated={(cycle) => {
             setShowNewCycle(false);
