@@ -53,5 +53,5 @@ Fondo `#1f2228` o `#3080fc` con la **cadena de perlas** de la landing (perlas de
 - [ ] Mismo usuario y misma foto en todas las redes (CYC-140).
 - [ ] La biografía no promete resultados ni usa cifras.
 - [ ] El enlace abre la landing desde un celular sin sesión iniciada.
-- [ ] La cuenta está guardada en 1Password, bóveda `Cycles · Marca`, con verificación en dos pasos (ver [[../SEGURIDAD]]).
+- [ ] La cuenta está guardada en 1Password, bóveda `Cycles · Marca`, con verificación en dos pasos (ver `docs/SEGURIDAD.md`).
 - [ ] Un coach que llega solo al perfil entiende en una frase qué es Cycles.
