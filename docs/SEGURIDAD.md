@@ -33,6 +33,36 @@ updated: 2026-10-27
 | Secretos de GitHub Actions | `ACTIVITY_CRON_SECRET` (el mismo de Render), usado por `.github/workflows/resumen-actividad.yml` | El repo es público: el workflow nunca imprime el secreto ni los totales del resumen. |
 | Variables de Render y Vercel (producción) | Los mismos secretos que `.env`, con valores distintos | Solo en el panel de cada servicio y en el gestor de contraseñas. Ver `docs/deploy/PLAN-Deploy.md`. |
 
+### Contraseñas y accesos (1Password)
+
+Política de CYC-156 (épica «Accesos y contraseñas»). Aplica a toda cuenta, clave, llave o código de recuperación del proyecto. Es la parte práctica de R1: **el repo es público, así que aquí solo se escriben nombres de bóvedas y de elementos, nunca valores ni los correos con que se registró cada cuenta.**
+
+**Dónde vive cada cosa**
+
+| Bóveda (propuesta) | Qué guarda |
+|---|---|
+| `Cycles · Producción` | Cuentas de los proveedores (GitHub, Supabase, Render, Vercel, Cloudflare, Resend, Slack, PostHog, cron-job.org, Google Cloud) y las claves de producción: URL de la base, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `RESEND_API_KEY`, webhooks de Slack, `ACTIVITY_CRON_SECRET`, `PILOT_ACCESS_CODE`, credenciales de Google |
+| `Cycles · Desarrollo` | Las claves de desarrollo y las cuentas ficticias (`DEMO_PASSWORD`, cuenta de demostración de Apple) |
+| `Cycles · Firmas` | La llave de Android (`cycles-upload.keystore`, su contraseña, el alias y la contraseña de la llave), Apple Developer / App Store Connect y Google Play Console |
+| `Cycles · Marca` | El correo de las redes y las cuentas de TikTok, Instagram, LinkedIn y YouTube, y `privacidad@getcycles.app` |
+| `Emergencia` | El kit de recuperación de 1Password y el contacto de emergencia (ver «Recuperación») |
+
+**Reglas**
+1. **Un solo gestor** (1Password). Ninguna contraseña, llave ni código de recuperación vive en notas, en el navegador, en el historial de la terminal, en un chat, en Notion, en Linear ni en un archivo suelto. Las excepciones son las variables de entorno que Render, Vercel y GitHub Actions exigen (el valor se copia **desde** 1Password al panel, nunca al revés ni desde otro lugar) y los archivos locales de la tabla de arriba (permisos 600).
+2. **Contraseñas generadas por el gestor**: al menos 20 caracteres aleatorios y **una distinta por cuenta**, sin reutilizar jamás. Solo la contraseña maestra es una frase larga que se memoriza.
+3. **Verificación en dos pasos en toda cuenta que la ofrezca**, con app autenticadora o llave de seguridad; SMS solo si no hay otra opción. Los códigos de recuperación se guardan como adjunto del mismo elemento.
+4. **Nombres de elementos**: `Servicio · entorno · uso` (por ejemplo, `Resend · prod · API key de envío`). Así en Linear y en los documentos se cita «bóveda X, elemento Y», sin valor.
+5. **Mínimo privilegio**: una clave por uso y con el menor permiso posible (R1.3). Si un servicio permite cuentas separadas de lectura y de administración, se usa la de lectura por defecto.
+6. **Cuentas nuevas nacen en el gestor**: antes de abrir una cuenta de marca o de proveedor, se crea el elemento en la bóveda correspondiente y se genera ahí la contraseña.
+7. **Claude y las sesiones de ejecución nunca reciben ni escriben valores**: se les nombra el elemento («bóveda X, elemento Y») y la persona hace el paso que requiere el valor. Si un archivo local con secretos es necesario (p. ej. `~/.cycles-secretos/demo/DEMO_PASSWORD`), los scripts lo leen sin imprimirlo.
+8. **Scripts**: no piden contraseñas ni las reciben por argumentos (quedarían en el historial). Leen de un archivo con permisos 600 fuera del repo (`~/.cycles-secretos/`) o, de forma opcional, de la CLI de 1Password.
+
+**Rotación.** Se cambia una clave cuando se sospecha que se filtró, cuando alguien que la conocía deja de necesitar el acceso, o una vez al año en las claves de proveedores. Orden siempre igual: **primero revocar la clave comprometida en el proveedor, luego crear la nueva, actualizarla en 1Password y en el panel donde se usa, y al final comprobar** que la app sigue funcionando. Rotar `JWT_ACCESS_SECRET` o `JWT_REFRESH_SECRET` cierra todas las sesiones abiertas (es aceptable). Se anota en la tabla de hallazgos si hubo exposición real.
+
+**Si se filtra un secreto** (por ejemplo, se pegó en un chat o se subió al repo): se rota de inmediato, aunque se haya borrado el mensaje o el commit, porque pudo quedar copiado o indexado; se revisan los registros del proveedor por usos extraños; y se deja un hallazgo S-nn.
+
+**Recuperación.** Se imprime el kit de recuperación de 1Password y se guarda en un lugar físico seguro, y se nombra un contacto de emergencia con acceso a la cuenta de 1Password. Una vez al trimestre se prueba entrar al gestor desde otro equipo con el kit. Sin esto, perder el equipo o la contraseña maestra dejaría sin acceso a producción. La llave de Android tiene además una copia propia: si se pierde, no se pueden publicar actualizaciones con la misma identidad.
+
 ### Endpoint público de contacto (landing)
 
 | Archivo | Qué hace |
@@ -110,6 +140,7 @@ Son obligatorias para todo cambio: código, infraestructura y documentación. Si
 2. Secretos **distintos por entorno** (desarrollo ≠ producción) y **distintos entre sí** (`JWT_ACCESS_SECRET` ≠ `JWT_REFRESH_SECRET`), de al menos 64 caracteres aleatorios.
 3. Las API keys se crean con el mínimo permiso posible (p. ej. Resend: solo envío, restringida al dominio).
 4. Nada secreto en variables `VITE_*`: son públicas.
+5. Dónde se guardan las contraseñas, llaves y accesos, y cómo se rotan: ver «Contraseñas y accesos (1Password)» en la sección 1.
 
 ### R2 · Autenticación
 1. Contraseñas con **bcrypt, costo 12**; mínimo 8 caracteres.
