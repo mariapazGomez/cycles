@@ -9,7 +9,7 @@ updated: 2026-10-28
 
 # Edición de ciclos como pizarra (CYC-172)
 
-> **Diseño aprobado el 2026-10-28 (variante A). Construcción en curso (CYC-179): el PR 1 (pizarra base: calendario, arrastrar, «+», menú ⋯, autoguardado y Deshacer, panel de rutinas, «Datos del ciclo») está hecho; faltan el creador rápido de rutinas y la ventana de detalles (PR 2) y los estados de ciclo terminado/completado, «Agregar una semana» y la medición de contraste (PR 3).** El calendario del ciclo se convierte en una **pizarra**: el coach arrastra rutinas a los días, mueve, duplica y quita sesiones, y crea rutinas nuevas sin salir de la ventana. **Es solo para el coach**: el atleta sigue viendo su ciclo semana a semana, sin arrastrar ni editar.
+> **Diseño aprobado el 2026-10-28 (variante A). Construcción en curso (CYC-179): el PR 1 (pizarra base: calendario, arrastrar, «+», menú ⋯, autoguardado y Deshacer, panel de rutinas, «Datos del ciclo») está hecho; el PR 2 (creador rápido de rutinas en cajón, ventana «Detalles del ejercicio» y editar una rutina desde el panel) también; faltan los estados de ciclo terminado/completado, «Agregar una semana» y la medición de contraste (PR 3).** El calendario del ciclo se convierte en una **pizarra**: el coach arrastra rutinas a los días, mueve, duplica y quita sesiones, y crea rutinas nuevas sin salir de la ventana. **Es solo para el coach**: el atleta sigue viendo su ciclo semana a semana, sin arrastrar ni editar.
 
 ## Cómo verla
 
@@ -132,7 +132,7 @@ Esto resuelve la incoherencia de hoy, donde el banner dice «El ciclo terminó»
 Las cuatro primeras se cerraron el 2026-10-28 (ver «Decisiones tomadas»). Quedan para la construcción:
 
 1. **Duplicar una sesión ajustada:** ¿copia la sesión tal como quedó (con sus ejercicios modificados) o vuelve a partir de la rutina? La propuesta es copiar la sesión.
-2. **Editar una rutina desde la pizarra:** ¿se abre el mismo cajón con la rutina cargada? Se recomienda que sí; cambiarla afecta solo a las sesiones futuras.
+2. **Editar una rutina desde la pizarra:** **resuelta (2026-10-29, PR 2):** se abre el mismo cajón con la rutina cargada; cambiarla afecta solo a las sesiones que se agreguen desde ahora.
 3. **Purga del borrado lógico:** cuánto tiempo se conserva una sesión quitada antes de borrarse (propuesta: 24 horas) y cómo se limpia.
 
 ## Qué cambia para construirlo (solo la lista; nada de esto está hecho)

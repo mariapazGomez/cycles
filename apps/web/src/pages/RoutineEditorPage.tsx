@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Exercise, MuscleGroup } from "@cycles/shared";
+import type { Exercise } from "@cycles/shared";
 import * as routinesApi from "../services/routinesApi";
 import * as exercisesApi from "../services/exercisesApi";
 import { ApiError } from "../services/httpClient";
@@ -11,62 +11,12 @@ import { muscleGroupLabel } from "../lib/muscleGroups";
 import { formatInteger, formatNumber } from "../lib/format";
 import { libraryPath } from "../lib/library";
 import { computeRoutineStats, isRowComplete, parseNumber } from "../lib/routineStats";
+import { DEFAULT_SETS, rowFromRoutine, toInput, toStatsRow, type Row } from "../lib/routineRows";
 import { track } from "../lib/analytics";
 
 // Tono de cada cuenta de la cadena; se repite en ciclo.
 const BEAD_TONES = ["var(--color-brand)", "var(--color-blue)", "var(--color-blue-700)"];
 const BAR_TONES = ["var(--color-blue-700)", "var(--color-blue)", "var(--color-brand)", "var(--color-blue-400)", "var(--color-blue-300)"];
-
-// Lo que la fila muestra de un ejercicio, más lo que el coach tiene escrito.
-interface Row {
-  key: string;
-  exerciseId: string;
-  name: string;
-  muscleGroup: MuscleGroup | undefined;
-  sets: string;
-  reps: string;
-  weight: string;
-  restSeconds: string;
-  // Reps en reserva objetivo ("" = sin objetivo). Ver PRD-EjecucionYSeguimiento.
-  rir: string;
-}
-
-const DEFAULT_SETS = "3";
-
-function toText(value: number | null | undefined): string {
-  return value === null || value === undefined ? "" : String(value).replace(".", ",");
-}
-
-function rowFromRoutine(key: string, re: routinesApi.RoutineExerciseWithExercise): Row {
-  return {
-    key,
-    exerciseId: re.exerciseId,
-    name: re.exercise.name,
-    muscleGroup: re.exercise.muscleGroup,
-    sets: String(re.defaultSets),
-    reps: String(re.defaultReps),
-    weight: re.defaultWeight ? toText(re.defaultWeight) : "",
-    restSeconds: re.defaultRestSeconds ? String(re.defaultRestSeconds) : "",
-    rir: re.defaultRir === null || re.defaultRir === undefined ? "" : String(re.defaultRir),
-  };
-}
-
-function toStatsRow(row: Row) {
-  return { ...row, group: muscleGroupLabel(row.muscleGroup) };
-}
-
-function toInput(row: Row): routinesApi.RoutineExerciseInput {
-  const weight = parseNumber(row.weight);
-  const rest = parseNumber(row.restSeconds);
-  return {
-    exerciseId: row.exerciseId,
-    defaultSets: parseNumber(row.sets),
-    defaultReps: parseNumber(row.reps),
-    defaultWeight: Number.isFinite(weight) && weight > 0 ? weight : undefined,
-    defaultRestSeconds: Number.isFinite(rest) && rest >= 0 ? Math.round(rest) : undefined,
-    defaultRir: row.rir !== "" ? Number(row.rir) : undefined,
-  };
-}
 
 export function RoutineEditorPage() {
   const { id } = useParams<{ id: string }>();

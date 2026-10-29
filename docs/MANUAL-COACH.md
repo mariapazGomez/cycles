@@ -86,7 +86,8 @@ El calendario del ciclo es una **pizarra**: lo editas ahí mismo y cada cambio s
 6. Un día puede tener más de una sesión. «Sesiones por semana» es solo una guía.
 7. Para ajustar una sesión (ejercicios, pesos o nombre), toca su nombre. Una sesión sin fecha aparece en un día tentativo, con borde punteado.
 8. **Datos del ciclo** (arriba) abre el nombre, objetivo, fechas y estado del ciclo.
-9. En tablet, el panel de rutinas se abre con el botón **Rutinas**; allí no se arrastra con el dedo: usa el **+** y el menú ⋯.
+9. **Crear o editar una rutina sin salir de la pizarra:** en el panel toca **Crear rutina nueva** (o **Editar** junto a una rutina). Se abre un cajón con el nombre, los ejercicios, las series y las reps. Para peso, descanso o reps en reserva toca **Detalles…** de cada ejercicio. **Guardar y usar** la deja en el panel, lista para arrastrar; **Abrir en el editor completo** te lleva al editor de siempre. Editar una rutina vale solo para las sesiones que agregues desde ahora: las que ya están asignadas no cambian.
+10. En tablet, el panel de rutinas se abre con el botón **Rutinas**; allí no se arrastra con el dedo: usa el **+** y el menú ⋯.
 
 Si todavía no tienes rutinas, el calendario te lo avisa y te lleva a la **Biblioteca**. También puedes dar a un atleta un ciclo ya armado con **Asignar ciclo de la Biblioteca**.
 

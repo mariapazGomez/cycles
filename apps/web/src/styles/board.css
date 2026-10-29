@@ -17,7 +17,7 @@ body.wide-main .app-main { max-width: 1360px; }
 
 .bd-hint { margin: 4px 0; font-size: 0.8rem; color: var(--color-ink-secondary); }
 .bd-lbl { display: block; font-size: 0.78rem; font-weight: 700; color: var(--color-ink-secondary); margin-bottom: 4px; }
-.bd-inp { width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--color-control-border); border-radius: 8px; background: var(--color-bg); font: inherit; font-size: 0.92rem; }
+.bd-inp { box-sizing: border-box; width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--color-control-border); border-radius: 8px; background: var(--color-bg); font: inherit; font-size: 0.92rem; }
 
 /* Barra del calendario */
 .bd-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; margin: 4px 0 12px; }
@@ -178,3 +178,39 @@ body.wide-main .app-main { max-width: 1360px; }
   .bd-btn, .bd-ses, .bd-ritem, .bd-plus { transition: none; }
 }
 .bd-pop .hm-card { padding: 4px; box-shadow: none; margin: 0; max-width: none; }
+
+/* Cajón de crear/editar rutina y ventana de detalles (CYC-179, PR 2) */
+.bd-rrow { display: flex; align-items: center; gap: 4px; }
+.bd-rrow .bd-ritem { flex: 1; min-width: 0; }
+.bd-redit { flex: none; opacity: 0; }
+.bd-rrow:hover .bd-redit, .bd-rrow:focus-within .bd-redit, .bd-redit:focus-visible { opacity: 1; }
+@media (hover: none) { .bd-redit { opacity: 1; } }
+.bd-scrim-drawer { position: fixed; inset: 0; z-index: 85; background: rgba(20, 23, 28, 0.38); }
+.bd-drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 90; display: flex; flex-direction: column; width: 420px; max-width: 100%; background: var(--color-bg); box-shadow: var(--shadow-e3); }
+.bd-drawer header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 16px 8px; }
+.bd-drawer header h2 { margin: 0; font-size: 1.1rem; }
+.bd-drawer-body { flex: 1; display: flex; flex-direction: column; gap: 12px; overflow: auto; padding: 8px 16px 16px; }
+.bd-drawer-ex { display: flex; flex-direction: column; gap: 10px; }
+.bd-drawer-ex h3 { margin: 0; font-size: 0.92rem; }
+.bd-drawer footer { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 12px 16px; box-shadow: 0 -1px 0 var(--color-gray-border); }
+.bd-link { color: var(--color-blue); font-size: 0.84rem; font-weight: 600; }
+.bd-xrow { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-radius: 12px; background: var(--color-gray-light); box-shadow: inset 0 0 0 1px var(--color-gray-border); }
+.bd-xt { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.bd-xt b { flex: 1; min-width: 0; font-size: 0.9rem; }
+.bd-xq { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 16px; }
+.bd-inp-mini { width: 64px; height: 32px; padding: 0 8px; text-align: center; }
+.bd-inp-bad { border-color: var(--color-pain-ink); background: var(--color-pain-bg); }
+.bd-hint-bad { color: var(--color-pain-ink); font-weight: 600; }
+.bd-step { display: flex; align-items: center; gap: 8px; }
+.bd-step button { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border: 1.5px solid var(--color-control-border); border-radius: 50%; background: var(--color-bg); color: var(--color-ink); font: inherit; font-weight: 700; cursor: pointer; }
+.bd-step button:hover { border-color: var(--color-blue); color: var(--color-blue); }
+.bd-step output { min-width: 28px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+.bd-modal-wrap { position: fixed; inset: 0; z-index: 100; display: flex; align-items: flex-start; justify-content: center; padding: 96px 16px 16px; }
+.bd-modal-scrim { position: absolute; inset: 0; background: rgba(20, 23, 28, 0.38); }
+.bd-modal { position: relative; display: flex; flex-direction: column; width: min(480px, 100%); max-height: calc(100vh - 112px); overflow: auto; border-radius: 20px; background: var(--color-bg); box-shadow: var(--shadow-e3); }
+.bd-modal header { padding: 16px 20px 4px; }
+.bd-modal header h2 { margin: 0; font-size: 1.1rem; }
+.bd-modal-body { display: flex; flex-direction: column; gap: 16px; padding: 8px 20px 0; }
+.bd-modal-body footer { display: flex; justify-content: flex-end; gap: 8px; margin: 0 -20px; padding: 12px 20px 16px; box-shadow: 0 -1px 0 var(--color-gray-border); }
+.bd-fgrid > div { min-width: 0; }
+.bd-fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }

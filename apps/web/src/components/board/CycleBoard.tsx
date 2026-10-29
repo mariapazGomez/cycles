@@ -19,6 +19,7 @@ import { SessionCard } from "./SessionCard";
 import { DayCell } from "./DayCell";
 import { SaveIndicator } from "./SaveIndicator";
 import { UndoToast } from "./UndoToast";
+import { RoutineDrawer } from "./RoutineDrawer";
 import { CopyIcon, MoveIcon, TrashIcon } from "./icons";
 
 type Drag = { kind: "routine"; routine: routinesApi.RoutineDetail } | { kind: "session"; session: TrainingSession } | null;
@@ -71,6 +72,14 @@ export function CycleBoard({ cycle, athlete }: { cycle: TrainingCycle; athlete: 
   const [hover, setHover] = useState<string | null>(null);
   const [pop, setPop] = useState<Pop>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  // Cajón de crear o editar una rutina; `routine` nulo = crear.
+  const [drawer, setDrawer] = useState<{ routine: routinesApi.RoutineDetail | null } | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  useEffect(() => {
+    if (!notice) return;
+    const timer = window.setTimeout(() => setNotice(null), 6_000);
+    return () => window.clearTimeout(timer);
+  }, [notice]);
   // Al asignar la primera sesión del plan, un mensaje dice que el atleta ya puede entrenar.
   const [readyNotice, setReadyNotice] = useState(false);
   const hadSessions = sessions.length > 0;
@@ -290,6 +299,10 @@ export function CycleBoard({ cycle, athlete }: { cycle: TrainingCycle; athlete: 
                 disabled={readOnly}
                 draggingId={drag?.kind === "routine" ? drag.routine.id : null}
                 onRetry={() => routinesQuery.refetch()}
+                onOpenDrawer={(routine) => {
+                  setSheetOpen(false);
+                  setDrawer({ routine });
+                }}
                 onActivate={(routine, anchor) => setPop({ kind: "routine", routine, anchor })}
                 onDragStart={(routine) => {
                   setSheetOpen(false);
@@ -367,7 +380,22 @@ export function CycleBoard({ cycle, athlete }: { cycle: TrainingCycle; athlete: 
         </Popover>
       )}
 
-      <UndoToast toast={actions.toast} onDismiss={actions.dismissToast} />
+      {drawer && (
+        <RoutineDrawer
+          routine={drawer.routine}
+          onClose={() => setDrawer(null)}
+          onSaved={(saved, created) => {
+            setDrawer(null);
+            setNotice(
+              created
+                ? `«${saved.name}» guardada. Ya está en el panel: arrástrala a un día.`
+                : `«${saved.name}» actualizada. Vale para las sesiones que agregues desde ahora.`,
+            );
+          }}
+        />
+      )}
+
+      <UndoToast toast={actions.toast ?? (notice ? { message: notice } : null)} onDismiss={() => (actions.toast ? actions.dismissToast() : setNotice(null))} />
     </div>
   );
 }
