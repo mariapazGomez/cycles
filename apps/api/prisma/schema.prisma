@@ -79,6 +79,8 @@ model User {
   emailVerifiedAt    DateTime?
   dataConsentAt      DateTime?
   dataConsentVersion String?
+  // Cuenta ficticia de demostración (scripts/seed-demo.ts): se excluye de métricas y resúmenes.
+  isDemo             Boolean      @default(false)
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
 
