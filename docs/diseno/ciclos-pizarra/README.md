@@ -69,6 +69,7 @@ En «Normal» la maqueta funciona de verdad: arrastra una rutina a un día, arra
 | **Soltar fuera del ciclo** | Los días fuera de Inicio–Fin salen rayados («Fuera del ciclo») y, al arrastrar, se tiñen de rosa y no aceptan la sesión. Cualquier día anterior a hoy es «Día pasado» y tampoco acepta sesiones (en un ciclo que ya terminó, todos sus días lo son). |
 | **Otra semana** | Botón «Agregar una semana» bajo el calendario: mueve el fin del ciclo 7 días (avisa la nueva fecha) y tiene Deshacer. |
 | **Sesión hecha** | Bloqueada: no se arrastra, no tiene menú y su aviso dice «Ya se registró: no se puede mover ni quitar». |
+| **Sesión omitida** | No se mueve (lleva el cierre del atleta): solo se **duplica** a un día vigente o se **quita** (queda oculta). Decisión del 2026-10-28, CYC-178. |
 | **Crear rutina** | «Crear rutina nueva» abre el cajón (no cambia de página). «Guardar y usar» la agrega a la lista, lista para arrastrar. |
 | **Editar una rutina** | Se abre en el mismo cajón desde la rutina (queda para la construcción: la maqueta muestra el caso de crear). |
 | **Detalles de un ejercicio** | En el cajón, «Detalles…» abre la ventana emergente con series, repeticiones (obligatoria), peso (kg), descanso (s) y repeticiones en reserva objetivo. |
@@ -138,9 +139,9 @@ Las cuatro primeras se cerraron el 2026-10-28 (ver «Decisiones tomadas»). Qued
 
 **API**
 
-- **Mover una sesión:** hoy `PATCH /sessions/:id` no cambia la semana ni reordena los espacios. Debe aceptar una nueva `scheduledDate`, recalcular la semana y repartir los espacios con la misma regla que la creación por día (`reassignSlots`).
+- **Mover una sesión:** hoy `PATCH /sessions/:id` no cambia la semana ni reordena los espacios. Debe aceptar una nueva `scheduledDate`, recalcular la semana y repartir los espacios con la misma regla que la creación por día (`reassignSlots`). **Hecho (CYC-178, PR #98):** solo mueve sesiones pendientes sin series ni cierre.
 - **Quitar una sesión (borrado lógico):** hoy `DELETE /sessions/:id` responde 409 si tiene ejercicios. Se agrega un campo `deletedAt` en la sesión: quitar lo marca, **Deshacer** lo limpia (p. ej. `POST /sessions/:id/restore`) y todas las consultas lo excluyen (calendario del coach, `/me/today`, seguimiento, avisos y resumen de actividad). Una tarea programada purga las sesiones quitadas pasado el tiempo definido. Hace falta una migración.
-- **Proteger las sesiones hechas en el servidor:** rechazar mover o borrar una sesión con registro vigente (confirmar si ya ocurre y cubrirlo con pruebas).
+- **Proteger las sesiones hechas en el servidor:** rechazar mover o borrar una sesión con registro vigente (confirmar si ya ocurre y cubrirlo con pruebas). **Hecho (CYC-178, PR #98):** 409 si está completada o tiene series; la omitida se puede quitar.
 - **Duplicar:** crear con `POST /cycles/:id/sessions` (rutina y fecha) ya sirve; copiar una sesión ajustada pide un endpoint nuevo, p. ej. `POST /sessions/:id/duplicate` con la fecha destino.
 - **Agregar una semana:** `PATCH /cycles/:id` con una nueva `endDate` ya existe.
 - **Crear rutina rápida:** `POST /routines` ya acepta los ejercicios con series, repeticiones, peso, descanso y RIR por defecto.
