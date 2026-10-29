@@ -33,7 +33,7 @@ export function AcceptPolicyPage() {
     event.preventDefault();
     setFormError(null);
     if (!accepted) {
-      setFormError("Debes aceptar los Términos de uso y la Política de privacidad para continuar.");
+      setFormError("Confirma que tienes 18 años o más y aceptas los Términos de uso y la Política de privacidad para continuar.");
       return;
     }
     mutation.mutate();

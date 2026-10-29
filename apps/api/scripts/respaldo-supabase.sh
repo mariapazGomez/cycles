@@ -16,6 +16,10 @@
 #
 # Necesita un pg_dump de la versión del servidor o más nueva (Supabase usa
 # Postgres 17): brew install libpq
+#
+# Retención: la política de privacidad promete conservar los respaldos hasta
+# 90 días. Tras un respaldo exitoso se borran los cycles-*.dump más antiguos que
+# RESPALDO_DIAS (90 por defecto) de esa misma carpeta.
 set -euo pipefail
 
 # La URL de producción vive fuera del repo y lejos del .env de desarrollo:
@@ -24,6 +28,7 @@ set -euo pipefail
 SECRETOS_FILE="$HOME/.cycles-secretos/produccion.env"
 ENV_FILE="$(cd "$(dirname "$0")/.." && pwd)/.env"
 DEST="${RESPALDO_DIR:-$HOME/Respaldos-Cycles}"
+DIAS="${RESPALDO_DIAS:-90}"
 
 for archivo in "$SECRETOS_FILE" "$ENV_FILE"; do
   if [ -z "${SUPABASE_DATABASE_URL:-}" ] && [ -f "$archivo" ]; then
@@ -67,3 +72,11 @@ fi
 rm -f "$ERR"
 chmod 600 "$FILE"
 echo "Respaldo listo: $FILE ($(du -h "$FILE" | cut -f1))"
+
+# Retención: solo después de un respaldo exitoso (nunca se borra el único que hay)
+# y solo archivos con el nombre de este script.
+VIEJOS="$(find "$DEST" -maxdepth 1 -type f -name 'cycles-*.dump' -mtime "+$DIAS" | wc -l | tr -d ' ')"
+if [ "$VIEJOS" -gt 0 ]; then
+  find "$DEST" -maxdepth 1 -type f -name 'cycles-*.dump' -mtime "+$DIAS" -delete
+  echo "Retención: borré $VIEJOS respaldo(s) de más de $DIAS días."
+fi

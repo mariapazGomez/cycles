@@ -47,9 +47,9 @@ Son plazos y reglas que la política promete y que hoy dependen de personas, no 
 
 1. **Correo `privacidad@getcycles.app`:** debe existir y recibir (por ejemplo, con Cloudflare Email Routing hacia el correo de la fundadora). Hoy `hola@mail.getcycles.app` solo envía.
 2. **Responder pedidos de derechos en un máximo de 30 días** y **borrar los datos personales en ese plazo** a pedido. Hoy no hay función de eliminar cuenta en la API: se hace con SQL.
-3. **Copias de respaldo conservadas hasta 90 días.** Los respaldos de `~/Respaldos-Cycles` hay que rotarlos.
-4. **Mensajes del formulario de contacto: hasta 12 meses** después de la conversación.
-5. **Menores:** la política dice "18 años o más, o con autorización de madre, padre o tutor".
+3. **Copias de respaldo conservadas hasta 90 días.** Desde 2026-10-29 `respaldo-supabase.sh` borra solos los de más de 90 días en `~/Respaldos-Cycles`; las copias en otros lugares se rotan a mano.
+4. **Mensajes del formulario de contacto: hasta 12 meses** después de la conversación. Desde 2026-10-29 existe `apps/api/scripts/purgar-contactos.ts` (ensayo por defecto, `--aplicar` para borrar); se corre a mano, como mínimo cada 3 meses, con la URL de producción de `~/.cycles-secretos/produccion.env`.
+5. **Menores:** la política dice "18 años o más, o con autorización de madre, padre o tutor". Desde 2026-10-29 la casilla de aceptación (web y app iOS) dice «Tengo 18 años o más y acepto…»: es una declaración, sin verificación de edad.
 6. **Responsable e identificación:** "InProgress Co. (Chile)". Falta el nombre legal completo y la dirección si se quieren incluir; y la ley chilena aplicable (los términos se rigen por las leyes de Chile).
 7. **Acceso anticipado gratis y aviso de 30 días antes de cualquier cobro** (términos, sección 2).
 
