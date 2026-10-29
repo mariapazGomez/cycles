@@ -31,8 +31,9 @@ Un ciclo ([[PRD-CRUDCiclos]]) es solo un contenedor con fechas hasta que tiene s
 - `POST /cycles/:cycleId/sessions` (coach, dueño del ciclo): crea una sesión vacía (nombre + fecha opcional). `orderIndex` se asigna automáticamente (correlativo dentro del ciclo, no lo elige el cliente).
 - `GET /cycles/:cycleId/sessions`: coach dueño o atleta asignado, listado ordenado por `orderIndex`.
 - `GET /sessions/:id`: detalle de una sesión **con sus ejercicios ya incluidos** (join con `Exercise` para traer nombre/grupo muscular) — evita un endpoint aparte para listar ejercicios de una sesión.
-- `PATCH /sessions/:id` (coach dueño): actualiza `name`, `scheduledDate`, `status`.
-- `DELETE /sessions/:id` (coach dueño): borrado real, pero **rechaza con 409 si la sesión todavía tiene ejercicios** — hay que quitarlos primero.
+- `PATCH /sessions/:id` (coach dueño): actualiza `name`, `scheduledDate`, `status`. Cambiar el día **mueve** la sesión (ver «Pizarra del ciclo» abajo).
+- `DELETE /sessions/:id` (coach dueño): **borrado lógico** (`deletedAt`), restaurable con `POST /sessions/:id/restore`. Rechaza con 409 una sesión completada o con series registradas.
+- `POST /sessions/:id/restore` y `POST /sessions/:id/duplicate` (coach dueño): ver «Pizarra del ciclo».
 - `POST /sessions/:sessionId/exercises` (coach dueño): agrega un ejercicio del catálogo (global o propio, debe estar `isActive`) con sus metas. `orderIndex` automático dentro de la sesión.
 - `PATCH /session-exercises/:id` (coach dueño): edita las metas (`targetSets`, `targetReps`, `targetWeight`, `targetRestSeconds`).
 - `DELETE /session-exercises/:id` (coach dueño): borrado real, pero **rechaza con 409 si ya existe un `ExerciseLog`** para ese ejercicio de sesión (el atleta ya registró ejecución real — proteger ese historial).
@@ -62,11 +63,24 @@ Ninguno — usa `TrainingSession` y `SessionExercise` tal como están definidos 
   - Una plantilla no tiene sesiones (400).
 - `GET /cycles/:cycleId/sessions` — sin body.
 - `GET /sessions/:id` — incluye `sessionExercises` con su `exercise` embebido.
-- `PATCH /sessions/:id` — body parcial `{ name?, scheduledDate?, status? }`. **Pendiente:** cambiar `scheduledDate` no mueve la sesión de semana ni reordena los espacios; se resuelve si se agrega arrastrar sesiones entre días.
-- `DELETE /sessions/:id` — 409 si tiene ejercicios.
+- `PATCH /sessions/:id` — body parcial `{ name?, scheduledDate?, status?, today? }`. Si `scheduledDate` cambia de día, la sesión se mueve (semana y espacios recalculados; reglas abajo). Mandar el mismo día no valida nada, así la ficha de sesión puede seguir editando el nombre.
+- `DELETE /sessions/:id` — borrado lógico; 204. 409 si está completada o tiene series.
+- `POST /sessions/:id/restore` — deshace el borrado lógico; devuelve la sesión con sus ejercicios.
+- `POST /sessions/:id/duplicate` — body `{ scheduledDate, today? }`; copia la sesión con sus ejercicios (tal como quedaron) como pendiente, sin series ni cierre.
 - `POST /sessions/:sessionId/exercises` — body `{ exerciseId, targetSets, targetReps, targetWeight?, targetRestSeconds? }`.
 - `PATCH /session-exercises/:id` — body parcial `{ targetSets?, targetReps?, targetWeight?, targetRestSeconds? }`.
 - `DELETE /session-exercises/:id` — 409 si ya tiene `ExerciseLog`.
+
+### Pizarra del ciclo (CYC-178, 2026-10-28)
+
+Reglas del servidor para la pizarra de la web (`docs/diseno/ciclos-pizarra`), solo en el modo **por día**; el modo por celda no cambia.
+
+- **Solo desde hoy.** Crear, mover y duplicar rechazan (400) un día anterior a hoy o fuera del ciclo. El servidor no conoce la zona horaria del coach: la web manda su fecha local en `today` (AAAA-MM-DD), que se acepta si está a un día o menos del día UTC del servidor (400 si no). Sin `today` se tolera un día hacia atrás.
+- **Mover** (`PATCH` con otro día): solo sesiones **pendientes** y **sin series ni cierre** (409 si no; una omitida lleva cierre, así que se duplica o se quita, no se mueve). Recalcula la semana; si cambia de semana toma el último espacio de la nueva y reparte los espacios de las dos semanas por fecha.
+- **Quitar:** pone `deletedAt`; la sesión sigue ocupando su espacio `(ciclo, semana, espacio)`. Una sesión quitada desaparece del calendario del coach, de «Hoy» y el historial del atleta, del seguimiento y de los avisos, y responde 404 al detalle y a editarla. Se rechaza (409) si está completada o tiene series; una omitida sí se puede quitar y queda oculta para siempre (su cierre es historia del atleta, regla R7).
+- **Purga sin tarea programada:** al quitar otra sesión del mismo ciclo se destruyen las quitadas hace más de 24 horas que no tengan series ni cierre.
+- **Restaurar:** limpia `deletedAt` y reparte los espacios de la semana.
+- **Duplicar:** copia nombre, rutina de origen y ejercicios con sus metas actuales como sesión pendiente en el día pedido (último espacio de esa semana, luego reordena).
 
 > Nota de implementación: las rutas de sesión están anidadas bajo `/cycles/:cycleId` solo para crear/listar; el resto usa el id propio de la sesión (`/sessions/:id`), todo en un único `SessionsController` con rutas explícitas por método (no dos controllers separados).
 

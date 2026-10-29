@@ -1,4 +1,4 @@
-import { IsDateString, IsInt, IsOptional, IsPositive, IsString } from "class-validator";
+import { IsDateString, IsInt, IsOptional, IsPositive, IsString, Matches } from "class-validator";
 
 // Dos formas de ubicar la sesión:
 //  - por día: solo scheduledDate; el servidor calcula la semana y el espacio, y
@@ -22,4 +22,9 @@ export class CreateSessionDto {
   @IsOptional()
   @IsDateString()
   scheduledDate?: string;
+
+  // Fecha local del coach (AAAA-MM-DD): fija qué es «hoy» al validar el día.
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  today?: string;
 }

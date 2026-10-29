@@ -1,4 +1,4 @@
-import { reassignSlots, weekOfDate } from "./slots";
+import { earliestAllowedDay, reassignSlots, weekOfDate } from "./slots";
 
 const d = (iso: string) => new Date(`${iso}T00:00:00.000Z`);
 
@@ -62,5 +62,20 @@ describe("reassignSlots", () => {
     expect(changes.get("b")).toBe(1);
     expect(changes.get("a")).toBe(3);
     expect(changes.has("old")).toBe(false);
+  });
+});
+
+describe("earliestAllowedDay", () => {
+  const now = new Date("2026-10-27T12:00:00.000Z");
+  it("sin fecha local tolera un día hacia atrás", () => {
+    expect(earliestAllowedDay(now)?.toISOString()).toBe("2026-10-26T00:00:00.000Z");
+  });
+  it("acepta la fecha local si está a un día o menos del día UTC", () => {
+    expect(earliestAllowedDay(now, "2026-10-26")?.toISOString()).toBe("2026-10-26T00:00:00.000Z");
+    expect(earliestAllowedDay(now, "2026-10-28")?.toISOString()).toBe("2026-10-28T00:00:00.000Z");
+  });
+  it("rechaza una fecha local lejana o inválida", () => {
+    expect(earliestAllowedDay(now, "2026-10-29")).toBeNull();
+    expect(earliestAllowedDay(now, "2026-02-31x")).toBeNull();
   });
 });

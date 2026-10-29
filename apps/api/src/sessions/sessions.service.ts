@@ -11,12 +11,15 @@ import { CURRENT_FEEDBACK, CURRENT_LOG } from "../common/training";
 import { assertActiveRelation, athleteIdOf } from "../common/access";
 import { startOfUtcDay } from "../common/training";
 import { Prisma } from "@prisma/client";
-import { reassignSlots, weekOfDate } from "./slots";
+import { earliestAllowedDay, reassignSlots, weekOfDate } from "./slots";
 import { NotificationsService } from "../notifications/notifications.service";
 import { CreateSessionDto } from "./dto/create-session.dto";
 import { UpdateSessionDto } from "./dto/update-session.dto";
+import { DuplicateSessionDto } from "./dto/duplicate-session.dto";
 import { AddSessionExerciseDto } from "./dto/add-session-exercise.dto";
 import { UpdateSessionExerciseDto } from "./dto/update-session-exercise.dto";
+
+const PURGE_AFTER_MS = 24 * 60 * 60 * 1000;
 
 @Injectable()
 export class SessionsService {
@@ -107,10 +110,7 @@ export class SessionsService {
         include,
       });
     } else {
-      const day = startOfUtcDay(new Date(dto.scheduledDate!));
-      if (day < startOfUtcDay(cycle.startDate) || day > startOfUtcDay(cycle.endDate)) {
-        throw new BadRequestException("Ese día queda fuera del ciclo.");
-      }
+      const day = this.assertDayAllowed(cycle, dto.scheduledDate!, dto.today);
       const weekNumber = weekOfDate(cycle.startDate, day);
       try {
         const id = await this.prisma.$transaction(async (tx) => {
@@ -172,7 +172,7 @@ export class SessionsService {
     await this.assertCycleAccess(user, cycle);
 
     return this.prisma.trainingSession.findMany({
-      where: { cycleId },
+      where: { cycleId, deletedAt: null },
       orderBy: [{ weekNumber: "asc" }, { slotNumber: "asc" }],
     });
   }
@@ -193,7 +193,7 @@ export class SessionsService {
         feedback: { where: CURRENT_FEEDBACK },
       },
     });
-    if (!session) {
+    if (!session || session.deletedAt) {
       throw new NotFoundException("Sesión no encontrada.");
     }
     await this.assertCycleAccess(user, session.cycle);
@@ -201,33 +201,198 @@ export class SessionsService {
     return session;
   }
 
+  // Día válido para ubicar una sesión: dentro del ciclo y desde hoy (las sesiones
+  // no se asignan a días que ya pasaron). Devuelve el día recortado a medianoche UTC.
+  private assertDayAllowed(cycle: { startDate: Date; endDate: Date }, scheduledDate: string, today?: string): Date {
+    const day = startOfUtcDay(new Date(scheduledDate));
+    if (day < startOfUtcDay(cycle.startDate) || day > startOfUtcDay(cycle.endDate)) {
+      throw new BadRequestException("Ese día queda fuera del ciclo.");
+    }
+    const earliest = earliestAllowedDay(new Date(), today);
+    if (!earliest) {
+      throw new BadRequestException("La fecha de hoy no es válida.");
+    }
+    if (day < earliest) {
+      throw new BadRequestException("Solo puedes asignar sesiones desde hoy en adelante.");
+    }
+    return day;
+  }
+
+  // Una sesión con series registradas o cierre del atleta es historia: no se
+  // mueve (regla R7). Las omitidas llevan cierre, así que tampoco se mueven.
+  private async assertNoExecution(sessionId: string, message: string) {
+    const [logs, feedback] = await Promise.all([
+      this.prisma.exerciseLog.count({ where: { sessionExercise: { sessionId } } }),
+      this.prisma.sessionFeedback.count({ where: { sessionId } }),
+    ]);
+    if (logs > 0 || feedback > 0) {
+      throw new ConflictException(message);
+    }
+  }
+
   async updateSession(coachId: string, sessionId: string, dto: UpdateSessionDto) {
     const session = await this.getSessionForCoach(sessionId, coachId);
 
-    const updated = await this.prisma.trainingSession.update({
-      where: { id: session.id },
-      data: {
-        ...(dto.name !== undefined ? { name: dto.name } : {}),
-        ...(dto.scheduledDate !== undefined ? { scheduledDate: new Date(dto.scheduledDate) } : {}),
-        ...(dto.status !== undefined ? { status: dto.status } : {}),
-      },
-    });
-    if (dto.name !== undefined || dto.scheduledDate !== undefined) {
+    const currentDay = session.scheduledDate ? startOfUtcDay(session.scheduledDate) : null;
+    const requestedDay = dto.scheduledDate !== undefined ? startOfUtcDay(new Date(dto.scheduledDate)) : null;
+    const moves = requestedDay !== null && requestedDay.getTime() !== currentDay?.getTime();
+
+    const data: Prisma.TrainingSessionUpdateInput = {
+      ...(dto.name !== undefined ? { name: dto.name } : {}),
+      ...(dto.status !== undefined ? { status: dto.status } : {}),
+    };
+
+    let updated;
+    if (moves) {
+      if (session.status !== "pending") {
+        throw new ConflictException("Solo se mueve una sesión pendiente.");
+      }
+      await this.assertNoExecution(session.id, "No se puede mover: el atleta ya registró esta sesión.");
+      const day = this.assertDayAllowed(session.cycle, dto.scheduledDate!, dto.today);
+      const weekNumber = weekOfDate(session.cycle.startDate, day);
+      try {
+        updated = await this.prisma.$transaction(async (tx) => {
+          let slotNumber = session.slotNumber;
+          if (weekNumber !== session.weekNumber) {
+            // Los espacios de las sesiones quitadas siguen ocupados.
+            const last = await tx.trainingSession.findFirst({
+              where: { cycleId: session.cycleId, weekNumber },
+              orderBy: { slotNumber: "desc" },
+              select: { slotNumber: true },
+            });
+            slotNumber = (last?.slotNumber ?? 0) + 1;
+          }
+          await tx.trainingSession.update({
+            where: { id: session.id },
+            data: { ...data, scheduledDate: day, weekNumber, slotNumber },
+          });
+          await this.reassignWeekSlots(tx, session.cycleId, weekNumber);
+          if (weekNumber !== session.weekNumber) {
+            await this.reassignWeekSlots(tx, session.cycleId, session.weekNumber);
+          }
+          return tx.trainingSession.findUniqueOrThrow({ where: { id: session.id } });
+        });
+      } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+          throw new ConflictException("Se estaba moviendo otra sesión a la vez. Inténtalo de nuevo.");
+        }
+        throw error;
+      }
+    } else {
+      updated = await this.prisma.trainingSession.update({ where: { id: session.id }, data });
+    }
+    if (dto.name !== undefined || moves) {
       this.notifications.coachEditedSession(session.id, "changed");
     }
     return updated;
   }
 
+  // «Quitar» de la pizarra: borrado lógico (se restaura con restoreSession). Una
+  // sesión hecha o con series registradas no se quita; una omitida sí, pero queda
+  // oculta para siempre (su cierre es historia del atleta).
   async deleteSession(coachId: string, sessionId: string): Promise<void> {
-    const session = await this.getSessionForCoach(sessionId, coachId);
-    const exerciseCount = await this.prisma.sessionExercise.count({
-      where: { sessionId: session.id },
-    });
-    if (exerciseCount > 0) {
-      throw new ConflictException("Quita los ejercicios de la sesión antes de borrarla.");
+    const session = await this.getSessionForCoach(sessionId, coachId, true);
+    if (session.deletedAt) return;
+    if (session.status === "completed") {
+      throw new ConflictException("No se puede quitar una sesión que el atleta ya completó.");
+    }
+    const logs = await this.prisma.exerciseLog.count({ where: { sessionExercise: { sessionId: session.id } } });
+    if (logs > 0) {
+      throw new ConflictException("No se puede quitar: el atleta ya registró ejecución de esta sesión.");
     }
 
-    await this.prisma.trainingSession.delete({ where: { id: session.id } });
+    await this.prisma.trainingSession.update({ where: { id: session.id }, data: { deletedAt: new Date() } });
+    await this.purgeDeleted(session.cycleId);
+  }
+
+  async restoreSession(coachId: string, sessionId: string) {
+    const session = await this.getSessionForCoach(sessionId, coachId, true);
+    if (!session.deletedAt) return session;
+    return this.prisma.$transaction(async (tx) => {
+      await tx.trainingSession.update({ where: { id: session.id }, data: { deletedAt: null } });
+      await this.reassignWeekSlots(tx, session.cycleId, session.weekNumber);
+      return tx.trainingSession.findUniqueOrThrow({
+        where: { id: session.id },
+        include: { sessionExercises: { include: { exercise: true }, orderBy: { orderIndex: "asc" } } },
+      });
+    });
+  }
+
+  // Copia la sesión tal como quedó (ejercicios ajustados incluidos) como una
+  // sesión pendiente, sin series ni cierre, en otro día.
+  async duplicateSession(coachId: string, sessionId: string, dto: DuplicateSessionDto) {
+    const session = await this.getSessionForCoach(sessionId, coachId);
+    const day = this.assertDayAllowed(session.cycle, dto.scheduledDate, dto.today);
+    const weekNumber = weekOfDate(session.cycle.startDate, day);
+    const exercises = await this.prisma.sessionExercise.findMany({
+      where: { sessionId: session.id },
+      orderBy: { orderIndex: "asc" },
+    });
+    try {
+      const id = await this.prisma.$transaction(async (tx) => {
+        const last = await tx.trainingSession.findFirst({
+          where: { cycleId: session.cycleId, weekNumber },
+          orderBy: { slotNumber: "desc" },
+          select: { slotNumber: true },
+        });
+        const copy = await tx.trainingSession.create({
+          data: {
+            cycleId: session.cycleId,
+            name: session.name,
+            weekNumber,
+            slotNumber: (last?.slotNumber ?? 0) + 1,
+            scheduledDate: day,
+            routineId: session.routineId,
+            sessionExercises: {
+              create: exercises.map((e) => ({
+                exerciseId: e.exerciseId,
+                orderIndex: e.orderIndex,
+                targetSets: e.targetSets,
+                targetReps: e.targetReps,
+                targetWeight: e.targetWeight,
+                targetRestSeconds: e.targetRestSeconds,
+                targetRir: e.targetRir,
+              })),
+            },
+          },
+          select: { id: true },
+        });
+        await this.reassignWeekSlots(tx, session.cycleId, weekNumber);
+        return copy.id;
+      });
+      this.notifications.coachEditedSession(id, "added");
+      return this.prisma.trainingSession.findUniqueOrThrow({
+        where: { id },
+        include: { sessionExercises: { include: { exercise: true }, orderBy: { orderIndex: "asc" } } },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+        throw new ConflictException("Se estaba agregando otra sesión a la vez. Inténtalo de nuevo.");
+      }
+      throw error;
+    }
+  }
+
+  // Sin tarea programada: al quitar una sesión se destruyen las quitadas hace más
+  // de 24 horas en ese ciclo que no tengan series ni cierre. Las que sí los
+  // tienen se quedan ocultas (regla R7).
+  private async purgeDeleted(cycleId: string) {
+    const cutoff = new Date(Date.now() - PURGE_AFTER_MS);
+    const stale = await this.prisma.trainingSession.findMany({
+      where: {
+        cycleId,
+        deletedAt: { lt: cutoff },
+        feedback: { none: {} },
+        sessionExercises: { every: { logs: { none: {} } } },
+      },
+      select: { id: true },
+    });
+    if (stale.length === 0) return;
+    const ids = stale.map((s) => s.id);
+    await this.prisma.$transaction([
+      this.prisma.sessionExercise.deleteMany({ where: { sessionId: { in: ids } } }),
+      this.prisma.trainingSession.deleteMany({ where: { id: { in: ids } } }),
+    ]);
   }
 
   async addExercise(coachId: string, sessionId: string, dto: AddSessionExerciseDto) {
@@ -312,12 +477,12 @@ export class SessionsService {
     }
   }
 
-  private async getSessionForCoach(sessionId: string, coachId: string) {
+  private async getSessionForCoach(sessionId: string, coachId: string, includeDeleted = false) {
     const session = await this.prisma.trainingSession.findUnique({
       where: { id: sessionId },
       include: { cycle: true },
     });
-    if (!session) {
+    if (!session || (session.deletedAt && !includeDeleted)) {
       throw new NotFoundException("Sesión no encontrada.");
     }
     if (session.cycle.coachId !== coachId) {
@@ -332,7 +497,7 @@ export class SessionsService {
       where: { id: sessionExerciseId },
       include: { session: { include: { cycle: true } } },
     });
-    if (!sessionExercise) {
+    if (!sessionExercise || sessionExercise.session.deletedAt) {
       throw new NotFoundException("Ejercicio de sesión no encontrado.");
     }
     if (sessionExercise.session.cycle.coachId !== coachId) {
