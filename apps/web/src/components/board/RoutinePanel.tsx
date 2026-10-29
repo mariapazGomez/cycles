@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import type { RoutineDetail } from "../../services/routinesApi";
 import { GripIcon, SearchIcon } from "./icons";
 
@@ -14,6 +13,8 @@ interface RoutinePanelProps {
   disabled: boolean;
   draggingId: string | null;
   onRetry: () => void;
+  // Abre el cajón para crear (sin rutina) o editar una rutina.
+  onOpenDrawer: (routine: RoutineDetail | null) => void;
   // Elegir una rutina sin arrastrar: abre el selector de día anclado a la fila.
   onActivate: (routine: RoutineDetail, anchor: HTMLElement) => void;
   onDragStart: (routine: RoutineDetail) => void;
@@ -21,7 +22,7 @@ interface RoutinePanelProps {
 }
 
 // Panel de rutinas (variante A): buscador, lista arrastrable y «Crear rutina nueva».
-export function RoutinePanel({ routines, isLoading, isError, disabled, draggingId, onRetry, onActivate, onDragStart, onDragEnd }: RoutinePanelProps) {
+export function RoutinePanel({ routines, isLoading, isError, disabled, draggingId, onRetry, onOpenDrawer, onActivate, onDragStart, onDragEnd }: RoutinePanelProps) {
   const [query, setQuery] = useState("");
   const filtered = useMemo(() => {
     const needle = normalize(query.trim());
@@ -61,7 +62,7 @@ export function RoutinePanel({ routines, isLoading, isError, disabled, draggingI
       ) : (
         <ul className="bd-rlist">
           {filtered.map((routine) => (
-            <li key={routine.id}>
+            <li key={routine.id} className="bd-rrow">
               <div
                 className={`bd-ritem${draggingId === routine.id ? " bd-ritem-lift" : ""}${disabled ? " bd-ritem-dis" : ""}`}
                 draggable={!disabled}
@@ -93,14 +94,19 @@ export function RoutinePanel({ routines, isLoading, isError, disabled, draggingI
                   </small>
                 </span>
               </div>
+              {!disabled && (
+                <button type="button" className="bd-ghost bd-redit" aria-label={`Editar ${routine.name}`} onClick={() => onOpenDrawer(routine)}>
+                  Editar
+                </button>
+              )}
             </li>
           ))}
         </ul>
       )}
       {!disabled && (
-        <Link to="/routines/new" className="bd-btn bd-btn-p bd-new">
+        <button type="button" className="bd-btn bd-btn-p bd-new" onClick={() => onOpenDrawer(null)}>
           Crear rutina nueva
-        </Link>
+        </button>
       )}
     </>
   );
