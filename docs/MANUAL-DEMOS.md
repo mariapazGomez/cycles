@@ -134,3 +134,27 @@ Desde 2026-10-28 la seed fija la fecha (`scheduledDate`) de cada sesión: lunes,
 - [ ] Ventana y simulador con el tamaño indicado, modo claro, barra de estado limpia y notificaciones silenciadas.
 - [ ] La contraseña no queda a cuadro.
 - [ ] Al terminar: apagué la API de la demo y volví a levantar la de desarrollo.
+
+---
+
+## 6. Demo en vivo en producción
+
+Para hacer demos en vivo sin levantar nada, la demo vive **en la base de producción**, en https://app.getcycles.app, con las mismas cuentas de la sección 1. Las cuentas llevan `User.isDemo = true`: el resumen diario de Slack las deja fuera, así que no cuentan como coaches ni atletas reales. Cualquier análisis nuevo que consulte la base debe filtrar `isDemo = false`.
+
+**Crear o reiniciar la demo** (hazlo el día antes de cada demo: las fechas quedan ancladas a la semana en que corre). Solo borra y recrea cuentas de demostración; nunca toca las reales:
+
+```bash
+cd apps/api
+DATABASE_URL="$(cat <donde guardas la URL de producción>)" \
+DEMO_EN_PRODUCCION=si \
+DEMO_PASSWORD="$(cat ~/.cycles-secretos/demo/DEMO_PASSWORD)" \
+npx tsx scripts/seed-demo.ts
+```
+
+Debe terminar con `Demo lista: 1 coach, 8 atletas, 8 planes.`
+
+Ten presente:
+
+- Las cuentas usan `@example.com`: no recibirán correos. No invites desde la demo a correos reales sin querer; los correos sí salen de verdad.
+- La API del plan gratis se duerme a los 15 minutos: abre la app unos minutos antes para despertarla.
+- Si cambias la versión de los textos legales (`POLICY_VERSION`), reinicia la demo para que las cuentas tengan la aceptación vigente.

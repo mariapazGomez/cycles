@@ -1,19 +1,23 @@
-// Datos de demostración para capturas de pantalla (landing, presentaciones).
-// Crea un coach ficticio con 8 atletas ficticios, un plan de 6 semanas por
-// atleta y la ejecución de las semanas 1–4, con casos que activan cada tipo de
-// alerta de "Necesitan atención": dolor, carga alta, carga baja y poca adherencia.
+// Datos de demostración (capturas, presentaciones y demos en vivo). Crea un
+// coach ficticio con 8 atletas ficticios, un plan de 6 semanas por atleta y la
+// ejecución de las semanas 1–4, con casos que activan cada tipo de alerta de
+// "Necesitan atención": dolor, carga alta, carga baja y poca adherencia.
 //
-// Solo para una base de demostración, NUNCA la de desarrollo ni la de producción:
-//   createdb cycles_demo
-//   DATABASE_URL=postgresql://USUARIO@localhost:5432/cycles_demo npx prisma migrate deploy
-//   DATABASE_URL=... npx prisma db seed            (catálogo de ejercicios)
-//   DATABASE_URL=... DEMO_PASSWORD=<la que elijas> npx tsx scripts/seed-demo.ts
+// Todas las cuentas llevan isDemo = true: las métricas y los resúmenes las ignoran.
 //
-// Cuenta del coach de demostración (ficticia, solo existe en esa base):
-//   email: coach.demo@example.com · contraseña: la que pases en DEMO_PASSWORD
-//   (no se escribe en el repo, que es público).
+// Dos modos, según la base:
+//  · Local (nombre de base con "cycles_demo"): ver docs/MANUAL-DEMOS.md.
+//      DATABASE_URL=... DEMO_PASSWORD=<la que elijas> npx tsx scripts/seed-demo.ts
+//  · Producción (demo en vivo): comparte la base real, así que exige confirmarlo y
+//    SOLO toca cuentas de demostración. Reinicia la demo (borra la anterior y la
+//    recrea con las fechas de esta semana):
+//      DATABASE_URL=<producción> DEMO_EN_PRODUCCION=si DEMO_PASSWORD=<la de la demo> npx tsx scripts/seed-demo.ts
+//
+// Cuenta del coach: coach.demo@example.com · contraseña: la que pases en
+// DEMO_PASSWORD (no se escribe en el repo, que es público).
 import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
+import { policyAcceptanceData } from "../src/common/policy";
 
 const DEMO_PASSWORD = process.env.DEMO_PASSWORD ?? "";
 const DAY = 24 * 60 * 60 * 1000;
@@ -104,21 +108,71 @@ function plan(scenario: Scenario, week: number, slot: number): { outcome: Outcom
   }
 }
 
+// Borra solo lo que pertenece a cuentas isDemo = true, en orden de dependencias.
+async function borrarDemo() {
+  // También las sembradas antes de existir la etiqueta isDemo.
+  const demo = await prisma.user.findMany({
+    where: { OR: [{ isDemo: true }, { dataConsentVersion: "demo", email: { endsWith: "@example.com" } }] },
+    select: { id: true },
+  });
+  const ids = demo.map((u) => u.id);
+  if (ids.length === 0) return;
+  const ciclos = { OR: [{ coachId: { in: ids } }, { athleteId: { in: ids } }] };
+  const sesiones = { cycle: ciclos };
+
+  await prisma.$transaction(async (tx) => {
+    // Correcciones que apuntan a otro registro: primero se sueltan.
+    await tx.exerciseLog.updateMany({ where: { athleteId: { in: ids } }, data: { supersedesId: null } });
+    await tx.sessionFeedback.updateMany({ where: { athleteId: { in: ids } }, data: { supersedesId: null } });
+    await tx.exerciseLog.deleteMany({ where: { athleteId: { in: ids } } });
+    await tx.sessionFeedback.deleteMany({ where: { athleteId: { in: ids } } });
+    await tx.loadAdjustment.deleteMany({ where: { OR: [{ coachId: { in: ids } }, { cycle: ciclos }] } });
+    await tx.sessionExercise.deleteMany({ where: { session: sesiones } });
+    await tx.trainingSession.deleteMany({ where: sesiones });
+    await tx.trainingCycle.deleteMany({ where: ciclos });
+    await tx.routineExercise.deleteMany({ where: { routine: { coachId: { in: ids } } } });
+    await tx.routine.deleteMany({ where: { coachId: { in: ids } } });
+    await tx.athleteInvitationToken.deleteMany({
+      where: { coachAthlete: { OR: [{ coachId: { in: ids } }, { athleteId: { in: ids } }] } },
+    });
+    await tx.coachAthlete.deleteMany({ where: { OR: [{ coachId: { in: ids } }, { athleteId: { in: ids } }] } });
+    await tx.exercise.deleteMany({ where: { createdBy: { in: ids } } });
+    const propios = { userId: { in: ids } };
+    await tx.refreshToken.deleteMany({ where: propios });
+    await tx.passwordResetToken.deleteMany({ where: propios });
+    await tx.emailVerificationToken.deleteMany({ where: propios });
+    await tx.oAuthExchangeCode.deleteMany({ where: propios });
+    await tx.user.deleteMany({ where: { id: { in: ids } } });
+  });
+  console.log(`Demo anterior borrada: ${ids.length} cuentas.`);
+}
+
 async function main() {
   const url = process.env.DATABASE_URL ?? "";
-  if (!/cycles_demo/.test(url)) {
-    throw new Error("Este script solo corre contra una base llamada cycles_demo. Revisa DATABASE_URL.");
+  const enProduccion = process.env.DEMO_EN_PRODUCCION === "si";
+  if (!enProduccion && !/cycles_demo/.test(url)) {
+    throw new Error(
+      "Este script solo corre contra una base llamada cycles_demo. Para la demo en producción define DEMO_EN_PRODUCCION=si.",
+    );
   }
 
   if (DEMO_PASSWORD.length < 12) {
     throw new Error("Define DEMO_PASSWORD (12 caracteres o más) para la cuenta del coach de demostración.");
   }
 
+  if (enProduccion) await borrarDemo();
+
   const now = new Date();
   const startDate = new Date(mondayUtc(now).getTime() - 3 * 7 * DAY);
   const endDate = new Date(startDate.getTime() + WEEKS * 7 * DAY - DAY);
   const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 12);
-  const consent = { dataConsentAt: now, dataConsentVersion: "demo", emailVerifiedAt: now };
+  const consent = {
+    dataConsentAt: now,
+    dataConsentVersion: "demo",
+    emailVerifiedAt: now,
+    isDemo: true,
+    policyAcceptances: { create: policyAcceptanceData("register") },
+  };
 
   const coach = await prisma.user.upsert({
     where: { email: "coach.demo@example.com" },

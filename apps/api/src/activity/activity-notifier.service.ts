@@ -123,13 +123,13 @@ export class ActivityNotifier {
   private async dailySummaryText(day: string): Promise<string> {
     const range = chileDayRange(day);
     const [coaches, invitations, athletes, plans, completed, skipped, adjustments] = await Promise.all([
-      this.prisma.user.count({ where: { role: "coach", emailVerifiedAt: range } }),
-      this.prisma.athleteInvitationToken.count({ where: { createdAt: range } }),
-      this.prisma.athleteInvitationToken.count({ where: { usedAt: range } }),
-      this.prisma.trainingCycle.count({ where: { createdAt: range, isTemplate: false } }),
-      this.prisma.sessionFeedback.count({ where: { outcome: "completed", supersedesId: null, active: 1, submittedAt: range } }),
-      this.prisma.sessionFeedback.count({ where: { outcome: "skipped", supersedesId: null, active: 1, submittedAt: range } }),
-      this.prisma.loadAdjustment.count({ where: { createdAt: range } }),
+      this.prisma.user.count({ where: { role: "coach", emailVerifiedAt: range, isDemo: false } }),
+      this.prisma.athleteInvitationToken.count({ where: { createdAt: range, coachAthlete: { coach: { isDemo: false } } } }),
+      this.prisma.athleteInvitationToken.count({ where: { usedAt: range, coachAthlete: { coach: { isDemo: false } } } }),
+      this.prisma.trainingCycle.count({ where: { createdAt: range, isTemplate: false, coach: { isDemo: false } } }),
+      this.prisma.sessionFeedback.count({ where: { outcome: "completed", supersedesId: null, active: 1, submittedAt: range, athlete: { isDemo: false } } }),
+      this.prisma.sessionFeedback.count({ where: { outcome: "skipped", supersedesId: null, active: 1, submittedAt: range, athlete: { isDemo: false } } }),
+      this.prisma.loadAdjustment.count({ where: { createdAt: range, coach: { isDemo: false } } }),
     ]);
     return [
       `:bar_chart: *Resumen del ${chileDayLabel(day)}*`,
