@@ -70,7 +70,7 @@ Un ciclo organiza las semanas de entrenamiento de un atleta. Solo aparecen en la
    - Fechas de **Inicio** y **Fin**
 3. Toca **Crear ciclo**. Se abre la ficha del atleta con el **calendario del ciclo**: una fila por semana y una columna por día.
 
-**Otra forma, sin salir de la ficha del atleta:** toca **Nuevo ciclo** (arriba, junto a *Datos del ciclo*). Elige nombre, objetivo (opcional), tipo (mesociclo o microciclo), sesiones por semana, **Inicio** y **Semanas**; debajo de las semanas verás «Termina el …». El inicio viene sugerido (el día siguiente al fin de tu último ciclo vigente, o el próximo lunes) y las sesiones por semana salen del ciclo que estás viendo. Al crearlo, el ciclo nuevo se abre en la pizarra. Los macrociclos se siguen creando desde la Biblioteca. Si necesitas fechas exactas, ajústalas después en **Datos del ciclo**.
+**Otra forma, sin salir de la ficha del atleta:** toca **Nuevo ciclo** (arriba, junto a *Datos del ciclo*). Elige nombre, objetivo (opcional), tipo (mesociclo o microciclo), sesiones por semana, **Inicio** y **Semanas**; debajo de las semanas verás «Termina el …». El inicio viene sugerido (el día siguiente al fin de tu último ciclo vigente, o el próximo lunes) y las sesiones por semana salen de tu ciclo en curso. Al crearlo, el ciclo nuevo se abre y queda a la vista. Los macrociclos se siguen creando desde la Biblioteca. Si necesitas fechas exactas, ajústalas después en **Datos del ciclo**.
 
 > **Si eliges macrociclo:** no tiene semanas propias. Desde su detalle, en *Ciclos dentro de este macrociclo*, agregas los mesociclos o microciclos que lo componen. Para empezar, un microciclo o un mesociclo es lo más simple.
 
@@ -80,7 +80,7 @@ Un ciclo organiza las semanas de entrenamiento de un atleta. Solo aparecen en la
 
 El calendario del ciclo es una **pizarra**: lo editas ahí mismo y cada cambio se guarda solo (arriba a la derecha dice *Guardando…*, *Guardado* o *No se guardó*). A la derecha tienes el panel de **Rutinas**.
 
-1. En la ficha del atleta (menú **Atletas**), en la vista **Ciclo**, **arrastra una rutina** del panel a un día. Si prefieres no arrastrar, toca el **+** del día, o toca la rutina del panel y elige el día. Si el atleta tiene varios ciclos, elige el ciclo en el selector de arriba.
+1. En la ficha del atleta (menú **Atletas**), en la vista **Ciclo**, **arrastra una rutina** del panel a un día. Si prefieres no arrastrar, toca el **+** del día, o toca la rutina del panel y elige el día. Si el atleta tiene varios ciclos, los verás apilados, cada uno en su sección: el que está en curso aparece abierto y los demás (los que aún no empiezan y los pasados) minimizados. Toca el nombre de un ciclo para abrirlo o cerrarlo; al volver a entrar a la ficha, todo vuelve a ese estado.
 2. Para **mover** una sesión pendiente, arrástrala a otro día. También puedes tocar los tres puntos (**⋯**) de la sesión y elegir **Mover a otro día…**, **Duplicar en otro día…** o **Quitar de este día**.
 3. Cada cambio muestra un aviso con **Deshacer** por 6 segundos. Quitar no borra de verdad: **Deshacer** la devuelve con todos sus ajustes.
 4. **Solo desde hoy:** los días que ya pasaron salen como «Día pasado» y no aceptan sesiones. Los días fuera de las fechas del ciclo salen rayados.

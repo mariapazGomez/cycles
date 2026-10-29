@@ -58,3 +58,8 @@ export const LockIcon = () => (
     <path d="M8 11V8a4 4 0 0 1 8 0v3" />
   </Icon>
 );
+export const ChevronIcon = () => (
+  <Icon width={2.6}>
+    <path d="m6 9 6 6 6-6" />
+  </Icon>
+);

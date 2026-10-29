@@ -42,7 +42,7 @@ En «Normal» la maqueta funciona de verdad: arrastra una rutina a un día, arra
 
 1. **Centro: el calendario**, protagonista. Semanas en filas y días en columnas (lógica actual). Cada día tiene un «+» siempre visible; si ya tiene sesiones, el «+» es más pequeño y tenue para sumar otra.
 2. **Rutinas**: lista con buscador y «Crear rutina nueva» (según la variante).
-3. **Encabezado compacto**: «← Atletas», avatar, nombre, selector de ciclo, estado, tipo, fechas, indicador de guardado, «Datos del ciclo» y las vistas Ciclo y Resumen. El formulario de nombre, objetivo, inicio, fin y estado **ya no ocupa la parte principal**: se abre bajo demanda.
+3. **Encabezado compacto**: «← Atletas», avatar, nombre, indicador de guardado, «Datos del ciclo» y las vistas Ciclo y Resumen. El formulario de nombre, objetivo, inicio, fin y estado **ya no ocupa la parte principal**: se abre bajo demanda.
 
 ### Variantes
 
@@ -126,6 +126,17 @@ Esto resuelve la incoherencia de hoy, donde el banner dice «El ciclo terminó»
 | Hoja de estados | [`17-hoja-de-estados.jpg`](capturas/17-hoja-de-estados.jpg) |
 
 **Móvil** (solo se indica qué se degrada): la pizarra no se edita en celular. Se mantiene la lista por semana con los siete días y su «+» (CYC-171), sin panel de rutinas ni arrastre; las acciones de mover, duplicar y quitar salen del menú ⋯ de cada sesión.
+
+## Decisión posterior (2026-10-29, CYC-182): ciclos apilados y plegables
+
+La usuaria pidió que, con más de un ciclo, se puedan minimizar y que por defecto se vea el actual. El selector de ciclo desaparece: la ficha muestra **todos los ciclos apilados**, cada uno en una sección plegable.
+
+- **Orden:** primero el ciclo en curso; después los que aún no empiezan, del más próximo al más lejano; al final los pasados (terminados, completados, archivados), del más reciente al más antiguo.
+- **Ciclo en curso:** el activo cuyas fechas incluyen hoy; si no hay, el activo más cercano a hoy; si no hay activos, el más reciente. Es lo más importante de la ficha.
+- **Abiertos por defecto:** solo el ciclo en curso (y el del enlace `?ciclo=`). **Futuros y pasados, minimizados.** No se recuerda lo que la coach abrió: al entrar siempre se parte de ese estado.
+- **Encabezado de cada sección:** flecha, nombre, y etiquetas con el estado («En curso», «Empieza el 30 nov», «Completado», «Archivado»), tipo, fechas y «x de y hechas». «Datos del ciclo» y el objetivo van dentro del cuerpo.
+- **Carga:** un ciclo minimizado no pide sus sesiones hasta que se abre por primera vez; el resumen del encabezado usa la consulta de avance, la misma que luego reutiliza la pizarra.
+- **Panel de rutinas:** cada pizarra editable abierta lleva el suyo (en la práctica suele haber una sola). Unificarlo en un panel único de la ficha exige llevar el estado de arrastre al nivel de la página; queda como mejora posible si se abren varios ciclos editables a la vez.
 
 ## Decisión posterior (2026-10-29, CYC-181): crear un ciclo desde la pizarra
 
