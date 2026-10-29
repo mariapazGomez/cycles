@@ -11,6 +11,9 @@ import { usePageWide } from "../hooks/usePageWide";
 import { LoadingScreen } from "../components/LoadingScreen";
 import { CycleBoard } from "../components/board/CycleBoard";
 import { Popover } from "../components/board/Popover";
+import { NewCycleDialog } from "../components/board/NewCycleDialog";
+import { suggestStart } from "../lib/newCycle";
+import { toLocalDay } from "../lib/calendar";
 import { CycleEditForm } from "../components/CycleEditForm";
 import { AthleteSummaryView } from "./AthleteSummaryView";
 import { track } from "../lib/analytics";
@@ -48,6 +51,7 @@ export function AthletePage() {
   const [view, setView] = useState<View>("ciclo");
   const [dataAnchor, setDataAnchor] = useState<HTMLElement | null>(null);
   const [showAssign, setShowAssign] = useState(false);
+  const [showNewCycle, setShowNewCycle] = useState(false);
   usePageBackground();
   usePageWide();
 
@@ -116,9 +120,11 @@ export function AthletePage() {
       ) : !selected ? (
         <div className="hm-card pl-form">
           <p>
-            {athlete.name} todavía no tiene ciclos. Asigna uno de la Biblioteca o{" "}
-            <Link to={libraryPath("cycle", "ciclo")}>crea uno nuevo</Link>.
+            {athlete.name} todavía no tiene ciclos. Asigna uno de la Biblioteca o crea uno nuevo aquí.
           </p>
+          <button type="button" className="button-primary" style={{ width: "auto" }} onClick={() => setShowNewCycle(true)}>
+            Nuevo ciclo
+          </button>
         </div>
       ) : (
         <>
@@ -141,6 +147,9 @@ export function AthletePage() {
                 {formatDate(selected.startDate)} – {formatDate(selected.endDate)}
               </span>
             </div>
+            <button type="button" className="button-secondary pl-edit" onClick={() => setShowNewCycle(true)}>
+              Nuevo ciclo
+            </button>
             <button
               type="button"
               className="button-secondary pl-edit"
@@ -169,6 +178,20 @@ export function AthletePage() {
             <CycleBoard key={selected.id} cycle={selected} athlete={{ id: athlete.id, name: athlete.name }} />
           )}
         </>
+      )}
+      {showNewCycle && (
+        <NewCycleDialog
+          athleteName={athlete.name}
+          athleteId={athleteId}
+          defaultStart={suggestStart(cycles, toLocalDay(new Date()))}
+          defaultSessions={selected?.sessionsPerWeek ?? undefined}
+          onClose={() => setShowNewCycle(false)}
+          onCreated={(cycle) => {
+            setShowNewCycle(false);
+            setView("ciclo");
+            selectCycle(cycle.id);
+          }}
+        />
       )}
     </div>
   );

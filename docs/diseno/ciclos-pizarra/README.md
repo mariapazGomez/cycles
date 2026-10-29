@@ -127,6 +127,10 @@ Esto resuelve la incoherencia de hoy, donde el banner dice «El ciclo terminó»
 
 **Móvil** (solo se indica qué se degrada): la pizarra no se edita en celular. Se mantiene la lista por semana con los siete días y su «+» (CYC-171), sin panel de rutinas ni arrastre; las acciones de mover, duplicar y quitar salen del menú ⋯ de cada sesión.
 
+## Decisión posterior (2026-10-29, CYC-181): crear un ciclo desde la pizarra
+
+La usuaria notó que faltaba crear ciclos en la misma vista. La ficha del atleta tiene un botón **Nuevo ciclo** (siempre visible, y también en el mensaje vacío cuando el atleta no tiene ciclos) que abre una ventana con el atleta fijado: nombre, objetivo (opcional), tipo (mesociclo o microciclo), sesiones por semana, inicio y **semanas** (en lugar de la fecha de fin; muestra «Termina el …»). Valores por defecto: inicio el día siguiente al fin del último ciclo vigente (o el próximo lunes) y las sesiones por semana del ciclo visible. Al crear, el ciclo se abre en la pizarra. Los macrociclos se siguen creando en la Biblioteca.
+
 ## Preguntas abiertas
 
 Las cuatro primeras se cerraron el 2026-10-28 (ver «Decisiones tomadas»). Quedan para la construcción:
