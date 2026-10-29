@@ -783,26 +783,29 @@
     grid-row: 2;
   }
 
+  /* Siete columnas de ancho completo: el resumen va arriba, junto al nombre,
+     y no le quita ancho a los días. */
   .cb-row {
-    grid-template-columns: repeat(7, minmax(0, 1fr)) auto;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
   }
 
   .cb-who {
-    grid-column: 1 / 8;
+    grid-column: 1 / 6;
   }
 
   .cb-summary {
-    grid-column: 8;
+    grid-column: 6 / 8;
   }
 
   .cb-message {
-    grid-column: 1 / 9;
+    grid-column: 1 / 8;
   }
 
   .cb-day::before {
     content: attr(data-d);
     display: block;
     text-align: center;
+    white-space: nowrap;
     font-size: 0.72rem;
     font-weight: 600;
     color: var(--color-ink-secondary);
