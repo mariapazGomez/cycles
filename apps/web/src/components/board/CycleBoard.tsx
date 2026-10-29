@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { TrainingCycle, TrainingSession } from "@cycles/shared";
 import * as sessionsApi from "../../services/sessionsApi";
+import * as cyclesApi from "../../services/cyclesApi";
+import { ApiError } from "../../services/httpClient";
 import * as routinesApi from "../../services/routinesApi";
 import * as trackingApi from "../../services/trackingApi";
 import { useBoardActions } from "../../hooks/useBoardActions";
 import { buildWeeks, canMove, canRemove, currentDayOf, isTentative, validDaysByWeek, type BoardDay } from "../../lib/board";
 import { toLocalDay } from "../../lib/calendar";
-import { dayOfMonth, weekRangeLabel, weekdayShort } from "../../lib/weekCalendar";
+import { addDays, dayOfMonth, shortDate, weekRangeLabel, weekdayShort } from "../../lib/weekCalendar";
 import { AttentionList, useDismissedAlerts } from "../AttentionList";
 import { PlanCalendarSkeleton } from "../Skeleton";
 import { CheckBadge } from "../CheckBadge";
@@ -64,6 +66,7 @@ export function CycleBoard({ cycle, athlete }: { cycle: TrainingCycle; athlete: 
   const weeks = useMemo(() => buildWeeks(cycle, sessions, today), [cycle, sessions, today]);
   const progressById = new Map((progressQuery.data?.sessions ?? []).map((p) => [p.id, p]));
   const readOnly = cycle.status !== "active";
+  const ended = cycle.status === "active" && today > cycle.endDate.slice(0, 10);
   const planAlerts = (attentionQuery.data ?? []).filter(
     (item) => item.cycle.id === cycle.id && item.kind !== "low_adherence" && !isDismissed(item),
   );
@@ -88,6 +91,41 @@ export function CycleBoard({ cycle, athlete }: { cycle: TrainingCycle; athlete: 
     const timer = window.setTimeout(() => setReadyNotice(false), 10_000);
     return () => window.clearTimeout(timer);
   }, [readyNotice]);
+
+  const [cycleError, setCycleError] = useState<string | null>(null);
+  const cycleMutation = useMutation({
+    mutationFn: (data: Parameters<typeof cyclesApi.updateCycle>[1]) => cyclesApi.updateCycle(cycle.id, data),
+    onError: (e: unknown) => setCycleError(e instanceof ApiError ? e.message : "No se pudo actualizar el ciclo."),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["cycles"] }),
+  });
+
+  // «Agregar una semana»: mueve el fin del ciclo 7 días. Deshacer lo devuelve.
+  function addWeek() {
+    setCycleError(null);
+    const previous = cycle.endDate.slice(0, 10);
+    const next = addDays(previous, 7);
+    cycleMutation.mutate(
+      { endDate: next },
+      {
+        onSuccess: () =>
+          actions.announce({
+            message: `El ciclo ahora termina el ${shortDate(next)}.`,
+            undo: () => cycleMutation.mutate({ endDate: previous }),
+          }),
+      },
+    );
+  }
+
+  function setStatus(status: TrainingCycle["status"], message: string, undoTo?: TrainingCycle["status"]) {
+    setCycleError(null);
+    cycleMutation.mutate(
+      { status },
+      {
+        onSuccess: () =>
+          actions.announce({ message, undo: undoTo ? () => cycleMutation.mutate({ status: undoTo }) : undefined }),
+      },
+    );
+  }
 
   function endDrag() {
     setDrag(null);
@@ -147,11 +185,46 @@ export function CycleBoard({ cycle, athlete }: { cycle: TrainingCycle; athlete: 
           />
         </section>
       )}
+      {cycleError && (
+        <div className="bd-banner bd-banner-err" role="alert">
+          <span>{cycleError}</span>
+          <button type="button" className="bd-ghost" onClick={() => setCycleError(null)}>
+            Cerrar
+          </button>
+        </div>
+      )}
+      {ended && (
+        <div className="bd-banner bd-banner-warn" role="status">
+          <span>
+            El ciclo terminó el {shortDate(range.endDate)}, pero sigue marcado como Activo. Para seguir planificando,
+            agrega una semana o márcalo como completado.
+          </span>
+          <button type="button" className="bd-btn bd-btn-sm" disabled={cycleMutation.isPending} onClick={addWeek}>
+            Agregar una semana
+          </button>
+          <button
+            type="button"
+            className="bd-btn bd-btn-sm"
+            disabled={cycleMutation.isPending}
+            onClick={() => setStatus("completed", "Ciclo marcado como completado.", "active")}
+          >
+            Marcar como completado
+          </button>
+        </div>
+      )}
       {readOnly && (
         <div className="bd-banner bd-banner-info" role="status">
           <span>
             Este ciclo está {cycle.status === "completed" ? "completado" : "archivado"}: solo puedes consultarlo.
           </span>
+          <button
+            type="button"
+            className="bd-btn bd-btn-sm"
+            disabled={cycleMutation.isPending}
+            onClick={() => setStatus("active", "Ciclo reabierto: ya puedes editar sus sesiones.")}
+          >
+            {cycle.status === "completed" ? "Reabrir ciclo" : "Reactivar ciclo"}
+          </button>
         </div>
       )}
       {actions.failure && (
@@ -188,7 +261,7 @@ export function CycleBoard({ cycle, athlete }: { cycle: TrainingCycle; athlete: 
         )}
       </div>
 
-      {!sessionsQuery.isLoading && sessions.length === 0 && !readOnly && (
+      {!sessionsQuery.isLoading && sessions.length === 0 && !readOnly && weeks.some((w) => w.days.some((d) => d.state === "ok")) && (
         <div className="bd-banner bd-banner-info">
           <span>
             <strong>Ciclo nuevo.</strong> Arrastra una rutina a un día, o usa el «+» de cada día.
@@ -279,6 +352,13 @@ export function CycleBoard({ cycle, athlete }: { cycle: TrainingCycle; athlete: 
                   );
                 })}
               </ol>
+              {!readOnly && !ended && (
+                <div className="bd-addweek">
+                  <button type="button" className="bd-btn" disabled={cycleMutation.isPending} onClick={addWeek}>
+                    Agregar una semana
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>

@@ -53,6 +53,7 @@ export class SessionsService {
     if (cycle.cycleType === "macrocycle") {
       throw new BadRequestException("Un macrociclo no tiene sesiones propias.");
     }
+    this.assertCycleActive(cycle);
 
     const routine = await this.prisma.routine.findUnique({
       where: { id: dto.routineId },
@@ -201,6 +202,16 @@ export class SessionsService {
     return session;
   }
 
+  // Los ciclos completados o archivados son de solo lectura: no se agregan,
+  // mueven, duplican, quitan ni restauran sesiones hasta reabrirlos.
+  private assertCycleActive(cycle: { status: string }) {
+    if (cycle.status !== "active") {
+      throw new ConflictException(
+        `Este ciclo está ${cycle.status === "completed" ? "completado" : "archivado"}: reábrelo para cambiar sus sesiones.`,
+      );
+    }
+  }
+
   // Día válido para ubicar una sesión: dentro del ciclo y desde hoy (las sesiones
   // no se asignan a días que ya pasaron). Devuelve el día recortado a medianoche UTC.
   private assertDayAllowed(cycle: { startDate: Date; endDate: Date }, scheduledDate: string, today?: string): Date {
@@ -244,6 +255,7 @@ export class SessionsService {
 
     let updated;
     if (moves) {
+      this.assertCycleActive(session.cycle);
       if (session.status !== "pending") {
         throw new ConflictException("Solo se mueve una sesión pendiente.");
       }
@@ -293,6 +305,7 @@ export class SessionsService {
   async deleteSession(coachId: string, sessionId: string): Promise<void> {
     const session = await this.getSessionForCoach(sessionId, coachId, true);
     if (session.deletedAt) return;
+    this.assertCycleActive(session.cycle);
     if (session.status === "completed") {
       throw new ConflictException("No se puede quitar una sesión que el atleta ya completó.");
     }
@@ -308,6 +321,7 @@ export class SessionsService {
   async restoreSession(coachId: string, sessionId: string) {
     const session = await this.getSessionForCoach(sessionId, coachId, true);
     if (!session.deletedAt) return session;
+    this.assertCycleActive(session.cycle);
     return this.prisma.$transaction(async (tx) => {
       await tx.trainingSession.update({ where: { id: session.id }, data: { deletedAt: null } });
       await this.reassignWeekSlots(tx, session.cycleId, session.weekNumber);
@@ -322,6 +336,7 @@ export class SessionsService {
   // sesión pendiente, sin series ni cierre, en otro día.
   async duplicateSession(coachId: string, sessionId: string, dto: DuplicateSessionDto) {
     const session = await this.getSessionForCoach(sessionId, coachId);
+    this.assertCycleActive(session.cycle);
     const day = this.assertDayAllowed(session.cycle, dto.scheduledDate, dto.today);
     const weekNumber = weekOfDate(session.cycle.startDate, day);
     const exercises = await this.prisma.sessionExercise.findMany({

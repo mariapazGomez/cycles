@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { ActivityNotifier } from "../activity/activity-notifier.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { assertActiveRelation, athleteIdOf } from "../common/access";
@@ -11,6 +11,11 @@ import { CreateTemplateDto } from "./dto/create-template.dto";
 import { UpdateTemplateDto } from "./dto/update-template.dto";
 import { AssignCycleDto } from "./dto/assign-cycle.dto";
 import { endDateForWeeks, templateDates } from "./template-dates";
+
+// Semanas del ciclo (bloques de 7 días): la misma cuenta de la web.
+function totalWeeks(startDate: Date, endDate: Date): number {
+  return Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000)));
+}
 
 @Injectable()
 export class CyclesService {
@@ -170,6 +175,20 @@ export class CyclesService {
     const endDate = dto.endDate ? new Date(dto.endDate) : cycle.endDate;
     if (endDate <= startDate) {
       throw new BadRequestException("La fecha de fin debe ser posterior a la fecha de inicio.");
+    }
+
+    // Acortar el ciclo no puede dejar sesiones fuera de sus fechas.
+    if (endDate < cycle.endDate) {
+      const orphans = await this.prisma.trainingSession.count({
+        where: {
+          cycleId: id,
+          deletedAt: null,
+          OR: [{ scheduledDate: { gt: endDate } }, { weekNumber: { gt: totalWeeks(startDate, endDate) } }],
+        },
+      });
+      if (orphans > 0) {
+        throw new ConflictException("Hay sesiones después de esa fecha de fin: quítalas o muévelas antes de acortar el ciclo.");
+      }
     }
 
     return this.prisma.trainingCycle.update({

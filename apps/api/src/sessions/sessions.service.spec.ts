@@ -21,6 +21,7 @@ const cycle = {
   coachId: "c1",
   athleteId: "a1",
   isTemplate: false,
+  status: "active",
   cycleType: "mesocycle",
   sessionsPerWeek: 2,
   startDate: d("2026-10-26"),
@@ -418,5 +419,33 @@ describe("SessionsService.duplicateSession", () => {
     prisma.trainingSession.findUnique.mockResolvedValue(pendingSession);
     await expect(service.duplicateSession("c1", "s1", { scheduledDate: "2026-10-27", today: "2026-10-28" })).rejects.toThrow("desde hoy");
     await expect(service.duplicateSession("c1", "s1", { scheduledDate: "2026-12-01" })).rejects.toThrow("fuera del ciclo");
+  });
+});
+
+describe("SessionsService: ciclos que no están activos son de solo lectura", () => {
+  const closed = { ...pendingSession, cycle: { ...cycle, status: "completed" } };
+
+  it("no agrega sesiones", async () => {
+    const { prisma, service } = setup();
+    prisma.trainingCycle.findUnique.mockResolvedValue({ ...cycle, status: "archived" });
+    await expect(service.createSession("c1", "y1", { routineId: "r1", scheduledDate: "2026-10-30" })).rejects.toThrow("archivado");
+  });
+
+  it("no mueve, duplica, quita ni restaura", async () => {
+    const { prisma, service } = setup();
+    prisma.trainingSession.findUnique.mockResolvedValue(closed);
+    await expect(service.updateSession("c1", "s1", { scheduledDate: "2026-10-30" })).rejects.toThrow("completado");
+    await expect(service.duplicateSession("c1", "s1", { scheduledDate: "2026-10-30" })).rejects.toThrow(ConflictException);
+    await expect(service.deleteSession("c1", "s1")).rejects.toThrow(ConflictException);
+    prisma.trainingSession.findUnique.mockResolvedValue({ ...closed, deletedAt: new Date() });
+    await expect(service.restoreSession("c1", "s1")).rejects.toThrow(ConflictException);
+    expect(prisma.trainingSession.update).not.toHaveBeenCalled();
+  });
+
+  it("renombrar sí se puede", async () => {
+    const { prisma, service } = setup();
+    prisma.trainingSession.findUnique.mockResolvedValue(closed);
+    prisma.trainingSession.update.mockResolvedValue({ id: "s1" });
+    await expect(service.updateSession("c1", "s1", { name: "Otro" })).resolves.toBeDefined();
   });
 });

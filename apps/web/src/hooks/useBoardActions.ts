@@ -220,6 +220,8 @@ export function useBoardActions(cycleId: string, range: BoardRange) {
     moveSession,
     duplicateSession,
     removeSession,
+    // Aviso con Deshacer para gestos que no son de sesiones (p. ej. agregar una semana).
+    announce: showToast,
     dismissToast: () => showToast(null),
     dismissFailure: () => {
       setFailure(null);

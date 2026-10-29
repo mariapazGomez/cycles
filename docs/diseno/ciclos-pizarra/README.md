@@ -9,7 +9,7 @@ updated: 2026-10-28
 
 # Edición de ciclos como pizarra (CYC-172)
 
-> **Diseño aprobado el 2026-10-28 (variante A). Construcción en curso (CYC-179): el PR 1 (pizarra base: calendario, arrastrar, «+», menú ⋯, autoguardado y Deshacer, panel de rutinas, «Datos del ciclo») está hecho; el PR 2 (creador rápido de rutinas en cajón, ventana «Detalles del ejercicio» y editar una rutina desde el panel) también; faltan los estados de ciclo terminado/completado, «Agregar una semana» y la medición de contraste (PR 3).** El calendario del ciclo se convierte en una **pizarra**: el coach arrastra rutinas a los días, mueve, duplica y quita sesiones, y crea rutinas nuevas sin salir de la ventana. **Es solo para el coach**: el atleta sigue viendo su ciclo semana a semana, sin arrastrar ni editar.
+> **Diseño aprobado el 2026-10-28 (variante A). Construido el 2026-10-29** (CYC-178 el API; CYC-179 la web, en tres PR: pizarra base, creador rápido de rutinas y estados de ciclo). Los estados de ciclo terminado, completado y archivado, «Agregar una semana», «Marcar como completado» y «Reabrir» ya funcionan, y el API rechaza cambiar las sesiones de un ciclo que no está activo. El calendario del ciclo se convierte en una **pizarra**: el coach arrastra rutinas a los días, mueve, duplica y quita sesiones, y crea rutinas nuevas sin salir de la ventana. **Es solo para el coach**: el atleta sigue viendo su ciclo semana a semana, sin arrastrar ni editar.
 
 ## Cómo verla
 
@@ -105,7 +105,7 @@ Esto resuelve la incoherencia de hoy, donde el banner dice «El ciclo terminó»
 - Todo se puede hacer **sin arrastrar** (el «+», el menú ⋯ y Enter sobre una rutina). En tablet y táctil el arrastre HTML5 no funciona, así que esas rutas son la vía principal.
 - Foco visible (anillo azul de 2 px) en botones, tarjetas y campos; Escape cierra popovers, cajón y ventana; cajón y ventana usan `role="dialog"` y `aria-modal`.
 - Las sesiones tienen texto («Hecha», «Omitida», «Día tentativo»), no solo color. Las tarjetas y botones traen etiquetas (`aria-label`) con día y estado.
-- Los colores salen de los tokens de la web, que ya se usan en pantallas existentes; **falta medir el contraste con una herramienta** al construirla. Los «+» tenues son de 24 px (objetivo táctil mínimo de WCAG 2.2).
+- Los colores salen de los tokens de la web. **Contraste medido el 2026-10-29** sobre la pizarra construida (texto 4.5:1 y componentes 3:1, WCAG AA): todo el texto cumple, de 4.67:1 (la etiqueta «Esta semana») a 15.9:1; las franjas de aviso van de 5.65:1 a 7.02:1 y «Soltar aquí» da 5.27:1. El borde de los «+» da 3.05:1; el «+» tenue (el de los días que ya tienen sesión) tenía el borde en 1.30:1 y se subió al mismo color de control. **Foco de teclado:** recorrido con Tab por la pizarra, todos sus controles muestran un anillo azul de 2 px con 5.9:1. Los «+» tienen 24 px (objetivo táctil mínimo de WCAG 2.2).
 - La animación del spinner y de los esqueletos se apaga con «reducir movimiento».
 
 ## Capturas
@@ -131,9 +131,9 @@ Esto resuelve la incoherencia de hoy, donde el banner dice «El ciclo terminó»
 
 Las cuatro primeras se cerraron el 2026-10-28 (ver «Decisiones tomadas»). Quedan para la construcción:
 
-1. **Duplicar una sesión ajustada:** ¿copia la sesión tal como quedó (con sus ejercicios modificados) o vuelve a partir de la rutina? La propuesta es copiar la sesión.
+1. **Duplicar una sesión ajustada:** **resuelta (2026-10-28):** copia la sesión tal como quedó, con sus ejercicios modificados.
 2. **Editar una rutina desde la pizarra:** **resuelta (2026-10-29, PR 2):** se abre el mismo cajón con la rutina cargada; cambiarla afecta solo a las sesiones que se agreguen desde ahora.
-3. **Purga del borrado lógico:** cuánto tiempo se conserva una sesión quitada antes de borrarse (propuesta: 24 horas) y cómo se limpia.
+3. **Purga del borrado lógico:** **resuelta (CYC-178):** 24 horas, sin tarea programada (al quitar otra sesión del mismo ciclo se destruyen las quitadas hace más de 24 h que no tengan series ni cierre).
 
 ## Qué cambia para construirlo (solo la lista; nada de esto está hecho)
 
