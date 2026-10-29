@@ -6,6 +6,7 @@ import { AuthenticatedUser } from "../common/decorators/current-user.decorator";
 function setup() {
   const prisma = {
     trainingCycle: { findUnique: jest.fn(), findMany: jest.fn(), create: jest.fn(), update: jest.fn() },
+    trainingSession: { count: jest.fn().mockResolvedValue(0) },
     coachAthlete: { findUnique: jest.fn() },
   };
   const activity = { planCreated: jest.fn() };
@@ -186,5 +187,38 @@ describe("CyclesService.list", () => {
     expect(where.athleteId).toBe("a1");
     expect(where.isTemplate).toBeUndefined();
     expect(where.OR).toBeUndefined();
+  });
+});
+
+describe("CyclesService.update: acortar el ciclo", () => {
+  const cycle = {
+    id: "y1",
+    coachId: "c1",
+    athleteId: "a1",
+    isTemplate: false,
+    startDate: new Date("2026-10-05T00:00:00.000Z"),
+    endDate: new Date("2026-11-15T00:00:00.000Z"),
+  };
+
+  it("rechaza dejar sesiones fuera de las fechas", async () => {
+    const { prisma, service } = setup();
+    prisma.trainingCycle.findUnique.mockResolvedValue(cycle);
+    prisma.coachAthlete.findUnique.mockResolvedValue(activeRelation);
+    prisma.trainingSession.count.mockResolvedValue(1);
+    await expect(service.update("c1", "y1", { endDate: "2026-11-08" })).rejects.toThrow("Hay sesiones después");
+    expect(prisma.trainingCycle.update).not.toHaveBeenCalled();
+    const where = prisma.trainingSession.count.mock.calls[0][0].where;
+    expect(where.deletedAt).toBeNull();
+    expect(where.OR[1]).toEqual({ weekNumber: { gt: 5 } });
+  });
+
+  it("alargar el ciclo no revisa sesiones", async () => {
+    const { prisma, service } = setup();
+    prisma.trainingCycle.findUnique.mockResolvedValue(cycle);
+    prisma.coachAthlete.findUnique.mockResolvedValue(activeRelation);
+    prisma.trainingCycle.update.mockResolvedValue({ id: "y1" });
+    await service.update("c1", "y1", { endDate: "2026-11-22" });
+    expect(prisma.trainingSession.count).not.toHaveBeenCalled();
+    expect(prisma.trainingCycle.update).toHaveBeenCalled();
   });
 });

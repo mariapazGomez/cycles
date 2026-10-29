@@ -37,6 +37,7 @@ body.wide-main .app-main { max-width: 1360px; }
 .bd-banner { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin-bottom: 12px; padding: 10px 16px; border-radius: 14px; background: var(--color-bg); box-shadow: var(--shadow-e1); font-size: 0.88rem; }
 .bd-banner > span { flex: 1; min-width: 200px; }
 .bd-banner-info { background: var(--color-blue-50); color: var(--color-blue-700); }
+.bd-banner-warn { background: var(--color-warn-bg); color: var(--color-warn-ink); }
 .bd-banner-err { background: var(--color-pain-bg); color: var(--color-pain-ink); }
 
 /* Composición: calendario + panel */
@@ -87,7 +88,7 @@ body.wide-main .app-main { max-width: 1360px; }
 .bd-plus { display: flex; align-items: center; justify-content: center; flex: none; width: 24px; height: 24px; padding: 0; border: 1.5px solid var(--color-control-border); border-radius: 50%; background: var(--color-bg); color: var(--color-ink-secondary); cursor: pointer; transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease, transform 150ms ease; }
 .bd-plus svg { width: 12px; height: 12px; }
 .bd-plus:hover, .bd-plus[aria-expanded="true"] { background: var(--color-blue); border-color: var(--color-blue); color: #fff; transform: scale(1.08); }
-.bd-plus-faint { border-color: var(--color-gray-border); background: transparent; color: var(--color-control-border); }
+.bd-plus-faint { background: transparent; color: var(--color-ink-secondary); }
 .bd-plus-faint svg { width: 10px; height: 10px; }
 .bd-cards { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 
@@ -214,3 +215,5 @@ body.wide-main .app-main { max-width: 1360px; }
 .bd-modal-body footer { display: flex; justify-content: flex-end; gap: 8px; margin: 0 -20px; padding: 12px 20px 16px; box-shadow: 0 -1px 0 var(--color-gray-border); }
 .bd-fgrid > div { min-width: 0; }
 .bd-fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.bd-addweek { display: flex; justify-content: center; margin-top: 8px; }
