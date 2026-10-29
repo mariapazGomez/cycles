@@ -7,8 +7,10 @@ import * as athletesApi from "../services/athletesApi";
 import { ApiError } from "../services/httpClient";
 import { CYCLE_STATUS_LABEL, CYCLE_TYPE_LABEL, libraryPath } from "../lib/library";
 import { usePageBackground } from "../hooks/usePageBackground";
+import { usePageWide } from "../hooks/usePageWide";
 import { LoadingScreen } from "../components/LoadingScreen";
-import { CycleCalendarView } from "../components/CycleCalendarView";
+import { CycleBoard } from "../components/board/CycleBoard";
+import { Popover } from "../components/board/Popover";
 import { CycleEditForm } from "../components/CycleEditForm";
 import { AthleteSummaryView } from "./AthleteSummaryView";
 import { track } from "../lib/analytics";
@@ -44,9 +46,10 @@ export function AthletePage() {
   const { athleteId = "" } = useParams();
   const [params, setParams] = useSearchParams();
   const [view, setView] = useState<View>("ciclo");
-  const [showEdit, setShowEdit] = useState(false);
+  const [dataAnchor, setDataAnchor] = useState<HTMLElement | null>(null);
   const [showAssign, setShowAssign] = useState(false);
   usePageBackground();
+  usePageWide();
 
   const athletesQuery = useQuery({ queryKey: ["athletes"], queryFn: athletesApi.listAthletes });
   const cyclesQuery = useQuery({ queryKey: ["cycles"], queryFn: cyclesApi.listCycles });
@@ -61,7 +64,7 @@ export function AthletePage() {
   const selected = cycles.find((c) => c.id === params.get("ciclo")) ?? cycles[0] ?? null;
 
   function selectCycle(id: string) {
-    setShowEdit(false);
+    setDataAnchor(null);
     setParams({ ciclo: id }, { replace: true });
   }
 
@@ -138,13 +141,23 @@ export function AthletePage() {
                 {formatDate(selected.startDate)} – {formatDate(selected.endDate)}
               </span>
             </div>
-            <button type="button" className="button-secondary pl-edit" onClick={() => setShowEdit((v) => !v)}>
-              {showEdit ? "Cancelar" : "Editar ciclo"}
+            <button
+              type="button"
+              className="button-secondary pl-edit"
+              aria-haspopup="dialog"
+              aria-expanded={dataAnchor !== null}
+              onClick={(e) => setDataAnchor(dataAnchor ? null : e.currentTarget)}
+            >
+              Datos del ciclo
             </button>
           </div>
           {selected.objective && <p className="pl-objective">{selected.objective}</p>}
 
-          {showEdit && <CycleEditForm cycle={selected} onClose={() => setShowEdit(false)} />}
+          {dataAnchor && (
+            <Popover anchor={dataAnchor} label="Datos del ciclo" width={360} onClose={() => setDataAnchor(null)}>
+              <CycleEditForm cycle={selected} onClose={() => setDataAnchor(null)} />
+            </Popover>
+          )}
 
           {selected.cycleType === "macrocycle" ? (
             <div className="hm-card pl-form">
@@ -153,7 +166,7 @@ export function AthletePage() {
               </p>
             </div>
           ) : (
-            <CycleCalendarView key={selected.id} cycle={selected} athlete={{ id: athlete.id, name: athlete.name }} />
+            <CycleBoard key={selected.id} cycle={selected} athlete={{ id: athlete.id, name: athlete.name }} />
           )}
         </>
       )}

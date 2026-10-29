@@ -76,11 +76,17 @@ Un ciclo organiza las semanas de entrenamiento de un atleta. Solo aparecen en la
 
 ## 5. Asigna rutinas al ciclo
 
-1. En la ficha del atleta (menú **Atletas**), en la vista **Ciclo**, toca el **+** del día en que quieres la sesión. Si el atleta tiene varios ciclos, elige el ciclo en el selector de arriba.
-2. Elige la **Rutina** y toca **Asignar**. La sesión se crea con los ejercicios de esa rutina.
-3. Puedes marcar **Repetir este día en las semanas que siguen vacías** para llenar ese día en las semanas siguientes de una vez.
-4. Un día puede tener más de una sesión: toca el **+** pequeño que queda bajo la sesión. «Sesiones por semana» es solo una guía y el resumen de cada semana lo dice («2 de 4 planificadas»).
-5. Para ajustar una sesión (ejercicios, pesos o fecha), tócala. Una sesión sin fecha aparece en un día tentativo, con borde punteado.
+El calendario del ciclo es una **pizarra**: lo editas ahí mismo y cada cambio se guarda solo (arriba a la derecha dice *Guardando…*, *Guardado* o *No se guardó*). A la derecha tienes el panel de **Rutinas**.
+
+1. En la ficha del atleta (menú **Atletas**), en la vista **Ciclo**, **arrastra una rutina** del panel a un día. Si prefieres no arrastrar, toca el **+** del día, o toca la rutina del panel y elige el día. Si el atleta tiene varios ciclos, elige el ciclo en el selector de arriba.
+2. Para **mover** una sesión pendiente, arrástrala a otro día. También puedes tocar los tres puntos (**⋯**) de la sesión y elegir **Mover a otro día…**, **Duplicar en otro día…** o **Quitar de este día**.
+3. Cada cambio muestra un aviso con **Deshacer** por 6 segundos. Quitar no borra de verdad: **Deshacer** la devuelve con todos sus ajustes.
+4. **Solo desde hoy:** los días que ya pasaron salen como «Día pasado» y no aceptan sesiones. Los días fuera de las fechas del ciclo salen rayados.
+5. Una sesión **hecha** está bloqueada (no se mueve ni se quita). Una **omitida** no se mueve: la duplicas a un día vigente o la quitas.
+6. Un día puede tener más de una sesión. «Sesiones por semana» es solo una guía.
+7. Para ajustar una sesión (ejercicios, pesos o nombre), toca su nombre. Una sesión sin fecha aparece en un día tentativo, con borde punteado.
+8. **Datos del ciclo** (arriba) abre el nombre, objetivo, fechas y estado del ciclo.
+9. En tablet, el panel de rutinas se abre con el botón **Rutinas**; allí no se arrastra con el dedo: usa el **+** y el menú ⋯.
 
 Si todavía no tienes rutinas, el calendario te lo avisa y te lleva a la **Biblioteca**. También puedes dar a un atleta un ciclo ya armado con **Asignar ciclo de la Biblioteca**.
 

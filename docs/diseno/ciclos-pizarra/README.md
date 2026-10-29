@@ -9,7 +9,7 @@ updated: 2026-10-28
 
 # Edición de ciclos como pizarra (CYC-172)
 
-> **Diseño aprobado el 2026-10-28 (variante A), sin construir.** El calendario del ciclo se convierte en una **pizarra**: el coach arrastra rutinas a los días, mueve, duplica y quita sesiones, y crea rutinas nuevas sin salir de la ventana. **Es solo para el coach**: el atleta sigue viendo su ciclo semana a semana, sin arrastrar ni editar.
+> **Diseño aprobado el 2026-10-28 (variante A). Construcción en curso (CYC-179): el PR 1 (pizarra base: calendario, arrastrar, «+», menú ⋯, autoguardado y Deshacer, panel de rutinas, «Datos del ciclo») está hecho; faltan el creador rápido de rutinas y la ventana de detalles (PR 2) y los estados de ciclo terminado/completado, «Agregar una semana» y la medición de contraste (PR 3).** El calendario del ciclo se convierte en una **pizarra**: el coach arrastra rutinas a los días, mueve, duplica y quita sesiones, y crea rutinas nuevas sin salir de la ventana. **Es solo para el coach**: el atleta sigue viendo su ciclo semana a semana, sin arrastrar ni editar.
 
 ## Cómo verla
 

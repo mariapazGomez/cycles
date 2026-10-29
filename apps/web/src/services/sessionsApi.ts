@@ -28,7 +28,9 @@ export function listSessions(cycleId: string) {
 
 export function createSession(
   cycleId: string,
-  data: { routineId: string; scheduledDate: string } | { weekNumber: number; slotNumber: number; routineId: string; scheduledDate?: string },
+  data:
+    | { routineId: string; scheduledDate: string; today?: string }
+    | { weekNumber: number; slotNumber: number; routineId: string; scheduledDate?: string },
 ) {
   return apiRequest<SessionDetail>(`/cycles/${cycleId}/sessions`, {
     method: "POST",
@@ -42,7 +44,7 @@ export function getSession(id: string) {
 
 export function updateSession(
   id: string,
-  data: Partial<{ name: string; scheduledDate: string; status: SessionStatus }>,
+  data: Partial<{ name: string; scheduledDate: string; status: SessionStatus; today: string }>,
 ) {
   return apiRequest<TrainingSession>(`/sessions/${id}`, {
     method: "PATCH",
@@ -50,8 +52,19 @@ export function updateSession(
   });
 }
 
+// Quitar es un borrado lógico: restoreSession la devuelve con sus ejercicios.
 export function deleteSession(id: string) {
   return apiRequest<void>(`/sessions/${id}`, { method: "DELETE" });
+}
+
+export function restoreSession(id: string) {
+  return apiRequest<SessionDetail>(`/sessions/${id}/restore`, { method: "POST" });
+}
+
+// Copia la sesión tal como quedó (con sus ejercicios) como una pendiente nueva.
+// `today` es el día local del coach: el servidor lo usa para «solo desde hoy».
+export function duplicateSession(id: string, data: { scheduledDate: string; today?: string }) {
+  return apiRequest<SessionDetail>(`/sessions/${id}/duplicate`, { method: "POST", body: data });
 }
 
 export function addExercise(
