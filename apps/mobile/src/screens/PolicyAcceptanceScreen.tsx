@@ -28,7 +28,7 @@ export function PolicyAcceptanceScreen() {
       return;
     }
     if (!accepted) {
-      setError('Debes aceptar los Términos de uso y la Política de privacidad para continuar.');
+      setError('Confirma que tienes 18 años o más y aceptas los Términos de uso y la Política de privacidad para continuar.');
       return;
     }
     setError(null);
@@ -87,7 +87,7 @@ export function PolicyAcceptanceScreen() {
               {accepted && <Icon name="check" size={16} color={colors.onBlue} strokeWidth={3} />}
             </View>
             <Text style={styles.checkText}>
-              Acepto los Términos de uso y la Política de privacidad. Tu coach verá tus entrenamientos y lo que
+              Tengo 18 años o más y acepto los Términos de uso y la Política de privacidad. Tu coach verá tus entrenamientos y lo que
               cuentes, incluidas las notas de dolor.
             </Text>
           </TouchableOpacity>
