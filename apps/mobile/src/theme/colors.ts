@@ -48,6 +48,4 @@ export const muscleColors = {
 // Rampa secuencial de un solo azul (claro a oscuro) del mapa muscular.
 export const intensityRamp = ['#cfe0fd', '#8fb8fb', '#3080fc', '#1a55c2', '#0d2f78'] as const;
 export const noLoadFill = '#dfe4ec';
-export const bodyBase = '#e7ebf1';
-export const bodyOutline = '#c9ced6';
 

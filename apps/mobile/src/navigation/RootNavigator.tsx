@@ -8,6 +8,7 @@ import { LoginScreen } from '../screens/LoginScreen';
 import { TodayScreen } from '../screens/TodayScreen';
 import { CalendarScreen } from '../screens/CalendarScreen';
 import { SummaryScreen } from '../screens/SummaryScreen';
+import { AssistantScreen } from '../screens/AssistantScreen';
 import { FloatingTabBar } from '../components/FloatingTabBar';
 import { BrandSplash } from '../components/BrandSplash';
 import { ExerciseLogScreen } from '../screens/ExerciseLogScreen';
@@ -32,6 +33,7 @@ function Tabs() {
       <Tab.Screen name="Calendar" component={CalendarScreen} />
       <Tab.Screen name="Today" component={TodayScreen} />
       <Tab.Screen name="Summary" component={SummaryScreen} />
+      <Tab.Screen name="Assistant" component={AssistantScreen} />
     </Tab.Navigator>
   );
 }
