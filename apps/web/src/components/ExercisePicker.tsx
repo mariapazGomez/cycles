@@ -1,5 +1,6 @@
 import { useId, useMemo, useState } from "react";
 import type { Exercise } from "@cycles/shared";
+import { ExerciseFormCard } from "./ExerciseForm";
 import { muscleGroupLabel } from "../lib/muscleGroups";
 
 const MAX_RESULTS = 8;
@@ -23,6 +24,7 @@ interface ExercisePickerProps {
 export function ExercisePicker({ exercises, isLoading, isError, onPick }: ExercisePickerProps) {
   const [query, setQuery] = useState("");
   const inputId = useId();
+  const [creating, setCreating] = useState<string | null>(null);
 
   const results = useMemo(() => {
     const needle = normalize(query.trim());
@@ -60,8 +62,30 @@ export function ExercisePicker({ exercises, isLoading, isError, onPick }: Exerci
       />
       {isLoading && <p className="rt-no-results">Cargando ejercicios…</p>}
       {isError && <p className="rt-no-results">No se pudo cargar el catálogo de ejercicios.</p>}
-      {!isLoading && !isError && results.length === 0 && (
-        <p className="rt-no-results">Ningún ejercicio coincide con “{query}”.</p>
+      {!isLoading && !isError && results.length === 0 && query.trim() && creating === null && (
+        <ul className="rt-results">
+          <li>
+            <button type="button" className="rt-pick rt-pick-create" onClick={() => setCreating(query.trim())}>
+              <span aria-hidden="true" className="rt-create-plus">
+                +
+              </span>
+              <span>Crear «{query.trim()}»</span>
+            </button>
+          </li>
+        </ul>
+      )}
+      {creating !== null && (
+        <ExerciseFormCard
+          editing={null}
+          initialName={creating}
+          compact
+          submitLabel="Crear y agregar a la rutina"
+          onClose={() => setCreating(null)}
+          onSaved={(exercise) => {
+            setCreating(null);
+            pick(exercise);
+          }}
+        />
       )}
       {results.length > 0 && (
         <ul className="rt-results">
