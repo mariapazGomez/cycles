@@ -11,7 +11,7 @@ updated: 2026-10-19
 
 > Un coach pidió crear sus propios ejercicios: escribe el nombre y elige el resto de las características entre las opciones disponibles, incluidos los implementos que necesita. Este diseño define la pestaña **Ejercicios** de la web (computador y celular), el atajo «Crear» dentro del editor de rutinas y cómo se vería, de forma opcional, en la app del coach. **Decidido por la fundadora el 2026-10-20** (las ocho decisiones, con recomendaciones aprobadas). Se construye en T-181 a T-186; reemplaza a T-081.
 
-**Estado de la construcción (2026-10-30):** hecho el modelo de implementos, la API (obligatorios, nombre repetido, editar) y la pestaña Ejercicios de la web con lista, crear, editar y dejar de usar (CYC-56). **Falta:** el atajo «Crear» en el editor de rutinas, cargar los implementos de los 54 ejercicios del catálogo y la búsqueda por implementos.
+**Estado de la construcción (2026-10-30):** hecho el modelo de implementos, la API (obligatorios, nombre repetido, editar) y la pestaña Ejercicios de la web con lista, crear, editar y dejar de usar (CYC-56). Los implementos de los ejercicios del catálogo se cargan con `apps/api/scripts/implementos-catalogo.ts` (52 de 54; «Rueda abdominal» y «Salto de cuerda» quedan vacíos porque la lista cerrada no los describe). **Falta:** el atajo «Crear» en el editor de rutinas y la búsqueda por implementos.
 
 ## Cómo verlo
 
