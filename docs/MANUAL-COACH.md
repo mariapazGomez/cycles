@@ -38,6 +38,10 @@ Para cambiarla después: **Rutinas** → abre la rutina → edita y guarda.
 
 > Empieza con 2 o 3 rutinas. Siempre puedes agregar más.
 
+### Si falta un ejercicio
+
+Menú **Ejercicios** → **Nuevo ejercicio**. Escribe el nombre, elige el grupo muscular y los implementos que necesita (o **Peso corporal** si no usa nada). La descripción y el enlace del video son opcionales. En **Míos** puedes **Editar** un ejercicio o **Dejar de usar** uno: ya no aparece al armar rutinas, pero las sesiones donde lo usaste lo conservan. El **Catálogo** de Cycles no se edita.
+
 ---
 
 ## 3. Invita a tu atleta

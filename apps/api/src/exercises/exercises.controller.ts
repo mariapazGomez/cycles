@@ -5,6 +5,7 @@ import { Roles } from "../common/decorators/roles.decorator";
 import { CurrentUser, AuthenticatedUser } from "../common/decorators/current-user.decorator";
 import { ExercisesService } from "./exercises.service";
 import { CreateExerciseDto } from "./dto/create-exercise.dto";
+import { UpdateExerciseDto } from "./dto/update-exercise.dto";
 
 @UseGuards(JwtAuthGuard)
 @Controller("exercises")
@@ -21,6 +22,13 @@ export class ExercisesController {
   @Post()
   create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateExerciseDto) {
     return this.exercisesService.create(user.id, dto);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles("coach")
+  @Patch(":id")
+  update(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string, @Body() dto: UpdateExerciseDto) {
+    return this.exercisesService.update(user.id, id, dto);
   }
 
   @UseGuards(RolesGuard)

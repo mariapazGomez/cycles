@@ -281,12 +281,34 @@ model TrainingSession {
   @@index([deletedAt])
 }
 
+// Lo que un ejercicio necesita para hacerse. Lista cerrada (ver EQUIPMENT en
+// packages/shared); «bodyweight» no se combina con los demás.
+enum Equipment {
+  barbell
+  plates
+  dumbbells
+  kettlebell
+  bench
+  rack
+  cable
+  machine
+  band
+  pullup_bar
+  dip_bars
+  suspension
+  medicine_ball
+  box
+  bodyweight
+}
+
 model Exercise {
   id          String       @id @default(uuid())
   name        String
   muscleGroup MuscleGroup?
   description String?
   videoUrl    String?
+  // Vacío mientras el ejercicio del catálogo no tenga sus implementos revisados.
+  equipment   Equipment[]  @default([])
   // null = catálogo global (seed); no-null = ejercicio propio de ese coach.
   createdBy   String?
   // Permite ocultar un ejercicio propio sin borrarlo (protege el historial

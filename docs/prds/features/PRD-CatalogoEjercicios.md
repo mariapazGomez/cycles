@@ -5,7 +5,7 @@ parent: "[[PRD-General]]"
 status: in-progress
 phase: "Fase 2 — Planificación"
 created: 2026-09-22
-updated: 2026-09-22
+updated: 2026-10-30
 tags: [prd, feature/catalogo-ejercicios]
 related: []
 ---
@@ -76,7 +76,8 @@ model Exercise {
 ## 6. Diseño de API — implementado en `apps/api/src/exercises`
 
 - `GET /exercises` (autenticado) — catálogo global + propios (coach) o solo global (atleta).
-- `POST /exercises` (rol `coach`) — body `{ name, muscleGroup?, description?, videoUrl? }`.
+- `POST /exercises` (rol `coach`) — body `{ name, muscleGroup, equipment[], description?, videoUrl? }`. Grupo muscular e implementos son obligatorios; `bodyweight` (peso corporal) va solo; el enlace debe empezar con `https://`. 409 si el nombre repite uno del catálogo o uno propio activo (se comparan sin tildes, mayúsculas ni espacios de más).
+- `PATCH /exercises/:id` (rol `coach`, dueño) — corrige cualquier campo del alta; `null` en descripción o video los borra. 403 si el ejercicio no es suyo o es del catálogo.
 - `PATCH /exercises/:id/deactivate` (rol `coach`, dueño) — 403 si el ejercicio no es suyo.
 
 ## 7. UI/UX
@@ -100,4 +101,5 @@ Ninguno adicional a los del PRD general.
 
 - **Fuente del seed:** se evaluó importar un dataset público en inglés (`yuhonas/free-exercise-db`, dominio público, 876 ejercicios) y traducirlo automáticamente, pero la traducción palabra-por-palabra daba nombres con orden gramatical incorrecto (ej. "Un brazo por encima de la cabeza pesa rusa sentadilla"). Se descartó ese enfoque a favor de una lista curada a mano de 54 ejercicios comunes, con nombres en español correctos desde el día uno. Se puede ampliar el catálogo global más adelante agregando filas a mano o retomando una fuente externa con una traducción de mejor calidad.
 - `videoUrl`: el seed no completa este campo (el dataset evaluado tenía fotos, no videos, y no había una fuente de videos ya lista). Queda vacío hasta que se decida una fuente.
-- Edición de ejercicios propios: pendiente, no bloquea nada hoy.
+- Edición de ejercicios propios: construida con la pestaña Ejercicios de la web (2026-10-30), junto con los implementos (`Exercise.equipment`, lista cerrada). Diseño en `docs/diseno/crear-ejercicio`.
+- **Pendiente:** asignar implementos a los 54 ejercicios del catálogo (hoy tienen la lista vacía), el atajo «Crear» en el editor de rutinas y la búsqueda «con lo que tengo».

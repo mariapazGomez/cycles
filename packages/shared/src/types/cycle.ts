@@ -12,6 +12,27 @@ export type MuscleGroup =
   | "cardio"
   | "other";
 
+// Lo que un ejercicio necesita para hacerse. Lista cerrada y de selección
+// múltiple; «bodyweight» (peso corporal) no se combina con los demás.
+export const EQUIPMENT = [
+  "barbell",
+  "plates",
+  "dumbbells",
+  "kettlebell",
+  "bench",
+  "rack",
+  "cable",
+  "machine",
+  "band",
+  "pullup_bar",
+  "dip_bars",
+  "suspension",
+  "medicine_ball",
+  "box",
+  "bodyweight",
+] as const;
+export type Equipment = (typeof EQUIPMENT)[number];
+
 export interface TrainingCycle {
   id: string;
   coachId: string;
@@ -74,6 +95,8 @@ export interface Exercise {
   muscleGroup?: MuscleGroup;
   description?: string;
   videoUrl?: string;
+  // Vacío en los ejercicios del catálogo que aún no se revisan.
+  equipment: Equipment[];
   // null/undefined = catálogo global; id = ejercicio propio de ese coach.
   createdBy?: string;
   isActive: boolean;

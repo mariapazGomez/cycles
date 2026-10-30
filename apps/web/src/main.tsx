@@ -18,6 +18,7 @@ import "./styles/week-views.css";
 import "./styles/board.css";
 import "./styles/athletes.css";
 import "./styles/library.css";
+import "./styles/exercises.css";
 import { initAnalytics } from "./lib/analytics";
 import "./styles/landing.css";
 
