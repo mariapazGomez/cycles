@@ -116,3 +116,11 @@
   .ex-row-actions { width: 100%; }
   .ex-groups { flex: 1 1 100%; }
 }
+
+/* Crear un ejercicio desde el buscador del editor de rutinas */
+.rt-pick-create { justify-content: flex-start; color: var(--color-blue); font-weight: 700; }
+.rt-create-plus { display: inline-grid; place-items: center; width: 22px; height: 22px; margin-right: 8px; border-radius: 50%; background: var(--color-blue-tint); font-size: 1.1rem; line-height: 1; }
+.rt-add .ex-card { margin-top: 10px; box-shadow: var(--shadow-e1); }
+.ex-more > summary { cursor: pointer; font-weight: 600; font-size: 0.9rem; color: var(--color-blue); min-height: 32px; }
+.ex-more > summary:focus-visible { outline: 2px solid var(--color-blue); outline-offset: 2px; }
+.ex-more-body { display: flex; flex-direction: column; gap: 18px; padding-top: 12px; }
