@@ -33,10 +33,12 @@ export function BodyMap({ totals, selected, onSelect }: Props) {
     return (
       <View style={styles.figure}>
         <View style={styles.canvas}>
-          <Image source={IMAGES[view]} style={StyleSheet.absoluteFill} resizeMode="contain" />
+          <Image source={IMAGES[view]} style={styles.layer} resizeMode="contain" />
           <Svg
             viewBox={viewBox}
-            style={StyleSheet.absoluteFill}
+            width="100%"
+            height="100%"
+            style={styles.layer}
             accessibilityLabel={`Figura ${view === 'front' ? 'de frente' : 'de espalda'} con los grupos musculares coloreados según la carga`}>
             {ordered.map((z, i) => (
               <Path
@@ -68,6 +70,9 @@ export function BodyMap({ totals, selected, onSelect }: Props) {
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', justifyContent: 'space-around', marginTop: 4 },
   figure: { width: '46%' },
-  canvas: { width: '100%', aspectRatio: 400 / 810 },
+  canvas: { width: '100%', aspectRatio: 400 / 810, overflow: 'hidden' },
+  // Tamaño explícito: en iOS, con solo los cuatro bordes en 0, la imagen toma su
+  // tamaño original (400 × 810) en vez de ajustarse al recuadro.
+  layer: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
   caption: { textAlign: 'center', fontSize: 12, color: colors.inkSecondary, marginTop: 2 },
 });
