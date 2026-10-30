@@ -5,6 +5,7 @@ export type TabParamList = {
   Calendar: undefined;
   Today: undefined;
   Summary: undefined;
+  Assistant: undefined;
 };
 
 export type AppStackParamList = {

@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Keyboard, StyleSheet, Text, View } from 'react-native';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon, type IconName } from './Icon';
@@ -14,6 +14,7 @@ const ITEMS: Record<string, { icon: IconName; label: string }> = {
   Calendar: { icon: 'calendar', label: 'Calendario' },
   Today: { icon: 'barbell', label: 'Inicio' },
   Summary: { icon: 'chart', label: 'Resumen' },
+  Assistant: { icon: 'chat', label: 'Asistente' },
 };
 
 // Alto que las pantallas deben reservar abajo para que su contenido no
@@ -27,6 +28,21 @@ export function useTabBarClearance() {
 // solo la opción activa muestra su etiqueta.
 export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+
+  // Con el teclado abierto la isla taparía la caja de texto del chat.
+  useEffect(() => {
+    const show = Keyboard.addListener('keyboardDidShow', () => setKeyboardOpen(true));
+    const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardOpen(false));
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+
+  if (keyboardOpen) {
+    return null;
+  }
 
   return (
     <View
