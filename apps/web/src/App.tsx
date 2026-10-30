@@ -24,6 +24,7 @@ import { CyclesPage } from "./pages/CyclesPage";
 import { CycleDetailPage } from "./pages/CycleDetailPage";
 import { SessionDetailPage } from "./pages/SessionDetailPage";
 import { BibliotecaPage } from "./pages/BibliotecaPage";
+import { ExercisesPage } from "./pages/ExercisesPage";
 import { RoutineEditorPage } from "./pages/RoutineEditorPage";
 import { AthletePage } from "./pages/AthletePage";
 import { SessionLogPage } from "./pages/SessionLogPage";
@@ -129,6 +130,7 @@ export function App() {
         <Route path="athletes/:athleteId" element={<AthletePage />} />
         <Route path="calendar" element={<CalendarPage />} />
         <Route path="biblioteca" element={<BibliotecaPage />} />
+        <Route path="ejercicios" element={<ExercisesPage />} />
         <Route path="cycles" element={<CyclesRoute />} />
         <Route path="routines" element={<Navigate to={libraryPath("routine")} replace />} />
         <Route path="routines/new" element={<RoutineEditorPage />} />
