@@ -1,0 +1,21 @@
+{
+  "name": "cycles-video",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts BuildInPublic out/build-in-public.mp4"
+  },
+  "dependencies": {
+    "@remotion/captions": "^4.0.536",
+    "@remotion/cli": "^4.0.536",
+    "@remotion/google-fonts": "^4.0.536",
+    "@types/react": "^18.3.31",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.536",
+    "typescript": "^7.0.2"
+  },
+  "devDependencies": {
+    "playwright": "^1.64.1"
+  }
+}
