@@ -29,6 +29,15 @@ const OAUTH_CODE_TTL_MS = 1000 * 60; // 60 segundos: la web lo usa apenas llega
 const OAUTH_CODE_RETENTION_MS = 1000 * 60 * 60 * 24; // se borran al día de vencer
 export const DATA_CONSENT_VERSION = "v1";
 
+const BCRYPT_COST = 12;
+
+// Hash de una contraseña al azar que nadie conoce, con el mismo costo que los
+// reales. Cuando la cuenta no existe (o es solo de Google) el login compara
+// contra este para tardar lo mismo que con una cuenta real: así no se puede
+// saber si un correo está registrado midiendo el tiempo (S-10, R3). Nunca
+// coincide con ninguna contraseña: el login además exige que haya un hash real.
+export const DUMMY_PASSWORD_HASH = "$2b$12$LTf/tPF8XrQS/oj8VFtYluQgCguTAdL.PHSmdpmJkxmwkK9I/JscW";
+
 export const REGISTRATION_CLOSED_MESSAGE =
   "El registro está cerrado por ahora: Cycles es solo para usuarios que ya tienen cuenta.";
 
@@ -82,7 +91,7 @@ export class AuthService {
       throw new ConflictException("Ya existe una cuenta con este email.");
     }
 
-    const passwordHash = await bcrypt.hash(dto.password, 12);
+    const passwordHash = await bcrypt.hash(dto.password, BCRYPT_COST);
     const user = await this.prisma.user.create({
       data: {
         email: dto.email,
@@ -103,7 +112,9 @@ export class AuthService {
   // `ip` alimenta las alertas de seguridad (docs/PLAN-Seguridad.md, 1E).
   async login(dto: LoginDto, ip: string): Promise<AuthTokens> {
     const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
-    const matches = user?.passwordHash ? await bcrypt.compare(dto.password, user.passwordHash) : false;
+    // Siempre se calcula un bcrypt, exista o no la cuenta (ver DUMMY_PASSWORD_HASH).
+    const compared = await bcrypt.compare(dto.password, user?.passwordHash ?? DUMMY_PASSWORD_HASH);
+    const matches = compared && Boolean(user?.passwordHash);
     if (!user || !matches) {
       this.alerts.failedLogin(ip, dto.email, "POST /auth/login");
       throw new UnauthorizedException("Credenciales inválidas");
@@ -313,7 +324,7 @@ export class AuthService {
       throw new UnauthorizedException("El link de recuperación es inválido o expiró.");
     }
 
-    const passwordHash = await bcrypt.hash(newPassword, 12);
+    const passwordHash = await bcrypt.hash(newPassword, BCRYPT_COST);
     await this.prisma.$transaction([
       this.prisma.user.update({ where: { id: record.userId }, data: { passwordHash } }),
       this.prisma.passwordResetToken.update({
