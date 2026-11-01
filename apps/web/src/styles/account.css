@@ -1,0 +1,91 @@
+.ac-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ac-page h1 {
+  margin: 0;
+}
+
+.ac-card {
+  background: var(--color-bg);
+  border: 1px solid var(--color-gray-border);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.ac-card h2 {
+  margin: 0 0 12px;
+  font-size: 1.05rem;
+}
+
+.ac-card p {
+  margin: 0 0 14px;
+  color: var(--color-ink-secondary);
+}
+
+.ac-list {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 16px;
+  margin: 0;
+}
+
+.ac-list dt {
+  color: var(--color-ink-secondary);
+}
+
+.ac-list dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.ac-notice {
+  background: var(--color-ok-bg);
+  color: var(--color-ok-ink);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.ac-button {
+  width: auto;
+  padding: 11px 20px;
+}
+
+.ac-danger {
+  border-color: var(--color-pain-bg);
+}
+
+.ac-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.ac-confirm input {
+  padding: 10px 12px;
+  border: 1px solid var(--color-control-border);
+  border-radius: 10px;
+  font-size: 1rem;
+}
+
+.ac-delete {
+  padding: 11px 20px;
+  border: none;
+  border-radius: 999px;
+  background: var(--color-pain-ink);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ac-delete:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

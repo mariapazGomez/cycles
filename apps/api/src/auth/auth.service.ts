@@ -27,7 +27,7 @@ const EMAIL_VERIFICATION_TTL_MS = 1000 * 60 * 60 * 24; // 24 horas
 const PASSWORD_RESET_TTL_MS = 1000 * 60 * 30; // 30 minutos
 const OAUTH_CODE_TTL_MS = 1000 * 60; // 60 segundos: la web lo usa apenas llega
 const OAUTH_CODE_RETENTION_MS = 1000 * 60 * 60 * 24; // se borran al día de vencer
-const DATA_CONSENT_VERSION = "v1";
+export const DATA_CONSENT_VERSION = "v1";
 
 export const REGISTRATION_CLOSED_MESSAGE =
   "El registro está cerrado por ahora: Cycles es solo para usuarios que ya tienen cuenta.";
