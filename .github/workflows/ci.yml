@@ -7,9 +7,9 @@
 # - api-e2e: pruebas de autorización contra un Postgres de pruebas (CYC-90).
 # - web: revisa tipos y compila con Vite.
 # - mobile: revisa tipos y corre Jest (no compila la app; eso lo hace android.yml).
-# - auditoría: `npm audit` de las dependencias de producción. Solo avisa: hoy hay
-#   avisos que exigen migrar NestJS (docs/SEGURIDAD.md, §3.4). Cuando esa
-#   migración esté hecha, quitar `continue-on-error` para que bloquee.
+# - auditoría: `npm audit` de las dependencias de producción. Solo avisa (el paso
+#   usa `continue-on-error`): hoy hay avisos que exigen migrar NestJS
+#   (docs/SEGURIDAD.md, §3.4). Cuando esa migración esté hecha, quitarlo.
 #
 # ESLint no está aquí todavía: api y web no tienen configuración (CYC-97).
 
@@ -127,11 +127,14 @@ jobs:
     name: Auditoría de dependencias (solo aviso)
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      # El paso queda marcado con aviso (no con error) para no dejar el PR en rojo:
+      # los avisos altos de hoy exigen migrar NestJS (CYC-94). Al migrar, quitar
+      # `continue-on-error` para que bloquee.
       - name: npm audit (producción, severidad alta o crítica)
+        continue-on-error: true
         run: npm audit --omit=dev --audit-level=high

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 function getInitials(name: string | undefined): string {
@@ -47,7 +48,9 @@ export function UserMenu() {
             <p className="user-menu-name">{user?.name}</p>
             <p className="user-menu-email">{user?.email}</p>
           </div>
-          {/* Más opciones de configuración se agregan acá cuando existan. */}
+          <Link to="/account" className="user-menu-item" role="menuitem" onClick={() => setOpen(false)}>
+            Mi cuenta
+          </Link>
           <button
             type="button"
             className="user-menu-item"

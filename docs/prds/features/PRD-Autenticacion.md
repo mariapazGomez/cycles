@@ -2,10 +2,10 @@
 type: prd
 level: feature
 parent: "[[PRD-General]]"
-status: in-progress
+status: complete
 phase: "Fase 1 — Auth & onboarding"
 created: 2026-09-16
-updated: 2026-09-16
+updated: 2026-11-01
 tags: [prd, feature/auth]
 related: []
 ---
@@ -103,7 +103,7 @@ Usa directamente `User` (`passwordHash`, `authProvider`, `role` ahora nullable, 
 
 ## 11. Estado y decisiones abiertas
 
-- **Proveedor de email transaccional: resuelto — Resend** (ver decisiones del [[PRD-General]], sección 11, 2026-09-19). Pendiente de implementación: reemplazar el `MailService` de desarrollo en `apps/api/src/mail/mail.service.ts` (actualmente solo loguea el link) por la integración real.
+- **Proveedor de email transaccional: resuelto — Resend** (ver decisiones del [[PRD-General]], sección 11, 2026-09-19). **Implementado**: `apps/api/src/mail/mail.service.ts` envía por Resend desde `hola@mail.getcycles.app`; sin `RESEND_API_KEY` queda en modo desarrollo (solo en local; en producción la API no arranca sin la clave).
 - **Tokens de Google fuera de la URL: resuelto** (2026-09-27, PR 1C de `docs/PLAN-Seguridad.md`) con el código de un solo uso descrito en la sección de endpoints.
 - Apple Sign In postergado deliberadamente (ver sección 3); se reevalúa si se publica app nativa en App Store o si hay demanda explícita.
-- Texto legal exacto del consentimiento de datos (`dataConsentVersion`): la política de privacidad y los términos ya están redactados (borrador, ver [[PRD-PrivacidadYTerminos]]); falta revisión legal y decidir si se versiona la aceptación de los atletas en la API.
+- Texto legal exacto del consentimiento de datos (`dataConsentVersion`): la política y los términos están publicados y su aceptación se guarda versionada para coach y atleta (`PolicyAcceptance`, ver [[PRD-PrivacidadYTerminos]] §7); falta la revisión legal por una persona abogada.

@@ -15,6 +15,7 @@ export type AppStackParamList = {
   };
   SessionDetail: { sessionId: string };
   Notifications: undefined;
+  Account: undefined;
   SessionFeedback: {
     sessionId: string;
     startedAt?: string | null;

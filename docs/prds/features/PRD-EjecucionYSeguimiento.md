@@ -2,10 +2,10 @@
 type: prd
 level: feature
 parent: "[[PRD-General]]"
-status: approved
+status: complete
 phase: "Fase 3 — Ejecución y seguimiento"
 created: 2026-09-25
-updated: 2026-09-25
+updated: 2026-11-01
 tags: [prd, feature/ejecucion-seguimiento]
 related: ["[[PRD-RutinasYProgramacion]]", "[[PRD-CRUDSesiones]]", "[[PRD-CatalogoEjercicios]]"]
 ---
@@ -240,7 +240,7 @@ Mockups: lienzo de pantallas web de Cycles (Design artifact), a completar en la 
 
 **Backend implementado y probado (2026-09-25)** en la rama `feat/fase-3-backend`: migración `execution_and_tracking`, módulos `ExecutionModule` (atleta) y `TrackingModule` (coach), `defaultRir`/`targetRir` en rutinas y sesiones. Probado end-to-end contra la base local: registro por serie, reintento con el mismo id (no duplica), serie repetida sin corrección (409), corrección con `supersedesId` y corrección de una fila ya corregida (409), cierre con duración calculada desde `startedAt`, cierre repetido (409) y su corrección, sesión omitida, registro bloqueado con el plan en `draft` (400) y para el coach (403); alertas de dolor, carga alta, carga baja y adherencia; progreso del plan; resumen con e1RM y desvío de RIR; ajuste de carga (80 → 76 kg en 3 sesiones pendientes) y la alerta de carga alta que desaparece después; endpoints del coach prohibidos para el atleta y viceversa. Frontend implementado y probado (2026-09-25) en la rama `feat/fase-3-frontend`: Inicio del coach ("Necesitan atención"), resumen del atleta con gráficos, grid del plan con progreso y avisos, reps en reserva objetivo en el editor de rutinas, e inicio del atleta con registro por serie y cierre, adaptable al celular. "Descartar" un aviso se guarda en el navegador (localStorage).
 
-**Aprobado (2026-09-25).** Decisiones confirmadas por la usuaria el 2026-09-25:
+**Implementado (v1)**: backend y web (registro de la sesión, atención del coach, resumen del atleta) y app iOS del atleta ([[PRD-AppMovilAtleta]]). Las decisiones abiertas de abajo son para una v2 o dependen de validarlo con coaches reales en el piloto. **Aprobado (2026-09-25).** Decisiones confirmadas por la usuaria el 2026-09-25:
 - **Escala de esfuerzo del atleta = RIR** ("¿cuántas reps más podías hacer?") en vez de RPE 1–10 directo. El coach puede verlo como RPE.
 - **Registro por serie**, no un valor por ejercicio. Es lo que permite estimar fuerza y ajustar cargas con precisión.
 - **Esfuerzo objetivo por ejercicio** (`targetRir`) definido por el coach en la rutina. Opcional: sin él no hay alertas de carga para ese ejercicio.
