@@ -10,6 +10,8 @@ import { CalendarScreen } from '../screens/CalendarScreen';
 import { SummaryScreen } from '../screens/SummaryScreen';
 import { AssistantScreen } from '../screens/AssistantScreen';
 import { FloatingTabBar } from '../components/FloatingTabBar';
+import { useReduceMotion } from '../hooks/useReduceMotion';
+import { slideInterpolator, slideSpec } from './tabTransition';
 import { BrandSplash } from '../components/BrandSplash';
 import { ExerciseLogScreen } from '../screens/ExerciseLogScreen';
 import { SessionFeedbackScreen } from '../screens/SessionFeedbackScreen';
@@ -25,11 +27,16 @@ const Tab = createBottomTabNavigator<TabParamList>();
 // Las pestañas viven dentro de la pila: así el registro de serie y el cierre
 // de sesión se abren a pantalla completa, sin la isla.
 function Tabs() {
+  const reduceMotion = useReduceMotion();
   return (
     <Tab.Navigator
       initialRouteName="Today"
       tabBar={props => <FloatingTabBar {...props} />}
-      screenOptions={{ headerShown: false }}>
+      screenOptions={{
+        headerShown: false,
+        // Sin movimiento si la persona lo pidió en los ajustes del sistema.
+        ...(reduceMotion ? { animation: 'none' as const } : { transitionSpec: slideSpec, sceneStyleInterpolator: slideInterpolator }),
+      }}>
       <Tab.Screen name="Calendar" component={CalendarScreen} />
       <Tab.Screen name="Today" component={TodayScreen} />
       <Tab.Screen name="Summary" component={SummaryScreen} />

@@ -1,7 +1,10 @@
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import { FloatingTabBar } from '../src/components/FloatingTabBar';
+import { StyleSheet } from 'react-native';
 import { Spinner } from '../src/components/Spinner';
+
+const StyleSheetFlatten = (style: unknown) => StyleSheet.flatten(style as never);
 
 jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ top: 0, bottom: 34, left: 0, right: 0 }),
@@ -12,6 +15,7 @@ function renderBar(index: number) {
     { key: 'c', name: 'Calendar' },
     { key: 't', name: 'Today' },
     { key: 's', name: 'Summary' },
+    { key: 'a', name: 'Assistant' },
   ];
   const navigation = { emit: jest.fn(() => ({ defaultPrevented: false })), navigate: jest.fn() };
   let tree!: ReactTestRenderer.ReactTestRenderer;
@@ -26,10 +30,30 @@ function renderBar(index: number) {
 const texts = (tree: ReactTestRenderer.ReactTestRenderer) =>
   tree.root.findAllByType('Text' as never).map(n => n.props.children);
 
-test('solo la opción activa muestra su etiqueta', () => {
-  expect(texts(renderBar(1).tree)).toEqual(['Inicio']);
-  expect(texts(renderBar(0).tree)).toEqual(['Calendario']);
-  expect(texts(renderBar(2).tree)).toEqual(['Resumen']);
+test('todas las opciones muestran su etiqueta, sea cual sea la activa', () => {
+  const all = ['Calendario', 'Inicio', 'Resumen', 'Asistente'];
+  expect(texts(renderBar(1).tree)).toEqual(all);
+  expect(texts(renderBar(0).tree)).toEqual(all);
+  expect(texts(renderBar(3).tree)).toEqual(all);
+});
+
+test('la isla mide lo mismo en cualquier pestaña', () => {
+  const island = (index: number) => {
+    const node = renderBar(index).tree.root.findAll(
+      n => Array.isArray(n.props.style) && n.props.style.some((s: { width?: number }) => s && s.width === 290),
+    )[0];
+    return node ? StyleSheetFlatten(node.props.style) : null;
+  };
+  expect(island(0)).not.toBeNull();
+  expect(island(0)).toEqual(island(3));
+});
+
+test('solo la opción activa queda marcada como seleccionada', () => {
+  const selected = renderBar(2)
+    .tree.root.findAll(n => n.props.accessibilityState && typeof n.props.onPress === 'function')
+    .filter(n => n.props.accessibilityState.selected)
+    .map(n => n.props.accessibilityLabel);
+  expect([...new Set(selected)]).toEqual(['Resumen']);
 });
 
 test('tocar una pestaña inactiva navega a ella', () => {
