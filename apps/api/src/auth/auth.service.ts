@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Injectable,
   UnauthorizedException,
+  Logger,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
@@ -50,6 +51,8 @@ export interface AuthTokens {
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwt: JwtService,
@@ -288,15 +291,34 @@ export class AuthService {
     this.activity.coachJoined(record.userId);
   }
 
+  // La respuesta sale de inmediato, exista o no la cuenta: lo que cuesta tiempo
+  // (escrituras en la base y el envío del correo) se hace en segundo plano. Si
+  // se esperara, un correo registrado tardaría cientos de milisegundos más que
+  // uno inexistente y el tiempo delataría la cuenta (S-10, R3).
   async resendVerification(email: string): Promise<void> {
-    const user = await this.prisma.user.findUnique({ where: { email } });
-    if (user && !user.emailVerifiedAt) {
-      await this.issueEmailVerification(user);
-    }
+    this.inBackground("reenvío de verificación", async () => {
+      const user = await this.prisma.user.findUnique({ where: { email } });
+      if (user && !user.emailVerifiedAt) {
+        await this.issueEmailVerification(user);
+      }
+    });
     // Respuesta siempre genérica en el controller: no revelar si el email existe.
   }
 
+  // Ejecuta `work` sin esperarlo. Un fallo nunca llega a quien pidió el correo
+  // (sería otra forma de saber si la cuenta existe); queda en el log sin el email.
+  private inBackground(label: string, work: () => Promise<void>): void {
+    void work().catch((err: unknown) => {
+      this.logger.error(`Falló el ${label} en segundo plano (${err instanceof Error ? err.name : "error desconocido"}).`);
+    });
+  }
+
+  // Responde de inmediato, exista o no la cuenta (ver resendVerification).
   async requestPasswordReset(email: string): Promise<void> {
+    this.inBackground("envío de recuperación de contraseña", () => this.sendPasswordReset(email));
+  }
+
+  private async sendPasswordReset(email: string): Promise<void> {
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user || !user.passwordHash) {
       return; // no revelar existencia de la cuenta ni si es solo-OAuth
