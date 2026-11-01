@@ -15,6 +15,7 @@ import { ExerciseLogScreen } from '../screens/ExerciseLogScreen';
 import { SessionFeedbackScreen } from '../screens/SessionFeedbackScreen';
 import { SessionDetailScreen } from '../screens/SessionDetailScreen';
 import { NotificationsScreen } from '../screens/NotificationsScreen';
+import { AccountScreen } from '../screens/AccountScreen';
 import { PolicyAcceptanceScreen } from '../screens/PolicyAcceptanceScreen';
 import type { AppStackParamList, TabParamList } from './types';
 import { colors } from '../theme/colors';
@@ -74,6 +75,7 @@ export function RootNavigator() {
           />
           <Stack.Screen name="SessionDetail" component={SessionDetailScreen} options={{ title: '' }} />
           <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Account" component={AccountScreen} options={{ headerShown: false }} />
           <Stack.Screen
             name="SessionFeedback"
             component={SessionFeedbackScreen}

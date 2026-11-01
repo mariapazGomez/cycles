@@ -19,6 +19,7 @@ import { OAuthCallbackPage } from "./pages/OAuthCallbackPage";
 import { CompleteProfilePage } from "./pages/CompleteProfilePage";
 import { AcceptInvitationPage } from "./pages/AcceptInvitationPage";
 import { HomePage } from "./pages/HomePage";
+import { AccountPage } from "./pages/AccountPage";
 import { AthletesPage } from "./pages/AthletesPage";
 import { CyclesPage } from "./pages/CyclesPage";
 import { CycleDetailPage } from "./pages/CycleDetailPage";
@@ -131,6 +132,7 @@ export function App() {
         <Route path="calendar" element={<CalendarPage />} />
         <Route path="biblioteca" element={<BibliotecaPage />} />
         <Route path="ejercicios" element={<ExercisesPage />} />
+        <Route path="account" element={<AccountPage />} />
         <Route path="cycles" element={<CyclesRoute />} />
         <Route path="routines" element={<Navigate to={libraryPath("routine")} replace />} />
         <Route path="routines/new" element={<RoutineEditorPage />} />

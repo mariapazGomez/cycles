@@ -172,7 +172,7 @@ En los flujos públicos de **recuperación de contraseña** y **reenvío de veri
 3. Cualquier texto de un usuario que se inserte en HTML (emails) se escapa.
 
 ### R7 · Integridad y privacidad de los datos
-1. `ExerciseLog` y `SessionFeedback` son **append-only**: no hay endpoints que los editen o borren; una corrección es una fila nueva con `supersedesId`.
+1. `ExerciseLog` y `SessionFeedback` son **append-only**: no hay endpoints que los editen o borren; una corrección es una fila nueva con `supersedesId`. **Única excepción:** cuando la persona dueña elimina su cuenta (`DELETE /users/me`, ver PRD-PrivacidadYTerminos §8), sus series y cierres se borran.
 2. Los timestamps se guardan en UTC.
 3. Ningún dato de un atleta se usa en análisis entre atletas sin `dataConsentAt` (ver [[VISION]]).
 4. Pesos en kg; la conversión es solo de presentación.
