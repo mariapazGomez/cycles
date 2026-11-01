@@ -214,6 +214,8 @@ Los umbrales son iniciales: van como constantes, igual que los límites de 1B.
 
 ### 2C · Tests de autorización y CI (S-11 · R12)
 
+> **CI mínimo hecho** (CYC-91, 2026-11-01): `.github/workflows/ci.yml` (tipos y pruebas de API y app móvil, tipos y compilación de la web, `npm audit` como aviso). Faltan los tests de autorización de abajo (CYC-90), ESLint en el CI y activar el CI como requisito de la rama `main`.
+
 > **Primer paso (2026-10-27):** `apps/api` tiene Jest con pruebas unitarias de los servicios de ciclos y sesiones (Prisma simulado) que cubren los casos prohibidos de las rutas nuevas de plantillas. Faltan la matriz e2e contra una base de prueba, el resto de endpoints y el CI.
 
 - **Tests e2e de la API** (Jest + supertest) contra una base de prueba, con una matriz por endpoint:
@@ -255,6 +257,6 @@ Migración con un trigger de Postgres que rechace `UPDATE` y `DELETE` sobre `Exe
 | 1E Alertas de seguridad a Slack | Detección | **Hecho** (2026-09-27). Probado en local simulando IPs con `X-Forwarded-For`: cada uno de los cinco eventos da una sola alerta, el email sale oculto, el anti-inundación omite las repeticiones y la siguiente alerta dice cuántas; sin webhook o con Slack caído la API responde igual. Diferencia con el plan: la regla "IP que prueba muchos emails" cuenta solo logins **fallidos**. Probado con el webhook real y la IP pública real en producción (P-12, 2026-09-28); S-13 se corrigió en ese recorrido (PR #19). |
 | 2A Refresh en cookie | S-08 | Pendiente |
 | 2B Keychain en móvil | S-09 | **Hecho** (2026-10-02; verificado 2026-11-01). Falta probarlo en dispositivo |
-| 2C Tests y CI | S-11 | Pendiente |
+| 2C Tests y CI | S-11 | **CI mínimo hecho** (2026-11-01, CYC-91); faltan los tests de autorización (CYC-90) |
 | 3A Tiempos del login | S-10 | Pendiente |
 | 3B Append-only en la base | S-12 | Pendiente |
