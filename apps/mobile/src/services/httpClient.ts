@@ -74,9 +74,20 @@ export function warmUpApi(): void {
   });
 }
 
+// El refresh falló de verdad (el servidor lo rechazó o ya no hay token): los
+// tokens locales ya están borrados, pero la UI sigue creyendo que hay sesión.
+// AuthContext se suscribe aquí para llevar a la persona al login en vez de
+// dejarla con pantallas que fallan con "Sesión expirada".
+let sessionExpiredListener: (() => void) | null = null;
+
+export function onSessionExpired(listener: (() => void) | null): void {
+  sessionExpiredListener = listener;
+}
+
 async function refreshSession(): Promise<void> {
   const refreshToken = tokenStore.getRefreshToken();
   if (!refreshToken) {
+    sessionExpiredListener?.();
     throw new ApiError(401, 'Sesión expirada');
   }
 
@@ -88,6 +99,7 @@ async function refreshSession(): Promise<void> {
 
   if (!response.ok) {
     await tokenStore.clear();
+    sessionExpiredListener?.();
     throw new ApiError(401, 'Sesión expirada');
   }
 
