@@ -3,7 +3,7 @@ type: prd
 level: general
 status: draft
 created: 2026-09-16
-updated: 2026-10-01
+updated: 2026-11-01
 tags: [prd, general]
 ---
 
@@ -15,22 +15,23 @@ tags: [prd, general]
 
 | Funcionalidad | Fase | Estado | PRD |
 |---|---|---|---|
-| Autenticación (manual + Google, verificación de email) | Fase 1 | in-progress | [[PRD-Autenticacion]] |
-| Invitación de atletas | Fase 2 | in-progress | [[PRD-InvitacionAtletas]] |
-| Catálogo de ejercicios | Fase 2 | in-progress | [[PRD-CatalogoEjercicios]] |
+| Autenticación (manual + Google, verificación de email) | Fase 1 | complete | [[PRD-Autenticacion]] |
+| Invitación de atletas | Fase 2 | complete | [[PRD-InvitacionAtletas]] |
+| Catálogo de ejercicios (incluye ejercicios propios e implementos) | Fase 2 | in-progress | [[PRD-CatalogoEjercicios]] |
 | CRUD de ciclos de entrenamiento | Fase 2 | superseded-parcial | [[PRD-CRUDCiclos]] |
 | CRUD de sesiones y ejercicios de sesión | Fase 2 | superseded-parcial | [[PRD-CRUDSesiones]] |
-| Frontend de planificación (ciclos/sesiones/ejercicios) | Fase 2 | in-progress | [[PRD-FrontendPlanificacion]] |
+| Frontend de planificación (ciclos/sesiones/ejercicios) | Fase 2 | complete | [[PRD-FrontendPlanificacion]] |
 | Rutinas y programación en grid | Fase 2 | complete | [[PRD-RutinasYProgramacion]] |
-| Ejecución y seguimiento (registro del atleta + seguimiento del coach) | Fase 3 | approved | [[PRD-EjecucionYSeguimiento]] |
+| Ejecución y seguimiento (registro del atleta + seguimiento del coach) | Fase 3 | complete (v1) | [[PRD-EjecucionYSeguimiento]] |
+| App móvil del atleta (iOS; Android en preparación) | Fase 3.5 | in-progress | [[PRD-AppMovilAtleta]] |
 | Landing y formulario de contacto | Fase 3.5 | complete | [[PRD-LandingContacto]] |
-| Política de privacidad y términos de uso | Fase 3.5 | draft | [[PRD-PrivacidadYTerminos]] |
+| Política de privacidad, términos de uso y derechos sobre los datos (eliminar, exportar, retirar el consentimiento) | Fase 3.5 | in-progress | [[PRD-PrivacidadYTerminos]] |
 
 > Esta tabla se actualiza a mano cada vez que se crea un PRD hijo nuevo (ver plantilla en `_templates/PRD-Feature-Template.md`). Además, como cada PRD hijo enlaza de vuelta a `[[PRD-General]]` en su frontmatter, el panel de **Linked mentions / Backlinks** de Obsidian en esta nota mostrará automáticamente todos los hijos, aunque se te olvide actualizar la tabla.
 
 ## 1. Resumen
 
-Cycles es una aplicación web donde entrenadores (coaches) diseñan, asignan y dan seguimiento a ciclos de entrenamiento para sus atletas, y donde los atletas consultan sus sesiones y registran su progreso. Es, además, el primer producto de una compañía enfocada en correlacionar datos deportivos y de salud para impulsar el rendimiento atlético (ver [[VISION]]) — por lo que la calidad y consistencia de los datos que captura importan más allá del propio producto.
+Cycles es una aplicación (web para el coach y para el atleta, y app iOS para el atleta) donde entrenadores (coaches) diseñan, asignan y dan seguimiento a ciclos de entrenamiento para sus atletas, y donde los atletas consultan sus sesiones y registran su progreso. Es, además, el primer producto de una compañía enfocada en correlacionar datos deportivos y de salud para impulsar el rendimiento atlético (ver [[VISION]]) — por lo que la calidad y consistencia de los datos que captura importan más allá del propio producto.
 
 ## 2. Problema
 
@@ -75,162 +76,281 @@ Roles excluyentes: un usuario es coach **o** atleta, nunca ambos con la misma cu
 2. Como **coach**, quiero invitar a un atleta por email, para vincularlo a mi cuenta. → detalle en [[PRD-InvitacionAtletas]]
 3. Como **coach**, quiero crear un ciclo de entrenamiento con nombre, objetivo, fechas de inicio/fin y sesiones, para planificar el trabajo de un atleta. → detalle en [[PRD-CRUDCiclos]]
 4. Como **coach**, quiero agregar ejercicios a cada sesión con series/repeticiones/peso objetivo, para dejar instrucciones claras. → detalle en [[PRD-CRUDSesiones]]
-5. Como **atleta**, quiero ver mi ciclo activo y las sesiones de la semana, para saber qué entrenar. → backend en [[PRD-CRUDSesiones]], sin UI todavía
-6. Como **atleta**, quiero registrar lo que realmente hice en cada ejercicio (series, reps, peso, RPE), para dejar constancia de mi progreso. → detalle en [[PRD-EjecucionYSeguimiento]]
+5. Como **atleta**, quiero ver mi ciclo activo y las sesiones de la semana, para saber qué entrenar. → [[PRD-RutinasYProgramacion]] (web) y [[PRD-AppMovilAtleta]] (app iOS)
+6. Como **atleta**, quiero registrar lo que realmente hice en cada ejercicio (series, reps, peso, RIR), para dejar constancia de mi progreso. → detalle en [[PRD-EjecucionYSeguimiento]]
 7. Como **coach**, quiero ver el historial de registros de un atleta por ciclo, para ajustar la planificación futura. → detalle en [[PRD-EjecucionYSeguimiento]]
 8. Como **usuario**, quiero recuperar mi contraseña si me registré manualmente, para no perder acceso a mi cuenta. → detalle en [[PRD-Autenticacion]]
 
-> A medida que se creen PRDs hijos para las historias 2–7 (invitaciones, ciclos, sesiones, registro de progreso), enlázalas aquí igual que se hizo con autenticación.
+> Historias que se sumaron durante el piloto: el atleta quiere **eliminar su cuenta, descargar sus datos y retirar el consentimiento** sin escribir a nadie → [[PRD-PrivacidadYTerminos]] §8; el coach quiere **crear ejercicios propios** → [[PRD-CatalogoEjercicios]]; ambos quieren **avisos** de cambios del plan y de sesiones registradas → `docs/diseno/notificaciones`.
 
 ## 6. Modelo de datos (alto nivel)
 
-> Actualizado el 2026-09-22 para reflejar el estado real de `apps/api/prisma/schema.prisma` (incluye las tablas de autenticación de [[PRD-Autenticacion]] y el token de invitación de [[PRD-InvitacionAtletas]], que antes no estaban en este diagrama).
+> Actualizado el 2026-11-01: el diagrama se generó a partir de `apps/api/prisma/schema.prisma` y muestra los 20 modelos actuales (con `ActivityDigest` y `ContactRequest`, que no tienen relaciones, al final). Si el esquema cambia, se vuelve a generar; la fuente de verdad es el `schema.prisma`.
 
 ```mermaid
 erDiagram
-    USER ||--o{ REFRESH_TOKEN : tiene
-    USER ||--o{ PASSWORD_RESET_TOKEN : tiene
-    USER ||--o{ EMAIL_VERIFICATION_TOKEN : tiene
-    USER ||--o{ COACH_ATHLETE : "es coach en"
-    USER ||--o{ COACH_ATHLETE : "es athlete en"
+    USER ||--o{ REFRESH_TOKEN : user
+    USER ||--o{ PASSWORD_RESET_TOKEN : user
+    USER ||--o{ OAUTH_EXCHANGE_CODE : user
+    USER ||--o{ EMAIL_VERIFICATION_TOKEN : user
+    USER ||--o{ COACH_ATHLETE : "coach en"
+    USER ||--o{ COACH_ATHLETE : "atleta en"
+    COACH_ATHLETE ||--o{ ATHLETE_INVITATION_TOKEN : coachAthlete
     USER ||--o{ TRAINING_CYCLE : "coach crea"
-    USER ||--o{ TRAINING_CYCLE : "athlete asignado"
-    USER ||--o{ EXERCISE : "coach crea (propio)"
-    USER ||--o{ EXERCISE_LOG : "atleta registra"
-    COACH_ATHLETE |o--o| ATHLETE_INVITATION_TOKEN : invitación
-    TRAINING_CYCLE ||--o{ TRAINING_SESSION : contiene
+    USER |o--o{ TRAINING_CYCLE : "atleta asignado"
     TRAINING_CYCLE |o--o{ TRAINING_CYCLE : "plantilla → copias"
-    TRAINING_SESSION ||--o{ SESSION_EXERCISE : contiene
-    EXERCISE ||--o{ SESSION_EXERCISE : usado_en
-    SESSION_EXERCISE ||--o{ EXERCISE_LOG : registrado_en
+    TRAINING_CYCLE |o--o{ TRAINING_CYCLE : "macrociclo → planes"
+    USER ||--o{ ROUTINE : coach
+    ROUTINE ||--o{ ROUTINE_EXERCISE : routine
+    EXERCISE ||--o{ ROUTINE_EXERCISE : exercise
+    TRAINING_CYCLE ||--o{ TRAINING_SESSION : cycle
+    ROUTINE |o--o{ TRAINING_SESSION : routine
+    USER |o--o{ EXERCISE : "coach crea (propio)"
+    TRAINING_SESSION ||--o{ SESSION_EXERCISE : session
+    EXERCISE ||--o{ SESSION_EXERCISE : exercise
+    SESSION_EXERCISE ||--o{ EXERCISE_LOG : sessionExercise
+    USER ||--o{ EXERCISE_LOG : athlete
+    EXERCISE_LOG |o--o{ EXERCISE_LOG : "corrección (supersedes)"
+    TRAINING_SESSION ||--o{ SESSION_FEEDBACK : session
+    USER ||--o{ SESSION_FEEDBACK : athlete
+    SESSION_FEEDBACK |o--o{ SESSION_FEEDBACK : "corrección (supersedes)"
+    USER ||--o{ LOAD_ADJUSTMENT : coach
+    TRAINING_CYCLE ||--o{ LOAD_ADJUSTMENT : cycle
+    EXERCISE ||--o{ LOAD_ADJUSTMENT : exercise
+    USER ||--o{ NOTIFICATION : user
+    USER ||--o{ POLICY_ACCEPTANCE : user
 
     USER {
-        uuid id PK
+        string id PK
         string email UK
         string name
-        string passwordHash "nullable: null si es solo-Google"
-        enum role "nullable: coach|athlete|admin"
-        enum authProvider "local|google|apple"
-        enum weightUnit "kg|lb"
+        string passwordHash "nullable"
+        enum role "nullable"
+        enum authProvider
+        enum weightUnit
         datetime emailVerifiedAt "nullable"
         datetime dataConsentAt "nullable"
         string dataConsentVersion "nullable"
+        boolean isDemo
         datetime createdAt
         datetime updatedAt
     }
     REFRESH_TOKEN {
-        uuid id PK
-        uuid userId FK
+        string id PK
+        string userId FK
         string tokenHash UK
         datetime expiresAt
         datetime revokedAt "nullable"
         datetime createdAt
     }
     PASSWORD_RESET_TOKEN {
-        uuid id PK
-        uuid userId FK
+        string id PK
+        string userId FK
         string tokenHash UK
         datetime expiresAt
         datetime usedAt "nullable"
         datetime createdAt
     }
+    OAUTH_EXCHANGE_CODE {
+        string id PK
+        string userId FK
+        string codeHash UK
+        datetime expiresAt
+        datetime usedAt "nullable"
+        datetime createdAt
+    }
     EMAIL_VERIFICATION_TOKEN {
-        uuid id PK
-        uuid userId FK
+        string id PK
+        string userId FK
         string tokenHash UK
         datetime expiresAt
         datetime createdAt
     }
     COACH_ATHLETE {
-        uuid id PK
-        uuid coachId FK
-        uuid athleteId FK
-        enum status "pending|active|inactive"
+        string id PK
+        string coachId FK
+        string athleteId FK
+        enum status
         datetime createdAt
     }
     ATHLETE_INVITATION_TOKEN {
-        uuid id PK
-        uuid coachAthleteId FK "UK, 1 invitación activa por relación"
+        string id PK
+        string coachAthleteId FK,UK
         string tokenHash UK
         datetime expiresAt
         datetime usedAt "nullable"
         datetime createdAt
     }
     TRAINING_CYCLE {
-        uuid id PK
-        uuid coachId FK
-        uuid athleteId FK
+        string id PK
+        string coachId FK
+        string athleteId FK "nullable"
         string name
         string objective "nullable"
-        date startDate
-        date endDate
-        enum status "active|completed|archived"
+        datetime startDate
+        datetime endDate
+        enum status
         boolean isTemplate
-        uuid templateId FK "nullable, auto-relación"
+        string templateId FK "nullable"
+        int templateWeeks "nullable"
+        enum cycleType
+        int sessionsPerWeek "nullable"
+        string parentCycleId FK "nullable"
         datetime createdAt
         datetime updatedAt
     }
-    TRAINING_SESSION {
-        uuid id PK
-        uuid cycleId FK
+    ROUTINE {
+        string id PK
+        string coachId FK
         string name
+        datetime createdAt
+    }
+    ROUTINE_EXERCISE {
+        string id PK
+        string routineId FK
+        string exerciseId FK
         int orderIndex
-        date scheduledDate "nullable"
-        enum status "pending|completed|skipped"
+        int defaultSets
+        int defaultReps
+        float defaultWeight "nullable"
+        int defaultRestSeconds "nullable"
+        int defaultRir "nullable"
+    }
+    TRAINING_SESSION {
+        string id PK
+        string cycleId FK
+        string name
+        int weekNumber
+        int slotNumber
+        datetime scheduledDate "nullable"
+        enum status
+        string routineId FK "nullable"
+        datetime startedAt "nullable"
+        datetime deletedAt "nullable"
     }
     EXERCISE {
-        uuid id PK
+        string id PK
         string name
-        enum muscleGroup "nullable: chest|back|legs|glutes|shoulders|arms|core|cardio|other"
+        enum muscleGroup "nullable"
         string description "nullable"
         string videoUrl "nullable"
-        uuid createdBy FK "nullable = catálogo global"
+        enum equipment
+        string createdBy FK "nullable"
         boolean isActive
         datetime createdAt
     }
     SESSION_EXERCISE {
-        uuid id PK
-        uuid sessionId FK
-        uuid exerciseId FK
+        string id PK
+        string sessionId FK
+        string exerciseId FK
         int orderIndex
         int targetSets
         int targetReps
         float targetWeight "nullable"
         int targetRestSeconds "nullable"
+        int targetRir "nullable"
     }
     EXERCISE_LOG {
-        uuid id PK
-        uuid sessionExerciseId FK
-        uuid athleteId FK
-        int actualSets "nullable"
-        int actualReps "nullable"
+        string id PK
+        string sessionExerciseId FK
+        string athleteId FK
+        int setNumber
+        int actualReps
         float actualWeight "nullable"
-        int rpe "nullable"
-        string notes "nullable"
+        int rir "nullable"
+        string supersedesId FK,UK "nullable"
+        int active
         datetime loggedAt
+    }
+    SESSION_FEEDBACK {
+        string id PK
+        string sessionId FK
+        string athleteId FK
+        enum outcome
+        int srpe "nullable"
+        int durationMinutes "nullable"
+        boolean pain
+        string painNotes "nullable"
+        string notes "nullable"
+        string supersedesId FK,UK "nullable"
+        int active
+        datetime submittedAt
+    }
+    LOAD_ADJUSTMENT {
+        string id PK
+        string coachId FK
+        string cycleId FK
+        string exerciseId FK
+        int fromWeek
+        float percentChange
+        string reason
+        int affectedCount
+        datetime createdAt
+    }
+    ACTIVITY_DIGEST {
+        string day PK
+        datetime sentAt
+    }
+    CONTACT_REQUEST {
+        string id PK
+        string email
+        string message
+        datetime createdAt
+        datetime slackSentAt "nullable"
+    }
+    NOTIFICATION {
+        string id PK
+        string userId FK
+        enum type
+        string groupKey
+        string planId "nullable"
+        string sessionId "nullable"
+        int count
+        json payload
+        datetime readAt "nullable"
+        datetime visibleAt
+        datetime createdAt
+        datetime updatedAt
+    }
+    POLICY_ACCEPTANCE {
+        string id PK
+        string userId FK
+        string version
+        enum source
+        datetime acceptedAt
     }
 ```
 
-Ver el esquema completo (Prisma) en `apps/api/prisma/schema.prisma`. El modelo de datos completo es propiedad de este PRD general; los PRDs hijos solo documentan **deltas** (campos o tablas nuevas) cuando aplica, no lo repiten — el detalle de por qué existe cada tabla nueva vive en su PRD hijo ([[PRD-Autenticacion]] para las de token, [[PRD-InvitacionAtletas]] para `AthleteInvitationToken`, [[PRD-CatalogoEjercicios]] para `MuscleGroup`/`isActive`).
+Los tipos de columna de las enumeraciones están en el esquema (`UserRole`, `CycleType`, `CycleStatus`, `SessionStatus`, `MuscleGroup`, `Equipment`, etc.). Ver el esquema completo (Prisma) en `apps/api/prisma/schema.prisma`. El modelo de datos completo es propiedad de este PRD general; los PRDs hijos solo documentan **deltas** (campos o tablas nuevas) cuando aplica, no lo repiten — el detalle de por qué existe cada tabla nueva vive en su PRD hijo ([[PRD-Autenticacion]] para las de token, [[PRD-InvitacionAtletas]] para `AthleteInvitationToken`, [[PRD-CatalogoEjercicios]] para `MuscleGroup`/`isActive`).
 
 Notas sobre campos agregados tras la definición de [[VISION]]:
 
 - `User.weightUnit` (`kg` | `lb`, default `kg`): preferencia de visualización del usuario. Todo se **almacena internamente en kg**; la conversión ocurre en la capa de presentación.
 - `User.emailVerifiedAt`: nulo hasta que el usuario confirma su email (obligatorio para login manual; no aplica a login con Google).
-- `User.dataConsentAt` / `dataConsentVersion`: consentimiento explícito del atleta para el uso de sus datos en analítica agregada/futura (ver [[VISION]], principio de consentimiento). Se captura en el registro.
-- `TrainingCycle.isTemplate` / `templateId`: soporta que un coach cree un ciclo como plantilla y lo duplique para distintos atletas (`templateId` referencia al ciclo origen cuando aplica).
+- `User.dataConsentAt` / `dataConsentVersion`: consentimiento explícito y **opcional** para el uso de los datos en analítica agregada/futura (ver [[VISION]], principio de consentimiento). Se captura en el registro y se puede retirar desde «Mi cuenta». Es distinto de la aceptación obligatoria de los Términos y la Política (`PolicyAcceptance`).
+- `TrainingCycle.isTemplate` / `templateId` / `templateWeeks`: una **plantilla** es un ciclo sin atleta y con fechas de referencia fijas (`template-dates.ts`); el coach la guarda en su Biblioteca y la asigna a un atleta, lo que crea una copia con fechas reales (`templateId` apunta a la plantilla). No lleva rutinas dentro.
+- `TrainingCycle.cycleType` (`microcycle` | `mesocycle` | `macrocycle`), `sessionsPerWeek` y `parentCycleId`: un macrociclo es solo un contenedor de planes; el resto define las filas del grid ([[PRD-RutinasYProgramacion]]).
+- `TrainingSession.weekNumber` / `slotNumber` / `deletedAt`: la celda del grid y el borrado lógico («Quitar» y «Deshacer» de la pizarra); solo se destruye una sesión sin series ni cierre.
+- `ExerciseLog` y `SessionFeedback` (append-only): una corrección es una fila nueva con `supersedesId`; `active` marca el dato vigente. Reemplazan el `ExerciseLog` de una sola fila del primer diseño. Ver [[PRD-EjecucionYSeguimiento]].
+- `Routine` / `RoutineExercise`: la biblioteca de rutinas del coach; al asignar una rutina a una celda se copian como `SessionExercise` editables.
+- `Exercise.equipment`: lista cerrada de implementos (`Equipment`); vacía en el catálogo global hasta que se revise.
+- `Notification` (avisos de la campana) y `PolicyAcceptance` (aceptación versionada de Términos y Política): ver `docs/diseno/notificaciones` y [[PRD-PrivacidadYTerminos]].
+- `User.isDemo`: cuentas ficticias de demostración, excluidas de métricas y resúmenes.
+- `OAuthExchangeCode`: código de un solo uso del login con Google ([[PRD-Autenticacion]]). `ActivityDigest` y `ContactRequest`: resumen diario a Slack y mensajes del formulario de la landing ([[PRD-LandingContacto]]).
 - `Exercise.createdBy`: nulo para el catálogo global (seed inicial), o el `id` del coach cuando es un ejercicio propio suyo (no visible para otros coaches).
 
 ## 7. Arquitectura técnica
 
 Ver detalle completo en [`docs/ARCHITECTURE.md`](../ARCHITECTURE.md). Resumen:
 
-- **Frontend:** React 18 + TypeScript + Vite, CSS Modules.
+- **Frontend web:** React 18 + TypeScript + Vite, con hojas de estilo CSS por área (`apps/web/src/styles`) y los tokens del Design System.
+- **App móvil del atleta:** React Native 0.87 (CLI, iOS y Android) en `apps/mobile`; ver [[PRD-AppMovilAtleta]].
 - **Backend:** Node.js + TypeScript + NestJS, arquitectura modular por dominio.
 - **Base de datos:** PostgreSQL (relacional) + Prisma ORM.
 - **Autenticación:** JWT (access + refresh token), OAuth 2.0 con Google (Apple pospuesto, ver [[PRD-Autenticacion]]), registro/login manual con email + contraseña (hash con bcrypt) y verificación de email obligatoria.
-- **API:** REST, documentada con OpenAPI/Swagger.
-- **Estructura:** Monorepo (npm workspaces) con `apps/web`, `apps/api` y `packages/shared` (tipos y contratos compartidos).
+- **API:** REST. La referencia de rutas, guards y roles está en `docs/enlaces.md` y en la revisión de endpoints de `docs/SEGURIDAD.md` §3.5 (no hay Swagger).
+- **Estructura:** Monorepo (npm workspaces) con `apps/web`, `apps/api`, `apps/mobile` y `packages/shared` (tipos y contratos compartidos).
+- **Producción:** web en Vercel (`app.getcycles.app`), API en Render (`api.getcycles.app`), base en Supabase, correo con Resend, avisos a Slack, analítica de la web con PostHog (UE) y DNS en Cloudflare. Ver [[PLAN-Deploy]].
 
 ## 8. Requisitos no funcionales
 
@@ -276,15 +396,16 @@ Convenciones que ya sigue el código y que todo cambio (código, infraestructura
 | **Fase 0 — Fundacional** | PRD, arquitectura, scaffolding del monorepo, modelo de datos base. | — |
 | **Fase 1 — Auth & onboarding** | Registro/login manual + Google, verificación de email, invitación coach→atleta. | [[PRD-Autenticacion]] |
 | **Fase 2 — Planificación** | Invitación de atletas; catálogo de ejercicios; rutinas y programación en grid (ciclos/sesiones). | [[PRD-InvitacionAtletas]], [[PRD-CatalogoEjercicios]], [[PRD-RutinasYProgramacion]] |
-| **Fase 3 — Ejecución y seguimiento** | Registro de ejecución real (`ExerciseLog`), vista de progreso/adherencia para el coach. | [[PRD-EjecucionYSeguimiento]] |
-| **Fase 3.5 — Piloto (actual)** | Deploy completo (dominio `getcycles.app`, Resend, Supabase, Render, Vercel, Google OAuth), **tanda 1 de seguridad** (dependencias, endurecer la API, Google sin tokens en la URL, cabeceras, alertas de seguridad a Slack) y **avisos de actividad del piloto** en Slack. Termina con 2–3 coaches reales usando la app. | `docs/deploy/PLAN-Deploy.md`, `docs/PLAN-Seguridad.md` (tanda 1) |
-| **Fase 4 — Evolución** | Multi-tenant (gimnasios/academias), notificaciones, métricas avanzadas, app móvil nativa. **Requisito para empezarla:** tanda 2 de seguridad (refresh token en cookie `httpOnly`, tokens de la app móvil en el Keychain, tests de autorización y CI). | *(pendiente)*, `docs/PLAN-Seguridad.md` (tanda 2) |
+| **Fase 3 — Ejecución y seguimiento** | Registro de ejecución real (`ExerciseLog`, `SessionFeedback`), vista de progreso/adherencia para el coach. Hecha (v1). | [[PRD-EjecucionYSeguimiento]] |
+| **Fase 3.5 — Piloto (actual)** | Deploy completo (dominio `getcycles.app`, Resend, Supabase, Render, Vercel, Google OAuth), **tanda 1 de seguridad**, **avisos de actividad del piloto** en Slack, landing, privacidad y términos, app iOS del atleta y herramientas para el coach (biblioteca, ejercicios propios, pizarra por ciclo). Termina con 2–3 coaches reales usando la app. | `docs/deploy/PLAN-Deploy.md`, `docs/PLAN-Seguridad.md` (tanda 1), [[PRD-AppMovilAtleta]], [[PRD-PrivacidadYTerminos]] |
+| **Fase 4 — Evolución** | Multi-tenant (gimnasios/academias), métricas avanzadas, notificaciones push y Android publicado (la app iOS y los avisos dentro de la app ya existen). **Requisito para empezarla:** tanda 2 de seguridad (refresh token en cookie `httpOnly`, tests de autorización y CI). Los tokens de la app móvil en el Keychain ya están hechos. | *(pendiente)*, `docs/PLAN-Seguridad.md` (tanda 2) |
 
-**Estado de la Fase 3.5 al 2026-10-01** (detalle en `docs/deploy/PLAN-Deploy.md`, `docs/PLAN-Seguridad.md` y `docs/PRUEBAS-PENDIENTES.md`):
+**Estado de la Fase 3.5 al 2026-11-01** (detalle en `docs/deploy/PLAN-Deploy.md`, `docs/PLAN-Seguridad.md`, `docs/PRUEBAS-PENDIENTES.md` y el control de tareas en Linear, proyecto Cyclesapp, donde cada épica tiene su prioridad):
 
-- **Hecho:** dominio, Resend, Supabase, API en Render, web en Vercel (`app.getcycles.app`, con cabeceras de seguridad), login con Google probado en modo *Testing*, avisos de actividad y resumen diario programado funcionando, y la **tanda 1 de seguridad completa** (1A a 1E, más S-13).
-- **Pendiente para abrir el piloto:** el recorrido completo de punta a punta en producción (paso 4.4 del deploy), la recuperación de contraseña (P-03, hoy sin resolver), el respaldo de la base (2.5), la redirección de la raíz y `www.` (paso 6) y la decisión sobre publicar la app de Google, que exige una política de privacidad pública.
-- **Trabajo de marca y experiencia durante el piloto** (PRs #25 a #30, no estaba en el plan original): onboarding documentado, correos transaccionales rediseñados, pantallas de autenticación, inicio en celular y constructor de rutinas, todos con el motivo de la cadena de proteína (`docs/brand/identidad-visual.md`).
+- **En producción:** dominio, Resend, Supabase, API en Render, web en Vercel (`app.getcycles.app`, con cabeceras de seguridad), landing en `app.getcycles.app/` para quien no tiene sesión (la raíz `getcycles.app` y `www.` redirigen allí), avisos de actividad y resumen diario, y la **tanda 1 de seguridad completa** (1A a 1E, más S-13). Las páginas `/privacidad` y `/terminos` están publicadas (estáticas, en `apps/web/public`), con aceptación versionada.
+- **Construido durante el piloto** (no estaba en el plan original): biblioteca de rutinas y plantillas de ciclo, ejercicios propios con implementos, pizarra del ciclo con ciclos plegables, calendario y vista semanal, avisos dentro de la app, onboarding documentado, correos rediseñados, y la **app iOS del atleta** ([[PRD-AppMovilAtleta]]).
+- **Seguridad hecha desde el 2026-10-01:** Keychain en la app móvil (S-09), revisión de endpoints nuevos (`docs/SEGURIDAD.md` §3.5) y eliminar cuenta, exportar datos y retirar el consentimiento (CYC-107).
+- **Pendiente para abrir el piloto:** el ensayo general con un coach de prueba y la apertura con el código del piloto (paso 7 del deploy), el monitor de `/health`, la decisión sobre publicar la app de Google, el buzón `privacidad@`, la prueba de la app en TestFlight y los compromisos de privacidad que dependen de personas ([[PRD-PrivacidadYTerminos]] §4).
 
 La **tanda 3** de `docs/PLAN-Seguridad.md` (tiempos del login y append-only en la base) son mejoras sin fase fija: se hacen cuando haya espacio, antes de que crezca el volumen de datos.
 

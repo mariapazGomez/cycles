@@ -22,7 +22,7 @@ Tres tandas, de mayor a menor urgencia. Cada PR es chico y se puede revisar solo
 | | | **1D** Cabeceras de la web en Vercel | S-07 (web) | Bajo, junto con el paso 4 del plan de deploy |
 | | | **1E** Alertas de seguridad a Slack | Detección (complementa S-01 y R2) | Medio |
 | **2** | Antes de sumar más usuarios | **2A** Refresh token en cookie `httpOnly` | S-08 | Alto |
-| | | **2B** Tokens de la app móvil en el Keychain | S-09 | Bajo, en la rama de la app móvil |
+| | | **2B** Tokens de la app móvil en el Keychain | S-09 | Bajo. **Hecho** (verificado 2026-11-01) |
 | | | **2C** Tests de autorización y CI | S-11 | Medio |
 | **3** | Mejoras planificadas | **3A** Igualar tiempos del login | S-10 | Bajo |
 | | | **3B** Append-only a nivel de base de datos | S-12 | Bajo |
@@ -210,8 +210,7 @@ Los umbrales son iniciales: van como constantes, igual que los límites de 1B.
 
 ### 2B · Tokens de la app móvil en el Keychain (S-09 · R2)
 
-- En la rama `worktree-mobile-app`, cambiar `AsyncStorage` por `react-native-keychain`, que usa el Keychain de iOS, en `apps/mobile/src/services/tokenStore.ts`. Mantener la interfaz del `tokenStore` para no tocar las pantallas.
-- Hacerlo **antes de mergear o publicar** la app. Coordinarlo con la sesión que trabaja en esa rama.
+> **Hecho** (2026-10-02; verificado contra el código el 2026-11-01). `apps/mobile/src/services/tokenStore.ts` usa `react-native-keychain` (Keychain de iOS, Keystore de Android) con `AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY`, mantiene la misma interfaz, migra la sesión antigua de `AsyncStorage` y descarta el Keychain heredado de una instalación anterior. Pruebas: `apps/mobile/__tests__/tokenStore.test.ts`. Falta confirmarlo en un dispositivo con TestFlight.
 
 ### 2C · Tests de autorización y CI (S-11 · R12)
 
@@ -259,7 +258,7 @@ Migración con un trigger de Postgres que rechace `UPDATE` y `DELETE` sobre `Exe
 | 1D Cabeceras en Vercel | S-07 | **Hecho** (2026-09-29, PR #21): `apps/web/vercel.json` con CSP, `Referrer-Policy: no-referrer`, `X-Frame-Options`, HSTS y el resto, verificado en `https://app.getcycles.app`. Sin errores de CSP en las pantallas públicas |
 | 1E Alertas de seguridad a Slack | Detección | **Hecho** (2026-09-27). Probado en local simulando IPs con `X-Forwarded-For`: cada uno de los cinco eventos da una sola alerta, el email sale oculto, el anti-inundación omite las repeticiones y la siguiente alerta dice cuántas; sin webhook o con Slack caído la API responde igual. Diferencia con el plan: la regla "IP que prueba muchos emails" cuenta solo logins **fallidos**. Probado con el webhook real y la IP pública real en producción (P-12, 2026-09-28); S-13 se corrigió en ese recorrido (PR #19). |
 | 2A Refresh en cookie | S-08 | Pendiente |
-| 2B Keychain en móvil | S-09 | Pendiente (rama móvil) |
+| 2B Keychain en móvil | S-09 | **Hecho** (2026-10-02; verificado 2026-11-01). Falta probarlo en dispositivo |
 | 2C Tests y CI | S-11 | Pendiente |
 | 3A Tiempos del login | S-10 | **Hecho para el login** (2026-11-01, CYC-95). Falta igualar los tiempos de la recuperación de contraseña y el reenvío de verificación |
 | 3B Append-only en la base | S-12 | Pendiente |

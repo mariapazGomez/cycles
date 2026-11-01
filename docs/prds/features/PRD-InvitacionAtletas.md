@@ -2,10 +2,10 @@
 type: prd
 level: feature
 parent: "[[PRD-General]]"
-status: in-progress
+status: complete
 phase: "Fase 2 — Planificación"
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-11-01
 tags: [prd, feature/invitacion-atletas]
 related: ["[[PRD-Autenticacion]]"]
 ---
@@ -94,5 +94,5 @@ model AthleteInvitationToken {
 ## 11. Estado y decisiones abiertas
 
 - Aceptación vía Google pospuesta (ver sección 3) — se retoma cuando se configuren credenciales reales de Google OAuth.
-- Terminar relación coach-atleta: pendiente, funcionalidad separada.
+- Terminar la relación coach–atleta como acción del coach: pendiente, funcionalidad separada. Hoy la relación pasa a `inactive` solo cuando el coach elimina su cuenta ([[PRD-PrivacidadYTerminos]] §8).
 - Reenvío de invitación expirada: pendiente, se agrega si hay demanda.

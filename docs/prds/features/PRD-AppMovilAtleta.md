@@ -2,10 +2,10 @@
 type: prd
 level: feature
 parent: "[[PRD-General]]"
-status: draft
-phase: "Fase 3 — Ejecución y seguimiento"
+status: in-progress
+phase: "Fase 3 — Ejecución y seguimiento (seguimiento en Fase 3.5 — Piloto)"
 created: 2026-09-25
-updated: 2026-09-25
+updated: 2026-11-01
 tags: [prd, feature/app-movil-atleta]
 related: ["[[PRD-EjecucionYSeguimiento]]", "[[PRD-RutinasYProgramacion]]"]
 ---
@@ -24,27 +24,41 @@ App nativa iOS (React Native, CLI bare — no Expo) para que el atleta vea la se
 
 ## 3. Alcance
 
-### Dentro de alcance (primera iteración)
+### Dentro de alcance
 
-- Setup del proyecto: React Native CLI bare, TypeScript, iOS únicamente por ahora (Android queda para después).
-- Login (reusa `POST /auth/login` — mismo backend que la web).
-- Pantalla "Hoy": la sesión pendiente del plan activo (`GET /me/today`, ver [[PRD-EjecucionYSeguimiento]] sección 6).
-- Registro serie por serie con RIR, cierre de sesión con sRPE/duración/dolor/nota — mismo flujo y reglas que ya especificó [[PRD-EjecucionYSeguimiento]] sección 7.1.
+Lo que la primera iteración pedía (login, «Hoy», registro serie por serie con RIR y cierre de sesión) está construido, y la app creció con lo que pidió el piloto:
+
+- **Login** del atleta con `POST /auth/login`. La app es solo para atletas: una cuenta de coach recibe el aviso de entrar por la web. Registro y creación de cuentas **no** existen en la app: el atleta activa su cuenta con la invitación (web).
+- **Hoy:** la sesión pendiente del ciclo activo (`GET /me/today`), con campana de avisos y avatar.
+- **Calendario:** el plan del atleta por semanas, con el detalle de cada sesión y el cambio de fecha (`PATCH /sessions/:id/schedule`).
+- **Registro por serie** (`ExerciseLog`, con RIR en la última serie), **temporizador de descanso** que guarda cuándo termina (`restTimerStorage`) y sigue exacto al volver de segundo plano, y **cierre de sesión** (esfuerzo, duración, dolor y nota).
+- **Resumen:** reparto del trabajo por grupo muscular del ciclo, por semana y por día, con mapa muscular (`GET /me/summary`).
+- **Asistente:** conversación con atajos. Hoy responde con un texto provisorio (`services/assistantApi.ts`); la respuesta real depende del backend del asistente, aún sin construir.
+- **Avisos:** la lista de la campana (`/notifications`), con los textos y reglas de `docs/diseno/notificaciones`.
+- **Privacidad:** aceptación versionada de los Términos y la Política (`PolicyAcceptanceScreen`, T-149), enlaces a ambos desde el avatar y, desde CYC-107, **Mi cuenta** para retirar el consentimiento de estadísticas, descargar los datos y eliminar la cuenta (requisito de Apple 5.1.1(v), ver [[PRD-PrivacidadYTerminos]] §8).
+- **Navegación:** cuatro pestañas (Calendario, Hoy, Resumen, Asistente) en una isla flotante de tamaño fijo con transición deslizante entre pestañas (CYC-185); las pantallas a pantalla completa (registro de serie, cierre de sesión, avisos, cuenta) no la muestran. Respeta «reducir movimiento».
+- **Marca:** colores del logo (`apps/mobile/src/theme/colors.ts`), animación de inicio y diseño compacto (`docs/diseno/personalidad-app`).
 
 ### Fuera de alcance
 
 - Todo lo de coach (queda en la web).
-- Android (se evalúa después de validar iOS).
-- Cualquier funcionalidad de Fase 4 (notificaciones push, wearables) — ver roadmap del PRD general.
-- Modo offline completo — solo tolerancia a reintentos (ya especificada en el PRD de ejecución).
+- Notificaciones push y wearables (Fase 4).
+- Modo offline completo: solo tolerancia a reintentos (el `id` de cada serie lo genera el cliente, así un reintento no duplica).
+- Ver sesiones de otras personas o editar el plan: el atleta solo registra y reprograma.
 
 ## 4. Dependencias
 
-- **Bloqueante real**: el backend de [[PRD-EjecucionYSeguimiento]] (`GET /me/today`, `POST /sessions/:id/start`, `POST /session-exercises/:id/logs`, `POST /sessions/:id/feedback`) está en desarrollo en la rama `feat/fase-3-backend`, todavía no mergeado a `main`. La UI de esta app se puede construir en paralelo contra esa especificación, pero no se puede probar contra la API real hasta que ese backend esté mergeado.
-- Depende de la autenticación ya existente (`PRD-Autenticacion`) — mismo login que la web.
+- **Backend de [[PRD-EjecucionYSeguimiento]]:** ya en `main` y en producción (`https://api.getcycles.app`). Las compilaciones Release usan esa URL; en desarrollo la app usa la API local (`apps/mobile/src/config/env.ts`; en Android el emulador ve la máquina como `10.0.2.2`).
+- **Autenticación:** mismo login y refresh que la web ([[PRD-Autenticacion]]). Los tokens se guardan en el Keychain de iOS (Keystore en Android) y, si el refresh falla de verdad, la app vuelve al login (CYC-103); un fallo de red no cierra la sesión.
+- **Privacidad:** [[PRD-PrivacidadYTerminos]].
 
 ## 5. Estado
 
-- 2026-09-25: proyecto scaffoldeado (`@react-native-community/cli`, RN 0.87.1 + TypeScript), integrado al workspace del monorepo (`@cycles/mobile`, dependencia de `@cycles/shared`), CocoaPods instalado, build verificado corriendo en el simulador de iPhone 16.
-- Pendiente: navegación, pantallas de login/hoy/registro, wiring de auth y API contra el backend (bloqueado por Fase 3, ver sección 4).
-- Decisión abierta: ¿la UI reusa la identidad de `docs/brand/identidad-visual.md`, o la app nativa tiene su propio lenguaje visual dado que es una experiencia táctil distinta?
+**En construcción, lista para probar con atletas reales; todavía no publicada.**
+
+- **Hecho:** todo lo de «Dentro de alcance». Pruebas automáticas con Jest (19 suites en `main` al 2026-11-01, `apps/mobile/__tests__`) y typecheck. Los flujos se han ido probando a mano en el simulador; desde el 2026-10-02 la app también se prepara para instalarse en un celular con la API de producción.
+- **Android:** ya no es «para después». Existe el proyecto, el flujo de GitHub Actions que compila y abre la app en un emulador (`.github/workflows/android.yml`) y la guía `docs/ANDROID.md`. Falta probarlo en un teléfono real y publicar (`docs/deploy/PUBLICAR-ANDROID.md`).
+- **iOS:** identificador `app.getcycles.mobile`, equipo de firma de la cuenta de Apple Developer y el validador de subidas (`npm run ios:check`, ver `docs/deploy/PUBLICAR-IOS.md`). **`apps/mobile/ios/subidas.json` está vacío: aún no se ha registrado ninguna compilación en TestFlight.** Antes de publicar falta, entre otras cosas, la declaración de privacidad de la ficha de App Store.
+- **Sin probar en un dispositivo:** la pantalla «Mi cuenta», la aceptación de la política y el cierre de sesión por refresh vencido (ver `docs/PRUEBAS-PENDIENTES.md`, P-23).
+- **Decisión resuelta:** la app **no** reusa tal cual el diseño de la web; comparte la paleta y la marca (colores del logo) y tiene su propio lenguaje táctil (rediseño del 2026-10-02: isla flotante, tarjetas sobre fondo de la app).
+- **Pendiente:** respuestas reales del asistente; `API_URL` de staging si se necesita; manejo de errores globales y reporte de caídas (`docs/DEUDA-TECNICA.md`, ítem 11).
