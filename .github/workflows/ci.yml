@@ -1,0 +1,97 @@
+# Red de seguridad mínima antes de mezclar a `main` (S-11, CYC-91): compila y
+# prueba cada parte del monorepo en cada PR y en cada push a `main`. No despliega
+# nada ni usa secretos. Ver docs/PLAN-Seguridad.md, 2C.
+#
+# - api: genera el cliente de Prisma, revisa tipos y corre Jest (Prisma simulado,
+#   no necesita base de datos).
+# - web: revisa tipos y compila con Vite.
+# - mobile: revisa tipos y corre Jest (no compila la app; eso lo hace android.yml).
+# - auditoría: `npm audit` de las dependencias de producción. Solo avisa (el paso
+#   usa `continue-on-error`): hoy hay avisos que exigen migrar NestJS
+#   (docs/SEGURIDAD.md, §3.4). Cuando esa migración esté hecha, quitarlo.
+#
+# ESLint no está aquí todavía: api y web no tienen configuración (CYC-97).
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  api:
+    name: API (tipos y pruebas)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      # Se instala todo el monorepo, como en Render y en local: los tipos de
+      # `resend` necesitan `@types/react`, que llega con la web.
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Generar el cliente de Prisma
+        run: npx prisma generate --schema apps/api/prisma/schema.prisma
+      - name: Revisar tipos
+        run: npm run typecheck --workspace apps/api
+      - name: Pruebas
+        run: npm test --workspace apps/api
+
+  web:
+    name: Web (tipos y compilación)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Revisar tipos y compilar
+        run: npm run build --workspace apps/web
+
+  mobile:
+    name: App móvil (tipos y pruebas)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Revisar tipos
+        run: npm run typecheck --workspace apps/mobile
+      - name: Pruebas
+        run: npm test --workspace apps/mobile
+
+  auditoria:
+    name: Auditoría de dependencias (solo aviso)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # El paso queda marcado con aviso (no con error) para no dejar el PR en rojo:
+      # los avisos altos de hoy exigen migrar NestJS (CYC-94). Al migrar, quitar
+      # `continue-on-error` para que bloquee.
+      - name: npm audit (producción, severidad alta o crítica)
+        continue-on-error: true
+        run: npm audit --omit=dev --audit-level=high

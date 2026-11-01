@@ -16,11 +16,10 @@ Ambos tienen un script `"lint": "eslint src"` en su `package.json`, pero **ningu
 **Impacto:** medio — no hay ninguna verificación de estilo/calidad real corriendo sobre el código de mayor tamaño del repo (api + web).
 **Dónde:** `apps/web/package.json`, `apps/api/package.json`.
 
-### 3. No hay CI de calidad (typecheck, lint, tests, `npm audit`)
-Existe `.github/workflows` con dos flujos: `resumen-actividad.yml` (el aviso diario a Slack) y `android.yml` (compila la app de Android y comprueba que abre, en los PR que tocan la app móvil). **Ninguno** corre typecheck, lint, tests ni `npm audit` en cada push o PR.
-**Impacto:** medio-alto — combinado con los dos puntos anteriores, hoy no hay una red de seguridad automatizada antes de mergear a `main`. Ver CYC-91 (CI mínimo).
-
-## Diseño y consistencia visual
+### 3. CI de calidad: hecho en parte (CYC-91, 2026-11-01)
+`.github/workflows/ci.yml` corre en cada PR y en cada push a `main`: tipos y pruebas de la API (con `prisma generate`), tipos y compilación de la web, tipos y pruebas de la app móvil, y `npm audit` de producción. `android.yml` compila la app de Android y `resumen-actividad.yml` manda el aviso diario a Slack.
+**Queda:** (1) **ESLint** todavía no está en el CI (CYC-97 deja la configuración lista); (2) la **auditoría solo avisa** (el paso usa `continue-on-error`) porque hay avisos altos que exigen migrar NestJS (CYC-94): al migrar, quitar `continue-on-error`; (3) hay que **exigir el CI en la protección de la rama `main`** (Settings → Branches), que solo la fundadora puede configurar.
+**Impacto:** medio — la red existe, pero no bloquea la mezcla hasta activar la protección de rama.
 
 ### 4. Design tokens de mobile son un espejo a mano, no compartidos de verdad
 `apps/mobile/src/theme/colors.ts` (agregado 2026-09-25) mirror-ea los valores de `apps/web/src/styles/global.css` a mano. Ya no hay hex sueltos ni paletas mezcladas en ningún cliente (resuelto 2026-09-25: ver `docs/DEUDA-TECNICA.md` en `git log` para el estado anterior), pero si `global.css` cambia, alguien tiene que acordarse de actualizar el archivo de mobile — no hay una sola fuente de verdad.
