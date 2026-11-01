@@ -2,23 +2,23 @@
 
 Lista de deuda técnica conocida, para atacar cuando haya espacio. No es un PRD ni bloquea nada: es un registro de atajos y huecos conocidos para no perderlos de vista. Cada ítem indica impacto y, cuando aplica, dónde está.
 
-Última actualización: 2026-09-25.
+Última actualización: 2026-11-01 (CYC-106: se revisó cada ítem contra el código; los resueltos quedan tachados con su fecha).
 
 ## Testing y calidad
 
-### 1. No hay tests automatizados en ningún workspace
-`apps/api`, `apps/web` y `apps/mobile` no tienen un solo test (ni siquiera los specs por defecto que genera NestJS). Todo el desarrollo hasta ahora se verificó a mano: probando el flujo en el navegador/simulador y, para el backend, con `curl` directo.
-**Impacto:** alto — cualquier cambio puede romper algo silenciosamente; el auth (con su historial de bugs de refresh token) y el motor de ejecución (Fase 3) son los candidatos más críticos para empezar.
-**Avance (2026-10-27):** `apps/api` ya tiene Jest (`npm test --workspace apps/api`, sin base de datos: Prisma simulado) con pruebas de plantillas, sesiones por día, acceso y roles de las rutas nuevas. Siguen sin pruebas `apps/web`, `apps/mobile` y el resto de la API (auth, ejecución, seguimiento).
+### 1. Tests automatizados incompletos (`apps/web` no tiene ninguno)
+Hoy hay pruebas en dos de los tres workspaces: `apps/api` (Jest, Prisma simulado, sin base de datos: 7 archivos `*.spec.ts` en `main` al 2026-11-01 — ciclos y plantillas, sesiones, ejercicios, acceso y roles) y `apps/mobile` (Jest, 19 archivos en `__tests__`: auth, cliente HTTP, Keychain, pantallas, isla de pestañas, temporizador). **`apps/web` sigue sin ningún test ni ejecutor de pruebas**, y la API no cubre auth, ejecución, seguimiento ni avisos.
+**Impacto:** medio-alto — la web (el cliente más grande) se verifica solo con `tsc` y a mano; auth y ejecución son los candidatos críticos para sumar pruebas.
+**Avance:** 2026-10-27, Jest en `apps/api`; la app móvil trae Jest desde su scaffold (2026-09-25), con pruebas desde octubre. Ver también CYC-90 (tests de autorización) y CYC-98 (tests de flujos).
 
 ### 2. ESLint no está realmente instalado en `apps/web` ni `apps/api`
 Ambos tienen un script `"lint": "eslint src"` en su `package.json`, pero **ninguno de los dos declara `eslint` como dependencia ni tiene un archivo de configuración** (`.eslintrc*` / `eslint.config.*`). El comando "funciona" hoy solo porque `apps/mobile` sí trae ESLint (heredado del template de React Native) y npm workspaces lo hoistea al `node_modules` raíz — es decir, funciona de pura casualidad de instalación, no por diseño.
 **Impacto:** medio — no hay ninguna verificación de estilo/calidad real corriendo sobre el código de mayor tamaño del repo (api + web).
 **Dónde:** `apps/web/package.json`, `apps/api/package.json`.
 
-### 3. No hay CI
-No existe `.github/workflows` ni ningún pipeline equivalente. Nada corre automáticamente typecheck, lint o tests en cada push/PR.
-**Impacto:** medio-alto — combinado con los dos puntos anteriores, significa que hoy no hay ninguna red de seguridad automatizada antes de mergear a `main`.
+### 3. No hay CI de calidad (typecheck, lint, tests, `npm audit`)
+Existe `.github/workflows` con dos flujos: `resumen-actividad.yml` (el aviso diario a Slack) y `android.yml` (compila la app de Android y comprueba que abre, en los PR que tocan la app móvil). **Ninguno** corre typecheck, lint, tests ni `npm audit` en cada push o PR.
+**Impacto:** medio-alto — combinado con los dos puntos anteriores, hoy no hay una red de seguridad automatizada antes de mergear a `main`. Ver CYC-91 (CI mínimo).
 
 ## Diseño y consistencia visual
 
@@ -44,18 +44,14 @@ Ya pasó más de una vez: los tipos de `ExerciseLog`/`SessionFeedback` quedaron 
 `apps/mobile/metro.config.js` usa `resolver.blockList` con rutas hardcodeadas para bloquear la copia de React de la raíz del monorepo (usada por `apps/web`, en una versión distinta a la de mobile). Si `apps/web` actualiza su versión de React, o si otra dependencia nativa duplica otro paquete, el problema puede reaparecer de otra forma y no va a estar cubierto por este blockList puntual.
 **Impacto:** medio — es un workaround necesario hoy, pero quebradizo ante cambios de versiones.
 
-### 8. Tokens de sesión en AsyncStorage plano
-`apps/mobile/src/services/tokenStore.ts` guarda el access/refresh token en AsyncStorage sin cifrar, en vez de Keychain (ej. `react-native-keychain`).
-**Impacto:** bajo-medio — no es información de pago, pero sí credenciales de sesión.
+### ~~8. Tokens de sesión en AsyncStorage plano~~ **Resuelto** (2026-10-02, verificado 2026-11-01)
+`apps/mobile/src/services/tokenStore.ts` usa `react-native-keychain` (Keychain de iOS, Keystore de Android), migra la sesión antigua y descarta el Keychain heredado de una instalación anterior. Ver `docs/SEGURIDAD.md`, hallazgo S-09. Falta confirmarlo en un dispositivo con TestFlight.
 
-### 9. `API_URL` hardcodeada
-`apps/mobile/src/config/env.ts` apunta siempre a `http://localhost:3000`. No hay variantes de build para staging/producción (ya señalado como decisión abierta en `docs/prds/features/PRD-AppMovilAtleta.md`).
-**Impacto:** bloqueante para poder probar la app fuera de la máquina de desarrollo (TestFlight, dispositivo físico, etc.).
+### ~~9. `API_URL` hardcodeada~~ **Resuelto** (2026-10-02, verificado 2026-11-01)
+`apps/mobile/src/config/env.ts` distingue el modo: en desarrollo (`__DEV__`) usa la API local (`10.0.2.2` en el emulador de Android) y las compilaciones Release usan `https://api.getcycles.app`. **Queda:** no hay una variante de staging; si hace falta probar contra otra API hay que cambiar el archivo. CYC-13 se cerró por esto.
 
-### 10. Expiración real del refresh token no desloguea al usuario
-Si el refresh token expira de verdad (el intento de refresh falla), `httpClient` lanza un `ApiError`, pero nada conecta ese caso con `AuthContext.logout()`. El usuario queda viendo un error genérico ("No pudimos cargar tu entrenamiento") en vez de volver a la pantalla de Login para reingresar credenciales.
-**Impacto:** medio — encontrado durante la revisión de manejo de errores de esta sesión, no corregido aún.
-**Dónde:** `apps/mobile/src/services/httpClient.ts` (refreshSession) + `apps/mobile/src/store/AuthContext.tsx`.
+### ~~10. Expiración real del refresh token no desloguea al usuario~~ **Resuelto** (2026-11-01, CYC-103, PR #118)
+`httpClient` expone `onSessionExpired` y `AuthContext` lo usa para pasar a «sin sesión» cuando el servidor rechaza el refresh o ya no hay refresh token; un fallo de red no cierra la sesión. Pruebas en `apps/mobile/__tests__/httpClient.test.ts` y `AuthContext.test.tsx`.
 
 ### 11. Sin error boundary ni reporte de crashes
 No hay un React error boundary a nivel de app ni ninguna herramienta de crash reporting (ej. Sentry). Un error de render no capturado deja la app en blanco sin ningún registro de qué pasó.
@@ -64,5 +60,9 @@ No hay un React error boundary a nivel de app ni ninguna herramienta de crash re
 ## Backend
 
 ### 12. Migraciones de Prisma generadas a mano
-Como el entorno de desarrollo no soporta `prisma migrate dev` (requiere terminal interactiva), todas las migraciones se generaron con `prisma migrate diff --from-url ... --to-schema-datamodel ... --script` y se aplicaron con `migrate deploy`. Es un proceso manual, sin ninguna verificación automática de que el SQL generado sea exactamente el que `migrate dev` hubiera producido.
-**Impacto:** bajo-medio — funcionó bien hasta ahora, pero es un punto de error humano en cada migración nueva.
+Como el entorno de desarrollo no soporta `prisma migrate dev` (requiere terminal interactiva), las migraciones se generan con `prisma migrate diff` y se aplican con `migrate deploy`. El procedimiento ya está escrito y probado en [`docs/MIGRACIONES.md`](MIGRACIONES.md) (CYC-105). **Queda:** no hay verificación automática de que el esquema y las migraciones coincidan; se podría agregar al CI un paso que aplique las migraciones a una base vacía y compruebe que `migrate diff` sale vacío.
+**Impacto:** bajo — es un punto de error humano en cada migración nueva, ahora con receta.
+
+### 13. El diagrama HTML del modelo de datos está desactualizado
+`docs/diagrams/modelo-relacional.html` no tiene `Routine`, `RoutineExercise`, `SessionFeedback`, `LoadAdjustment`, `Notification` ni `PolicyAcceptance`. El diagrama de [[PRD-General]] §6 sí está al día (se generó del `schema.prisma` el 2026-11-01), pero el HTML es un dibujo hecho a mano.
+**Impacto:** bajo — confunde a quien lo abra. **Posible salida:** generarlo igual que el de PRD-General, o quitarlo y dejar solo el de Mermaid.

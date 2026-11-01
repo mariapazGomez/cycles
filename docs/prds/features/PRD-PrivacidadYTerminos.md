@@ -2,10 +2,10 @@
 type: prd
 level: feature
 parent: "[[PRD-General]]"
-status: draft
+status: in-progress
 phase: "Fase 3.5 — Piloto"
 created: 2026-10-12
-updated: 2026-10-12
+updated: 2026-11-01
 tags: [prd, feature/legal, privacidad]
 related: ["[[PRD-Autenticacion]]", "[[PRD-LandingContacto]]", "[[PRD-AppMovilAtleta]]"]
 ---
@@ -46,7 +46,7 @@ Cada afirmación se respalda en el código o en una decisión previa; si cambia 
 Son plazos y reglas que la política promete y que hoy dependen de personas, no de la app:
 
 1. **Correo `privacidad@getcycles.app`:** debe existir y recibir (por ejemplo, con Cloudflare Email Routing hacia el correo de la fundadora). Hoy `hola@mail.getcycles.app` solo envía.
-2. **Responder pedidos de derechos en un máximo de 30 días** y **borrar los datos personales en ese plazo** a pedido. Hoy no hay función de eliminar cuenta en la API: se hace con SQL.
+2. **Responder pedidos de derechos en un máximo de 30 días** y **borrar los datos personales en ese plazo** a pedido. Desde 2026-11-01 la persona puede hacerlo sola desde «Mi cuenta» (web y app iOS), ver §8; el trámite por correo queda como respaldo.
 3. **Copias de respaldo conservadas hasta 90 días.** Desde 2026-10-29 `respaldo-supabase.sh` borra solos los de más de 90 días en `~/Respaldos-Cycles`; las copias en otros lugares se rotan a mano.
 4. **Mensajes del formulario de contacto: hasta 12 meses** después de la conversación. Desde 2026-10-29 existe `apps/api/scripts/purgar-contactos.ts` (ensayo por defecto, `--aplicar` para borrar); se corre a mano, como mínimo cada 3 meses, con la URL de producción de `~/.cycles-secretos/produccion.env`.
 5. **Menores:** la política dice "18 años o más, o con autorización de madre, padre o tutor". Desde 2026-10-29 la casilla de aceptación (web y app iOS) dice «Tengo 18 años o más y acepto…»: es una declaración, sin verificación de edad.
@@ -57,7 +57,7 @@ Son plazos y reglas que la política promete y que hoy dependen de personas, no 
 
 - **Revisión legal:** el texto lo redactó Claude sobre los datos reales del producto y no ha sido revisado por una persona abogada. Conviene hacerlo antes de abrir el piloto, sobre todo por los **datos de salud** (categoría especial en el RGPD, que aplica con usuarios en España) y la ley chilena de protección de datos personales.
 - ~~**El consentimiento sigue siendo un aviso, no un registro**~~ **Resuelto (T-147, 2026-10-20):** la aceptación de los Términos y la Política es explícita (casilla sin marcar) y versionada. Ver §7.
-- **Retirar el consentimiento de estadísticas** y **pedir la eliminación o la copia de los datos** hoy son trámites por correo; lo ideal es hacerlos desde la app.
+- ~~**Retirar el consentimiento de estadísticas** y **pedir la eliminación o la copia de los datos** son trámites por correo~~ **Resuelto (CYC-107, 2026-11-01):** se hacen desde «Mi cuenta». Ver §8.
 - **App móvil:** ~~falta el enlace a la política y a los términos~~ **resuelto (T-149, 2026-10-20):** la pantalla de inicio de sesión y el menú del perfil enlazan `/privacidad` y `/terminos`. Falta declarar los datos en las "etiquetas de privacidad" de App Store Connect (T-121).
 - **Google OAuth:** al publicar la app, cargar `/privacidad` como política y `/terminos` como términos en *Branding*.
 
@@ -78,3 +78,29 @@ Banner de cookies (no hay cookies no esenciales) y versión en inglés.
   | Pantalla «Antes de seguir» | `reaccept` |
 - **Cuentas anteriores o versión nueva:** `GET /users/me` trae `needsPolicyAcceptance`. En la web, `ProtectedRoute` lleva a `/accept-policy` hasta que acepte (`POST /users/me/policy-acceptance`, idempotente).
 - **App iOS (T-149):** `PolicyAcceptanceScreen` frena el acceso hasta aceptar la versión vigente, con la misma casilla sin marcar y el aviso de que el coach verá las notas de dolor. Escrita y tipada, **sin probar en un dispositivo ni simulador** (ver P-23). Los atletas nuevos aceptan en la web al activar su cuenta.
+
+## 8. Eliminar la cuenta, descargar los datos y retirar el consentimiento (CYC-107, 2026-11-01)
+
+Apple exige que una app con registro deje **iniciar el borrado de la cuenta dentro de la app** (regla 5.1.1(v); desactivar no basta). Es requisito para TestFlight y App Store (investigación en CYC-131). Exportar los datos no lo pide Apple: viene del RGPD.
+
+**Dónde:** «Mi cuenta» en la web (menú del avatar, `/account`) y en la app iOS (menú del avatar → «Mi cuenta»). Atleta y coach.
+
+| Acción | Endpoint | Qué hace |
+|---|---|---|
+| Retirar o dar el consentimiento de estadísticas | `PATCH /users/me/data-consent` | Pone o borra `dataConsentAt` y `dataConsentVersion`. |
+| Descargar mis datos | `GET /users/me/export` | JSON con el perfil y todo lo suyo (límite de 5 por minuto). |
+| Eliminar mi cuenta | `DELETE /users/me` con `{"confirmation":"ELIMINAR"}` | Inmediato, sin período de gracia (límite de 3 por minuto). Sin la palabra exacta responde 400. |
+
+**Qué pasa al eliminar (decidido el 2026-11-01):**
+
+- **Atleta:** se borra todo: cuenta, series (`ExerciseLog`), cierres (`SessionFeedback`), avisos, sesiones, aceptaciones de la política, tokens y vínculos con coaches. Sus **planes quedan como plantillas en la Biblioteca del coach** (nombre, objetivo, tipo, frecuencia y semanas), sin atleta, sin fechas reales y sin rutinas puestas. Un plan que ya venía de una plantilla no se duplica. Un macrociclo (solo contenedor) no pasa a plantilla.
+- **Coach:** se desvincula de sus atletas (la relación queda `inactive`), pero **no se borran los datos de los atletas**: su historial se conserva para que puedan vincularse con otro coach y llevarle su rendimiento. Como los planes y sesiones de esos atletas apuntan a la fila del coach, esa fila **se anonimiza** en vez de borrarse: nombre «Coach eliminado», correo `cuenta-eliminada-<id>@cycles.invalid`, sin contraseña, sin consentimiento, sin tokens, avisos ni aceptaciones. Se borran su Biblioteca (rutinas y plantillas) y sus invitaciones pendientes; sus ejercicios propios solo se ocultan porque el historial de los atletas los usa.
+- **Cuentas admin:** no se pueden eliminar desde la app.
+- **Excepción a «append-only»:** `ExerciseLog` y `SessionFeedback` no se editan ni se borran (SEGURIDAD.md, R7), salvo cuando la **persona dueña elimina su cuenta**.
+
+**Pendientes y límites:**
+- No se manda correo de aviso tras eliminar (se puede agregar).
+- El coach que elimina su cuenta no avisa a sus atletas; ellos siguen viendo sus planes con el coach anonimizado hasta vincularse con otro.
+- Las copias de respaldo conservan los datos hasta 90 días (ver §4, punto 3).
+- La descarga de la app usa la hoja de compartir del sistema con el JSON como texto, sin archivo.
+- Probado con datos reales en una base local: borrar a la atleta demo quitó sus 156 series y pasó sus 5 planes a plantillas (con rollback). La pantalla de la app **no se ha probado en un iPhone**.
