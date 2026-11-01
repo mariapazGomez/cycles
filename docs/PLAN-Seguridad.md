@@ -25,7 +25,7 @@ Tres tandas, de mayor a menor urgencia. Cada PR es chico y se puede revisar solo
 | | | **2B** Tokens de la app móvil en el Keychain | S-09 | Bajo. **Hecho** (verificado 2026-11-01) |
 | | | **2C** Tests de autorización y CI | S-11 | Medio |
 | **3** | Mejoras planificadas | **3A** Igualar tiempos del login | S-10 | Bajo |
-| | | **3B** Append-only a nivel de base de datos | S-12 | Bajo |
+| | | **3B** Append-only a nivel de base de datos | S-12 | Bajo. **Hecho** (2026-11-01) |
 
 **Por qué 1A va primero:** al actualizar dependencias puede cambiar el comportamiento de NestJS. Conviene que los demás cambios se prueben ya sobre las versiones nuevas.
 
@@ -246,6 +246,10 @@ Cuando el email no existe, igual comparar la contraseña contra un hash bcrypt f
 
 ### 3B · Append-only en la base de datos (S-12 · R7)
 
+> **Hecho** (2026-11-01, CYC-96): migración `20261101200000_registros_solo_agregan` con triggers de PostgreSQL sobre `ExerciseLog` y `SessionFeedback`. `UPDATE`: solo se permite pasar `active` de 1 a 0. `DELETE` y `TRUNCATE`: error, salvo dentro de una transacción con `SET LOCAL cycles.allow_purge = 'on'` (la declaran el borrado de cuenta, `seed-demo` y las pruebas). Pruebas: `apps/api/test/append-only.e2e-spec.ts`.
+>
+> **Fase 2 (opcional, sin hacer):** un rol de base de datos distinto para la API, sin permiso de `UPDATE`/`DELETE` sobre esas tablas y con otra cadena de conexión en Render. Hoy la API se conecta como el dueño de las tablas, que puede desactivar los triggers; los triggers protegen de errores, no de quien tenga esa contraseña.
+
 Migración con un trigger de Postgres que rechace `UPDATE` y `DELETE` sobre `ExerciseLog` y `SessionFeedback`. Hay que revisar que ningún flujo actual los necesite: quitar un ejercicio con registros ya está bloqueado en la app. Documentar cómo borrar datos si algún día se pide por privacidad (un procedimiento manual y controlado).
 
 ---
@@ -263,4 +267,4 @@ Migración con un trigger de Postgres que rechace `UPDATE` y `DELETE` sobre `Exe
 | 2B Keychain en móvil | S-09 | **Hecho** (2026-10-02; verificado 2026-11-01). Falta probarlo en dispositivo |
 | 2C Tests y CI | S-11 | **Hecho** (2026-11-01, CYC-90 y CYC-91): CI con tipos, pruebas, ESLint y la matriz de autorización. Falta exigir el CI en la rama `main` |
 | 3A Tiempos del login | S-10 | **Hecho** (2026-11-01, CYC-95): login, recuperación de contraseña y reenvío de verificación |
-| 3B Append-only en la base | S-12 | Pendiente |
+| 3B Append-only en la base | S-12 | **Hecho** (2026-11-01, CYC-96). Fase 2 opcional: rol de base aparte para la API |
