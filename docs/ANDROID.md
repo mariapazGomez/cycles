@@ -37,7 +37,7 @@ Tamaños: S (menos de 2 h), M (medio día), L (1 día o más). "Bloqueada por" i
 
 | ID | Tarea | Tamaño | Bloqueada por |
 |---|---|---|---|
-| C1 | Probar login, registro y refresh de token, revisando `tokenStore.ts` (pensado para el Keychain de iOS) | M | B3 |
+| C1 | Probar login, registro y refresh de token, revisando `tokenStore.ts` (usa `react-native-keychain`: en Android guarda en el Keystore; la opción `accessible` solo aplica a iOS) | M | B3 |
 | C2 | Revisar "olvidé mi contraseña" y `Linking.openURL` | S | B3 |
 | C3 | Adaptar la isla flotante de pestañas (`elevation`, gestos, safe areas) | M | B1 |
 | C4 | Revisar barra de estado, botón atrás y teclado en formularios | M | B1 |
