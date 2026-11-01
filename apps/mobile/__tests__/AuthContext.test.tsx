@@ -3,7 +3,7 @@ import ReactTestRenderer from 'react-test-renderer';
 import { AuthProvider, useAuth } from '../src/store/AuthContext';
 import * as authApi from '../src/services/authApi';
 import { tokenStore } from '../src/services/tokenStore';
-import { ApiError } from '../src/services/httpClient';
+import { ApiError, onSessionExpired } from '../src/services/httpClient';
 
 jest.mock('../src/services/authApi');
 jest.mock('../src/services/tokenStore', () => ({
@@ -37,6 +37,7 @@ async function mount() {
 }
 
 beforeEach(() => jest.clearAllMocks());
+afterEach(() => onSessionExpired(null));
 
 test('con sesión guardada entra directo, sin pedir login', async () => {
   store.getAccessToken.mockReturnValue('access');
@@ -79,4 +80,21 @@ test('solo salir voluntariamente borra la sesión', async () => {
   });
   expect(store.clear).toHaveBeenCalled();
   expect(latest.status).toBe('signedOut');
+});
+
+test('si el refresh falla con la sesión abierta, vuelve al login', async () => {
+  store.getAccessToken.mockReturnValue('access');
+  api.fetchCurrentUser.mockResolvedValue(athlete);
+  const http = require('../src/services/httpClient');
+  const spy = jest.spyOn(http, 'onSessionExpired');
+  await mount();
+  expect(latest.status).toBe('signedIn');
+
+  // AuthProvider registró su listener; simula el aviso de httpClient.
+  const listener = spy.mock.calls[0][0] as () => void;
+  await ReactTestRenderer.act(async () => {
+    listener();
+  });
+  expect(latest.status).toBe('signedOut');
+  expect(latest.user).toBeNull();
 });

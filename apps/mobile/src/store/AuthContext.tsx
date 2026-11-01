@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { User } from '@cycles/shared';
 import * as authApi from '../services/authApi';
-import { ApiError } from '../services/httpClient';
+import { ApiError, onSessionExpired } from '../services/httpClient';
 import { tokenStore } from '../services/tokenStore';
 
 interface AuthContextValue {
@@ -18,6 +18,14 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<'loading' | 'signedOut' | 'signedIn'>('loading');
   const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    onSessionExpired(() => {
+      setUser(null);
+      setStatus('signedOut');
+    });
+    return () => onSessionExpired(null);
+  }, []);
 
   useEffect(() => {
     (async () => {
