@@ -127,6 +127,7 @@ export class AccountService {
     await tx.refreshToken.deleteMany({ where: { userId } });
     await tx.passwordResetToken.deleteMany({ where: { userId } });
     await tx.oAuthExchangeCode.deleteMany({ where: { userId } });
+    await tx.userIdentity.deleteMany({ where: { userId } });
     await tx.emailVerificationToken.deleteMany({ where: { userId } });
     await tx.notification.deleteMany({ where: { userId } });
     await tx.policyAcceptance.deleteMany({ where: { userId } });

@@ -84,6 +84,7 @@ model User {
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
 
+  identities              UserIdentity[]
   coachRelations          CoachAthlete[]           @relation("CoachRelations")
   athleteRelations        CoachAthlete[]           @relation("AthleteRelations")
   cyclesAsCoach           TrainingCycle[]          @relation("CyclesAsCoach")
@@ -129,6 +130,23 @@ model PasswordResetToken {
 // web con este código (no con los tokens) y la web lo cambia por la sesión
 // con un POST. Vence en 60 s y solo se guarda su hash. Ver
 // docs/SEGURIDAD.md, hallazgo S-02.
+// Cómo reconoce Cycles a una persona que entra con Google o con Apple: el
+// identificador del proveedor (`subject`) no cambia aunque cambie el correo, y
+// Apple puede entregar un correo de reenvío distinto al de la cuenta.
+model UserIdentity {
+  id        String       @id @default(uuid())
+  userId    String
+  provider  AuthProvider
+  subject   String
+  email     String?
+  createdAt DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([provider, subject])
+  @@index([userId])
+}
+
 model OAuthExchangeCode {
   id        String    @id @default(uuid())
   userId    String

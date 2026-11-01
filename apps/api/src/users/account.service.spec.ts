@@ -15,6 +15,7 @@ function setup(user: { id: string; role: string }, cycles: unknown[] = []) {
     refreshToken: { deleteMany: fn() },
     passwordResetToken: { deleteMany: fn() },
     oAuthExchangeCode: { deleteMany: fn() },
+    userIdentity: { deleteMany: fn() },
     emailVerificationToken: { deleteMany: fn() },
     notification: { deleteMany: fn() },
     policyAcceptance: { deleteMany: fn() },

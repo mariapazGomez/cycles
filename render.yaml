@@ -57,6 +57,11 @@ services:
         sync: false
       - key: GOOGLE_CLIENT_SECRET
         sync: false
+      # Inicio de sesión nativo en la app de iOS (docs/diseno/login-social-ios).
+      - key: GOOGLE_IOS_CLIENT_ID
+        sync: false
+      - key: APPLE_CLIENT_ID
+        sync: false
       - key: ACTIVITY_CRON_SECRET
         sync: false
       # Código de acceso del piloto: deja registrarse con el registro cerrado

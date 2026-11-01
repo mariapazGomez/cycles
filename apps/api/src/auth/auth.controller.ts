@@ -19,7 +19,7 @@ import type { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
-import { RefreshTokenDto, LogoutDto, GoogleExchangeDto } from "./dto/tokens.dto";
+import { RefreshTokenDto, LogoutDto, GoogleExchangeDto, SocialLoginDto } from "./dto/tokens.dto";
 import { VerifyEmailDto, ResendVerificationDto } from "./dto/email-verification.dto";
 import { RequestPasswordResetDto, ConfirmPasswordResetDto } from "./dto/password-reset.dto";
 import { CompleteProfileDto } from "./dto/complete-profile.dto";
@@ -125,6 +125,21 @@ export class AuthController {
       redirectUrl.searchParams.set("error", "registration_closed");
     }
     res.redirect(redirectUrl.toString());
+  }
+
+  // Inicio de sesión nativo de la app (docs/diseno/login-social-ios).
+  @Throttle(LIMITS.login)
+  @Post("google/token")
+  @HttpCode(HttpStatus.OK)
+  googleToken(@Body() dto: SocialLoginDto) {
+    return this.authService.loginWithIdentityToken("google", dto);
+  }
+
+  @Throttle(LIMITS.login)
+  @Post("apple")
+  @HttpCode(HttpStatus.OK)
+  appleLogin(@Body() dto: SocialLoginDto) {
+    return this.authService.loginWithIdentityToken("apple", dto);
   }
 
   @Throttle(LIMITS.tokenUse)

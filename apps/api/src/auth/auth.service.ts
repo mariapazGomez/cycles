@@ -18,6 +18,8 @@ import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
 import { CompleteProfileDto } from "./dto/complete-profile.dto";
 import { GoogleProfile } from "./strategies/google.strategy";
+import { IdentityTokenVerifier, SocialProvider } from "./identity-token.verifier";
+import { SocialLoginDto } from "./dto/tokens.dto";
 import { generateJti, generateRawToken, hashToken } from "./token.util";
 import { normalizeEmail } from "../common/validation/normalize-email";
 
@@ -31,6 +33,11 @@ export const DATA_CONSENT_VERSION = "v1";
 
 export const REGISTRATION_CLOSED_MESSAGE =
   "El registro está cerrado por ahora: Cycles es solo para usuarios que ya tienen cuenta.";
+
+export const APPLE_HIDDEN_EMAIL_MESSAGE =
+  "Apple ocultó tu correo y no pudimos reconocer tu cuenta. Entra con tu correo y contraseña; pronto podrás vincular Apple desde tu cuenta.";
+
+const PRIVATE_RELAY_DOMAIN = "@privaterelay.appleid.com";
 
 export const ACCESS_CODE_INVALID_MESSAGE = "El código de acceso no es válido. Pídele uno nuevo al equipo de Cycles.";
 
@@ -48,6 +55,7 @@ export class AuthService {
     private readonly mail: MailService,
     private readonly alerts: SecurityAlertService,
     private readonly activity: ActivityNotifier,
+    private readonly identityTokens: IdentityTokenVerifier,
   ) {}
 
   // Early adopters: el registro está cerrado salvo que REGISTRATION_OPEN=true.
@@ -146,6 +154,57 @@ export class AuthService {
     }
 
     return this.createOAuthExchangeCode(user.id);
+  }
+
+  // Inicio de sesión nativo desde la app: el teléfono entrega un token de
+  // identidad de Apple o Google y aquí se verifica y se cambia por la sesión.
+  // Orden: identidad ya vinculada → cuenta con el mismo correo verificado →
+  // cuenta nueva (solo con el registro abierto).
+  async loginWithIdentityToken(provider: SocialProvider, dto: SocialLoginDto): Promise<AuthTokens> {
+    const identity = await this.identityTokens.verify(provider, dto.idToken, dto.nonce);
+
+    const linked = await this.prisma.userIdentity.findUnique({
+      where: { provider_subject: { provider, subject: identity.subject } },
+      include: { user: true },
+    });
+    if (linked) {
+      return this.issueTokenPair(linked.user);
+    }
+
+    const email = identity.email && identity.emailVerified ? normalizeEmail(identity.email) : null;
+    const existing = email ? await this.prisma.user.findUnique({ where: { email } }) : null;
+
+    if (existing) {
+      // El proveedor confirma que el correo es de quien entra: se vincula y,
+      // si faltaba, se da por verificado el correo de la cuenta.
+      const user = existing.emailVerifiedAt
+        ? existing
+        : await this.prisma.user.update({ where: { id: existing.id }, data: { emailVerifiedAt: new Date() } });
+      await this.prisma.userIdentity.create({
+        data: { userId: user.id, provider, subject: identity.subject, email },
+      });
+      return this.issueTokenPair(user);
+    }
+
+    if (!this.registrationOpen) {
+      const hidden = provider === "apple" && identity.email?.toLowerCase().endsWith(PRIVATE_RELAY_DOMAIN);
+      throw new ForbiddenException(hidden ? APPLE_HIDDEN_EMAIL_MESSAGE : REGISTRATION_CLOSED_MESSAGE);
+    }
+    if (!email) {
+      throw new UnauthorizedException("Tu cuenta no compartió un correo verificado. Entra con correo y contraseña.");
+    }
+
+    const user = await this.prisma.user.create({
+      data: {
+        email,
+        name: dto.name?.trim() || email,
+        authProvider: provider,
+        role: null,
+        emailVerifiedAt: new Date(),
+        identities: { create: { provider, subject: identity.subject, email } },
+      },
+    });
+    return this.issueTokenPair(user);
   }
 
   async exchangeGoogleCode(rawCode: string): Promise<AuthTokens> {

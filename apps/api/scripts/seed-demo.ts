@@ -142,6 +142,7 @@ async function borrarDemo() {
     await tx.passwordResetToken.deleteMany({ where: propios });
     await tx.emailVerificationToken.deleteMany({ where: propios });
     await tx.oAuthExchangeCode.deleteMany({ where: propios });
+    await tx.userIdentity.deleteMany({ where: propios });
     await tx.user.deleteMany({ where: { id: { in: ids } } });
     // Contra una base remota cada consulta viaja por red: el límite de 5 s no alcanza.
   }, { timeout: 120_000, maxWait: 30_000 });
