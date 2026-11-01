@@ -2,10 +2,10 @@
 type: prd
 level: feature
 parent: "[[PRD-General]]"
-status: draft
+status: in-progress
 phase: "Fase 3.5 — Piloto"
 created: 2026-10-12
-updated: 2026-10-12
+updated: 2026-11-01
 tags: [prd, feature/legal, privacidad]
 related: ["[[PRD-Autenticacion]]", "[[PRD-LandingContacto]]", "[[PRD-AppMovilAtleta]]"]
 ---

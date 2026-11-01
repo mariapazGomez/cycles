@@ -1,6 +1,6 @@
 ---
 type: design
-parent: "[[PRD-AppMovil]]"
+parent: "[[PRD-AppMovilAtleta]]"
 status: decided
 tags: [diseno, mobile, marca]
 created: 2026-10-27

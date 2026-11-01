@@ -65,12 +65,12 @@ Se usa un **monorepo con npm workspaces** para poder compartir tipos (DTOs, enum
 - **Autenticación:** Passport.js dentro de NestJS con dos estrategias en el MVP: `local` (email/contraseña, con verificación de email obligatoria) y `google-oauth20` (con vinculación automática por email si ya existe una cuenta manual). `apple` queda documentada como estrategia futura, no implementada aún. Emisión de JWT de acceso (corta duración) + refresh token (rotativo, almacenado hasheado).
 - **Autorización:** guards basados en rol (`coach`, `athlete`, `admin`) y en pertenencia (un coach solo accede a sus atletas/ciclos).
 - **Validación:** DTOs con `class-validator` en cada endpoint de entrada.
-- **Documentación de API:** Swagger/OpenAPI autogenerado (`@nestjs/swagger`).
+- **Documentación de API:** no hay Swagger; la referencia de rutas, guards y roles está en `docs/enlaces.md` y en `docs/SEGURIDAD.md` §3.5.
 
 ## 5. Base de datos
 
 - **Motor:** PostgreSQL.
-- **ORM:** Prisma (migraciones versionadas en `apps/api/prisma/migrations`, cliente tipado autogenerado).
+- **ORM:** Prisma (migraciones versionadas en `apps/api/prisma/migrations`, cliente tipado autogenerado). Cómo se crean, se revisan y se aplican: [`docs/MIGRACIONES.md`](MIGRACIONES.md).
 - **Esquema base:** ver `apps/api/prisma/schema.prisma`, que refleja el modelo de datos descrito en el PRD (`User`, `CoachAthlete`, `TrainingCycle`, `TrainingSession`, `Exercise`, `SessionExercise`, `ExerciseLog`).
 
 ## 6. Paquete compartido (`packages/shared`)
