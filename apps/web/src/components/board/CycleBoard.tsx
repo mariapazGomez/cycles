@@ -62,7 +62,9 @@ export function CycleBoard({ cycle, athlete }: { cycle: TrainingCycle; athlete: 
   );
   const actions = useBoardActions(cycle.id, range);
 
-  const sessions = sessionsQuery.data ?? [];
+  // Estable entre renders mientras los datos no cambian (si no, `?? []` crea un
+  // arreglo nuevo cada vez y el useMemo de abajo se recalcula siempre).
+  const sessions = useMemo(() => sessionsQuery.data ?? [], [sessionsQuery.data]);
   const weeks = useMemo(() => buildWeeks(cycle, sessions, today), [cycle, sessions, today]);
   const progressById = new Map((progressQuery.data?.sessions ?? []).map((p) => [p.id, p]));
   const readOnly = cycle.status !== "active";

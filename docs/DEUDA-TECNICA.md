@@ -11,10 +11,8 @@ Lista de deuda técnica conocida, para atacar cuando haya espacio. No es un PRD 
 **Impacto:** alto — cualquier cambio puede romper algo silenciosamente; el auth (con su historial de bugs de refresh token) y el motor de ejecución (Fase 3) son los candidatos más críticos para empezar.
 **Avance (2026-10-27):** `apps/api` ya tiene Jest (`npm test --workspace apps/api`, sin base de datos: Prisma simulado) con pruebas de plantillas, sesiones por día, acceso y roles de las rutas nuevas. Siguen sin pruebas `apps/web`, `apps/mobile` y el resto de la API (auth, ejecución, seguimiento).
 
-### 2. ESLint no está realmente instalado en `apps/web` ni `apps/api`
-Ambos tienen un script `"lint": "eslint src"` en su `package.json`, pero **ninguno de los dos declara `eslint` como dependencia ni tiene un archivo de configuración** (`.eslintrc*` / `eslint.config.*`). El comando "funciona" hoy solo porque `apps/mobile` sí trae ESLint (heredado del template de React Native) y npm workspaces lo hoistea al `node_modules` raíz — es decir, funciona de pura casualidad de instalación, no por diseño.
-**Impacto:** medio — no hay ninguna verificación de estilo/calidad real corriendo sobre el código de mayor tamaño del repo (api + web).
-**Dónde:** `apps/web/package.json`, `apps/api/package.json`.
+### ~~2. ESLint no está realmente instalado en `apps/web` ni `apps/api`~~ **Resuelto** (2026-11-01, CYC-97)
+Los scripts `lint` de web y API no funcionaban: ESLint solo estaba instalado de forma anidada en `apps/mobile`, no en la raíz. Ahora cada workspace declara `eslint` 8, `@typescript-eslint` y su `.eslintrc.cjs` (la web suma `eslint-plugin-react-hooks`). Resultado inicial: **0 errores**; 2 avisos de `no-explicit-any` en `throttle.ts`. Se corrigieron 4 `useMemo` de la web cuyo arreglo (`data ?? []`) cambiaba en cada render y 1 expresión regular de caracteres de control intencional. `npm run lint` corre los tres workspaces. **Queda:** sumarlo al CI (`.github/workflows/ci.yml`) cuando se mezcle el CI mínimo.
 
 ### 3. No hay CI
 No existe `.github/workflows` ni ningún pipeline equivalente. Nada corre automáticamente typecheck, lint o tests en cada push/PR.

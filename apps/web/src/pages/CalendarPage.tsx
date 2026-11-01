@@ -77,7 +77,7 @@ export function CalendarPage() {
   const [selected, setSelected] = useState(todayIso);
 
   const plans = query.data?.plans ?? [];
-  const sessions = query.data?.sessions ?? [];
+  const sessions = useMemo(() => query.data?.sessions ?? [], [query.data?.sessions]);
 
   const byDay = useMemo(() => {
     const map = new Map<string, CalendarSession[]>();
