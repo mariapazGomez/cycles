@@ -11,10 +11,8 @@ Hoy hay pruebas en dos de los tres workspaces: `apps/api` (Jest, Prisma simulado
 **Impacto:** medio-alto — la web (el cliente más grande) se verifica solo con `tsc` y a mano; auth y ejecución son los candidatos críticos para sumar pruebas.
 **Avance:** 2026-10-27, Jest en `apps/api`; la app móvil trae Jest desde su scaffold (2026-09-25), con pruebas desde octubre. Ver también CYC-90 (tests de autorización) y CYC-98 (tests de flujos).
 
-### 2. ESLint no está realmente instalado en `apps/web` ni `apps/api`
-Ambos tienen un script `"lint": "eslint src"` en su `package.json`, pero **ninguno de los dos declara `eslint` como dependencia ni tiene un archivo de configuración** (`.eslintrc*` / `eslint.config.*`). El comando "funciona" hoy solo porque `apps/mobile` sí trae ESLint (heredado del template de React Native) y npm workspaces lo hoistea al `node_modules` raíz — es decir, funciona de pura casualidad de instalación, no por diseño.
-**Impacto:** medio — no hay ninguna verificación de estilo/calidad real corriendo sobre el código de mayor tamaño del repo (api + web).
-**Dónde:** `apps/web/package.json`, `apps/api/package.json`.
+### ~~2. ESLint no está realmente instalado en `apps/web` ni `apps/api`~~ **Resuelto** (2026-11-01, CYC-97)
+Los scripts `lint` de web y API no funcionaban: ESLint solo estaba instalado de forma anidada en `apps/mobile`, no en la raíz. Ahora cada workspace declara `eslint` 8, `@typescript-eslint` y su `.eslintrc.cjs` (la web suma `eslint-plugin-react-hooks`). Resultado inicial: **0 errores**; 2 avisos de `no-explicit-any` en `throttle.ts`. Se corrigieron 4 `useMemo` de la web cuyo arreglo (`data ?? []`) cambiaba en cada render y 1 expresión regular de caracteres de control intencional. `npm run lint` corre los tres workspaces. **Queda:** sumarlo al CI (`.github/workflows/ci.yml`) cuando se mezcle el CI mínimo.
 
 ### 3. CI de calidad: hecho en parte (CYC-91, 2026-11-01)
 `.github/workflows/ci.yml` corre en cada PR y en cada push a `main`: tipos y pruebas de la API (con `prisma generate`), tipos y compilación de la web, tipos y pruebas de la app móvil, y `npm audit` de producción. `android.yml` compila la app de Android y `resumen-actividad.yml` manda el aviso diario a Slack.

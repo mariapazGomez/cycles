@@ -322,7 +322,7 @@ export function ExercisesPage() {
     },
   });
 
-  const all = query.data ?? [];
+  const all = useMemo(() => query.data ?? [], [query.data]);
   const mineCount = useMemo(() => all.filter((e) => e.createdBy === user?.id).length, [all, user?.id]);
   const catalogCount = all.length - mineCount;
   const visible = useMemo(() => visibleExercises(all, user?.id, tab, group, search), [all, user?.id, tab, group, search]);
