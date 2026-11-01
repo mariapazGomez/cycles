@@ -240,7 +240,7 @@ Los umbrales son iniciales: van como constantes, igual que los límites de 1B.
 
 > **Hecho para el login** (2026-11-01, CYC-95): `login` siempre corre `bcrypt.compare`, contra `DUMMY_PASSWORD_HASH` (costo 12) cuando la cuenta no existe o es solo de Google, y además exige un hash real para dejar entrar. Pruebas: `auth.service.login.spec.ts`.
 >
-> **Pendiente:** la recuperación de contraseña y el reenvío de verificación también delatan si la cuenta existe por el tiempo (uno hace escrituras y manda el correo; el otro responde ya). Solución: hacer el trabajo y el envío en segundo plano para que ambos casos respondan al instante.
+> **También hecho para la recuperación de contraseña y el reenvío de verificación** (2026-11-01): responden de inmediato y hacen las escrituras y el envío del correo en segundo plano (`inBackground`), para que un correo registrado y uno inexistente tarden lo mismo. Los fallos de ese trabajo quedan en el log, sin el correo. Pruebas: `auth.service.recovery.spec.ts`.
 
 Cuando el email no existe, igual comparar la contraseña contra un hash bcrypt ficticio, para que la respuesta tarde lo mismo que con un email existente.
 
@@ -262,5 +262,5 @@ Migración con un trigger de Postgres que rechace `UPDATE` y `DELETE` sobre `Exe
 | 2A Refresh en cookie | S-08 | Pendiente |
 | 2B Keychain en móvil | S-09 | **Hecho** (2026-10-02; verificado 2026-11-01). Falta probarlo en dispositivo |
 | 2C Tests y CI | S-11 | **Hecho** (2026-11-01, CYC-90 y CYC-91): CI con tipos, pruebas, ESLint y la matriz de autorización. Falta exigir el CI en la rama `main` |
-| 3A Tiempos del login | S-10 | **Hecho para el login** (2026-11-01, CYC-95). Falta igualar los tiempos de la recuperación de contraseña y el reenvío de verificación |
+| 3A Tiempos del login | S-10 | **Hecho** (2026-11-01, CYC-95): login, recuperación de contraseña y reenvío de verificación |
 | 3B Append-only en la base | S-12 | Pendiente |
