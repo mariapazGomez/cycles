@@ -7,23 +7,30 @@ import { ApiError } from '../src/services/httpClient';
 import { REGISTER_URL } from '../src/config/legal';
 
 const mockLoginWithApple = jest.fn();
+const mockLogin = jest.fn();
 jest.mock('../src/store/AuthContext', () => ({
-  useAuth: () => ({ login: jest.fn(), loginWithApple: mockLoginWithApple }),
+  useAuth: () => ({ login: mockLogin, loginWithApple: mockLoginWithApple }),
 }));
 jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }) }));
 jest.mock('../src/components/Icon', () => ({ Icon: () => null }));
-jest.mock('../src/components/ChainBackground', () => ({ ChainBackground: () => null }));
-jest.mock('../src/components/Logo', () => ({ Logo: () => null }));
+// Sin animaciones en las pruebas: así no quedan temporizadores corriendo.
+jest.mock('../src/hooks/useReduceMotion', () => ({ useReduceMotion: () => true }));
 
 const performRequest = appleAuth.performRequest as jest.Mock;
 
+const mounted: ReactTestRenderer.ReactTestRenderer[] = [];
 async function mount() {
   let tree!: ReactTestRenderer.ReactTestRenderer;
   await ReactTestRenderer.act(async () => {
     tree = ReactTestRenderer.create(<LoginScreen />);
   });
+  mounted.push(tree);
   return tree;
 }
+
+afterEach(() => {
+  mounted.splice(0).forEach(tree => ReactTestRenderer.act(() => tree.unmount()));
+});
 
 async function tapApple(tree: ReactTestRenderer.ReactTestRenderer) {
   await ReactTestRenderer.act(async () => {
@@ -78,4 +85,53 @@ test('otro error del servidor se muestra sin el botón de registro', async () =>
   await tapApple(tree);
   expect(texts(tree)).toContain('No pudimos verificar tu inicio de sesión.');
   expect(texts(tree)).not.toContain('Registrarme en la web');
+});
+
+const field = (tree: ReactTestRenderer.ReactTestRenderer, label: string) => tree.root.findByProps({ accessibilityLabel: label, selectionColor: '#1a66dd' });
+
+const typeCredentials = async (tree: ReactTestRenderer.ReactTestRenderer) => {
+  await ReactTestRenderer.act(async () => {
+    field(tree, 'Correo').props.onChangeText('  ana@correo.com ');
+    field(tree, 'Contraseña').props.onChangeText('secreta123');
+  });
+};
+
+const press = async (tree: ReactTestRenderer.ReactTestRenderer, label: string) => {
+  await ReactTestRenderer.act(async () => {
+    tree.root.findByProps({ accessibilityLabel: label, accessibilityRole: 'button' }).props.onPress();
+  });
+};
+
+test('entra con el correo sin espacios y la contraseña', async () => {
+  mockLogin.mockResolvedValue(undefined);
+  const tree = await mount();
+  await typeCredentials(tree);
+  await press(tree, 'Entrar');
+  expect(mockLogin).toHaveBeenCalledWith('ana@correo.com', 'secreta123');
+});
+
+test('sin correo o sin contraseña no intenta entrar', async () => {
+  const tree = await mount();
+  await press(tree, 'Entrar');
+  expect(mockLogin).not.toHaveBeenCalled();
+});
+
+test('con credenciales incorrectas muestra el aviso y vuelve a dejar intentar', async () => {
+  mockLogin.mockRejectedValue(new ApiError(401, 'x'));
+  const tree = await mount();
+  await typeCredentials(tree);
+  await press(tree, 'Entrar');
+  expect(texts(tree)).toContain('Correo o contraseña incorrectos. Revisa tus datos.');
+  mockLogin.mockResolvedValue(undefined);
+  await press(tree, 'Entrar');
+  expect(mockLogin).toHaveBeenCalledTimes(2);
+});
+
+test('el ojo muestra y oculta la contraseña', async () => {
+  const tree = await mount();
+  expect(field(tree, 'Contraseña').props.secureTextEntry).toBe(true);
+  await press(tree, 'Mostrar contraseña');
+  expect(field(tree, 'Contraseña').props.secureTextEntry).toBe(false);
+  await press(tree, 'Ocultar contraseña');
+  expect(field(tree, 'Contraseña').props.secureTextEntry).toBe(true);
 });
