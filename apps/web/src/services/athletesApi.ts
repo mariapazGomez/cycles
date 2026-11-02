@@ -24,8 +24,20 @@ export function listAthletes() {
   return apiRequest<AthleteRelation[]>("/athletes");
 }
 
-export function acceptInvitation(data: { token: string; password: string; acceptPolicy: boolean }) {
-  return apiRequest<AuthTokens>("/athletes/invitations/accept", {
+// Lo que la página de la invitación necesita: quién invita y si ya hay cuenta.
+export function previewInvitation(token: string) {
+  return apiRequest<{ coachName: string; hasAccount: boolean }>("/athletes/invitations/preview", {
+    method: "POST",
+    auth: false,
+    body: { token },
+  });
+}
+
+// Cuenta nueva: devuelve la sesión. Atleta que ya tenía cuenta: solo `linked`.
+export type AcceptInvitationResult = ({ linked: false } & AuthTokens) | { linked: true };
+
+export function acceptInvitation(data: { token: string; password?: string; acceptPolicy: boolean }) {
+  return apiRequest<AcceptInvitationResult>("/athletes/invitations/accept", {
     method: "POST",
     auth: false,
     body: data,

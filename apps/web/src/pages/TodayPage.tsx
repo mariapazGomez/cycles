@@ -6,10 +6,12 @@ import { ApiError } from "../services/httpClient";
 import { EmptyState } from "../components/EmptyState";
 import { formatKg } from "../lib/format";
 import { track } from "../lib/analytics";
+import { useAuth } from "../hooks/useAuth";
 
 // Inicio del atleta: la próxima sesión pendiente de su plan activo.
 export function TodayPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const todayQuery = useQuery({ queryKey: ["today"], queryFn: executionApi.getToday });
   const [skipping, setSkipping] = useState(false);
@@ -31,6 +33,18 @@ export function TodayPage() {
     },
     onError: (err: unknown) => setError(err instanceof ApiError ? err.message : "No se pudo marcar como omitida."),
   });
+
+  // Se registró solo y ningún coach lo ha vinculado todavía.
+  if (user?.hasActiveCoach === false) {
+    return (
+      <div className="log-shell">
+        <EmptyState title="Falta tu coach">
+          Pídele a tu coach que te invite a Cycles con el correo {user.email}. Cuando aceptes la invitación, tus
+          entrenamientos aparecerán aquí.
+        </EmptyState>
+      </div>
+    );
+  }
 
   if (todayQuery.isLoading) return <p>Cargando…</p>;
   if (todayQuery.isError) return <div className="error-banner">No se pudo cargar tu próxima sesión.</div>;

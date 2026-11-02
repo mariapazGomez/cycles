@@ -18,11 +18,18 @@ export class UsersService {
       where: { userId_version: { userId: id, version: POLICY_VERSION } },
     });
 
+    // Un atleta que se registró solo no tiene coach hasta que uno lo invita (CYC-187).
+    const hasActiveCoach =
+      user.role === "athlete"
+        ? (await this.prisma.coachAthlete.count({ where: { athleteId: id, status: "active" } })) > 0
+        : undefined;
+
     return {
       id: user.id,
       email: user.email,
       name: user.name,
       role: user.role,
+      hasActiveCoach,
       authProvider: user.authProvider,
       weightUnit: user.weightUnit,
       emailVerified: Boolean(user.emailVerifiedAt),

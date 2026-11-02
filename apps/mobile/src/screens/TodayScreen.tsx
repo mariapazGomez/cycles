@@ -1,3 +1,4 @@
+import { useAuth } from '../store/AuthContext';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import type { CompositeScreenProps } from '@react-navigation/native';
@@ -38,6 +39,9 @@ type Props = CompositeScreenProps<
 >;
 
 export function TodayScreen({ navigation }: Props) {
+  const { user } = useAuth();
+  // Se registró solo y ningún coach lo ha vinculado todavía.
+  const withoutCoach = user?.hasActiveCoach === false;
   const insets = useSafeAreaInsets();
   const clearance = useTabBarClearance();
   const [data, setData] = useState<TodaySession | null | undefined>(undefined);
@@ -158,8 +162,12 @@ export function TodayScreen({ navigation }: Props) {
         <View style={[styles.card, styles.emptyCard]}>
           <ChainBackground />
           <View style={styles.emptyBox}>
-            <Text style={styles.emptyTitle}>No tienes una sesión pendiente</Text>
-            <Text style={styles.emptyText}>Cuando tu coach te asigne una, la verás aquí.</Text>
+            <Text style={styles.emptyTitle}>{withoutCoach ? 'Falta tu coach' : 'No tienes una sesión pendiente'}</Text>
+            <Text style={styles.emptyText}>
+              {withoutCoach
+                ? `Pídele que te invite a Cycles con el correo ${user?.email}. Cuando aceptes la invitación, tus entrenamientos aparecerán aquí.`
+                : 'Cuando tu coach te asigne una, la verás aquí.'}
+            </Text>
           </View>
         </View>
       )}

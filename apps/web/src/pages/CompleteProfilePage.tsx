@@ -5,20 +5,21 @@ import { useAuth } from "../hooks/useAuth";
 import { AuthCard } from "../components/AuthCard";
 import * as authApi from "../services/authApi";
 import { ApiError } from "../services/httpClient";
+import { RoleChoice } from "../components/RoleChoice";
 import { PolicyCheckbox } from "../components/PolicyCheckbox";
 
-// Solo la ven cuentas creadas por Google que aún no tienen rol asignado.
-// El único rol posible aquí es 'coach': los atletas se crean por invitación
-// (ver PRD-General, sección 4), nunca auto-asignándose el rol.
+// Solo la ven cuentas creadas por Google que aún no tienen rol asignado: eligen
+// coach o atleta. Un atleta sin coach espera a que uno lo invite.
 export function CompleteProfilePage() {
   const navigate = useNavigate();
   const { refreshCurrentUser } = useAuth();
+  const [role, setRole] = useState<authApi.SelfRole>("coach");
   const [dataConsent, setDataConsent] = useState(false);
   const [acceptPolicy, setAcceptPolicy] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   const mutation = useMutation({
-    mutationFn: () => authApi.completeProfile({ dataConsent, acceptPolicy }),
+    mutationFn: () => authApi.completeProfile({ role, dataConsent, acceptPolicy }),
     onSuccess: async () => {
       await refreshCurrentUser();
       navigate("/", { replace: true });
@@ -40,7 +41,10 @@ export function CompleteProfilePage() {
 
   return (
     <AuthCard title="Un último paso">
-      <p>Tu cuenta se activará como coach. Los atletas se suman por invitación.</p>
+      <RoleChoice value={role} onChange={setRole} />
+      {role === "athlete" && (
+        <p className="auth-note">Tu coach debe invitarte con tu correo de Google para que veas tus entrenamientos.</p>
+      )}
 
       {formError && <div className="error-banner">{formError}</div>}
 

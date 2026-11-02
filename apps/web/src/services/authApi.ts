@@ -11,9 +11,12 @@ interface MessageResponse {
   message: string;
 }
 
-// El registro público solo crea cuentas de coach: el alta de atletas es
-// exclusivamente por invitación (ver PRD-General, sección 4).
+export type SelfRole = "coach" | "athlete";
+
+// El registro ofrece las dos opciones. Un atleta que se registra solo queda sin
+// coach hasta que uno lo invite con el mismo correo (ver PRD-General, sección 4).
 export function register(data: {
+  role: SelfRole;
   name: string;
   email: string;
   password: string;
@@ -24,7 +27,7 @@ export function register(data: {
   return apiRequest<{ id: string; email: string }>("/auth/register", {
     method: "POST",
     auth: false,
-    body: { ...data, role: "coach" },
+    body: data,
   });
 }
 
@@ -89,12 +92,11 @@ export function confirmPasswordReset(token: string, newPassword: string) {
   });
 }
 
-// El rol siempre es 'coach': es la única opción que acepta el backend en
-// este endpoint (los atletas no completan perfil, se crean por invitación).
-export function completeProfile(data: { dataConsent: boolean; acceptPolicy: boolean }) {
+// Quien entró con Google elige aquí su rol: coach o atleta.
+export function completeProfile(data: { role: SelfRole; dataConsent: boolean; acceptPolicy: boolean }) {
   return apiRequest<MessageResponse>("/auth/complete-profile", {
     method: "POST",
-    body: { role: "coach", ...data },
+    body: data,
   });
 }
 

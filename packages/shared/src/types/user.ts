@@ -11,6 +11,8 @@ export interface User {
   // null: cuenta creada vía Google que aún no pasó por POST /auth/complete-profile.
   role: UserRole | null;
   authProvider: AuthProvider;
+  // Solo atletas: false mientras ningún coach lo haya vinculado (se registró solo).
+  hasActiveCoach?: boolean;
   weightUnit: WeightUnit;
   emailVerified: boolean;
   dataConsentAt?: string;

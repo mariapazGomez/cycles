@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAuth } from "../hooks/useAuth";
 import { AuthCard } from "../components/AuthCard";
 import * as athletesApi from "../services/athletesApi";
@@ -13,16 +13,35 @@ export function AcceptInvitationPage() {
   const token = searchParams.get("token");
   const navigate = useNavigate();
   const { loginWithTokens } = useAuth();
+  const [linked, setLinked] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [acceptPolicy, setAcceptPolicy] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
+  // Quién invita y si la persona ya tiene cuenta (entonces no se le pide contraseña).
+  const preview = useQuery({
+    queryKey: ["invitation", token],
+    queryFn: () => athletesApi.previewInvitation(token ?? ""),
+    enabled: Boolean(token),
+    retry: false,
+  });
+  const hasAccount = preview.data?.hasAccount === true;
+
   const mutation = useMutation({
-    mutationFn: () => athletesApi.acceptInvitation({ token: token ?? "", password, acceptPolicy }),
-    onSuccess: async (tokens) => {
+    mutationFn: () =>
+      athletesApi.acceptInvitation({
+        token: token ?? "",
+        acceptPolicy,
+        ...(hasAccount ? {} : { password }),
+      }),
+    onSuccess: async (result) => {
       track("athlete_joined");
-      await loginWithTokens(tokens);
+      if (result.linked) {
+        setLinked(true);
+        return;
+      }
+      await loginWithTokens(result);
       navigate("/", { replace: true });
     },
     onError: (error: unknown) => {
@@ -36,13 +55,15 @@ export function AcceptInvitationPage() {
     event.preventDefault();
     setFormError(null);
 
-    if (password.length < 8) {
-      setFormError("La contraseña debe tener al menos 8 caracteres.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setFormError("Las contraseñas no coinciden.");
-      return;
+    if (!hasAccount) {
+      if (password.length < 8) {
+        setFormError("La contraseña debe tener al menos 8 caracteres.");
+        return;
+      }
+      if (password !== confirmPassword) {
+        setFormError("Las contraseñas no coinciden.");
+        return;
+      }
     }
 
     if (!acceptPolicy) {
@@ -64,38 +85,76 @@ export function AcceptInvitationPage() {
     );
   }
 
+  if (preview.isLoading) {
+    return (
+      <AuthCard title="Invitación">
+        <p>Cargando…</p>
+      </AuthCard>
+    );
+  }
+
+  if (preview.isError) {
+    return (
+      <AuthCard title="Link inválido" pattern="c">
+        <div className="error-banner">El link de invitación es inválido o expiró. Pídele a tu coach que te invite de nuevo.</div>
+        <p className="auth-footer">
+          <Link to="/login">Volver a inicio de sesión</Link>
+        </p>
+      </AuthCard>
+    );
+  }
+
+  if (linked) {
+    return (
+      <AuthCard title="Listo">
+        <p>Ya estás con {preview.data?.coachName}. Entra a tu cuenta para ver tus entrenamientos.</p>
+        <Link to="/login" className="button-primary" style={{ display: "block", textDecoration: "none" }}>
+          Iniciar sesión
+        </Link>
+      </AuthCard>
+    );
+  }
+
   return (
-    <AuthCard title="Activa tu cuenta">
-      <p>Tu coach te invitó a Cycles. Define tu contraseña para empezar.</p>
+    <AuthCard title={hasAccount ? "Acepta la invitación" : "Activa tu cuenta"}>
+      <p>
+        {hasAccount
+          ? `${preview.data?.coachName} te invitó a entrenar con Cycles. Ya tienes cuenta: solo falta que aceptes.`
+          : `${preview.data?.coachName} te invitó a Cycles. Define tu contraseña para empezar.`}
+      </p>
 
       {formError && <div className="error-banner">{formError}</div>}
 
       <form onSubmit={handleSubmit} noValidate>
-        <div className="field">
-          <label htmlFor="password">Contraseña</label>
-          <input
-            id="password"
-            type="password"
-            autoComplete="new-password"
-            minLength={8}
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
+        {!hasAccount && (
+          <>
+            <div className="field">
+              <label htmlFor="password">Contraseña</label>
+              <input
+                id="password"
+                type="password"
+                autoComplete="new-password"
+                minLength={8}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
 
-        <div className="field">
-          <label htmlFor="confirmPassword">Confirmar contraseña</label>
-          <input
-            id="confirmPassword"
-            type="password"
-            autoComplete="new-password"
-            minLength={8}
-            required
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-        </div>
+            <div className="field">
+              <label htmlFor="confirmPassword">Confirmar contraseña</label>
+              <input
+                id="confirmPassword"
+                type="password"
+                autoComplete="new-password"
+                minLength={8}
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </div>
+          </>
+        )}
 
         <PolicyCheckbox
           checked={acceptPolicy}
@@ -104,7 +163,7 @@ export function AcceptInvitationPage() {
         />
 
         <button type="submit" className="button-primary" disabled={mutation.isPending}>
-          {mutation.isPending ? "Activando…" : "Activar cuenta"}
+          {mutation.isPending ? "Guardando…" : hasAccount ? "Aceptar invitación" : "Activar cuenta"}
         </button>
       </form>
     </AuthCard>

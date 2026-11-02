@@ -158,7 +158,7 @@ En los flujos públicos de **recuperación de contraseña** y **reenvío de veri
 
 ### R4 · Roles
 1. Un usuario es **coach o atleta**, nunca ambos.
-2. Un atleta **solo** se crea por invitación de un coach. Ningún endpoint deja elegirse el rol `athlete`.
+2. Un atleta puede crearse por invitación de un coach o registrándose solo (desde 2026-11-02, CYC-187). Registrarse solo **no da acceso a datos de nadie**: la relación con un coach solo existe cuando la persona acepta el enlace que le llega a su correo (`AthleteInvitationToken`, de un solo uso). `invite` rechaza a un atleta que ya tiene coach activo.
 3. Cada endpoint declara su rol con `@Roles(...)` + `RolesGuard` cuando corresponde.
 
 ### R5 · Propiedad de los datos
@@ -209,7 +209,7 @@ Autenticación y sesiones, OAuth con Google, permisos de cada controlador y serv
 
 - **Contraseñas y tokens:** bcrypt con costo 12. Refresh tokens rotativos y hasheados, con detección de reuso que revoca todas las sesiones. Tokens de un solo uso aleatorios, hasheados y con vencimiento. Cambiar la contraseña revoca las sesiones.
 - **Sin enumeración** en recuperación de contraseña ni en reenvío de verificación.
-- **Roles:** los atletas solo se crean por invitación, y `complete-profile` solo acepta `coach`.
+- **Roles:** un atleta puede registrarse solo, pero no accede a datos de ningún coach hasta aceptar una invitación enviada a su correo; `complete-profile` acepta `coach` o `athlete`.
 - **Propiedad:** cada servicio verifica la propiedad del dato. Los módulos de ejecución y seguimiento además exigen la relación activa.
 - **Validación:** `ValidationPipe` global con `whitelist`, y DTOs en todos los endpoints revisados.
 - **Consultas:** no hay SQL crudo (`$queryRaw`/`$executeRaw`); todo va por Prisma con consultas parametrizadas.

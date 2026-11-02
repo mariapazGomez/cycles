@@ -1,6 +1,6 @@
 # Onboarding de Cycles
 
-Cómo empieza a usar Cycles una persona nueva, paso a paso, tal como funciona hoy la app en `https://app.getcycles.app`. Hay dos caminos: el del **coach**, que se registra solo, y el del **atleta**, que siempre entra por invitación de su coach.
+Cómo empieza a usar Cycles una persona nueva, paso a paso, tal como funciona hoy la app en `https://app.getcycles.app`. Hay dos caminos: el del **coach**, que se registra solo, y el del **atleta**, que entra por invitación de su coach o se registra solo y espera a que su coach lo invite con el mismo correo.
 
 Al final hay una sección para el equipo: qué preparar antes de sumar a un coach del piloto y cómo usar este mismo recorrido como prueba de punta a punta.
 

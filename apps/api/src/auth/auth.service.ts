@@ -83,12 +83,6 @@ export class AuthService {
     if (!this.registrationOpen && !this.hasValidAccessCode(dto.accessCode)) {
       throw new ForbiddenException(dto.accessCode ? ACCESS_CODE_INVALID_MESSAGE : REGISTRATION_CLOSED_MESSAGE);
     }
-    if (dto.role === "athlete") {
-      throw new ForbiddenException(
-        "El registro de atletas es solo por invitación de un coach.",
-      );
-    }
-
     const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (existing) {
       throw new ConflictException("Ya existe una cuenta con este email.");
@@ -222,7 +216,9 @@ export class AuthService {
         create: { userId, ...policyAcceptanceData("google_profile") },
       }),
     ]);
-    this.activity.coachJoined(userId);
+    if (dto.role === "coach") {
+      this.activity.coachJoined(userId);
+    }
   }
 
   async refresh(rawRefreshToken: string, ip: string): Promise<AuthTokens> {

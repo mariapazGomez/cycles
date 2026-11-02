@@ -93,6 +93,7 @@ export type AnalyticsEvent =
   | "contact_requested"
   | "login_succeeded"
   | "coach_registered"
+  | "athlete_registered"
   | "athlete_invited"
   | "athlete_joined"
   | "cycle_created"
