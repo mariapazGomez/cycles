@@ -112,3 +112,19 @@ export function athleteInvitationEmail(url: string, coachName: string): EmailCon
     text: `${coachName} te invitó a entrenar en Cycles. Crea tu cuenta para ver tu ciclo y registrar cada sesión:\n\n${url}\n\nLa invitación vence en 7 días. Si no conoces a quien te invitó, ignora este mensaje.`,
   };
 }
+
+// Atleta que usa Android: la app para Android todavía no está en Google Play, así
+// que se usa la web desde el navegador del celular (CYC-194, CYC-169).
+export function androidAccessEmail(url: string): EmailContent {
+  return {
+    subject: "Cómo usar Cycles desde tu Android",
+    html: layout({
+      heading: "Usa Cycles desde tu Android",
+      body: "La app de Cycles para Android todavía no está en Google Play. Mientras tanto puedes usar Cycles desde el navegador de tu celular: entra con tu cuenta, agrega la página a tu pantalla de inicio y registra tus entrenamientos como en la app. Te avisaremos cuando llegue la app para Android.",
+      cta: "Abrir Cycles",
+      url,
+      note: "Si no creaste una cuenta en Cycles, ignora este mensaje.",
+    }),
+    text: `La app de Cycles para Android todavía no está en Google Play. Mientras tanto puedes usar Cycles desde el navegador de tu celular: entra con tu cuenta, agrega la página a tu pantalla de inicio y registra tus entrenamientos como en la app.\n\n${url}\n\nTe avisaremos cuando llegue la app para Android. Si no creaste una cuenta en Cycles, ignora este mensaje.`,
+  };
+}

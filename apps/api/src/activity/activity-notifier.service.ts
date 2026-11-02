@@ -53,6 +53,15 @@ export class ActivityNotifier {
     });
   }
 
+  // La invitación a TestFlight falló (queda `failed` y se reintenta). Solo nombre
+  // abreviado: ni el correo ni el motivo de Apple salen de la base.
+  testflightInviteFailed(userId: string): void {
+    this.run(async () => {
+      const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
+      return `:warning: No se pudo invitar a TestFlight a *${shortName(user.name)}*. Queda pendiente para reintentar.`;
+    });
+  }
+
   invitationSent(coachId: string): void {
     this.run(async () => {
       const coach = await this.prisma.user.findUniqueOrThrow({ where: { id: coachId } });

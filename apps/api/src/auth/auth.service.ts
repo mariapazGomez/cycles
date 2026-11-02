@@ -15,6 +15,7 @@ import { SecurityAlertService } from "../common/alerts/security-alert.service";
 import { createHash, timingSafeEqual } from "crypto";
 import { POLICY_VERSION, policyAcceptanceData } from "../common/policy";
 import { ActivityNotifier } from "../activity/activity-notifier.service";
+import { TestflightService } from "../testflight/testflight.service";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
 import { CompleteProfileDto } from "./dto/complete-profile.dto";
@@ -71,6 +72,7 @@ export class AuthService {
     private readonly alerts: SecurityAlertService,
     private readonly activity: ActivityNotifier,
     private readonly identityTokens: IdentityTokenVerifier,
+    private readonly testflight: TestflightService,
   ) {}
 
   // Early adopters: el registro está cerrado salvo que REGISTRATION_OPEN=true.
@@ -113,6 +115,9 @@ export class AuthService {
       },
     });
 
+    if (dto.role === "athlete") {
+      await this.testflight.recordRegistration(user.id, dto.phonePlatform, dto.appleIdEmail ?? user.email);
+    }
     await this.issueEmailVerification(user);
     return { id: user.id, email: user.email };
   }
@@ -337,6 +342,7 @@ export class AuthService {
       this.prisma.emailVerificationToken.deleteMany({ where: { userId: record.userId } }),
     ]);
     this.activity.coachJoined(record.userId);
+    this.testflight.onEmailVerified(record.userId);
   }
 
   // La respuesta sale de inmediato, exista o no la cuenta: lo que cuesta tiempo

@@ -74,6 +74,14 @@ export function validateEnv(config: Record<string, unknown>): Record<string, unk
     errors.push(`ACTIVITY_CRON_SECRET debe tener al menos ${MIN_SECRET_LENGTH} caracteres.`);
   }
 
+  // Invitaciones a TestFlight (CYC-194): las cuatro juntas o ninguna; sin ellas la
+  // integración está apagada y las invitaciones quedan pendientes.
+  const appleKeys = ["APP_STORE_CONNECT_KEY_ID", "APP_STORE_CONNECT_ISSUER_ID", "APP_STORE_CONNECT_PRIVATE_KEY", "TESTFLIGHT_GROUP_ID"];
+  const appleSet = appleKeys.filter((key) => value(key));
+  if (appleSet.length > 0 && appleSet.length < appleKeys.length) {
+    errors.push(`Las variables de TestFlight van todas juntas; faltan: ${appleKeys.filter((k) => !value(k)).join(", ")}.`);
+  }
+
   if (errors.length > 0) {
     throw new Error(`Configuración inválida:\n- ${errors.join("\n- ")}`);
   }

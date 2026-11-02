@@ -2,7 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Resend } from "resend";
 import { SecurityAlertService } from "../common/alerts/security-alert.service";
-import { EmailContent, athleteInvitationEmail, passwordResetEmail, verificationEmail } from "./templates";
+import { EmailContent, androidAccessEmail, athleteInvitationEmail, passwordResetEmail, verificationEmail } from "./templates";
 
 // El envío falló (Resend rechazó el pedido o no respondió). Quien llama
 // decide qué hacer: ver docs/deploy/PLAN-Deploy.md, paso 1.5.
@@ -51,6 +51,11 @@ export class MailService {
   async sendAthleteInvitationEmail(to: string, token: string, coachName: string): Promise<void> {
     const url = this.link("/accept-invitation", token);
     await this.deliver(to, athleteInvitationEmail(url, coachName), `[DEV] Invitación de ${coachName} para ${to}: ${url}`);
+  }
+
+  async sendAndroidAccessEmail(to: string): Promise<void> {
+    const url = this.config.get<string>("FRONTEND_URL") ?? "";
+    await this.deliver(to, androidAccessEmail(url), `[DEV] Acceso web para Android enviado a ${to}`);
   }
 
   private link(path: string, token: string): string {

@@ -7,6 +7,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum PhonePlatform {
+  ios
+  android
+}
+
+enum BetaInviteStatus {
+  pending
+  invited
+  failed
+}
+
 enum UserRole {
   coach
   athlete
@@ -68,21 +79,23 @@ enum CycleType {
 }
 
 model User {
-  id                 String       @id @default(uuid())
-  email              String       @unique
+  id                 String         @id @default(uuid())
+  email              String         @unique
   name               String
   passwordHash       String?
   // Nulo hasta completar onboarding (ej. tras registro vía Google, que no provee rol).
   role               UserRole?
-  authProvider       AuthProvider @default(local)
-  weightUnit         WeightUnit   @default(kg)
+  authProvider       AuthProvider   @default(local)
+  weightUnit         WeightUnit     @default(kg)
   emailVerifiedAt    DateTime?
   dataConsentAt      DateTime?
   dataConsentVersion String?
   // Cuenta ficticia de demostración (scripts/seed-demo.ts): se excluye de métricas y resúmenes.
-  isDemo             Boolean      @default(false)
-  createdAt          DateTime     @default(now())
-  updatedAt          DateTime     @updatedAt
+  isDemo             Boolean        @default(false)
+  // Qué teléfono usa el atleta que se registró solo (CYC-194). Null si no lo dijo.
+  phonePlatform      PhonePlatform?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
 
   identities              UserIdentity[]
   coachRelations          CoachAthlete[]           @relation("CoachRelations")
@@ -100,6 +113,25 @@ model User {
   oauthExchangeCodes      OAuthExchangeCode[]
   notifications           Notification[]
   policyAcceptances       PolicyAcceptance[]
+  betaInvite              BetaInvite?
+}
+
+// Invitación al grupo externo «Piloto» de TestFlight (CYC-194). El correo es el del
+// Apple ID (puede ser distinto del de Cycles) y solo se usa para esta invitación.
+// Único: no se invita dos veces al mismo correo. Si Apple falla queda `failed` y se
+// reintenta (POST /internal/testflight/retry).
+model BetaInvite {
+  id        String           @id @default(uuid())
+  userId    String           @unique
+  email     String           @unique
+  status    BetaInviteStatus @default(pending)
+  attempts  Int              @default(0)
+  lastError String?
+  invitedAt DateTime?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // Refresh tokens persistidos (hasheados) para poder rotarlos y revocarlos,
@@ -255,7 +287,7 @@ model Routine {
 // del grid, estas filas se copian como SessionExercise editables — cambiar
 // una copia no afecta esta plantilla.
 model RoutineExercise {
-  id                 String @id @default(uuid())
+  id                 String  @id @default(uuid())
   routineId          String
   exerciseId         String
   orderIndex         Int
@@ -344,7 +376,7 @@ model Exercise {
 }
 
 model SessionExercise {
-  id                String @id @default(uuid())
+  id                String  @id @default(uuid())
   sessionId         String
   exerciseId        String
   orderIndex        Int
