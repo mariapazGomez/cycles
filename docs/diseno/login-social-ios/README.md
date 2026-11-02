@@ -51,7 +51,7 @@ Orden de decisión al llegar un token válido:
 
 1. Si existe una identidad con ese `provider + subject` → entra esa cuenta.
 2. Si no, y el token trae un correo **verificado** que coincide con una cuenta existente → se crea la identidad y entra (igual que hoy con Google).
-3. Si no hay cuenta y el registro está cerrado → «registro cerrado», **no se crea nada**.
+3. Si no hay cuenta → 403 `no_account` («regístrate en la web»), **no se crea nada**.
 4. Caso especial: Apple con «Ocultar mi correo» y cuenta existente con otro correo → no se puede enlazar solo. La persona entra con correo y contraseña y toca **Vincular Apple** en su Cuenta (con la sesión iniciada, el API sabe quién es). Se puede dejar para una segunda entrega; mientras tanto el mensaje explica qué hacer.
 
 Los tokens se verifican en el servidor: firma contra las claves públicas del proveedor, emisor, audiencia (nuestros identificadores), caducidad y `nonce` (valor aleatorio que la app genera y el token devuelve, para impedir reutilizar un token robado).
@@ -99,13 +99,13 @@ La etapa 1 se puede hacer ya, sin las consolas. Las etapas 3 y 4 necesitan la 2.
 
 1. **Flujo:** nativo para Apple y Google. Si el SDK de Google no funciona con React Native 0.87, solo Google pasa al navegador.
 2. **Vinculación:** tabla `UserIdentity` desde ya. «Vincular Apple» en Cuenta queda para una segunda entrega.
-3. **Registro:** Apple y Google no crean cuentas mientras el registro esté cerrado.
+3. **Registro:** la app nunca crea cuentas (2026-11-02). Sin cuenta, el API responde 403 con `code: "no_account"` y la app manda a registrarse en la web; ahí están el rol, la política y el consentimiento. Aplica aunque `REGISTRATION_OPEN` sea `true`.
 4. **Google:** los coaches del piloto se agregan como usuarios de prueba (CYC-45); publicar la app de Google (CYC-44) queda para después.
 5. **Borrado:** la revocación de Apple al borrar la cuenta se hace antes de enviar a revisión (CYC-135), en la segunda entrega.
 
 ## Etapa 1 construida
 
 - Tabla `UserIdentity` (`UNIQUE(provider, subject)`), migración aditiva `20261101120000_identidades_de_usuario`; se borra junto con la cuenta.
-- `POST /auth/apple` y `POST /auth/google/token`: reciben `{ idToken, nonce, name? }`, verifican firma, emisor, audiencia, caducidad y nonce con `jose` (v5, por compatibilidad con CommonJS) y devuelven la sesión.
+- `POST /auth/apple` y `POST /auth/google/token`: reciben `{ idToken, nonce }`, verifican firma, emisor, audiencia, caducidad y nonce con `jose` (v5, por compatibilidad con CommonJS) y devuelven la sesión.
 - Variables nuevas en Render: `APPLE_CLIENT_ID` (`app.getcycles.mobile`) y `GOOGLE_IOS_CLIENT_ID`. Sin ellas, los endpoints rechazan todo token.
 - El flujo web de Google no cambia (sigue vinculando solo por correo).

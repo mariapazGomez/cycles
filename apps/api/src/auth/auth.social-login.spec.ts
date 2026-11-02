@@ -1,7 +1,7 @@
-import { ForbiddenException, UnauthorizedException } from "@nestjs/common";
-import { APPLE_HIDDEN_EMAIL_MESSAGE, AuthService, REGISTRATION_CLOSED_MESSAGE } from "./auth.service";
+import { ForbiddenException } from "@nestjs/common";
+import { APPLE_HIDDEN_EMAIL_MESSAGE, AuthService, NO_ACCOUNT_MESSAGE, REGISTRATION_CLOSED_MESSAGE } from "./auth.service";
 
-const dto = { idToken: "t", nonce: "nonce-aleatorio-de-prueba-1234", name: "  Ana  " };
+const dto = { idToken: "t", nonce: "nonce-aleatorio-de-prueba-1234" };
 
 function setup(opts: {
   verified?: { subject: string; email: string | null; emailVerified: boolean };
@@ -70,23 +70,17 @@ describe("AuthService.loginWithIdentityToken", () => {
     await expect(service.loginWithIdentityToken("apple", dto)).rejects.toThrow(APPLE_HIDDEN_EMAIL_MESSAGE);
   });
 
-  it("con el registro abierto crea la cuenta con su identidad y el nombre que mandó la app", async () => {
+  it("con el registro abierto tampoco crea cuentas: manda a registrarse en la web", async () => {
     const { service, prisma } = setup({ open: true });
-    await service.loginWithIdentityToken("apple", dto);
-    expect(prisma.user.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        email: "ana@x.cl",
-        name: "Ana",
-        authProvider: "apple",
-        role: null,
-        identities: { create: { provider: "apple", subject: "s1", email: "ana@x.cl" } },
-      }),
-    });
+    const error = await service.loginWithIdentityToken("apple", dto).catch((e) => e);
+    expect(error).toBeInstanceOf(ForbiddenException);
+    expect(error.getResponse()).toMatchObject({ message: NO_ACCOUNT_MESSAGE, code: "no_account" });
+    expect(prisma.user.create).not.toHaveBeenCalled();
   });
 
-  it("con el registro abierto pero sin correo verificado no crea nada", async () => {
+  it("sin correo verificado y sin cuenta, también responde «sin cuenta»", async () => {
     const { service, prisma } = setup({ open: true, verified: { subject: "s1", email: null, emailVerified: false } });
-    await expect(service.loginWithIdentityToken("apple", dto)).rejects.toBeInstanceOf(UnauthorizedException);
+    await expect(service.loginWithIdentityToken("apple", dto)).rejects.toBeInstanceOf(ForbiddenException);
     expect(prisma.user.create).not.toHaveBeenCalled();
   });
 });

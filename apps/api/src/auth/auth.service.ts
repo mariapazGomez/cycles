@@ -37,6 +37,9 @@ export const REGISTRATION_CLOSED_MESSAGE =
 export const APPLE_HIDDEN_EMAIL_MESSAGE =
   "Apple ocultó tu correo y no pudimos reconocer tu cuenta. Entra con tu correo y contraseña; pronto podrás vincular Apple desde tu cuenta.";
 
+export const NO_ACCOUNT_MESSAGE =
+  "No encontramos una cuenta de Cycles con ese correo. Regístrate en la web y vuelve a entrar aquí.";
+
 const PRIVATE_RELAY_DOMAIN = "@privaterelay.appleid.com";
 
 export const ACCESS_CODE_INVALID_MESSAGE = "El código de acceso no es válido. Pídele uno nuevo al equipo de Cycles.";
@@ -159,7 +162,7 @@ export class AuthService {
   // Inicio de sesión nativo desde la app: el teléfono entrega un token de
   // identidad de Apple o Google y aquí se verifica y se cambia por la sesión.
   // Orden: identidad ya vinculada → cuenta con el mismo correo verificado →
-  // cuenta nueva (solo con el registro abierto).
+  // sin cuenta (el registro es en la web).
   async loginWithIdentityToken(provider: SocialProvider, dto: SocialLoginDto): Promise<AuthTokens> {
     const identity = await this.identityTokens.verify(provider, dto.idToken, dto.nonce);
 
@@ -186,25 +189,15 @@ export class AuthService {
       return this.issueTokenPair(user);
     }
 
-    if (!this.registrationOpen) {
-      const hidden = provider === "apple" && identity.email?.toLowerCase().endsWith(PRIVATE_RELAY_DOMAIN);
-      throw new ForbiddenException(hidden ? APPLE_HIDDEN_EMAIL_MESSAGE : REGISTRATION_CLOSED_MESSAGE);
-    }
-    if (!email) {
-      throw new UnauthorizedException("Tu cuenta no compartió un correo verificado. Entra con correo y contraseña.");
-    }
-
-    const user = await this.prisma.user.create({
-      data: {
-        email,
-        name: dto.name?.trim() || email,
-        authProvider: provider,
-        role: null,
-        emailVerifiedAt: new Date(),
-        identities: { create: { provider, subject: identity.subject, email } },
-      },
-    });
-    return this.issueTokenPair(user);
+    // Desde la app no se crean cuentas: el registro (rol, política y consentimiento)
+    // vive en la web. El código `no_account` permite a la app mandar a esa página.
+    const hidden = provider === "apple" && identity.email?.toLowerCase().endsWith(PRIVATE_RELAY_DOMAIN);
+    const message = hidden
+      ? APPLE_HIDDEN_EMAIL_MESSAGE
+      : this.registrationOpen
+        ? NO_ACCOUNT_MESSAGE
+        : REGISTRATION_CLOSED_MESSAGE;
+    throw new ForbiddenException({ statusCode: 403, error: "Forbidden", message, code: "no_account" });
   }
 
   async exchangeGoogleCode(rawCode: string): Promise<AuthTokens> {

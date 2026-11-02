@@ -1,4 +1,4 @@
-import { IsOptional, IsString, MaxLength, MinLength } from "class-validator";
+import { IsString, MaxLength, MinLength } from "class-validator";
 
 export class RefreshTokenDto {
   @IsString()
@@ -16,7 +16,7 @@ export class GoogleExchangeDto {
 }
 
 // Token de identidad de Apple o Google que la app obtuvo en el teléfono, más el
-// nonce con el que lo pidió. `name` solo lo entrega Apple, y solo la primera vez.
+// nonce con el que lo pidió.
 export class SocialLoginDto {
   @IsString()
   @MaxLength(4096)
@@ -26,9 +26,4 @@ export class SocialLoginDto {
   @MinLength(16)
   @MaxLength(256)
   nonce!: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(120)
-  name?: string;
 }
