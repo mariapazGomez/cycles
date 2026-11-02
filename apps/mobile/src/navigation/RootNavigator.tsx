@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { StatusBar } from 'react-native';
+import { StatusBar, StyleSheet, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -13,6 +13,7 @@ import { FloatingTabBar } from '../components/FloatingTabBar';
 import { useReduceMotion } from '../hooks/useReduceMotion';
 import { slideInterpolator, slideSpec } from './tabTransition';
 import { BrandSplash } from '../components/BrandSplash';
+import { WelcomeCurtain } from '../components/login/WelcomeCurtain';
 import { ExerciseLogScreen } from '../screens/ExerciseLogScreen';
 import { SessionFeedbackScreen } from '../screens/SessionFeedbackScreen';
 import { SessionDetailScreen } from '../screens/SessionDetailScreen';
@@ -47,7 +48,8 @@ function Tabs() {
 }
 
 export function RootNavigator() {
-  const { status, user } = useAuth();
+  const { status, user, welcome, endWelcome } = useAuth();
+  const reduceMotion = useReduceMotion();
   // La animación de marca corre una vez por apertura de la app, no al volver
   // de segundo plano: el estado vive mientras la app esté abierta.
   const [splashDone, setSplashDone] = useState(false);
@@ -65,31 +67,41 @@ export function RootNavigator() {
   // Quien aún no aceptó la versión vigente de los Términos y la Política no
   // entra a la app hasta aceptarla (T-147).
   if (status === 'signedIn' && user?.needsPolicyAcceptance) {
-    return <PolicyAcceptanceScreen />;
+    return (
+      <View style={styles.root}>
+        <PolicyAcceptanceScreen />
+        {welcome && <WelcomeCurtain onDone={endWelcome} reduceMotion={reduceMotion} />}
+      </View>
+    );
   }
 
   return (
-    <NavigationContainer>
-      {status === 'signedOut' ? (
-        <LoginScreen />
-      ) : (
-        <Stack.Navigator screenOptions={{ headerTintColor: colors.blue }}>
-          <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
-          <Stack.Screen
-            name="ExerciseLog"
-            component={ExerciseLogScreen}
-            options={{ title: '' }}
-          />
-          <Stack.Screen name="SessionDetail" component={SessionDetailScreen} options={{ title: '' }} />
-          <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="Account" component={AccountScreen} options={{ headerShown: false }} />
-          <Stack.Screen
-            name="SessionFeedback"
-            component={SessionFeedbackScreen}
-            options={{ title: '', presentation: 'modal' }}
-          />
-        </Stack.Navigator>
-      )}
-    </NavigationContainer>
+    <View style={styles.root}>
+      <NavigationContainer>
+        {status === 'signedOut' ? (
+          <LoginScreen />
+        ) : (
+          <Stack.Navigator screenOptions={{ headerTintColor: colors.blue }}>
+            <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
+            <Stack.Screen
+              name="ExerciseLog"
+              component={ExerciseLogScreen}
+              options={{ title: '' }}
+            />
+            <Stack.Screen name="SessionDetail" component={SessionDetailScreen} options={{ title: '' }} />
+            <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="Account" component={AccountScreen} options={{ headerShown: false }} />
+            <Stack.Screen
+              name="SessionFeedback"
+              component={SessionFeedbackScreen}
+              options={{ title: '', presentation: 'modal' }}
+            />
+          </Stack.Navigator>
+        )}
+      </NavigationContainer>
+      {welcome && <WelcomeCurtain onDone={endWelcome} reduceMotion={reduceMotion} />}
+    </View>
   );
 }
+
+const styles = StyleSheet.create({ root: { flex: 1 } });
