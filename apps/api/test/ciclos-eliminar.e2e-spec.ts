@@ -137,4 +137,31 @@ describe("Desasignar y eliminar ciclos", () => {
       expect(await exists(c.cycleA)).toBe(true);
     });
   });
+
+  describe("guardar como plantilla", () => {
+    it("crea una plantilla sin atleta con la duración y frecuencia del ciclo, y el ciclo no cambia", async () => {
+      const res = await app.http("post", `/cycles/${c.cycleA}/save-as-template`, c.token.coachA);
+      expect(res.status).toBe(201);
+      expect(res.body).toMatchObject({ isTemplate: true, athleteId: null, name: "Ciclo A", cycleType: "mesocycle", sessionsPerWeek: 3, templateWeeks: 5 });
+      expect((await app.prisma.trainingCycle.findUniqueOrThrow({ where: { id: c.cycleA } })).isTemplate).toBe(false);
+      expect(await app.prisma.trainingSession.count({ where: { cycleId: res.body.id } })).toBe(0);
+
+      // Se puede asignar a otro atleta y borrar sin tocar el ciclo de origen.
+      const assigned = await app.http("post", `/cycles/${res.body.id}/assign`, c.token.coachA).send({ athleteId: c.userId.athleteA, startDate: today() });
+      expect(assigned.status).toBe(201);
+      expect((await app.http("delete", `/cycles/templates/${res.body.id}`, c.token.coachA)).status).toBe(200);
+      expect(await exists(c.cycleA)).toBe(true);
+    });
+
+    it("no guarda una plantilla, un macrociclo ni un ciclo ajeno", async () => {
+      const template = await newTemplate();
+      expect((await app.http("post", `/cycles/${template.id}/save-as-template`, c.token.coachA)).status).toBe(400);
+      const macro = await app.prisma.trainingCycle.create({
+        data: { coachId: c.userId.coachA, athleteId: c.userId.athleteA, name: "Macro", cycleType: "macrocycle", startDate: new Date(), endDate: new Date(Date.now() + 86_400_000 * 60) },
+      });
+      expect((await app.http("post", `/cycles/${macro.id}/save-as-template`, c.token.coachA)).status).toBe(400);
+      expect([403, 404]).toContain((await app.http("post", `/cycles/${c.cycleA}/save-as-template`, c.token.coachB)).status);
+      expect((await app.http("post", `/cycles/${c.cycleA}/save-as-template`, c.token.athleteA)).status).toBe(403);
+    });
+  });
 });

@@ -90,6 +90,14 @@ Un ciclo organiza las semanas de entrenamiento de un atleta. Solo aparecen en la
 
 > **Si eliges macrociclo:** no tiene semanas propias. Desde su detalle, en *Ciclos dentro de este macrociclo*, agregas los mesociclos o microciclos que lo componen. Para empezar, un microciclo o un mesociclo es lo más simple.
 
+### Ciclos de la Biblioteca: crear, asignar y reutilizar
+
+Un ciclo de la Biblioteca no es de nadie: lo defines una vez y lo asignas a uno o varios atletas.
+
+- **Crear:** en **Biblioteca** toca **Crear → Ciclo para la Biblioteca**. Eliges nombre, tipo, semanas y sesiones por semana.
+- **Reutilizar uno que ya hiciste:** en el ciclo de un atleta toca **Guardar como plantilla**. Se guarda su nombre, tipo, duración y frecuencia (no sus rutinas ni sus fechas).
+- **Asignar:** en el ciclo «Sin asignar» toca **Asignar**, elige al atleta y la fecha de inicio. Cada atleta recibe su propia copia; después armas sus sesiones desde su calendario.
+
 ### Quitar un ciclo: desasignar y eliminar
 
 En **Biblioteca → Ciclos** cada ciclo tiene su botón:

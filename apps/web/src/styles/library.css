@@ -160,6 +160,25 @@
   box-shadow: var(--shadow-e1);
 }
 
+.lb-assign {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.lb-assign select,
+.lb-assign input {
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1.5px solid var(--color-control-border);
+  border-radius: 8px;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font: 400 0.9rem Inter, system-ui, sans-serif;
+}
+
 .lb-error {
   display: flex;
   align-items: center;
