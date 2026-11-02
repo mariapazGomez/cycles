@@ -17,6 +17,8 @@ export interface Row {
   restSeconds: string;
   // Reps en reserva objetivo ("" = sin objetivo). Ver PRD-EjecucionYSeguimiento.
   rir: string;
+  // Nota para el atleta ("" = sin nota), hasta 500 caracteres.
+  note: string;
 }
 
 export const DEFAULT_SETS = "3";
@@ -36,6 +38,7 @@ export function rowFromRoutine(key: string, re: RoutineExerciseWithExercise): Ro
     weight: re.defaultWeight ? toText(re.defaultWeight) : "",
     restSeconds: re.defaultRestSeconds ? String(re.defaultRestSeconds) : "",
     rir: re.defaultRir === null || re.defaultRir === undefined ? "" : String(re.defaultRir),
+    note: re.note ?? "",
   };
 }
 
@@ -49,12 +52,13 @@ export function toInput(row: Row): RoutineExerciseInput {
     defaultWeight: Number.isFinite(weight) && weight > 0 ? weight : undefined,
     defaultRestSeconds: Number.isFinite(rest) && rest >= 0 ? Math.round(rest) : undefined,
     defaultRir: row.rir !== "" ? Number(row.rir) : undefined,
+    note: row.note.trim() !== "" ? row.note.trim() : undefined,
   };
 }
 
-// «Con detalles»: tiene peso, descanso o reps en reserva más allá de series y reps.
-export function hasDetails(row: Pick<Row, "weight" | "restSeconds" | "rir">): boolean {
-  return row.weight.trim() !== "" || row.restSeconds.trim() !== "" || row.rir !== "";
+// «Con detalles»: tiene peso, descanso, reps en reserva o nota más allá de series y reps.
+export function hasDetails(row: Pick<Row, "weight" | "restSeconds" | "rir" | "note">): boolean {
+  return row.weight.trim() !== "" || row.restSeconds.trim() !== "" || row.rir !== "" || row.note.trim() !== "";
 }
 
 export function toStatsRow(row: Row) {

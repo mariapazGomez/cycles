@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
+import { NOTE_MAX_LENGTH } from "../components/ExerciseNote";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Exercise } from "@cycles/shared";
@@ -91,6 +92,7 @@ export function RoutineEditorPage() {
         weight: "",
         restSeconds: "",
         rir: "",
+        note: "",
       },
     ]);
     setFocusKey(key);
@@ -326,6 +328,26 @@ export function RoutineEditorPage() {
                           ))}
                         </select>
                       </div>
+                    </div>
+
+                    <div className="rt-note">
+                      <label className="rt-label" htmlFor={`note-${row.key}`}>
+                        Nota para el atleta (opcional)
+                      </label>
+                      <textarea
+                        id={`note-${row.key}`}
+                        className="rt-input"
+                        rows={2}
+                        maxLength={NOTE_MAX_LENGTH}
+                        placeholder="Por ejemplo: baja lento y cuida el hombro"
+                        value={row.note}
+                        onChange={(e) => updateRow(row.key, { note: e.target.value })}
+                      />
+                      {row.note.length > 400 && (
+                        <span className="ex-note-count">
+                          {row.note.length}/{NOTE_MAX_LENGTH}
+                        </span>
+                      )}
                     </div>
 
                     {showMissing && <p className="rt-warn">Completa series y reps para guardar.</p>}

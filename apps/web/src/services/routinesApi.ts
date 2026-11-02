@@ -16,6 +16,7 @@ export interface RoutineExerciseInput {
   defaultWeight?: number;
   defaultRestSeconds?: number;
   defaultRir?: number;
+  note?: string;
 }
 
 export function listRoutines() {

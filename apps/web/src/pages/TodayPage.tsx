@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react";
+import { CoachNote } from "../components/ExerciseNote";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as executionApi from "../services/executionApi";
@@ -86,7 +87,10 @@ export function TodayPage() {
       <ul className="today-list">
         {session.sessionExercises.map((se) => (
           <li key={se.id}>
-            <span>{se.exercise.name}</span>
+            <div className="today-ex">
+              <div>{se.exercise.name}</div>
+              <CoachNote note={se.note} />
+            </div>
             <span>
               {se.targetSets} × {se.targetReps} · {formatKg(se.targetWeight)}
             </span>

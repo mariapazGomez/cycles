@@ -85,7 +85,7 @@ export function addExercise(
 
 export function updateExercise(
   id: string,
-  data: Partial<{ targetSets: number; targetReps: number; targetWeight: number; targetRestSeconds: number }>,
+  data: Partial<{ targetSets: number; targetReps: number; targetWeight: number; targetRestSeconds: number; note: string }>,
 ) {
   return apiRequest<SessionExerciseWithExercise>(`/session-exercises/${id}`, {
     method: "PATCH",

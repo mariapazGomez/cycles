@@ -7,6 +7,7 @@ import * as exercisesApi from "../services/exercisesApi";
 import { useAuth } from "../hooks/useAuth";
 import { ApiError } from "../services/httpClient";
 import { LoadingScreen } from "../components/LoadingScreen";
+import { CoachNote, ExerciseNoteEditor } from "../components/ExerciseNote";
 
 const SESSION_STATUS_LABEL: Record<SessionStatus, string> = {
   pending: "Pendiente",
@@ -343,6 +344,7 @@ export function SessionDetailPage() {
                 key={se.id}
                 style={{
                   display: "flex",
+                  flexWrap: "wrap",
                   justifyContent: "space-between",
                   alignItems: "center",
                   padding: "12px 0",
@@ -364,6 +366,13 @@ export function SessionDetailPage() {
                     Quitar
                   </button>
                 )}
+                <div style={{ flexBasis: "100%" }}>
+                  {isCoach ? (
+                    <ExerciseNoteEditor sessionExerciseId={se.id} note={se.note} onSaved={invalidateSession} />
+                  ) : (
+                    <CoachNote note={se.note} />
+                  )}
+                </div>
               </li>
             ))}
           </ul>
