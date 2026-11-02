@@ -87,6 +87,8 @@ export interface RoutineExercise {
   defaultRestSeconds?: number;
   // Repeticiones en reserva objetivo (0–4). Sin valor = sin objetivo de esfuerzo.
   defaultRir?: number | null;
+  // Nota del coach para el atleta (hasta 500 caracteres); null/undefined = sin nota.
+  note?: string | null;
 }
 
 export interface Exercise {
@@ -112,6 +114,8 @@ export interface SessionExercise {
   targetWeight?: number;
   targetRestSeconds?: number;
   targetRir?: number | null;
+  // Nota del coach para el atleta, copiada de la rutina y editable por sesión.
+  note?: string | null;
 }
 
 // Un registro por serie. Append-only: una corrección es un registro nuevo

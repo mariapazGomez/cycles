@@ -266,6 +266,8 @@ model RoutineExercise {
   // Esfuerzo objetivo en repeticiones en reserva (0–4). Null = sin objetivo:
   // ese ejercicio no genera alertas de carga.
   defaultRir         Int?
+  // Nota del coach para el atleta (máx. 500 caracteres); se copia a la sesión al asignar.
+  note               String?
 
   routine  Routine  @relation(fields: [routineId], references: [id])
   exercise Exercise @relation(fields: [exerciseId], references: [id])
@@ -352,6 +354,9 @@ model SessionExercise {
   targetRestSeconds Int?
   // Copiado de RoutineExercise.defaultRir al asignar; editable por celda.
   targetRir         Int?
+  // Nota del coach para el atleta, copiada de la rutina y editable por sesión. Texto
+  // libre: puede mencionar salud, así que nunca va en los avisos (R7).
+  note              String?
 
   session  TrainingSession @relation(fields: [sessionId], references: [id])
   exercise Exercise        @relation(fields: [exerciseId], references: [id])
