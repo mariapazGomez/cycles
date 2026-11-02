@@ -19,6 +19,7 @@ import { useRestTimer } from '../store/RestTimerContext';
 import type { AppStackParamList } from '../navigation/types';
 import { Spinner } from '../components/Spinner';
 import { CoachNote } from '../components/CoachNote';
+import { ExerciseVideoButton, VideoHint, playableUrl, useVideoHint } from '../components/ExerciseVideo';
 import { colors } from '../theme/colors';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ExerciseLog'>;
@@ -70,6 +71,8 @@ function buildInitialRows(
 
 export function ExerciseLogScreen({ route }: Props) {
   const { sessionExercise } = route.params;
+  const videoUrl = playableUrl(sessionExercise.exercise.videoUrl);
+  const videoHint = useVideoHint(Boolean(videoUrl));
   const { startRest } = useRestTimer();
   const [rows, setRows] = useState<SetRowState[]>(() =>
     buildInitialRows(
@@ -162,7 +165,13 @@ export function ExerciseLogScreen({ route }: Props) {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>{sessionExercise.exercise.name}</Text>
+        <View style={styles.titleRow}>
+          <Text style={[styles.title, styles.titleText]}>{sessionExercise.exercise.name}</Text>
+          {videoUrl && (
+            <ExerciseVideoButton videoUrl={videoUrl} exerciseName={sessionExercise.exercise.name} onOpen={videoHint.dismiss} />
+          )}
+        </View>
+        {videoHint.visible && <VideoHint onDismiss={videoHint.dismiss} />}
         <CoachNote note={sessionExercise.note} />
 
         <View style={styles.progressRow}>
@@ -328,6 +337,8 @@ function Stepper({ label, value, step, keyboardType, onChange, onStep }: Stepper
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bgApp },
   content: { padding: 16, paddingBottom: 24 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
+  titleText: { flex: 1, marginBottom: 0 },
   title: { fontSize: 28, fontWeight: '800', color: colors.ink, marginBottom: 12 },
   progressRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 16 },
   bead: { width: 12, height: 12, borderRadius: 6, backgroundColor: colors.grayDot },

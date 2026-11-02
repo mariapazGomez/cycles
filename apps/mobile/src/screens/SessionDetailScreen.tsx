@@ -20,6 +20,7 @@ import { Spinner } from '../components/Spinner';
 import { reopenSession, submitFeedback } from '../services/executionApi';
 import { fetchSessionDetail, type SessionDetail } from '../services/planApi';
 import type { AppStackParamList } from '../navigation/types';
+import { ExerciseVideoButton, VideoHint, playableUrl, useVideoHint } from '../components/ExerciseVideo';
 import { CoachNote } from '../components/CoachNote';
 import { colors } from '../theme/colors';
 import { cardShadow, primaryShadow } from '../theme/elevation';
@@ -50,6 +51,9 @@ export function SessionDetailScreen({ route }: Props) {
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
   const [sheetError, setSheetError] = useState<string | null>(null);
+  // El aviso del video sale una sola vez, en el primer ejercicio que lo tenga.
+  const firstVideoId = detail?.sessionExercises.find(item => playableUrl(item.exercise.videoUrl))?.id;
+  const videoHint = useVideoHint(Boolean(firstVideoId));
 
   const load = useCallback(async () => {
     setError(null);
@@ -230,6 +234,7 @@ export function SessionDetailScreen({ route }: Props) {
         )}
         {detail.sessionExercises.map((item, index) => {
           const logs = [...item.logs].sort((a, b) => a.setNumber - b.setNumber);
+          const videoUrl = playableUrl(item.exercise.videoUrl);
           return (
             <View key={item.id} style={styles.card}>
               <View style={styles.exerciseHead}>
@@ -243,8 +248,12 @@ export function SessionDetailScreen({ route }: Props) {
                   </Text>
                   <CoachNote note={item.note} compact />
                 </View>
+                {videoUrl && (
+                  <ExerciseVideoButton videoUrl={videoUrl} exerciseName={item.exercise.name} onOpen={videoHint.dismiss} />
+                )}
                 <Text style={styles.exerciseCount}>{`${logs.length}/${item.targetSets}`}</Text>
               </View>
+              {videoHint.visible && item.id === firstVideoId && <VideoHint onDismiss={videoHint.dismiss} />}
               {logs.length > 0 ? (
                 <View style={styles.sets}>
                   {logs.map(log => (

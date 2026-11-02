@@ -52,7 +52,7 @@ Desde el buscador de la rutina: escribe el nombre y, si no existe, toca **Crear 
 
 También puedes crearlo desde la pestaña Ejercicios, y ahí corregirlo o dejar de usarlo:
 
-Menú **Ejercicios** → **Nuevo ejercicio**. Escribe el nombre, elige el grupo muscular y los implementos que necesita (o **Peso corporal** si no usa nada). La descripción y el enlace del video son opcionales. En **Míos** puedes **Editar** un ejercicio o **Dejar de usar** uno: ya no aparece al armar rutinas, pero las sesiones donde lo usaste lo conservan. El **Catálogo** de Cycles no se edita.
+Menú **Ejercicios** → **Nuevo ejercicio**. Escribe el nombre, elige el grupo muscular y los implementos que necesita (o **Peso corporal** si no usa nada). La descripción y el enlace del video son opcionales: si pones el enlace, tu atleta verá un ícono de video junto al ejercicio en la app (no se reproduce solo; lo toca cuando quiere ver cómo se hace). En **Míos** puedes **Editar** un ejercicio o **Dejar de usar** uno: ya no aparece al armar rutinas, pero las sesiones donde lo usaste lo conservan. El **Catálogo** de Cycles no se edita.
 
 ---
 
