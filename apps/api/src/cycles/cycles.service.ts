@@ -223,6 +223,32 @@ export class CyclesService {
     });
   }
 
+  // Guarda el ciclo de un atleta en la Biblioteca como plantilla: nombre, objetivo,
+  // tipo, duración y frecuencia. No lleva rutinas ni al atleta; el ciclo original
+  // no cambia.
+  async saveAsTemplate(coachId: string, id: string) {
+    const cycle = await this.prisma.trainingCycle.findUnique({ where: { id } });
+    if (!cycle) throw new NotFoundException("Ciclo no encontrado.");
+    if (cycle.coachId !== coachId) throw new ForbiddenException("Solo el coach dueño puede guardar este ciclo.");
+    if (cycle.isTemplate) throw new BadRequestException("Este ciclo ya está en tu Biblioteca.");
+    if (cycle.cycleType === "macrocycle" || cycle.parentCycleId) {
+      throw new BadRequestException("Solo se guardan como plantilla los mesociclos y microciclos sueltos.");
+    }
+    const weeks = Math.min(52, totalWeeks(cycle.startDate, cycle.endDate));
+    return this.prisma.trainingCycle.create({
+      data: {
+        coachId,
+        name: cycle.name,
+        objective: cycle.objective,
+        cycleType: cycle.cycleType,
+        sessionsPerWeek: cycle.sessionsPerWeek ?? 3,
+        isTemplate: true,
+        templateWeeks: weeks,
+        ...templateDates(weeks),
+      },
+    });
+  }
+
   // Cambiar una plantilla no cambia los ciclos que ya se copiaron de ella.
   async updateTemplate(coachId: string, id: string, dto: UpdateTemplateDto) {
     const template = await this.findOwnTemplate(coachId, id);

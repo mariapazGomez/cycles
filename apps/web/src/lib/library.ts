@@ -45,7 +45,7 @@ export function filterFromParam(value: string | null): LibraryFilter {
   return "all";
 }
 
-export function libraryPath(filter: LibraryFilter = "all", create?: "ciclo"): string {
+export function libraryPath(filter: LibraryFilter = "all", create?: "ciclo" | "plantilla"): string {
   const params = new URLSearchParams();
   if (filter !== "all") params.set("tipo", FILTER_PARAM[filter]);
   if (create) params.set("crear", create);

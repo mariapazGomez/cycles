@@ -11,6 +11,7 @@ import { EmptyState } from "../components/EmptyState";
 import { Skeleton, SlowNotice } from "../components/Skeleton";
 import { TypeIcon } from "../components/TypeIcon";
 import { CreateCycleForm } from "../components/CreateCycleForm";
+import { CreateTemplateForm } from "../components/CreateTemplateForm";
 import { formatInteger } from "../lib/format";
 import {
   CYCLE_STATUS_LABEL,
@@ -99,9 +100,27 @@ function RoutineRow({
   );
 }
 
-function CycleRow({ entry, onDone, onError }: { entry: CycleEntry; onDone: (message: string) => void; onError: (message: string) => void }) {
+interface ActiveAthlete {
+  id: string;
+  name: string;
+}
+
+function CycleRow({
+  entry,
+  athletes,
+  onDone,
+  onError,
+}: {
+  entry: CycleEntry;
+  athletes: ActiveAthlete[];
+  onDone: (message: string) => void;
+  onError: (message: string) => void;
+}) {
   const queryClient = useQueryClient();
   const [confirming, setConfirming] = useState(false);
+  const [assigning, setAssigning] = useState(false);
+  const [athleteId, setAthleteId] = useState("");
+  const [startDate, setStartDate] = useState("");
   const impactQuery = useQuery({
     queryKey: ["cycles", "templates", entry.id, "impact"],
     queryFn: () => cyclesApi.getTemplateImpact(entry.id),
@@ -135,6 +154,28 @@ function CycleRow({ entry, onDone, onError }: { entry: CycleEntry; onDone: (mess
       setConfirming(false);
       onError(error instanceof ApiError ? error.message : "No se pudo quitar el ciclo.");
     },
+  });
+
+  const saveTemplate = useMutation({
+    mutationFn: () => cyclesApi.saveAsTemplate(entry.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cycles"] });
+      onDone("Ciclo guardado en tu Biblioteca como plantilla. Puedes asignarlo a otros atletas.");
+    },
+    onError: (error: unknown) => onError(error instanceof ApiError ? error.message : "No se pudo guardar el ciclo."),
+  });
+
+  const assign = useMutation({
+    mutationFn: () => cyclesApi.assignTemplate(entry.id, { athleteId, startDate }),
+    onSuccess: () => {
+      const who = athletes.find((a) => a.id === athleteId)?.name ?? "el atleta";
+      setAssigning(false);
+      setAthleteId("");
+      setStartDate("");
+      queryClient.invalidateQueries({ queryKey: ["cycles"] });
+      onDone(`Ciclo asignado a ${who}. Arma sus sesiones desde su calendario.`);
+    },
+    onError: (error: unknown) => onError(error instanceof ApiError ? error.message : "No se pudo asignar el ciclo."),
   });
 
   const impact = impactQuery.data?.athletes ?? [];
@@ -187,6 +228,34 @@ function CycleRow({ entry, onDone, onError }: { entry: CycleEntry; onDone: (mess
             {question}
           </p>
         )}
+        {assigning && (
+          <form
+            className="lb-assign"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (!athleteId || !startDate) return onError("Elige el atleta y la fecha de inicio.");
+              assign.mutate();
+            }}
+          >
+            <select aria-label="Atleta" value={athleteId} onChange={(e) => setAthleteId(e.target.value)}>
+              <option value="" disabled>
+                Elige un atleta
+              </option>
+              {athletes.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.name}
+                </option>
+              ))}
+            </select>
+            <input type="date" aria-label="Fecha de inicio" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+            <button type="submit" className="button-primary" style={{ width: "auto" }} disabled={assign.isPending}>
+              {assign.isPending ? "Asignando…" : "Asignar"}
+            </button>
+            <button type="button" className="rt-ghost" onClick={() => setAssigning(false)}>
+              Cancelar
+            </button>
+          </form>
+        )}
       </div>
       <div className="lb-actions">
         {confirming ? (
@@ -209,6 +278,22 @@ function CycleRow({ entry, onDone, onError }: { entry: CycleEntry; onDone: (mess
               <Link className="rt-ghost" to={`/cycles/${entry.id}`}>
                 Ver en el atleta
               </Link>
+            )}
+            {entry.isTemplate && !assigning && (
+              <button
+                type="button"
+                className="rt-ghost"
+                disabled={athletes.length === 0}
+                title={athletes.length === 0 ? "Invita a un atleta primero" : undefined}
+                onClick={() => setAssigning(true)}
+              >
+                Asignar
+              </button>
+            )}
+            {!entry.isTemplate && entry.cycleType !== "macrocycle" && (
+              <button type="button" className="rt-ghost" disabled={saveTemplate.isPending} onClick={() => saveTemplate.mutate()}>
+                Guardar como plantilla
+              </button>
             )}
             {removable && (
               <button type="button" className="rt-ghost" onClick={() => setConfirming(true)}>
@@ -256,6 +341,7 @@ export function BibliotecaPage() {
   const [search, setSearch] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [showCycleForm, setShowCycleForm] = useState(params.get("crear") === "ciclo");
+  const [showTemplateForm, setShowTemplateForm] = useState(false);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -281,8 +367,10 @@ export function BibliotecaPage() {
   // El parámetro ?crear=ciclo (que usan los botones «Crear ciclo» de otras
   // pantallas) abre el formulario una vez y se quita de la dirección.
   useEffect(() => {
-    if (params.get("crear") === "ciclo") {
-      setShowCycleForm(true);
+    const create = params.get("crear");
+    if (create === "ciclo" || create === "plantilla") {
+      if (create === "ciclo") setShowCycleForm(true);
+      else setShowTemplateForm(true);
       const next = new URLSearchParams(params);
       next.delete("crear");
       setParams(next, { replace: true });
@@ -304,6 +392,14 @@ export function BibliotecaPage() {
       document.removeEventListener("keydown", onKeyDown);
     };
   }, [menuOpen]);
+
+  const activeAthletes = useMemo(
+    () =>
+      (athletesQuery.data ?? [])
+        .filter((relation) => relation.status === "active")
+        .map((relation) => ({ id: relation.athlete.id, name: relation.athlete.name })),
+    [athletesQuery.data],
+  );
 
   const entries = useMemo<LibraryEntry[]>(() => {
     const names = new Map((athletesQuery.data ?? []).map((relation) => [relation.athlete.id, relation.athlete.name]));
@@ -333,6 +429,11 @@ export function BibliotecaPage() {
     cyclesQuery.refetch();
   }
 
+  function openTemplateForm() {
+    setMenuOpen(false);
+    setShowTemplateForm(true);
+  }
+
   function openCycleForm() {
     setMenuOpen(false);
     setShowCycleForm(true);
@@ -360,7 +461,11 @@ export function BibliotecaPage() {
               </button>
               <button type="button" role="menuitem" onClick={openCycleForm}>
                 <TypeIcon kind="cycle" small />
-                Ciclo
+                Ciclo para un atleta
+              </button>
+              <button type="button" role="menuitem" onClick={openTemplateForm}>
+                <TypeIcon kind="cycle" small />
+                Ciclo para la Biblioteca
               </button>
             </div>
           )}
@@ -368,6 +473,17 @@ export function BibliotecaPage() {
       </div>
 
       {showCycleForm && <CreateCycleForm onDone={() => setShowCycleForm(false)} />}
+      {showTemplateForm && (
+        <CreateTemplateForm
+          onDone={(message) => {
+            setShowTemplateForm(false);
+            if (message) {
+              setDeleteError(null);
+              setNotice(message);
+            }
+          }}
+        />
+      )}
 
       {deleteError && (
         <div className="error-banner" role="alert">
@@ -458,6 +574,7 @@ export function BibliotecaPage() {
               <CycleRow
                 key={`c-${entry.id}`}
                 entry={entry}
+                athletes={activeAthletes}
                 onDone={(message) => {
                   setDeleteError(null);
                   setNotice(message);

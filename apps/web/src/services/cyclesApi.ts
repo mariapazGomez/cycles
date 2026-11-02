@@ -36,6 +36,22 @@ export function removeTemplate(id: string) {
   return apiRequest<{ unassigned: number; archived: number }>(`/cycles/templates/${id}`, { method: "DELETE" });
 }
 
+// Crea una plantilla: un ciclo sin atleta que se asigna después a varios.
+export function createTemplate(data: {
+  name: string;
+  objective?: string;
+  cycleType: "microcycle" | "mesocycle";
+  weeks: number;
+  sessionsPerWeek: number;
+}) {
+  return apiRequest<TrainingCycle>("/cycles/templates", { method: "POST", body: data });
+}
+
+// Guarda el ciclo de un atleta en la Biblioteca como plantilla.
+export function saveAsTemplate(id: string) {
+  return apiRequest<TrainingCycle>(`/cycles/${id}/save-as-template`, { method: "POST" });
+}
+
 // Copia una plantilla para un atleta, con fechas reales desde startDate.
 export function assignTemplate(templateId: string, data: { athleteId: string; startDate: string }) {
   return apiRequest<TrainingCycle>(`/cycles/${templateId}/assign`, { method: "POST", body: data });

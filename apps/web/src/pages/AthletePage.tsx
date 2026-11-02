@@ -210,7 +210,7 @@ function AssignTemplatePanel({ athleteId, onDone }: { athleteId: string; onDone:
         <p>Cargando…</p>
       ) : templates.length === 0 ? (
         <p>
-          Todavía no tienes ciclos plantilla. Crea uno en la <Link to={libraryPath("cycle", "ciclo")}>Biblioteca</Link>.
+          Todavía no tienes ciclos plantilla. Crea uno en la <Link to={libraryPath("cycle", "plantilla")}>Biblioteca</Link>.
         </p>
       ) : (
         <>

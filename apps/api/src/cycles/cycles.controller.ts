@@ -58,6 +58,13 @@ export class CyclesController {
 
   @UseGuards(RolesGuard)
   @Roles("coach")
+  @Post(":id/save-as-template")
+  saveAsTemplate(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string) {
+    return this.cyclesService.saveAsTemplate(user.id, id);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles("coach")
   @Post(":id/unassign")
   unassign(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string) {
     return this.cyclesService.unassign(user.id, id);
