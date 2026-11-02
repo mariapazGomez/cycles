@@ -125,3 +125,22 @@ test('entrar con Apple siendo coach no deja la sesión abierta', async () => {
   expect(store.clear).toHaveBeenCalled();
   expect(latest.status).toBe('signedOut');
 });
+
+test('tras entrar queda la bienvenida activa hasta que termina la animación', async () => {
+  store.getAccessToken.mockReturnValue(null);
+  api.login.mockResolvedValue({ accessToken: 'a', refreshToken: 'r' });
+  api.fetchCurrentUser.mockResolvedValue(athlete);
+  await mount();
+  expect(latest.welcome).toBe(false);
+  await ReactTestRenderer.act(async () => latest.login('ana@x.cl', 'secreta123'));
+  expect(latest.welcome).toBe(true);
+  ReactTestRenderer.act(() => latest.endWelcome());
+  expect(latest.welcome).toBe(false);
+});
+
+test('abrir la app con la sesión guardada no muestra la bienvenida', async () => {
+  store.getAccessToken.mockReturnValue('access');
+  api.fetchCurrentUser.mockResolvedValue(athlete);
+  await mount();
+  expect(latest.welcome).toBe(false);
+});
