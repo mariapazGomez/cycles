@@ -34,13 +34,12 @@ interface Props {
 
 // Encabezado de la entrada: el anillo se dibuja y da una vuelta, una onda se
 // expande, las letras de «Cycles» suben una a una y unas cuentas de la cadena
-// flotan hacia arriba. Después el anillo respira. Diseño: propuesta A del
+// flotan hacia arriba. Diseño: propuesta A del
 // inicio de sesión (docs/diseno/login-social-ios/README.md, estética).
 export function LoginHero({ metrics, width, compact, reduceMotion, topInset }: Props) {
   const draw1 = useRef(new Animated.Value(reduceMotion ? 0 : HIDDEN)).current;
   const draw2 = useRef(new Animated.Value(reduceMotion ? 0 : HIDDEN)).current;
   const turn = useRef(new Animated.Value(reduceMotion ? 1 : 0)).current;
-  const breathe = useRef(new Animated.Value(0)).current;
   const halo = useRef(new Animated.Value(reduceMotion ? 1 : 0)).current;
   const letters = useRef(WORD.map(() => new Animated.Value(reduceMotion ? 1 : 0))).current;
   const dots = useRef(DOTS.map(() => new Animated.Value(reduceMotion ? 1 : 0))).current;
@@ -64,12 +63,6 @@ export function LoginHero({ metrics, width, compact, reduceMotion, topInset }: P
         easing: Easing.bezier(0.3, 0.7, 0.2, 1),
         useNativeDriver: false,
       });
-    const breath = Animated.loop(
-      Animated.sequence([
-        Animated.timing(breathe, { toValue: 1, duration: 2500, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-        Animated.timing(breathe, { toValue: 0, duration: 2500, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-      ]),
-    );
     const intro = Animated.parallel([
       drawTiming(draw1, 100),
       drawTiming(draw2, 280),
@@ -105,14 +98,9 @@ export function LoginHero({ metrics, width, compact, reduceMotion, topInset }: P
         ),
       ]),
     ]);
-    intro.start(({ finished }) => {
-      if (finished) breath.start();
-    });
-    return () => {
-      intro.stop();
-      breath.stop();
-    };
-  }, [reduceMotion, draw1, draw2, turn, halo, letters, dots, breathe]);
+    intro.start();
+    return () => intro.stop();
+  }, [reduceMotion, draw1, draw2, turn, halo, letters, dots]);
 
   useEffect(() => {
     Animated.timing(shrink, {
@@ -127,7 +115,6 @@ export function LoginHero({ metrics, width, compact, reduceMotion, topInset }: P
   const ring = shrink.interpolate({ inputRange: [0, 1], outputRange: [metrics.ringSize, metrics.ringCompactSize] });
   const haloSize = metrics.ringSize * 3;
   const rotate = turn.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
-  const breatheScale = breathe.interpolate({ inputRange: [0, 1], outputRange: [1, 1.06] });
   const dotsOpacity = shrink.interpolate({ inputRange: [0, 1], outputRange: [1, 0] });
 
   const dotNodes = useMemo(
@@ -178,7 +165,7 @@ export function LoginHero({ metrics, width, compact, reduceMotion, topInset }: P
       />
 
       <Animated.View style={{ width: ring, height: ring }}>
-        <Animated.View style={[styles.fill, { transform: [{ rotate }, { scale: breatheScale }] }]}>
+        <Animated.View style={[styles.fill, { transform: [{ rotate }] }]}>
           <Svg width="100%" height="100%" viewBox="0 0 100 100" fill="none">
             <AnimatedPath
               d="M17.09 69 A38 38 0 0 1 61.74 13.86"

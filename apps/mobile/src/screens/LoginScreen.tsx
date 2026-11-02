@@ -27,7 +27,6 @@ import { LoginHero } from '../components/login/LoginHero';
 import { loginMetrics } from '../components/login/layout';
 import { useReduceMotion } from '../hooks/useReduceMotion';
 import { colors } from '../theme/colors';
-import { primaryShadow } from '../theme/elevation';
 import { PRIVACY_URL, REGISTER_URL, TERMS_URL } from '../config/legal';
 import { AppleSignInCancelled, isAppleSignInAvailable, requestAppleCredential } from '../services/appleSignIn';
 
@@ -216,7 +215,7 @@ export function LoginScreen() {
             bounces={false}>
             <View style={styles.grab} />
 
-            <Animated.Text style={[styles.title, { fontSize: metrics.titleSize, marginBottom: metrics.gap }, reveal(0)]}>
+            <Animated.Text style={[styles.title, { fontSize: metrics.titleSize }, reveal(0)]}>
               Entra a tu cuenta
             </Animated.Text>
 
@@ -259,7 +258,7 @@ export function LoginScreen() {
                     ]}
                   />
                 </Animated.View>
-                <Animated.View style={[styles.orRow, { marginVertical: metrics.gap }, reveal(2)]}>
+                <Animated.View style={[styles.orRow, reveal(2)]}>
                   <View style={styles.orLine} />
                   <Text style={styles.orText}>o</Text>
                   <View style={styles.orLine} />
@@ -267,7 +266,7 @@ export function LoginScreen() {
               </>
             )}
 
-            <Animated.View style={[{ marginBottom: metrics.gap / 1.5 }, reveal(3)]}>
+            <Animated.View style={[styles.fieldGap, reveal(3)]}>
               <FloatingField
                 label="Correo"
                 icon="mail"
@@ -285,7 +284,7 @@ export function LoginScreen() {
               />
             </Animated.View>
 
-            <Animated.View style={[{ marginBottom: metrics.gap }, reveal(4)]}>
+            <Animated.View style={[styles.groupGap, reveal(4)]}>
               <FloatingField
                 ref={passwordRef}
                 label="Contraseña"
@@ -309,7 +308,6 @@ export function LoginScreen() {
                 <Animated.View
                   style={[
                     styles.button,
-                    primaryShadow,
                     { height: metrics.buttonHeight, borderRadius: metrics.buttonHeight / 2, width: buttonWidth },
                     idle && !submitting && styles.buttonIdle,
                   ]}>
@@ -360,14 +358,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    ...Platform.select({
-      ios: { shadowColor: colors.blue, shadowOpacity: 0.1, shadowRadius: 20, shadowOffset: { width: 0, height: -8 } },
-      default: { elevation: 8 },
-    }),
+    // Una línea fina separa la hoja del fondo: sin sombras de color.
+    borderWidth: 1,
+    borderBottomWidth: 0,
+    borderColor: colors.grayBorder,
   },
   content: { flexGrow: 1, width: '100%', alignSelf: 'center', paddingTop: 12 },
   grab: { alignSelf: 'center', width: 38, height: 4, borderRadius: 2, backgroundColor: colors.grayBorder, marginBottom: 12 },
-  title: { fontWeight: '800', color: colors.ink, letterSpacing: -0.3 },
+  title: { fontWeight: '800', color: colors.ink, letterSpacing: -0.3, lineHeight: 32, marginBottom: 12 },
   banner: {
     flexDirection: 'row',
     gap: 8,
@@ -381,17 +379,19 @@ const styles = StyleSheet.create({
   bannerText: { flex: 1, color: colors.painInk, fontSize: 13 },
   registerLink: { alignItems: 'center', minHeight: 44, justifyContent: 'center', marginBottom: 8 },
   registerLinkText: { color: colors.blue, fontSize: 15, fontWeight: '700' },
-  appleWrap: { borderRadius: 999, overflow: 'hidden', backgroundColor: '#000' },
+  appleWrap: { borderRadius: 999, overflow: 'hidden', backgroundColor: colors.ink },
   appleButton: { width: '100%', height: '100%' },
   sheen: { position: 'absolute', top: 0, bottom: 0, width: 70, backgroundColor: 'rgba(255,255,255,0.28)' },
   dimmed: { opacity: 0.6 },
-  orRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  orRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 12 },
+  fieldGap: { marginBottom: 8 },
+  groupGap: { marginBottom: 16 },
   orLine: { flex: 1, height: 1, backgroundColor: colors.grayBorder },
   orText: { color: colors.inkSecondary, fontSize: 13 },
   buttonRow: { alignItems: 'center' },
   button: { backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   buttonIdle: { opacity: 0.55 },
-  buttonText: { color: colors.onBlue, fontSize: 17, fontWeight: '700' },
+  buttonText: { color: colors.onBlue, fontSize: 16, fontWeight: '700' },
   buttonSpinner: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center' },
   forgotWrap: { marginTop: 'auto', alignItems: 'center', paddingTop: 12 },
   forgot: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 12 },

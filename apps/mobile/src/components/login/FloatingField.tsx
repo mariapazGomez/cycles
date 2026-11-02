@@ -68,8 +68,8 @@ export const FloatingField = forwardRef<React.ElementRef<typeof TextInput>, Prop
     run(line, focused ? 1 : 0, 450);
   }, [floating, focused, lift, line, reduceMotion]);
 
-  const labelTop = lift.interpolate({ inputRange: [0, 1], outputRange: [(height - 18) / 2, 8] });
-  const labelSize = lift.interpolate({ inputRange: [0, 1], outputRange: [15.5, 11.5] });
+  const labelTop = lift.interpolate({ inputRange: [0, 1], outputRange: [(height - 18) / 2, 7] });
+  const labelSize = lift.interpolate({ inputRange: [0, 1], outputRange: [15, 11.5] });
   const lineWidth = line.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] });
   const accent = error ? colors.painInk : focused ? colors.blue : colors.inkSecondary;
 
@@ -83,7 +83,7 @@ export const FloatingField = forwardRef<React.ElementRef<typeof TextInput>, Prop
         error && styles.fieldError,
       ]}>
       <View style={styles.icon}>
-        <Icon name={icon} size={20} color={accent} strokeWidth={1.8} />
+        <Icon name={icon} size={18} color={accent} strokeWidth={1.8} />
       </View>
       <Animated.Text
         pointerEvents="none"
@@ -126,7 +126,7 @@ export const FloatingField = forwardRef<React.ElementRef<typeof TextInput>, Prop
 
 const styles = StyleSheet.create({
   field: {
-    borderRadius: 16,
+    borderRadius: 14,
     backgroundColor: colors.grayLight,
     borderWidth: 1.5,
     borderColor: 'transparent',
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
   icon: { position: 'absolute', left: 14, top: 0, bottom: 0, justifyContent: 'center' },
   label: { position: 'absolute', left: 44 },
   labelFloating: { fontWeight: '600' },
-  input: { paddingLeft: 44, paddingRight: 14, paddingTop: 16, paddingBottom: 0, fontSize: 17, color: colors.ink, height: '100%' },
+  input: { paddingLeft: 44, paddingRight: 14, paddingTop: 14, paddingBottom: 0, fontSize: 16, color: colors.ink, height: '100%' },
   inputWithEye: { paddingRight: 52 },
   eye: { position: 'absolute', right: 6, top: 0, bottom: 0, width: 44, alignItems: 'center', justifyContent: 'center' },
   line: { position: 'absolute', left: 0, bottom: 0, height: 2.5, borderRadius: 2 },
