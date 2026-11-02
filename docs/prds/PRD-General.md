@@ -66,7 +66,7 @@ Roles excluyentes: un usuario es coach **o** atleta, nunca ambos con la misma cu
 
 ### Relación coach–atleta
 
-- **Alta:** solo por invitación del coach (por email). El atleta no puede auto-registrarse eligiendo el rol "atleta" sin invitación previa; completa su registro (manual, o vinculando Google) a partir del link de invitación.
+- **Alta:** por invitación del coach (por email) o registrándose solo desde la web (decisión del 2026-11-02, CYC-187). Un atleta que se registra solo queda sin coach y espera a que uno lo invite con el mismo correo; al aceptar el link queda vinculado sin crear otra cuenta.
 - **Cardinalidad:** un atleta tiene como máximo **un coach activo a la vez** (`CoachAthlete.status = 'active'` es único por atleta). Puede tener relaciones anteriores en `status = 'inactive'` (histórico).
 - **Fin de relación:** cuando termina, la relación pasa a `inactive`. El **coach pierde acceso** a los ciclos/datos de ese atleta desde ese momento (sus queries solo consideran relaciones activas). El **atleta conserva acceso total** a su propio historial sin restricción. A nivel de compañía (no de producto), el dato no se borra — sigue existiendo como activo de datos sujeto al consentimiento del atleta (ver [[VISION]] y sección 8 de este documento).
 
@@ -372,7 +372,7 @@ Convenciones que ya sigue el código y que todo cambio (código, infraestructura
 1. **Secretos (R1):** nunca en el repo, issues, PRs ni conversaciones; distintos por entorno y entre sí (JWT access ≠ refresh, ≥64 caracteres); API keys con permiso mínimo; nada secreto en variables `VITE_*`.
 2. **Autenticación (R2):** bcrypt costo 12; access token de 15 min; refresh de 30 días rotativo, hasheado y con detección de reuso; tokens de un solo uso aleatorios, hasheados (SHA-256) y con vencimiento; cambiar la contraseña revoca las sesiones; login manual solo con email verificado.
 3. **No revelar si una cuenta existe (R3)** en recuperación de contraseña y reenvío de verificación.
-4. **Roles (R4):** coach o atleta, nunca ambos; el atleta solo se crea por invitación; cada endpoint declara su rol.
+4. **Roles (R4):** coach o atleta, nunca ambos; el atleta no accede a datos de nadie hasta aceptar una invitación; cada endpoint declara su rol.
 5. **Propiedad de los datos (R5):** además del rol, cada servicio verifica que el dato sea del usuario; el coach accede a un atleta solo con la relación activa; el atleta siempre a lo suyo.
 6. **Validación (R6):** DTO con `class-validator` en todo endpoint; texto del usuario escapado antes de ir a HTML.
 7. **Integridad y privacidad (R7):** registros de ejecución append-only, UTC, y sin análisis entre atletas sin consentimiento.

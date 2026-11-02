@@ -28,7 +28,7 @@ Durante la fase de early adopters el **registro está cerrado al público** (`RE
 |---|---|
 | Registro con email y contraseña | **Sí**, con el enlace |
 | Google | No: no crea cuentas nuevas mientras el registro esté cerrado. Quien ya tiene cuenta puede entrar con Google con el mismo email |
-| Atletas | No cambia: siguen entrando solo por invitación de su coach |
+| Atletas | Pueden registrarse solos (con el registro abierto), pero no ven nada hasta que un coach los invite con el mismo correo |
 | Sin el enlace | `/register` redirige al login y la API responde 403 |
 
 ## Cuidados

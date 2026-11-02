@@ -10,7 +10,7 @@ import { Roles } from "../common/decorators/roles.decorator";
 import { CurrentUser, AuthenticatedUser } from "../common/decorators/current-user.decorator";
 import { AthletesService } from "./athletes.service";
 import { InviteAthleteDto } from "./dto/invite-athlete.dto";
-import { AcceptInvitationDto } from "./dto/accept-invitation.dto";
+import { AcceptInvitationDto, PreviewInvitationDto } from "./dto/accept-invitation.dto";
 
 @Controller("athletes")
 export class AthletesController {
@@ -28,11 +28,24 @@ export class AthletesController {
   }
 
   @Throttle(LIMITS.tokenUse)
+  @Post("invitations/preview")
+  @HttpCode(HttpStatus.OK)
+  previewInvitation(@Body() dto: PreviewInvitationDto) {
+    return this.athletesService.previewInvitation(dto.token);
+  }
+
+  @Throttle(LIMITS.tokenUse)
   @Post("invitations/accept")
   @HttpCode(HttpStatus.OK)
   async acceptInvitation(@Body() dto: AcceptInvitationDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const tokens = await this.athletesService.acceptInvitation(dto.token, dto.password);
-    return deliverTokens(req, res, tokens, this.config.get<string>("NODE_ENV") === "production");
+    const result = await this.athletesService.acceptInvitation(dto.token, dto.password);
+    if (result.linked) {
+      return { linked: true };
+    }
+    return {
+      linked: false,
+      ...deliverTokens(req, res, result.tokens, this.config.get<string>("NODE_ENV") === "production"),
+    };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

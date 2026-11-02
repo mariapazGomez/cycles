@@ -23,7 +23,7 @@ tags: [prd, discovery]
 - [x] Un atleta tiene como máximo un coach **activo** a la vez (`CoachAthlete.status='active'` único por atleta a nivel de regla de negocio).
 - [x] Al terminar la relación: pasa a `inactive`; el coach pierde acceso a los datos de ese atleta; el atleta conserva acceso total a su historial. A nivel de compañía el dato no se borra (sujeto a consentimiento).
 - [x] Roles excluyentes: un usuario es coach o atleta, nunca ambos con la misma cuenta.
-- [x] Alta de atletas solo por invitación del coach (no hay auto-registro eligiendo rol atleta sin invitación).
+- [x] Alta de atletas por invitación del coach o registrándose solos (cambio del 2026-11-02, CYC-187); sin invitación no ven datos de ningún coach.
 
 ## C. Alcance funcional del MVP
 

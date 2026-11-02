@@ -19,6 +19,8 @@ jest.mock('../src/store/RestTimerContext', () => ({
 }));
 jest.mock('../src/components/RestTimer', () => ({ RestBar: () => null }));
 jest.mock('../src/components/ProfileAvatar', () => ({ ProfileAvatar: () => null }));
+let mockUser: { email: string; hasActiveCoach?: boolean } = { email: 'v@example.com', hasActiveCoach: true };
+jest.mock('../src/store/AuthContext', () => ({ useAuth: () => ({ user: mockUser }) }));
 
 const fetchTodayMock = fetchToday as jest.Mock;
 
@@ -43,7 +45,10 @@ async function mount() {
 const texts = (tree: ReactTestRenderer.ReactTestRenderer) =>
   tree.root.findAll(n => typeof n.props.children === 'string').map(n => n.props.children as string);
 
-beforeEach(() => jest.clearAllMocks());
+beforeEach(() => {
+  jest.clearAllMocks();
+  mockUser = { email: 'v@example.com', hasActiveCoach: true };
+});
 
 test('pide Hoy con el día local del atleta', async () => {
   fetchTodayMock.mockResolvedValue(payload(session('a', 'Full body, día 1', 1), []));
@@ -81,4 +86,18 @@ test('si la sesión elegida ya no está pendiente, vuelve a la siguiente del pla
   });
   expect(fetchTodayMock.mock.calls[2][0].sessionId).toBeUndefined();
   expect(texts(tree)).toContain('Full body, día 1');
+});
+
+test('si se registró sola y ningún coach la vinculó, pide que su coach la invite con su correo', async () => {
+  mockUser = { email: 'v@example.com', hasActiveCoach: false };
+  fetchTodayMock.mockResolvedValue(null);
+  const tree = await mount();
+  expect(texts(tree)).toContain('Falta tu coach');
+  expect(texts(tree).some(t => t.includes('v@example.com'))).toBe(true);
+});
+
+test('con coach y sin sesión pendiente, mantiene el mensaje de siempre', async () => {
+  fetchTodayMock.mockResolvedValue(null);
+  const tree = await mount();
+  expect(texts(tree)).toContain('No tienes una sesión pendiente');
 });

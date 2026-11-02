@@ -210,8 +210,19 @@ describe("Flujos de token y de entrada", () => {
       expect(created.role).toBe("coach");
     });
 
-    it("nadie se registra como atleta, ni siquiera con el código", async () => {
-      expect((await app.http("post", "/auth/register").send(body({ role: "athlete", accessCode: PILOT_CODE }))).status).toBe(403);
+    it("un atleta tampoco se registra sin el código del piloto (403)", async () => {
+      expect((await app.http("post", "/auth/register").send(body({ role: "athlete" }))).status).toBe(403);
+    });
+
+    it("con el código del piloto, un atleta se registra solo y queda sin coach (CYC-187)", async () => {
+      const res = await app.http("post", "/auth/register").send(body({ role: "athlete", accessCode: PILOT_CODE }));
+      expect(res.status).toBe(201);
+      const created = await app.prisma.user.findUniqueOrThrow({
+        where: { id: res.body.id },
+        include: { athleteRelations: true },
+      });
+      expect(created.role).toBe("athlete");
+      expect(created.athleteRelations).toHaveLength(0);
     });
 
     it("sin aceptar los términos da 400", async () => {
