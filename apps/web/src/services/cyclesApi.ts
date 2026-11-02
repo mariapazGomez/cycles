@@ -10,6 +10,32 @@ export function listTemplates() {
   return apiRequest<TrainingCycle[]>("/cycles?templates=only");
 }
 
+// Los ciclos de la Biblioteca: los de cada atleta y las plantillas sin asignar.
+export function listLibraryCycles() {
+  return apiRequest<TrainingCycle[]>("/cycles?templates=include");
+}
+
+export type RemovalResult = "deleted" | "archived";
+
+// Quita el ciclo de un atleta; la plantilla de la que salió sigue en la Biblioteca.
+// Con entrenamientos registrados se archiva en vez de borrarse.
+export function unassignCycle(id: string) {
+  return apiRequest<{ result: RemovalResult }>(`/cycles/${id}/unassign`, { method: "POST" });
+}
+
+export interface TemplateImpact {
+  athletes: { athleteId: string; name: string; hasHistory: boolean }[];
+}
+
+export function getTemplateImpact(id: string) {
+  return apiRequest<TemplateImpact>(`/cycles/templates/${id}/impact`);
+}
+
+// Elimina la plantilla y la quita de todos los atletas a los que está asignada.
+export function removeTemplate(id: string) {
+  return apiRequest<{ unassigned: number; archived: number }>(`/cycles/templates/${id}`, { method: "DELETE" });
+}
+
 // Copia una plantilla para un atleta, con fechas reales desde startDate.
 export function assignTemplate(templateId: string, data: { athleteId: string; startDate: string }) {
   return apiRequest<TrainingCycle>(`/cycles/${templateId}/assign`, { method: "POST", body: data });

@@ -69,6 +69,11 @@ Hasta 2026-10-26 ninguno. **Desde 2026-10-27 (ciclos plantilla, CYC-166):** migr
   - `PATCH /cycles/templates/:id` (rol `coach`, dueño) — body parcial con los mismos campos; cambiar `weeks` recalcula el fin de referencia.
   - `POST /cycles/:id/assign` (rol `coach`, dueño de la plantilla) — body `{ athleteId, startDate }`; el atleta debe tener relación activa. Devuelve el ciclo copiado.
   - `GET /cycles?templates=include|only` (solo coach): por defecto la lista **no** trae plantillas; `include` las suma a los ciclos de sus atletas y `only` trae solo las plantillas. Con `athleteId` se ignora. Un atleta nunca las recibe.
+  - **Desasignar y eliminar (2026-11-02):**
+    - `POST /cycles/:id/unassign` (rol `coach`, dueño) — quita el ciclo **de un atleta**; la plantilla de la que salió sigue en la Biblioteca. Solo ciclos vigentes (`active`); uno completado o archivado es historial (409). Una plantilla se quita con eliminar (400); un plan dentro de un macrociclo se desasigna con su macrociclo (400). Responde `{ result: "deleted" | "archived" }`.
+    - `DELETE /cycles/templates/:id` (rol `coach`, dueño) — elimina la plantilla **y la quita de todos sus atletas**. Responde `{ unassigned, archived }`. Las copias ya completadas o archivadas se dejan como historial (solo dejan de apuntar a la plantilla).
+    - `GET /cycles/templates/:id/impact` — a qué atletas llegaría eliminar (`athletes: [{ athleteId, name, hasHistory }]`), para el diálogo de confirmación.
+    - **Regla del historial (R7):** un ciclo con series (`ExerciseLog`) o cierres (`SessionFeedback`) del atleta **no se destruye**, porque son registros que solo se agregan: queda `archived`, de solo consulta. Sin historial se borra con sus sesiones, ejercicios de sesión, ajustes de carga y avisos del plan. Todo en una transacción.
   - `GET /cycles/:id` de una plantilla: solo su coach dueño (sin exigir relación, porque no hay atleta); el atleta y otro coach reciben 403.
 
 ## 7. UI/UX
@@ -90,5 +95,5 @@ Ninguno adicional a los del PRD general.
 
 ## 11. Estado y decisiones abiertas
 
-- **Plantillas: implementadas el 2026-10-27** (ver secciones 5 y 6; la interfaz llega con CYC-171). **El borrado sigue fuera.**
+- **Plantillas: implementadas el 2026-10-27** (ver secciones 5 y 6; la interfaz llega con CYC-171). **Desasignar y eliminar: implementados el 2026-11-02** (sección 6). Pendiente aparte: crear plantillas desde la web («Guardar como plantilla»), hoy solo existen por la API.
 - **Sin validación de máquina de estados**: hoy `PATCH` deja pasar cualquier transición de `status` (incluso "rarezas" como volver de `completed` a `active` sin querer). Se decidió no restringirlo todavía para no adivinar reglas de negocio que el usuario no pidió explícitamente; se ajusta cuando haya un caso real que lo justifique.

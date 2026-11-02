@@ -90,6 +90,15 @@ Un ciclo organiza las semanas de entrenamiento de un atleta. Solo aparecen en la
 
 > **Si eliges macrociclo:** no tiene semanas propias. Desde su detalle, en *Ciclos dentro de este macrociclo*, agregas los mesociclos o microciclos que lo componen. Para empezar, un microciclo o un mesociclo es lo más simple.
 
+### Quitar un ciclo: desasignar y eliminar
+
+En **Biblioteca → Ciclos** cada ciclo tiene su botón:
+
+- **Desasignar** (en el ciclo de un atleta): lo quita de ese atleta. Si salió de un ciclo de tu Biblioteca, ese ciclo **sigue ahí** para asignarlo a otros. Si lo creaste directo para ese atleta, no hay copia en la Biblioteca y se elimina.
+- **Eliminar** (en un ciclo de la Biblioteca, marcado «Sin asignar»): lo borra de la Biblioteca **y de todos los atletas** a los que estaba asignado. Antes de confirmar, Cycles te muestra a quiénes llega.
+
+Si el atleta ya registró entrenamientos de ese ciclo, **no se borra**: queda **archivado**, de solo consulta, para no perder su historial. Los ciclos ya completados o archivados no se desasignan: son historial.
+
 ---
 
 ## 5. Asigna rutinas al ciclo

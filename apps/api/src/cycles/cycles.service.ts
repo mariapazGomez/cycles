@@ -1,4 +1,5 @@
 import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import type { Prisma } from "@prisma/client";
 import { ActivityNotifier } from "../activity/activity-notifier.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { assertActiveRelation, athleteIdOf } from "../common/access";
@@ -16,6 +17,8 @@ import { endDateForWeeks, templateDates } from "./template-dates";
 function totalWeeks(startDate: Date, endDate: Date): number {
   return Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000)));
 }
+
+type RemovalResult = "deleted" | "archived";
 
 @Injectable()
 export class CyclesService {
@@ -258,6 +261,96 @@ export class CyclesService {
     });
     this.activity.planCreated(coachId, cycle);
     return cycle;
+  }
+
+  // ---- Desasignar y eliminar ----
+  //
+  // Desasignar quita el ciclo de UN atleta y deja la plantilla en la Biblioteca.
+  // Eliminar borra la plantilla y la quita de TODOS sus atletas. Un ciclo con
+  // series o cierres del atleta no se destruye (son registros que solo se
+  // agregan: R7): queda archivado, de solo consulta. Los ciclos ya completados o
+  // archivados se dejan como historial.
+
+  async unassign(coachId: string, id: string): Promise<{ result: RemovalResult }> {
+    const cycle = await this.prisma.trainingCycle.findUnique({ where: { id } });
+    if (!cycle) throw new NotFoundException("Ciclo no encontrado.");
+    if (cycle.coachId !== coachId) throw new ForbiddenException("Solo el coach dueño puede desasignar este ciclo.");
+    if (cycle.isTemplate) throw new BadRequestException("Este ciclo es de la Biblioteca: para quitarlo usa Eliminar.");
+    if (cycle.parentCycleId) throw new BadRequestException("Este plan es parte de un macrociclo: desasigna el macrociclo.");
+    if (cycle.status !== "active") {
+      throw new ConflictException("Este ciclo ya terminó: queda como historial del atleta.");
+    }
+    const result = await this.prisma.$transaction((tx) => this.discardCycle(tx, id, false));
+    return { result };
+  }
+
+  async removeTemplate(coachId: string, id: string): Promise<{ unassigned: number; archived: number }> {
+    await this.findOwnTemplate(coachId, id);
+    return this.prisma.$transaction(async (tx) => {
+      const copies = await tx.trainingCycle.findMany({ where: { templateId: id } });
+      let unassigned = 0;
+      let archived = 0;
+      for (const copy of copies.filter((c) => c.status === "active" && !c.parentCycleId)) {
+        const result = await this.discardCycle(tx, copy.id, true);
+        if (result === "archived") archived += 1;
+        else unassigned += 1;
+      }
+      // Lo que queda (historial) deja de apuntar a la plantilla que se va.
+      await tx.trainingCycle.updateMany({ where: { templateId: id }, data: { templateId: null } });
+      await this.discardCycle(tx, id, true);
+      return { unassigned, archived };
+    });
+  }
+
+  // A quién llega Eliminar: los atletas con una copia vigente y si esa copia ya
+  // tiene registros (quedaría archivada en vez de borrarse).
+  async templateImpact(coachId: string, id: string) {
+    await this.findOwnTemplate(coachId, id);
+    const copies = await this.prisma.trainingCycle.findMany({
+      where: { templateId: id, status: "active", parentCycleId: null },
+      include: { athlete: { select: { id: true, name: true } } },
+    });
+    const athletes = await Promise.all(
+      copies.map(async (copy) => ({
+        athleteId: copy.athleteId,
+        name: copy.athlete?.name ?? "",
+        hasHistory: await this.hasHistory(this.prisma, [copy.id]),
+      })),
+    );
+    return { athletes };
+  }
+
+  // Borra el ciclo (con sus hijos) o, si hay historial del atleta, lo archiva.
+  private async discardCycle(tx: Prisma.TransactionClient, id: string, detach: boolean): Promise<RemovalResult> {
+    const children = await tx.trainingCycle.findMany({ where: { parentCycleId: id }, select: { id: true } });
+    let keep = await this.hasHistory(tx, [id]);
+    for (const child of children) {
+      if ((await this.discardCycle(tx, child.id, detach)) === "archived") keep = true;
+    }
+    if (keep) {
+      await tx.trainingCycle.update({
+        where: { id },
+        data: { status: "archived", ...(detach ? { templateId: null } : {}) },
+      });
+      return "archived";
+    }
+    const sessions = await tx.trainingSession.findMany({ where: { cycleId: id }, select: { id: true } });
+    const sessionIds = sessions.map((s) => s.id);
+    await tx.notification.deleteMany({ where: { planId: id } });
+    await tx.loadAdjustment.deleteMany({ where: { cycleId: id } });
+    await tx.sessionExercise.deleteMany({ where: { sessionId: { in: sessionIds } } });
+    await tx.trainingSession.deleteMany({ where: { cycleId: id } });
+    await tx.trainingCycle.delete({ where: { id } });
+    return "deleted";
+  }
+
+  private async hasHistory(db: Prisma.TransactionClient | PrismaService, cycleIds: string[]): Promise<boolean> {
+    const session = { cycleId: { in: cycleIds } };
+    const [logs, feedback] = await Promise.all([
+      db.exerciseLog.count({ where: { sessionExercise: { session } } }),
+      db.sessionFeedback.count({ where: { session } }),
+    ]);
+    return logs + feedback > 0;
   }
 
   private async findOwnTemplate(coachId: string, id: string) {

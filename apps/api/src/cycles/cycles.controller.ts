@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 import { RolesGuard } from "../common/guards/roles.guard";
 import { Roles } from "../common/decorators/roles.decorator";
@@ -40,6 +40,27 @@ export class CyclesController {
     @Body() dto: UpdateTemplateDto,
   ) {
     return this.cyclesService.updateTemplate(user.id, id, dto);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles("coach")
+  @Get("templates/:id/impact")
+  templateImpact(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string) {
+    return this.cyclesService.templateImpact(user.id, id);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles("coach")
+  @Delete("templates/:id")
+  removeTemplate(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string) {
+    return this.cyclesService.removeTemplate(user.id, id);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles("coach")
+  @Post(":id/unassign")
+  unassign(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string) {
+    return this.cyclesService.unassign(user.id, id);
   }
 
   @UseGuards(RolesGuard)
