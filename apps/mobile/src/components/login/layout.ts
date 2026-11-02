@@ -19,17 +19,21 @@ export interface LoginMetrics {
 }
 
 export function loginMetrics(width: number, height: number): LoginMetrics {
+  // Apple, campos y botón comparten la misma altura: el ritmo del formulario es
+  // regular y ningún control pesa más que otro (guía de Apple: 44 a 56).
+  const control = clamp(46, height * 0.06, 54);
   return {
-    heroHeight: clamp(150, height * 0.3, 300),
+    heroHeight: clamp(150, height * 0.28, 250),
     heroCompactHeight: 96,
-    ringSize: clamp(54, height * 0.1, 104),
+    ringSize: clamp(50, height * 0.085, 84),
     ringCompactSize: 38,
-    wordSize: clamp(22, height * 0.036, 34),
-    titleSize: clamp(22, height * 0.037, 32),
-    controlHeight: clamp(52, height * 0.07, 68),
-    buttonHeight: clamp(52, height * 0.069, 64),
-    gap: clamp(8, height * 0.018, 16),
-    sheetPadding: clamp(16, width * 0.054, 28),
-    sheetMaxWidth: 520,
+    wordSize: clamp(22, height * 0.032, 30),
+    titleSize: clamp(24, height * 0.032, 28),
+    controlHeight: control,
+    buttonHeight: control,
+    // Dentro de un grupo, 8; entre grupos, 16 (escala de 4).
+    gap: 16,
+    sheetPadding: clamp(20, width * 0.056, 28),
+    sheetMaxWidth: 480,
   };
 }
