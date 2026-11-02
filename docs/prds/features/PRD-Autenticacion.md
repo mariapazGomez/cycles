@@ -75,6 +75,8 @@ Usa directamente `User` (`passwordHash`, `authProvider`, `role` ahora nullable, 
 - `POST /auth/password-reset/request` — solicita email de recuperación (respuesta genérica).
 - `POST /auth/password-reset/confirm` — establece nueva contraseña con el token recibido y revoca todas las sesiones activas del usuario.
 
+> **Sesión de la web con cookie (CYC-89, 2026-11-01).** Si el pedido trae `X-Cycles-Client: web`, `login`, `google/exchange` y `athletes/invitations/accept` entregan el refresh token en la cookie `httpOnly` `cycles_rt` (`SameSite=Strict`, `Path=/auth`, `Secure` en producción) y devuelven solo el `accessToken` en el cuerpo; `refresh` y `logout` leen la cookie (con `Origin` permitido, por CSRF) o el cuerpo (app móvil). El access token de la web vive solo en memoria y se obtiene con `/auth/refresh` al cargar la página. Ver [[SEGURIDAD]], S-08.
+
 > Endpoints de Apple (`GET /auth/apple`, callback) quedan fuera del MVP — ver sección 3. El módulo `auth` solo registra la estrategia de Google si `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` están configurados en el entorno; si no, esas dos rutas responden con error al invocarse pero el resto de la API funciona con normalidad.
 
 ## 7. UI/UX

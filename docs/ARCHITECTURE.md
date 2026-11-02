@@ -81,7 +81,8 @@ Contiene tipos TypeScript e interfaces de DTOs de dominio (por ejemplo, la forma
 
 1. **Manual:** registro con email/contraseña → hash con bcrypt → email de verificación → login solo permitido tras verificar → emite JWT + refresh token.
 2. **Google (OAuth 2.0):** el frontend inicia el flujo OAuth; el backend recibe el callback y busca un `User` por email — si existe (creado manualmente), lo vincula; si no, lo crea — y emite JWT + refresh token igual que en el flujo manual, de modo que el resto de la app no distingue el método de login una vez autenticado. Apple seguiría este mismo patrón cuando se implemente.
-3. Todas las rutas protegidas de la API validan el JWT vía guard; el rol embebido en el token determina el acceso.
+3. **Sesión de la web:** el refresh token viaja en la cookie `httpOnly` `cycles_rt` (no en `localStorage`) y el access token solo en memoria; al cargar la página la web pide un access token nuevo con `POST /auth/refresh`. La app móvil sigue mandando el refresh token en el cuerpo. Detalle en `docs/SEGURIDAD.md` (S-08) y `apps/api/src/common/auth-cookie.ts`.
+4. Todas las rutas protegidas de la API validan el JWT vía guard; el rol embebido en el token determina el acceso.
 
 ## 8. Próximos pasos técnicos (no incluidos en este scaffolding)
 
