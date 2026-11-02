@@ -101,7 +101,10 @@ export async function apiRequest<T>(
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
 
-  if (response.status === 401 && auth && !isRetry) {
+  // 401: el access token venció. 403: puede ser un token emitido antes de que la
+  // cuenta tuviera su rol actual (el rol viaja dentro del token), así que se renueva
+  // y se reintenta una vez; si sigue en 403, el permiso realmente falta.
+  if ((response.status === 401 || response.status === 403) && auth && !isRetry) {
     await refreshSession();
     return apiRequest<T>(path, options, true);
   }

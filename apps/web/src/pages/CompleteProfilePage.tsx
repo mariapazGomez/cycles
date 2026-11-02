@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "../hooks/useAuth";
 import { AuthCard } from "../components/AuthCard";
 import * as authApi from "../services/authApi";
-import { ApiError } from "../services/httpClient";
+import { ApiError, refreshSession } from "../services/httpClient";
 import { RoleChoice } from "../components/RoleChoice";
 import { PolicyCheckbox } from "../components/PolicyCheckbox";
 
@@ -21,6 +21,8 @@ export function CompleteProfilePage() {
   const mutation = useMutation({
     mutationFn: () => authApi.completeProfile({ role, dataConsent, acceptPolicy }),
     onSuccess: async () => {
+      // El rol nuevo solo llega en un token nuevo: el actual se emitió sin rol.
+      await refreshSession();
       await refreshCurrentUser();
       navigate("/", { replace: true });
     },
