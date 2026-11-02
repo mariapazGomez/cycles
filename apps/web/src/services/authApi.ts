@@ -1,9 +1,10 @@
 import type { User } from "@cycles/shared";
 import { API_URL, apiRequest } from "./httpClient";
 
+// La web solo recibe el access token: el refresh token viaja en una cookie
+// `httpOnly` (CYC-89, S-08).
 export interface AuthTokens {
   accessToken: string;
-  refreshToken: string;
 }
 
 interface MessageResponse {
@@ -44,11 +45,11 @@ export function exchangeGoogleCode(code: string) {
   });
 }
 
-export function logout(refreshToken: string) {
+// La API revoca el refresh token de la cookie y la borra.
+export function logout() {
   return apiRequest<void>("/auth/logout", {
     method: "POST",
     auth: false,
-    body: { refreshToken },
   });
 }
 
