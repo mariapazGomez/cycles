@@ -17,6 +17,7 @@ Pruebas que arrancan la API **real** contra una base PostgreSQL de pruebas y com
 | `apps/api/test/authz.e2e-spec.ts` | **Matriz de autorización**: para cada ruta protegida, sin sesión → 401; rol equivocado → 403; coach que no es dueño → 403 o 404; coach con la relación terminada → 403; atleta sobre datos de otro atleta → 403 o 404. Más pruebas «positivas»: cada persona ve lo suyo, el atleta conserva su historial aunque su relación terminó, y las listas, rutinas, ejercicios, avisos y plantillas de una persona no aparecen a otra. |
 | `apps/api/test/tokens.e2e-spec.ts` | **Flujos de token**: login sin revelar si la cuenta existe; el refresh rota, su reuso revoca todas las sesiones y no sirve tras cerrar sesión; access token vencido, con otro secreto, sin firma o con el rol alterado; código de Google de un solo uso (vencido, repetido, dos pedidos simultáneos); recuperación de contraseña vencida o ya usada; registro cerrado y código del piloto; el secreto del resumen diario. |
 | `apps/api/test/append-only.e2e-spec.ts` | **Registros históricos** (S-12): editar, reactivar, borrar o vaciar `ExerciseLog` y `SessionFeedback` da error (con Prisma, con SQL directo y con `TRUNCATE` en cascada); anular una fila sí se puede; la excepción `cycles.allow_purge` vale solo dentro de su transacción; reabrir una sesión y eliminar una cuenta siguen funcionando. |
+| `apps/api/test/rate-limits.e2e-spec.ts` | **Límites de intentos** (S-01, S-13), con la misma lógica de IP real que producción (`True-Client-IP`): contacto 10 por hora por IP y 2 por día por correo, login 5 por minuto por correo y 20 por IP, registro 5 por hora. Inventar `X-Forwarded-For` no esquiva el límite, y otra IP no queda bloqueada. |
 | `apps/api/test/support/` | `app.ts` (arranque de la API, IP distinta por pedido para que el límite de intentos no estorbe, y la **guarda de seguridad**) y `seed.ts` (el escenario). |
 
 El escenario (`seed.ts`): `coachA` con `athleteA` activo y `athleteC` con la relación terminada; `coachB` con `athleteB`. Cada coach tiene su plantilla, rutina y ejercicio propio.
@@ -53,5 +54,5 @@ El 2026-11-01 se rompió a propósito el código y se comprobó que la matriz se
 
 ## Pendiente
 
-- Cubrir el límite de intentos (429), que hoy el arnés evita a propósito.
+- Los límites de intentos tienen su archivo propio (`rate-limits.e2e-spec.ts`); el resto del arnés usa una IP distinta por pedido para no tropezar con ellos.
 - Un access token de una cuenta ya eliminada sigue valiendo hasta que vence (15 minutos): la estrategia JWT no consulta la base. Las rutas que usan datos de esa persona fallan igual, pero conviene decidir si se acepta o se revisa la cuenta en cada pedido.

@@ -40,6 +40,7 @@ function configureEnv(): void {
   process.env.PILOT_ACCESS_CODE = PILOT_CODE;
   process.env.ACTIVITY_CRON_SECRET = CRON_SECRET;
   delete process.env.REGISTRATION_OPEN;
+  delete process.env.CLIENT_IP_HEADER;
   delete process.env.RESEND_API_KEY;
   delete process.env.SLACK_WEBHOOK_URL;
   delete process.env.SLACK_CONTACT_WEBHOOK_URL;
@@ -54,8 +55,15 @@ export interface TestApp {
   close: () => Promise<void>;
 }
 
-export async function startApp(): Promise<TestApp> {
+export interface StartOptions {
+  // Usa la misma lógica de IP real que producción (header `True-Client-IP`, S-13)
+  // en vez de una IP distinta por pedido. Para probar el límite de intentos.
+  realClientIp?: boolean;
+}
+
+export async function startApp(options: StartOptions = {}): Promise<TestApp> {
   configureEnv();
+  if (options.realClientIp) process.env.CLIENT_IP_HEADER = "true-client-ip";
   // Se importa después de fijar el entorno: la validación lee process.env al cargar.
   const { AppModule } = await import("../../src/app.module");
   const { spanishValidationPipe } = await import("../../src/common/validation/spanish-validation");
@@ -64,14 +72,20 @@ export async function startApp(): Promise<TestApp> {
 
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
   const app = moduleRef.createNestApplication();
-  // Igual que main.ts, salvo la IP: aquí viene en un header de prueba.
-  app.use((req: Request, _res: Response, next: NextFunction) => {
-    const ip = req.headers["x-test-ip"];
-    if (typeof ip === "string") {
-      Object.defineProperty(req, "ip", { value: ip, configurable: true });
-    }
-    next();
-  });
+  if (options.realClientIp) {
+    // Igual que main.ts: confiar solo en True-Client-IP, no en X-Forwarded-For.
+    const { clientIpMiddleware } = await import("../../src/common/config/client-ip");
+    app.use(clientIpMiddleware("true-client-ip"));
+  } else {
+    // Una IP distinta por pedido, en un header de prueba (ver `http`).
+    app.use((req: Request, _res: Response, next: NextFunction) => {
+      const ip = req.headers["x-test-ip"];
+      if (typeof ip === "string") {
+        Object.defineProperty(req, "ip", { value: ip, configurable: true });
+      }
+      next();
+    });
+  }
   app.useGlobalPipes(spanishValidationPipe());
   // Igual que main.ts: CORS con credenciales para la cookie del refresh token.
   app.enableCors(corsOptions(app.get(ConfigService)));
