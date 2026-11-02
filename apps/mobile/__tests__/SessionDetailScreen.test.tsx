@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert } from 'react-native';
+import { Alert, Text } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { SessionDetailScreen } from '../src/screens/SessionDetailScreen';
 import { fetchSessionDetail } from '../src/services/planApi';
@@ -139,4 +139,21 @@ test('un error al guardar el estado se muestra en la hoja', async () => {
   await pressText(tree, 'No hecha');
   await pressText(tree, 'Guardar como no hecha');
   expect(texts(tree)).toContain('Ya cerraste esta sesión.');
+});
+
+test('muestra la nota del coach bajo el ejercicio, y nada si no hay nota', async () => {
+  detailMock.mockResolvedValue({
+    ...detail('pending'),
+    sessionExercises: [
+      { ...exercises[0], note: 'Baja lento y cuida el hombro.' },
+      { ...exercises[1], note: null },
+    ],
+  });
+  const tree = await mount();
+  const t = texts(tree);
+  expect(t).toContain('Nota de tu coach');
+  expect(t).toContain('Baja lento y cuida el hombro.');
+  // Solo hay una nota: el segundo ejercicio no dibuja el recuadro.
+  expect(tree.root.findAll(n => (n.type as unknown) === Text).filter(n => n.props.children === 'Nota de tu coach')).toHaveLength(1);
+  expect(tree.root.findAll(n => n.props.accessibilityLabel === 'Nota de tu coach: Baja lento y cuida el hombro.').length).toBeGreaterThan(0);
 });

@@ -30,6 +30,7 @@ import { ChainBackground } from '../components/ChainBackground';
 import { ProfileAvatar } from '../components/ProfileAvatar';
 import { NotificationBell } from '../components/NotificationBell';
 import { useTabBarClearance } from '../components/FloatingTabBar';
+import { CoachNote } from '../components/CoachNote';
 import { colors } from '../theme/colors';
 import { cardShadow } from '../theme/elevation';
 
@@ -323,6 +324,7 @@ export function TodayScreen({ navigation }: Props) {
                     {sessionExercise.targetSets} × {sessionExercise.targetReps}
                     {sessionExercise.targetWeight ? ` · ${sessionExercise.targetWeight} kg` : ''}
                   </Text>
+                  <CoachNote note={sessionExercise.note} compact />
                 </View>
                 <View
                   style={[
