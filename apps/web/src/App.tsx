@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { ReactNode, useEffect } from "react";
 import { Navigate, Route, Routes, useLocation, useSearchParams } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { PublicOnlyRoute } from "./components/PublicOnlyRoute";
@@ -44,6 +44,14 @@ function RootGate() {
       <AppLayout />
     </ProtectedRoute>
   );
+}
+
+// Pantallas solo del coach: quien no lo es vuelve al inicio en vez de ver una
+// pantalla cuyas acciones la API rechazaría.
+function CoachOnly({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  if (user?.role !== "coach") return <Navigate to="/" replace />;
+  return <>{children}</>;
 }
 
 // «Ciclos» del coach ahora vive en la Biblioteca; el atleta conserva «Mis ciclos».
@@ -127,16 +135,16 @@ export function App() {
         element={<RootGate />}
       >
         <Route index element={<HomePage />} />
-        <Route path="athletes" element={<AthletesPage />} />
-        <Route path="athletes/:athleteId" element={<AthletePage />} />
+        <Route path="athletes" element={<CoachOnly><AthletesPage /></CoachOnly>} />
+        <Route path="athletes/:athleteId" element={<CoachOnly><AthletePage /></CoachOnly>} />
         <Route path="calendar" element={<CalendarPage />} />
-        <Route path="biblioteca" element={<BibliotecaPage />} />
-        <Route path="ejercicios" element={<ExercisesPage />} />
+        <Route path="biblioteca" element={<CoachOnly><BibliotecaPage /></CoachOnly>} />
+        <Route path="ejercicios" element={<CoachOnly><ExercisesPage /></CoachOnly>} />
         <Route path="account" element={<AccountPage />} />
         <Route path="cycles" element={<CyclesRoute />} />
         <Route path="routines" element={<Navigate to={libraryPath("routine")} replace />} />
-        <Route path="routines/new" element={<RoutineEditorPage />} />
-        <Route path="routines/:id" element={<RoutineEditorPage />} />
+        <Route path="routines/new" element={<CoachOnly><RoutineEditorPage /></CoachOnly>} />
+        <Route path="routines/:id" element={<CoachOnly><RoutineEditorPage /></CoachOnly>} />
         <Route path="cycles/:id" element={<CycleDetailPage />} />
         <Route path="sessions/:id" element={<SessionDetailPage />} />
         <Route path="sessions/:id/registro" element={<SessionLogPage />} />

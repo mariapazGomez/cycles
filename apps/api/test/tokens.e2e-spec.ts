@@ -230,6 +230,25 @@ describe("Flujos de token y de entrada", () => {
     });
   });
 
+  describe("rol recién elegido (entrada con Google)", () => {
+    it("el token emitido sin rol no sirve como coach hasta renovarlo; el renovado sí", async () => {
+      await app.prisma.user.create({
+        data: { email: "sin.rol@e2e.test", name: "Sin rol", role: null, passwordHash: await passwordHash(), emailVerifiedAt: new Date() },
+      });
+      const tokens = (await login(app, "sin.rol@e2e.test")).body;
+
+      const done = await app.http("post", "/auth/complete-profile", tokens.accessToken).send({ role: "coach", acceptPolicy: true });
+      expect(done.status).toBe(200);
+
+      // El rol viaja dentro del token: el viejo sigue sin rol aunque la base ya lo tenga.
+      expect((await app.http("get", "/routines", tokens.accessToken)).status).toBe(403);
+
+      const renewed = await app.http("post", "/auth/refresh").send({ refreshToken: tokens.refreshToken });
+      expect(renewed.status).toBeLessThan(300);
+      expect((await app.http("get", "/routines", renewed.body.accessToken)).status).toBe(200);
+    });
+  });
+
   describe("resumen diario de actividad (/internal/activity)", () => {
     it("sin el secreto o con uno incorrecto da 401", async () => {
       expect((await app.http("post", "/internal/activity/daily-summary")).status).toBe(401);
