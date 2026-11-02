@@ -200,6 +200,8 @@ Los umbrales son iniciales: van como constantes, igual que los límites de 1B.
 
 ### 2A · Refresh token en cookie `httpOnly` (S-08 · R2)
 
+> **En curso** (CYC-89, 2026-11-01), en dos entregas. **1) API: hecha** (`common/auth-cookie.ts`): `login`, `google/exchange` y `invitations/accept` ponen la cookie si el pedido trae `X-Cycles-Client: web` y no devuelven el refresh en el cuerpo; `refresh` y `logout` leen la cookie (o el cuerpo, para la app móvil y el puente de sesiones viejas) y con cookie exigen `Origin` permitido; CORS con credenciales. Cambios respecto al plan: la web se distingue por la cabecera, no por la presencia de la cookie; sin librería de cookies. Pruebas: `test/cookie.e2e-spec.ts` y `common/auth-cookie.spec.ts`. **2) Web: pendiente** (access token en memoria, sesión por `/auth/refresh`, Web Locks entre pestañas, puente que cambia el token viejo de `localStorage` por la cookie).
+
 - La API entrega el **refresh token en una cookie** `httpOnly`, `Secure`, `SameSite=Strict`, con `Path=/auth`. El access token queda **solo en memoria** en la web.
 - `app.getcycles.app` y `api.getcycles.app` son el mismo *site* (`getcycles.app`), así que `SameSite=Strict` funciona. CORS pasa a `credentials: true` con la lista de orígenes de 1B.
 - Al cargar la página, la web pide un access token nuevo con `POST /auth/refresh` usando la cookie.

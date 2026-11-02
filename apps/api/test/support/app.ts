@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { randomBytes } from "crypto";
 import type { INestApplication } from "@nestjs/common";
 import type { NextFunction, Request, Response } from "express";
+import { ConfigService } from "@nestjs/config";
 import { Test } from "@nestjs/testing";
 import * as bcrypt from "bcrypt";
 import request = require("supertest");
@@ -49,7 +50,7 @@ export interface TestApp {
   prisma: PrismaService;
   // Un pedido con una IP distinta cada vez, para que el límite de intentos no
   // se mezcle con lo que se prueba (el límite tiene sus propias pruebas).
-  http: (method: "get" | "post" | "patch" | "delete", path: string, token?: string) => request.Test;
+  http: (method: "get" | "post" | "patch" | "delete" | "options", path: string, token?: string) => request.Test;
   close: () => Promise<void>;
 }
 
@@ -58,6 +59,7 @@ export async function startApp(): Promise<TestApp> {
   // Se importa después de fijar el entorno: la validación lee process.env al cargar.
   const { AppModule } = await import("../../src/app.module");
   const { spanishValidationPipe } = await import("../../src/common/validation/spanish-validation");
+  const { corsOptions } = await import("../../src/common/config/env.validation");
   const { PrismaService: Prisma } = await import("../../src/prisma/prisma.service");
 
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
@@ -71,6 +73,8 @@ export async function startApp(): Promise<TestApp> {
     next();
   });
   app.useGlobalPipes(spanishValidationPipe());
+  // Igual que main.ts: CORS con credenciales para la cookie del refresh token.
+  app.enableCors(corsOptions(app.get(ConfigService)));
   await app.init();
 
   const prisma = app.get(Prisma);
