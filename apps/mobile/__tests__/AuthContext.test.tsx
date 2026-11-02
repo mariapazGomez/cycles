@@ -98,3 +98,30 @@ test('si el refresh falla con la sesión abierta, vuelve al login', async () => 
   expect(latest.status).toBe('signedOut');
   expect(latest.user).toBeNull();
 });
+
+test('entrar con Apple guarda la sesión de un atleta', async () => {
+  store.getAccessToken.mockReturnValue(null);
+  api.loginWithApple.mockResolvedValue({ accessToken: 'a', refreshToken: 'r' });
+  api.fetchCurrentUser.mockResolvedValue(athlete);
+  await mount();
+  await ReactTestRenderer.act(async () => latest.loginWithApple({ idToken: 't', nonce: 'n' }));
+  expect(api.loginWithApple).toHaveBeenCalledWith({ idToken: 't', nonce: 'n' });
+  expect(store.setTokens).toHaveBeenCalledWith({ accessToken: 'a', refreshToken: 'r' });
+  expect(latest.status).toBe('signedIn');
+});
+
+test('entrar con Apple siendo coach no deja la sesión abierta', async () => {
+  store.getAccessToken.mockReturnValue(null);
+  api.loginWithApple.mockResolvedValue({ accessToken: 'a', refreshToken: 'r' });
+  api.fetchCurrentUser.mockResolvedValue({ id: 'c1', role: 'coach' } as never);
+  await mount();
+  let failure: unknown;
+  await ReactTestRenderer.act(async () => {
+    await latest.loginWithApple({ idToken: 't', nonce: 'n' }).catch(err => {
+      failure = err;
+    });
+  });
+  expect((failure as Error).message).toContain('solo para atletas');
+  expect(store.clear).toHaveBeenCalled();
+  expect(latest.status).toBe('signedOut');
+});

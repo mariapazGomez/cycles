@@ -109,3 +109,12 @@ La etapa 1 se puede hacer ya, sin las consolas. Las etapas 3 y 4 necesitan la 2.
 - `POST /auth/apple` y `POST /auth/google/token`: reciben `{ idToken, nonce }`, verifican firma, emisor, audiencia, caducidad y nonce con `jose` (v5, por compatibilidad con CommonJS) y devuelven la sesión.
 - Variable nueva en Render: `GOOGLE_IOS_CLIENT_ID`. Apple no necesita ninguna: usa `app.getcycles.mobile` por defecto (`APPLE_CLIENT_ID` solo lo reemplaza).
 - El flujo web de Google no cambia (sigue vinculando solo por correo).
+
+## Etapa 3 construida: Apple en la app (2026-11-02)
+
+- Botón nativo «Continuar con Apple» arriba de la pantalla de entrada, con `@invertase/react-native-apple-authentication`. La librería genera el nonce, se lo manda a Apple con SHA-256 y devuelve el original; la app manda `{ idToken, nonce }` a `POST /auth/apple`.
+- Capacidad «Sign in with Apple» en el proyecto de Xcode (`CyclesMobile.entitlements`). Requiere activarla también en el identificador `app.getcycles.mobile` en Apple Developer, o la firma automática de Xcode Cloud falla.
+- Cancelar la hoja de Apple no muestra error. Sin cuenta (`no_account`), se muestra el mensaje y el botón «Registrarme en la web».
+- Una cuenta de coach que entre con Apple se rechaza igual que con correo: la app es solo para atletas.
+- Falta: Google nativo (SDK, ID de cliente de iOS, esquema de URL), «Vincular Apple» en Cuenta y la revocación de Apple al borrar la cuenta.
+

@@ -5,6 +5,8 @@ export class ApiError extends Error {
   constructor(
     public readonly status: number,
     message: string,
+    // Código legible por máquina que algunos errores del API traen (p. ej. `no_account`).
+    public readonly code?: string,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -19,19 +21,20 @@ interface RequestOptions {
   auth?: boolean;
 }
 
-async function extractErrorMessage(response: Response): Promise<string> {
+async function extractError(response: Response): Promise<{ message: string; code?: string }> {
   try {
     const data = await response.json();
+    const code = typeof data?.code === 'string' ? data.code : undefined;
     if (Array.isArray(data?.message)) {
-      return data.message.join(' ');
+      return { message: data.message.join(' '), code };
     }
     if (typeof data?.message === 'string') {
-      return data.message;
+      return { message: data.message, code };
     }
   } catch {
     // Respuesta sin cuerpo JSON: se usa el mensaje genérico de abajo.
   }
-  return 'Ocurrió un error inesperado. Intenta de nuevo.';
+  return { message: 'Ocurrió un error inesperado. Intenta de nuevo.' };
 }
 
 // Evita disparar varios refresh en paralelo si varias requests reciben 401 a la vez.
@@ -138,7 +141,8 @@ export async function apiRequest<T>(
   }
 
   if (!response.ok) {
-    throw new ApiError(response.status, await extractErrorMessage(response));
+    const { message, code } = await extractError(response);
+    throw new ApiError(response.status, message, code);
   }
 
   // GET /me/today responde 200 con body vacío cuando no hay sesión pendiente
