@@ -65,7 +65,7 @@ export function RoutineDrawer({
   function addExercise(exercise: Exercise) {
     setRows((current) => [
       ...current,
-      { key: nextKey(), exerciseId: exercise.id, name: exercise.name, muscleGroup: exercise.muscleGroup, sets: DEFAULT_SETS, reps: "", weight: "", restSeconds: "", rir: "" },
+      { key: nextKey(), exerciseId: exercise.id, name: exercise.name, muscleGroup: exercise.muscleGroup, sets: DEFAULT_SETS, reps: "", weight: "", restSeconds: "", rir: "", note: "" },
     ]);
   }
 

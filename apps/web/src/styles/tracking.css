@@ -608,3 +608,69 @@
     padding: 40px 16px;
   }
 }
+
+/* Nota del coach por ejercicio (CYC-61/62). Texto libre: se respeta el salto de línea. */
+.ex-note {
+  margin: 6px 0 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--color-blue-50);
+  color: var(--color-ink);
+  font-size: 0.88rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.ex-note strong {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 0.78rem;
+  color: var(--color-blue-700);
+}
+
+.today-ex {
+  min-width: 0;
+  flex: 1;
+}
+
+.ex-note-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.ex-note-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ex-note-form textarea,
+.rt-note textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.ex-note-count {
+  align-self: flex-end;
+  font-size: 0.78rem;
+  color: var(--color-ink-secondary);
+}
+
+.ex-note-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.ex-note-actions .button-primary,
+.ex-note-actions .button-secondary {
+  width: auto;
+  padding: 8px 16px;
+}
+
+.rt-note {
+  margin-top: 10px;
+}

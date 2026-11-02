@@ -1,4 +1,5 @@
 import { FormEvent, ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { CoachNote } from "../components/ExerciseNote";
 import { Link, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as sessionsApi from "../services/sessionsApi";
@@ -184,6 +185,7 @@ function ExerciseStep({
       <h1 className="section-title" style={{ fontSize: "1.4rem" }}>
         {exercise.exercise.name}
       </h1>
+      <CoachNote note={exercise.note} />
       <dl className="target-values">
         <div>
           <dt>Series</dt>

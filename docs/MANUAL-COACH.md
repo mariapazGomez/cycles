@@ -30,13 +30,21 @@ Una rutina es una sesión de entrenamiento que armas una vez y reutilizas en tod
 1. Menú **Biblioteca** → **Crear** → **Rutina**.
 2. Ponle un **nombre**.
 3. Busca y agrega ejercicios del catálogo.
-4. En cada ejercicio define **series**, **reps**, **peso** (si quieres), **descanso** en segundos y **reps en reserva** objetivo.
+4. En cada ejercicio define **series**, **reps**, **peso** (si quieres), **descanso** en segundos y **reps en reserva** objetivo. Si quieres decirle algo a tu atleta sobre ese ejercicio («baja lento», «cuida el hombro»), escríbelo en **Nota para el atleta** (hasta 500 caracteres; es opcional).
 5. Reordena con las flechas, duplica o quita ejercicios. A la derecha ves la carga de la sesión: series por grupo muscular, duración y volumen.
 6. Toca **Crear rutina**.
 
 Para cambiarla después: **Rutinas** → abre la rutina → edita y guarda.
 
 > Empieza con 2 o 3 rutinas. Siempre puedes agregar más.
+
+### Notas para tu atleta
+
+Cada ejercicio puede llevar **una nota** que tu atleta ve en «Hoy» y al registrar ese ejercicio, con el título «Nota de tu coach».
+
+- **En la rutina:** el campo **Nota para el atleta**. Cuando asignas la rutina a un día, la nota se **copia** a la sesión; si después cambias la rutina, las sesiones ya asignadas **no** cambian.
+- **En una sesión:** toca el nombre de la sesión y, bajo el ejercicio, **Agregar nota** (o **Editar nota**). Dejarla vacía la borra. Sirve para un ajuste solo de esa semana.
+- **Privacidad:** la nota puede mencionar la salud de tu atleta. Solo la ven tú y ese atleta; **no sale en los avisos** de la campana. Aun así, evita datos que no necesites.
 
 ### Si falta un ejercicio
 
