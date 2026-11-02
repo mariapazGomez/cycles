@@ -15,7 +15,7 @@ Procedimiento para cambiar el esquema de la base (`apps/api/prisma/schema.prisma
 1. **Una migración ya aplicada nunca se edita.** Si se equivocó, se corrige con otra migración nueva.
 2. **Siempre compatible hacia atrás.** La app iOS ya instalada y la web en caché siguen hablando con la API nueva, y la API anterior puede seguir atendiendo unos instantes mientras se despliega. Por eso una migración solo **agrega** (columna que admite nulos o con valor por defecto, tabla nueva, índice). Quitar o renombrar una columna, o volverla obligatoria sin valor por defecto, se hace en **dos entregas**: primero el código deja de usarla, y en un PR posterior se borra.
 3. **En producción solo `prisma migrate deploy`.** Nunca `migrate dev`, `migrate reset` ni `db push`: pueden borrar datos.
-4. **`ExerciseLog` y `SessionFeedback` son append-only** (SEGURIDAD.md, R7): una migración no hace `UPDATE` ni `DELETE` sobre ellas. La única excepción es el borrado de cuenta desde la app.
+4. **`ExerciseLog` y `SessionFeedback` son append-only** (SEGURIDAD.md, R7): una migración no hace `UPDATE` ni `DELETE` sobre ellas. La base lo impone con triggers desde 2026-11-01 (S-12): un `UPDATE` o `DELETE` sobre ellas da error. Para una corrección excepcional (solo con respaldo y con aviso a la fundadora) la migración o el script declara la excepción dentro de su transacción: `SET LOCAL cycles.allow_purge = 'on';`. El borrado de cuenta desde la app ya lo hace.
 5. **Respaldo antes de migrar producción:** `bash apps/api/scripts/respaldo-supabase.sh` (ver `docs/deploy/PLAN-Deploy.md`, 2.5).
 6. Ninguna URL ni contraseña de la base en el repo, en la migración ni en el chat.
 

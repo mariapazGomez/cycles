@@ -90,7 +90,12 @@ export async function resetDatabase(prisma: PrismaService): Promise<void> {
     SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename <> '_prisma_migrations'`;
   if (tables.length === 0) return;
   const list = tables.map((t: { tablename: string }) => `"${t.tablename}"`).join(", ");
-  await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${list} RESTART IDENTITY CASCADE`);
+  // ExerciseLog y SessionFeedback no se vacían sin declarar la excepción, y esta
+  // solo vale dentro de la transacción (S-12).
+  await prisma.$transaction([
+    prisma.$executeRaw`SELECT set_config('cycles.allow_purge', 'on', true)`,
+    prisma.$executeRawUnsafe(`TRUNCATE TABLE ${list} RESTART IDENTITY CASCADE`),
+  ]);
 }
 
 export async function passwordHash(): Promise<string> {

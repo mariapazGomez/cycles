@@ -24,6 +24,7 @@ function setup(user: { id: string; role: string }, cycles: unknown[] = []) {
     routineExercise: { deleteMany: fn() },
     exercise: { updateMany: fn() },
     user: { delete: jest.fn(), update: jest.fn() },
+    $executeRaw: jest.fn().mockResolvedValue(1),
   };
   const prisma = {
     user: { findUnique: jest.fn().mockResolvedValue(user), update: jest.fn() },
