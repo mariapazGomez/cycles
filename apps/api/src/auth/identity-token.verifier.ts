@@ -22,6 +22,8 @@ const PROVIDERS = {
   },
 } as const;
 
+export const APPLE_BUNDLE_ID = "app.getcycles.mobile";
+
 const INVALID_TOKEN_MESSAGE = "No pudimos verificar tu inicio de sesión. Vuelve a intentarlo.";
 
 // Verifica los tokens de identidad que la app recibe de Apple y de Google:
@@ -34,10 +36,15 @@ export class IdentityTokenVerifier {
   constructor(private readonly config: ConfigService) {}
 
   // Audiencias aceptadas por proveedor. Apple: el identificador del paquete de la
-  // app. Google: el ID de cliente de iOS y, si el SDK se configura con él, el web.
+  // app (público, no es un secreto; APPLE_CLIENT_ID solo lo reemplaza). Google: el
+  // ID de cliente de iOS y, si el SDK se configura con él, el web.
   private audiences(provider: SocialProvider): string[] {
-    const keys = provider === "apple" ? ["APPLE_CLIENT_ID"] : ["GOOGLE_IOS_CLIENT_ID", "GOOGLE_CLIENT_ID"];
-    return keys.map((key) => this.config.get<string>(key)?.trim() ?? "").filter(Boolean);
+    if (provider === "apple") {
+      return [this.config.get<string>("APPLE_CLIENT_ID")?.trim() || APPLE_BUNDLE_ID];
+    }
+    return ["GOOGLE_IOS_CLIENT_ID", "GOOGLE_CLIENT_ID"]
+      .map((key) => this.config.get<string>(key)?.trim() ?? "")
+      .filter(Boolean);
   }
 
   isConfigured(provider: SocialProvider): boolean {

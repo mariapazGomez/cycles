@@ -107,5 +107,5 @@ La etapa 1 se puede hacer ya, sin las consolas. Las etapas 3 y 4 necesitan la 2.
 
 - Tabla `UserIdentity` (`UNIQUE(provider, subject)`), migración aditiva `20261101120000_identidades_de_usuario`; se borra junto con la cuenta.
 - `POST /auth/apple` y `POST /auth/google/token`: reciben `{ idToken, nonce }`, verifican firma, emisor, audiencia, caducidad y nonce con `jose` (v5, por compatibilidad con CommonJS) y devuelven la sesión.
-- Variables nuevas en Render: `APPLE_CLIENT_ID` (`app.getcycles.mobile`) y `GOOGLE_IOS_CLIENT_ID`. Sin ellas, los endpoints rechazan todo token.
+- Variable nueva en Render: `GOOGLE_IOS_CLIENT_ID`. Apple no necesita ninguna: usa `app.getcycles.mobile` por defecto (`APPLE_CLIENT_ID` solo lo reemplaza).
 - El flujo web de Google no cambia (sigue vinculando solo por correo).

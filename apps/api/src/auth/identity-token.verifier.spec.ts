@@ -84,7 +84,25 @@ describe("IdentityTokenVerifier", () => {
     await expect(verifier.verify("apple", token, "")).rejects.toBeInstanceOf(UnauthorizedException);
   });
 
-  it("sin identificadores configurados no acepta nada", async () => {
+  it("Apple usa el identificador del paquete de la app aunque APPLE_CLIENT_ID no esté definida", async () => {
+    const { publicKey, privateKey } = await generateKeyPair("RS256");
+    class Bare extends IdentityTokenVerifier {
+      protected keyFor() {
+        return publicKey;
+      }
+    }
+    const verifier = new Bare({ get: () => undefined } as never);
+    const token = await new SignJWT({ sub: "x", nonce: NONCE })
+      .setProtectedHeader({ alg: "RS256" })
+      .setIssuer("https://appleid.apple.com")
+      .setAudience(APPLE_AUD)
+      .setExpirationTime("5m")
+      .sign(privateKey);
+    expect(verifier.isConfigured("apple")).toBe(true);
+    await expect(verifier.verify("apple", token, NONCE)).resolves.toMatchObject({ subject: "x" });
+  });
+
+  it("Google sin identificadores configurados no acepta nada", async () => {
     const { publicKey, privateKey } = await generateKeyPair("RS256");
     class Unconfigured extends IdentityTokenVerifier {
       protected keyFor() {
@@ -94,11 +112,11 @@ describe("IdentityTokenVerifier", () => {
     const verifier = new Unconfigured({ get: () => undefined } as never);
     const token = await new SignJWT({ sub: "x", nonce: NONCE })
       .setProtectedHeader({ alg: "RS256" })
-      .setIssuer("https://appleid.apple.com")
-      .setAudience(APPLE_AUD)
+      .setIssuer("https://accounts.google.com")
+      .setAudience(GOOGLE_AUD)
       .setExpirationTime("5m")
       .sign(privateKey);
-    expect(verifier.isConfigured("apple")).toBe(false);
-    await expect(verifier.verify("apple", token, NONCE)).rejects.toBeInstanceOf(UnauthorizedException);
+    expect(verifier.isConfigured("google")).toBe(false);
+    await expect(verifier.verify("google", token, NONCE)).rejects.toBeInstanceOf(UnauthorizedException);
   });
 });
