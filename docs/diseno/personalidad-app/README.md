@@ -36,3 +36,7 @@ Opción A: el isotipo de 22 px, azul de marca, junto al título de «Hoy», «Ca
 | Tarjetas de «Calendario» y «Resumen» | relleno 14 y 16, 10 de separación | relleno 12 y 14, 8 de separación |
 
 No cambian colores, tipografía, radios, la cadena de proteína, la isla flotante ni los destinos táctiles de 44 px. Quedan fuera de este cambio el registro de series y el cierre de sesión.
+
+## La isla de pestañas: tamaño fijo y solo íconos (CYC-185, 2026-11-02)
+
+La isla mide siempre lo mismo en las cuatro pestañas (Calendario, Hoy, Resumen y Asistente) y la selección se desliza de una a otra con una transición en la dirección de la pestaña nueva (respeta «reducir movimiento»). **Decidido por la fundadora el 2026-11-02:** la isla muestra **solo los íconos**, sin texto; el nombre de cada pestaña queda como `accessibilityLabel`, así que VoiceOver lo sigue leyendo. Esto reemplaza lo que decía el criterio original de CYC-185 («la etiqueta de la activa cabe sin cambiar el ancho»). Pendiente de ver en un iPhone con TestFlight.
