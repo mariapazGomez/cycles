@@ -40,6 +40,10 @@ Para cambiarla después: **Rutinas** → abre la rutina → edita y guarda.
 
 ### Si falta un ejercicio
 
+Desde el buscador de la rutina: escribe el nombre y, si no existe, toca **Crear «…»**. Elige el grupo y los implementos y toca **Crear y agregar a la rutina**.
+
+También puedes crearlo desde la pestaña Ejercicios, y ahí corregirlo o dejar de usarlo:
+
 Menú **Ejercicios** → **Nuevo ejercicio**. Escribe el nombre, elige el grupo muscular y los implementos que necesita (o **Peso corporal** si no usa nada). La descripción y el enlace del video son opcionales. En **Míos** puedes **Editar** un ejercicio o **Dejar de usar** uno: ya no aparece al armar rutinas, pero las sesiones donde lo usaste lo conservan. El **Catálogo** de Cycles no se edita.
 
 ---

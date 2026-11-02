@@ -29,7 +29,7 @@ Sin relación coach-atleta no hay a quién asignarle ciclos de entrenamiento (Fa
 - `POST /athletes/invite` (coach): crea la cuenta del atleta en estado incompleto (`role: athlete`, sin contraseña) + una relación `CoachAthlete` en `status: pending` + un token de invitación de un solo uso.
 - `POST /athletes/invitations/accept` (público): el atleta define su contraseña con el token recibido; al aceptar, la cuenta queda verificada, la relación pasa a `status: active`, y se le devuelven tokens de sesión (queda logueado).
 - `GET /athletes` (coach): lista los atletas del coach autenticado (todas las relaciones, con su `status`).
-- Si el email invitado ya pertenece a **cualquier** cuenta existente (coach, atleta con o sin relación activa, admin), la invitación se rechaza con un mensaje claro. No hay lógica de "vincular si no tiene coach activo" en esta iteración — decisión tomada el 2026-09-20 para no acoplar esta pieza con un flujo de reasignación de coach que no existe todavía.
+- Si el email invitado ya pertenece a un **atleta sin coach activo** (se registró solo, CYC-187), se crea la relación `pending` y el atleta acepta con el link del correo, sin cambiar su contraseña ni abrirle sesión (`POST /athletes/invitations/preview` dice si ya tiene cuenta). Si pertenece a un coach, un admin o un atleta con coach activo, la invitación se rechaza con un mensaje claro (409); la reasignación de coach sigue fuera de alcance (decisión del 2026-09-20).
 - Envío del email de invitación reutiliza el `MailService` de desarrollo (loguea el link) — mismo approach que verificación de email / reset de contraseña, hasta que se implemente Resend (ver [[PRD-General]], sección 11).
 
 ### Fuera de alcance

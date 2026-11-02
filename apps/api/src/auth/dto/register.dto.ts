@@ -15,8 +15,8 @@ export class RegisterDto {
   @MinLength(1)
   name!: string;
 
-  // Validado aquí como coach|athlete; AuthService rechaza 'athlete' porque
-  // el alta de atletas es solo por invitación (ver PRD-General, sección 4).
+  // El registro ofrece las dos opciones. Un atleta que se registra solo queda
+  // sin coach hasta que uno lo invite con el mismo correo (CYC-187).
   @IsIn(["coach", "athlete"])
   role!: UserRole;
 
@@ -29,8 +29,8 @@ export class RegisterDto {
   @AcceptPolicy()
   acceptPolicy!: boolean;
 
-  // Código de acceso del piloto (PILOT_ACCESS_CODE): deja crear una cuenta de
-  // coach aunque el registro esté cerrado al público.
+  // Código de acceso del piloto (PILOT_ACCESS_CODE): deja crear una cuenta
+  // aunque el registro esté cerrado al público.
   @IsOptional()
   @IsString()
   @MaxLength(200)

@@ -5,6 +5,7 @@ import { AuthCard } from "../components/AuthCard";
 import { GoogleButton } from "../components/GoogleButton";
 import * as authApi from "../services/authApi";
 import { ApiError } from "../services/httpClient";
+import { RoleChoice } from "../components/RoleChoice";
 import { PolicyCheckbox } from "../components/PolicyCheckbox";
 import { REGISTRATION_OPEN, clearAccessCode } from "../lib/features";
 import { track } from "../lib/analytics";
@@ -12,6 +13,7 @@ import { track } from "../lib/analytics";
 // `accessCode` viene del enlace privado del piloto; con el registro abierto no hace falta.
 export function RegisterPage({ accessCode }: { accessCode?: string | null }) {
   const navigate = useNavigate();
+  const [role, setRole] = useState<authApi.SelfRole>("coach");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,7 +25,7 @@ export function RegisterPage({ accessCode }: { accessCode?: string | null }) {
     mutationFn: authApi.register,
     onSuccess: (_, variables) => {
       clearAccessCode();
-      track("coach_registered");
+      track(variables.role === "athlete" ? "athlete_registered" : "coach_registered");
       navigate(`/check-email?email=${encodeURIComponent(variables.email)}`);
     },
     onError: (error: unknown) => {
@@ -45,12 +47,19 @@ export function RegisterPage({ accessCode }: { accessCode?: string | null }) {
       return;
     }
 
-    mutation.mutate({ name, email, password, dataConsent, acceptPolicy, ...(accessCode ? { accessCode } : {}) });
+    mutation.mutate({ role, name, email, password, dataConsent, acceptPolicy, ...(accessCode ? { accessCode } : {}) });
   }
 
   return (
-    <AuthCard title="Crea tu cuenta de coach">
+    <AuthCard title="Crea tu cuenta">
       {formError && <div className="error-banner">{formError}</div>}
+
+      <RoleChoice value={role} onChange={setRole} />
+      {role === "athlete" && (
+        <p className="auth-note">
+          Tu coach debe invitarte con este mismo correo para que veas tus entrenamientos.
+        </p>
+      )}
 
       <form onSubmit={handleSubmit} noValidate>
         <div className="field">

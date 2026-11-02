@@ -16,7 +16,7 @@ related: []
 
 ## 1. Resumen
 
-Permite a coaches registrarse libremente e iniciar sesión mediante email/contraseña o Google, con verificación de email y vinculación automática de cuentas por email. Los atletas no se auto-registran (ver [[PRD-General]], sección 4): completan su cuenta a partir de una invitación, a través del mismo mecanismo de creación de usuario pero fuera del endpoint público de registro. Apple queda fuera del MVP (ver sección 3).
+Permite a coaches y atletas registrarse e iniciar sesión mediante email/contraseña o Google, con verificación de email y vinculación automática de cuentas por email. El registro ofrece las dos opciones, coach y atleta (ver [[PRD-General]], sección 4, y CYC-187): un atleta que se registra solo queda sin coach hasta aceptar una invitación enviada a su correo. Apple queda fuera del MVP (ver sección 3).
 
 ## 2. Problema / motivación
 
@@ -29,7 +29,7 @@ Sin autenticación no hay identidad de usuario, por lo que ninguna otra funciona
 - Registro manual con email + contraseña — **solo rol `coach`** (`POST /auth/register` rechaza `role: athlete` con 403; ver [[PRD-General]], sección 4).
 - Login manual, bloqueado hasta que el email esté verificado.
 - Verificación de email obligatoria (link enviado al registrarse).
-- Login/registro con Google OAuth 2.0 — también crea cuentas sin rol asignado (`role: null`) hasta completar onboarding; el registro por Google tampoco permite auto-asignarse `athlete`.
+- Login/registro con Google OAuth 2.0 — también crea cuentas sin rol asignado (`role: null`) hasta completar onboarding; la persona elige coach o atleta en «Un último paso».
 - `POST /auth/complete-profile`: asigna el rol tras un login por Google (solo acepta `coach`; solo se puede ejecutar una vez).
 - **Vinculación automática de cuentas por email:** si un usuario ya registrado manualmente inicia sesión con Google usando el mismo email, se asocia al mismo `User` en vez de crear una cuenta duplicada (y de paso se marca el email como verificado, ya que Google lo garantiza).
 - Emisión, refresh (rotativo, con detección de reuso) y revocación (`logout`) de JWT.
