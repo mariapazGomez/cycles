@@ -16,7 +16,7 @@ function setup(open: boolean) {
   const activity = { coachJoined: jest.fn() };
   const config = { get: (key: string) => (key === "REGISTRATION_OPEN" && open ? "true" : undefined) };
   const mail = { sendVerificationEmail: jest.fn().mockResolvedValue(undefined) };
-  const service = new AuthService(prisma as never, {} as never, config as never, mail as never, {} as never, activity as never);
+  const service = new AuthService(prisma as never, {} as never, config as never, mail as never, {} as never, activity as never, {} as never);
   jest.spyOn(service as never, "issueEmailVerification" as never).mockResolvedValue(undefined as never);
   return { service, prisma, activity };
 }
