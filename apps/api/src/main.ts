@@ -6,7 +6,7 @@ import helmet from "helmet";
 import { isIP } from "net";
 import type { NextFunction, Request, Response } from "express";
 import { AppModule } from "./app.module";
-import { corsOrigins } from "./common/config/env.validation";
+import { corsOptions } from "./common/config/env.validation";
 import { spanishValidationPipe } from "./common/validation/spanish-validation";
 
 async function bootstrap() {
@@ -39,7 +39,8 @@ async function bootstrap() {
   // Cabeceras de seguridad (docs/SEGURIDAD.md, S-07).
   app.use(helmet());
   // Solo la web de Cycles puede llamar a la API desde el navegador (S-04).
-  app.enableCors({ origin: corsOrigins(config) });
+  // Con credenciales: la web envía la cookie del refresh token (S-08).
+  app.enableCors(corsOptions(config));
   app.useGlobalPipes(spanishValidationPipe());
   await app.listen(process.env.PORT ?? 3000);
 }

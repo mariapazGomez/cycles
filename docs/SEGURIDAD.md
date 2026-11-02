@@ -78,6 +78,7 @@ Política de CYC-156 (épica «Accesos y contraseñas»). Aplica a toda cuenta, 
 |---|---|
 | `apps/api/src/auth/auth.service.ts` | Registro, login, refresh con rotación, verificación de email, recuperación de contraseña, login con Google. Aquí viven los TTL de los tokens. |
 | `apps/api/src/auth/auth.controller.ts` | Endpoints públicos de `/auth/*` y el callback de Google. |
+| `apps/api/src/common/auth-cookie.ts` | Cookie `cycles_rt` del refresh token de la web (CYC-89, S-08): `httpOnly`, `SameSite=Strict`, `Path=/auth`, `Secure` en producción. Solo con la cabecera `X-Cycles-Client: web`; en modo web el refresh **nunca** va en el cuerpo, y la cookie se ignora sin esa cabecera. Con cookie, `refresh` y `logout` exigen `Origin` en la lista de CORS (CSRF). CORS con `credentials: true`. La app móvil sigue con el token en el cuerpo. |
 | `apps/api/src/auth/token.util.ts` | Genera tokens aleatorios y los hashea (SHA-256) antes de guardarlos. |
 | `apps/api/src/auth/strategies/jwt.strategy.ts` | Valida el access token en cada request. |
 | `apps/api/src/auth/strategies/google.strategy.ts` | OAuth con Google (scopes `email` y `profile`). |

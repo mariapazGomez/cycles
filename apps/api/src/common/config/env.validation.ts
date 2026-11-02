@@ -80,6 +80,12 @@ export function validateEnv(config: Record<string, unknown>): Record<string, unk
   return config;
 }
 
+// CORS: la web manda la cookie del refresh token, así que debe permitir credenciales
+// (y por eso no puede usar un comodín: solo los orígenes de la lista).
+export function corsOptions(config: { get<T = string>(key: string): T | undefined }): { origin: string[]; credentials: true } {
+  return { origin: corsOrigins(config), credentials: true };
+}
+
 // Orígenes a los que responde la API desde el navegador. Por defecto, solo la web.
 export function corsOrigins(config: { get<T = string>(key: string): T | undefined }): string[] {
   const list = (config.get<string>("CORS_ORIGINS") ?? "")
