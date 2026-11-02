@@ -177,6 +177,7 @@ En los flujos públicos de **recuperación de contraseña** y **reenvío de veri
 2. Los timestamps se guardan en UTC.
 3. Ningún dato de un atleta se usa en análisis entre atletas sin `dataConsentAt` (ver [[VISION]]).
 4. Pesos en kg; la conversión es solo de presentación.
+5. Las **notas del coach por ejercicio** (`note`) pueden mencionar datos de salud: solo las ven el coach dueño y el atleta de esa sesión, y **nunca van en los avisos** ni en el texto que se manda a Slack, PostHog o los correos. Se escriben solo con las rutas de coach con chequeo de propiedad.
 
 ### R8 · Logs
 1. En producción nunca se loguean contraseñas, tokens, enlaces con token ni el cuerpo completo de un request de auth.
@@ -266,7 +267,7 @@ Revisión del código de `main` de los endpoints y funciones que no existían en
 **Resultado:** ningún hallazgo nuevo de severidad alta ni media. Quedan dos observaciones:
 
 - **El código del piloto es un secreto compartido:** quien tenga el enlace puede crear una cuenta de coach. Se acepta durante el piloto; se rota cambiando `PILOT_ACCESS_CODE` en Render (guardado en 1Password, bóveda «Cycles · Producción»).
-- **Las notas del coach** (épica 3) **todavía no existen** en la API. Cuando se construyan hay que auditarlas: son texto libre sobre una persona, posiblemente con datos de salud, y deben verse solo por su coach autor (R5, R7).
+- **Las notas del coach por ejercicio** (CYC-60, 2026-11-02) ya están en la API y se revisaron con esta misma lista: el campo `note` (máx. 500 caracteres, texto libre que puede mencionar salud) vive en `RoutineExercise` y `SessionExercise`; solo la escribe el coach dueño (`PATCH /session-exercises/:id`, rutinas y `POST /sessions/:id/exercises`), y solo la leen ese coach (con relación activa) y el atleta de esa sesión, por las mismas rutas de siempre; **nunca entra en los avisos** (R7) y sí en la exportación de datos del atleta. Pruebas: `apps/api/test/notas.e2e-spec.ts` (15), con un sabotaje comprobado.
 
 Seguimiento: S-08, S-10, S-11 (matriz de autorización completa, `docs/PRUEBAS-E2E.md`) y S-12 quedaron resueltos el 2026-11-01 y 2026-11-02; sigue abierto S-14 (secretos locales).
 

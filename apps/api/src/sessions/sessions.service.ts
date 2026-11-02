@@ -5,6 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import { cleanNote } from "../common/exercise-note";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuthenticatedUser } from "../common/decorators/current-user.decorator";
 import { CURRENT_FEEDBACK, CURRENT_LOG } from "../common/training";
@@ -76,6 +77,7 @@ export class SessionsService {
       targetWeight: re.defaultWeight,
       targetRestSeconds: re.defaultRestSeconds,
       targetRir: re.defaultRir,
+      note: re.note,
     }));
     const include = { sessionExercises: { include: { exercise: true }, orderBy: { orderIndex: "asc" as const } } };
 
@@ -367,6 +369,7 @@ export class SessionsService {
                 targetWeight: e.targetWeight,
                 targetRestSeconds: e.targetRestSeconds,
                 targetRir: e.targetRir,
+                note: e.note,
               })),
             },
           },
@@ -437,6 +440,7 @@ export class SessionsService {
         targetWeight: dto.targetWeight,
         targetRestSeconds: dto.targetRestSeconds,
         targetRir: dto.targetRir,
+        note: cleanNote(dto.note) ?? null,
       },
       include: { exercise: true },
     });
@@ -455,6 +459,7 @@ export class SessionsService {
         ...(dto.targetWeight !== undefined ? { targetWeight: dto.targetWeight } : {}),
         ...(dto.targetRestSeconds !== undefined ? { targetRestSeconds: dto.targetRestSeconds } : {}),
         ...(dto.targetRir !== undefined ? { targetRir: dto.targetRir } : {}),
+        ...(dto.note !== undefined ? { note: cleanNote(dto.note) } : {}),
       },
       include: { exercise: true },
     });

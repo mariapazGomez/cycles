@@ -52,6 +52,7 @@ const FIELD_LABELS: Record<string, string> = {
   targetReps: "Las repeticiones objetivo",
   targetWeight: "El peso objetivo",
   targetRir: "Las repeticiones en reserva objetivo",
+  note: "La nota",
   targetRestSeconds: "El descanso objetivo",
   defaultSets: "Las series por defecto",
   defaultReps: "Las repeticiones por defecto",

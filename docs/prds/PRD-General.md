@@ -215,6 +215,7 @@ erDiagram
         float defaultWeight "nullable"
         int defaultRestSeconds "nullable"
         int defaultRir "nullable"
+        string note "nullable"
     }
     TRAINING_SESSION {
         string id PK
@@ -249,6 +250,7 @@ erDiagram
         float targetWeight "nullable"
         int targetRestSeconds "nullable"
         int targetRir "nullable"
+        string note "nullable"
     }
     EXERCISE_LOG {
         string id PK
@@ -334,6 +336,7 @@ Notas sobre campos agregados tras la definición de [[VISION]]:
 - `ExerciseLog` y `SessionFeedback` (append-only): una corrección es una fila nueva con `supersedesId`; `active` marca el dato vigente. Reemplazan el `ExerciseLog` de una sola fila del primer diseño. Ver [[PRD-EjecucionYSeguimiento]].
 - `Routine` / `RoutineExercise`: la biblioteca de rutinas del coach; al asignar una rutina a una celda se copian como `SessionExercise` editables.
 - `Exercise.equipment`: lista cerrada de implementos (`Equipment`); vacía en el catálogo global hasta que se revise.
+- `RoutineExercise.note` / `SessionExercise.note`: nota del coach para el atleta, una por ejercicio (máx. 500 caracteres), copiada de la rutina a la sesión al asignarla y editable por sesión. Puede mencionar salud: nunca va en los avisos ([[SEGURIDAD]], R7).
 - `Notification` (avisos de la campana) y `PolicyAcceptance` (aceptación versionada de Términos y Política): ver `docs/diseno/notificaciones` y [[PRD-PrivacidadYTerminos]].
 - `User.isDemo`: cuentas ficticias de demostración, excluidas de métricas y resúmenes.
 - `OAuthExchangeCode`: código de un solo uso del login con Google ([[PRD-Autenticacion]]). `ActivityDigest` y `ContactRequest`: resumen diario a Slack y mensajes del formulario de la landing ([[PRD-LandingContacto]]).

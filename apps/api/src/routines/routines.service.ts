@@ -1,4 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { cleanNote } from "../common/exercise-note";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateRoutineDto } from "./dto/create-routine.dto";
 import { UpdateRoutineDto } from "./dto/update-routine.dto";
@@ -86,6 +87,7 @@ export class RoutinesService {
       defaultWeight: ex.defaultWeight,
       defaultRestSeconds: ex.defaultRestSeconds,
       defaultRir: ex.defaultRir,
+      note: cleanNote(ex.note) ?? null,
     }));
   }
 

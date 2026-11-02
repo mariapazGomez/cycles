@@ -124,6 +124,7 @@ model TrainingSession {
 - `GET /cycles`: por defecto excluye los planes que tienen `parentCycleId` (aparecen anidados bajo su macrociclo, no en el listado principal).
 - `GET /cycles/:id/children` — lista los planes hijos de un macrociclo.
 - `POST /cycles/:cycleId/sessions` **cambia de forma**: pasa de `{ name, scheduledDate? }` a `{ weekNumber, slotNumber, routineId, scheduledDate? }` — crea la sesión y copia los ejercicios de la rutina. `name` se toma del nombre de la rutina (editable después vía `PATCH /sessions/:id`, que no cambia).
+- **Nota por ejercicio** (CYC-60, 2026-11-02; decidido con la fundadora): `note` opcional (máx. 500 caracteres) en `POST/PATCH /routines` (cada ejercicio de la lista), `POST /sessions/:id/exercises` y `PATCH /session-exercises/:id`. Una por ejercicio, no por serie. Al asignar una rutina o duplicar una sesión, la nota de la rutina se **copia** a la sesión (cambiar la rutina después no cambia las sesiones ya asignadas); el coach la edita por sesión. Una nota vacía o solo espacios la borra. El atleta la recibe junto con `sessionExercises` en `GET /sessions/:id` y `GET /me/today`. Es texto libre que puede mencionar salud: solo la ven el coach dueño y el atleta de esa sesión y **no va en los avisos**. La web del coach, la del atleta y la app iOS la muestran en entregas siguientes (CYC-61, 62 y 63).
 - El resto de `PATCH/DELETE /sessions/:id` y `POST/PATCH/DELETE` sobre `session-exercises` **no cambia** — ya soportan ajustar una celda puntual.
 
 ## 7. UI/UX
