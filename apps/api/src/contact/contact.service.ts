@@ -94,6 +94,8 @@ export class ContactService {
 export function cleanMessage(raw: string): string {
   return raw
     .replace(/[^\S\n]+/g, " ")
+    // Los caracteres de control son justo lo que esta línea quita.
+    // eslint-disable-next-line no-control-regex
     .replace(/[\u0000-\u0009\u000b-\u001f\u007f]/g, "")
     .replace(/ ?\n ?/g, "\n")
     .replace(/\n{3,}/g, "\n\n")

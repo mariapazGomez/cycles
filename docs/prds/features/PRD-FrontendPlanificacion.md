@@ -2,10 +2,10 @@
 type: prd
 level: feature
 parent: "[[PRD-General]]"
-status: in-progress
+status: complete
 phase: "Fase 2 — Planificación"
 created: 2026-09-22
-updated: 2026-10-27
+updated: 2026-11-01
 tags: [prd, feature/frontend-planificacion]
 related: ["[[PRD-CRUDCiclos]]", "[[PRD-CRUDSesiones]]", "[[PRD-CatalogoEjercicios]]"]
 ---
@@ -82,4 +82,4 @@ Mismo patrón ya establecido en `AthletesPanel`: **React Query** para todo fetch
 ## 8. Estado y decisiones abiertas
 
 - Resuelto: la creación de un ciclo es un formulario inline en `/cycles` (toggle), no una ruta ni modal separado.
-- Pendiente (opcional, baja prioridad): pantalla de gestión del catálogo de ejercicios propios (paso 5).
+- Resuelto (2026-10-30): la pantalla de gestión de ejercicios propios existe, es la pestaña **Ejercicios** de la web ([[PRD-CatalogoEjercicios]]).

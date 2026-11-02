@@ -22,10 +22,10 @@ Tres tandas, de mayor a menor urgencia. Cada PR es chico y se puede revisar solo
 | | | **1D** Cabeceras de la web en Vercel | S-07 (web) | Bajo, junto con el paso 4 del plan de deploy |
 | | | **1E** Alertas de seguridad a Slack | Detección (complementa S-01 y R2) | Medio |
 | **2** | Antes de sumar más usuarios | **2A** Refresh token en cookie `httpOnly` | S-08 | Alto |
-| | | **2B** Tokens de la app móvil en el Keychain | S-09 | Bajo, en la rama de la app móvil |
+| | | **2B** Tokens de la app móvil en el Keychain | S-09 | Bajo. **Hecho** (verificado 2026-11-01) |
 | | | **2C** Tests de autorización y CI | S-11 | Medio |
 | **3** | Mejoras planificadas | **3A** Igualar tiempos del login | S-10 | Bajo |
-| | | **3B** Append-only a nivel de base de datos | S-12 | Bajo |
+| | | **3B** Append-only a nivel de base de datos | S-12 | Bajo. **Hecho** (2026-11-01) |
 
 **Por qué 1A va primero:** al actualizar dependencias puede cambiar el comportamiento de NestJS. Conviene que los demás cambios se prueben ya sobre las versiones nuevas.
 
@@ -200,6 +200,8 @@ Los umbrales son iniciales: van como constantes, igual que los límites de 1B.
 
 ### 2A · Refresh token en cookie `httpOnly` (S-08 · R2)
 
+> **Hecho** (CYC-89, 2026-11-02): API (`common/auth-cookie.ts`, PR #128) y web (PR #129) en producción. `login`, `google/exchange` e `invitations/accept` ponen la cookie si el pedido trae `X-Cycles-Client: web` y no devuelven el refresh en el cuerpo; `refresh` y `logout` leen la cookie (o el cuerpo, para la app móvil y el puente de sesiones viejas) y con cookie exigen `Origin` permitido; CORS con credenciales. La web guarda el access token solo en memoria, restaura la sesión con `/auth/refresh` (solo si hay marca de sesión, para que la landing no espere a la API) y serializa el refresh entre pestañas con Web Locks: sin eso, 4 de 4 intentos escalonados terminaron con todas las sesiones revocadas. Cambios respecto al plan: la web se distingue por la cabecera, no por la cookie; sin librería de cookies. Pruebas: `apps/api/test/cookie.e2e-spec.ts` y `common/auth-cookie.spec.ts`. **Puente temporal** (cambia el refresh token viejo de `localStorage` por la cookie): quitarlo pasados 30 días del despliegue (`takeLegacyRefreshToken` en `apps/web/src/services/tokenStore.ts`).
+
 - La API entrega el **refresh token en una cookie** `httpOnly`, `Secure`, `SameSite=Strict`, con `Path=/auth`. El access token queda **solo en memoria** en la web.
 - `app.getcycles.app` y `api.getcycles.app` son el mismo *site* (`getcycles.app`), así que `SameSite=Strict` funciona. CORS pasa a `credentials: true` con la lista de orígenes de 1B.
 - Al cargar la página, la web pide un access token nuevo con `POST /auth/refresh` usando la cookie.
@@ -210,10 +212,11 @@ Los umbrales son iniciales: van como constantes, igual que los límites de 1B.
 
 ### 2B · Tokens de la app móvil en el Keychain (S-09 · R2)
 
-- En la rama `worktree-mobile-app`, cambiar `AsyncStorage` por `react-native-keychain`, que usa el Keychain de iOS, en `apps/mobile/src/services/tokenStore.ts`. Mantener la interfaz del `tokenStore` para no tocar las pantallas.
-- Hacerlo **antes de mergear o publicar** la app. Coordinarlo con la sesión que trabaja en esa rama.
+> **Hecho** (2026-10-02; verificado contra el código el 2026-11-01). `apps/mobile/src/services/tokenStore.ts` usa `react-native-keychain` (Keychain de iOS, Keystore de Android) con `AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY`, mantiene la misma interfaz, migra la sesión antigua de `AsyncStorage` y descarta el Keychain heredado de una instalación anterior. Pruebas: `apps/mobile/__tests__/tokenStore.test.ts`. Falta confirmarlo en un dispositivo con TestFlight.
 
 ### 2C · Tests de autorización y CI (S-11 · R12)
+
+> **CI mínimo hecho** (CYC-91, 2026-11-01): `.github/workflows/ci.yml` (tipos y pruebas de API y app móvil, tipos y compilación de la web, `npm audit` como aviso). Los tests de autorización (CYC-90) y ESLint ya corren en el CI; falta activar el CI como requisito de la rama `main`.
 
 > **Primer paso (2026-10-27):** `apps/api` tiene Jest con pruebas unitarias de los servicios de ciclos y sesiones (Prisma simulado) que cubren los casos prohibidos de las rutas nuevas de plantillas. Faltan la matriz e2e contra una base de prueba, el resto de endpoints y el CI.
 
@@ -237,9 +240,17 @@ Los umbrales son iniciales: van como constantes, igual que los límites de 1B.
 
 ### 3A · Igualar tiempos del login (S-10 · R3)
 
-Cuando el email no existe, igual comparar la contraseña contra un hash bcrypt ficticio, para que la respuesta tarde lo mismo que con un email existente. Son unas pocas líneas en `auth.service.ts`.
+> **Hecho para el login** (2026-11-01, CYC-95): `login` siempre corre `bcrypt.compare`, contra `DUMMY_PASSWORD_HASH` (costo 12) cuando la cuenta no existe o es solo de Google, y además exige un hash real para dejar entrar. Pruebas: `auth.service.login.spec.ts`.
+>
+> **También hecho para la recuperación de contraseña y el reenvío de verificación** (2026-11-01): responden de inmediato y hacen las escrituras y el envío del correo en segundo plano (`inBackground`), para que un correo registrado y uno inexistente tarden lo mismo. Los fallos de ese trabajo quedan en el log, sin el correo. Pruebas: `auth.service.recovery.spec.ts`.
+
+Cuando el email no existe, igual comparar la contraseña contra un hash bcrypt ficticio, para que la respuesta tarde lo mismo que con un email existente.
 
 ### 3B · Append-only en la base de datos (S-12 · R7)
+
+> **Hecho** (2026-11-01, CYC-96): migración `20261101200000_registros_solo_agregan` con triggers de PostgreSQL sobre `ExerciseLog` y `SessionFeedback`. `UPDATE`: solo se permite pasar `active` de 1 a 0. `DELETE` y `TRUNCATE`: error, salvo dentro de una transacción con `SET LOCAL cycles.allow_purge = 'on'` (la declaran el borrado de cuenta, `seed-demo` y las pruebas). Pruebas: `apps/api/test/append-only.e2e-spec.ts`.
+>
+> **Fase 2 (opcional, sin hacer):** un rol de base de datos distinto para la API, sin permiso de `UPDATE`/`DELETE` sobre esas tablas y con otra cadena de conexión en Render. Hoy la API se conecta como el dueño de las tablas, que puede desactivar los triggers; los triggers protegen de errores, no de quien tenga esa contraseña.
 
 Migración con un trigger de Postgres que rechace `UPDATE` y `DELETE` sobre `ExerciseLog` y `SessionFeedback`. Hay que revisar que ningún flujo actual los necesite: quitar un ejercicio con registros ya está bloqueado en la app. Documentar cómo borrar datos si algún día se pide por privacidad (un procedimiento manual y controlado).
 
@@ -254,8 +265,8 @@ Migración con un trigger de Postgres que rechace `UPDATE` y `DELETE` sobre `Exe
 | 1C Google sin tokens en la URL | S-02 | **Hecho** (2026-09-27). Probado sin credenciales de Google, con códigos creados en la base: intercambio válido 200; reuso, vencido o inválido 401; tres pedidos simultáneos con el mismo código dan un solo 200; la URL final queda limpia; ni el código ni los tokens aparecen en el log. Probado de punta a punta con Google en producción (P-09, 2026-09-29). `Referrer-Policy` queda para 1D. |
 | 1D Cabeceras en Vercel | S-07 | **Hecho** (2026-09-29, PR #21): `apps/web/vercel.json` con CSP, `Referrer-Policy: no-referrer`, `X-Frame-Options`, HSTS y el resto, verificado en `https://app.getcycles.app`. Sin errores de CSP en las pantallas públicas |
 | 1E Alertas de seguridad a Slack | Detección | **Hecho** (2026-09-27). Probado en local simulando IPs con `X-Forwarded-For`: cada uno de los cinco eventos da una sola alerta, el email sale oculto, el anti-inundación omite las repeticiones y la siguiente alerta dice cuántas; sin webhook o con Slack caído la API responde igual. Diferencia con el plan: la regla "IP que prueba muchos emails" cuenta solo logins **fallidos**. Probado con el webhook real y la IP pública real en producción (P-12, 2026-09-28); S-13 se corrigió en ese recorrido (PR #19). |
-| 2A Refresh en cookie | S-08 | Pendiente |
-| 2B Keychain en móvil | S-09 | Pendiente (rama móvil) |
-| 2C Tests y CI | S-11 | Pendiente |
-| 3A Tiempos del login | S-10 | Pendiente |
-| 3B Append-only en la base | S-12 | Pendiente |
+| 2A Refresh en cookie | S-08 | **Hecho** (2026-11-02, CYC-89). Falta quitar el puente de sesiones viejas pasados 30 días |
+| 2B Keychain en móvil | S-09 | **Hecho** (2026-10-02; verificado 2026-11-01). Falta probarlo en dispositivo |
+| 2C Tests y CI | S-11 | **Hecho** (2026-11-01, CYC-90 y CYC-91): CI con tipos, pruebas, ESLint y la matriz de autorización. Falta exigir el CI en la rama `main` |
+| 3A Tiempos del login | S-10 | **Hecho** (2026-11-01, CYC-95): login, recuperación de contraseña y reenvío de verificación |
+| 3B Append-only en la base | S-12 | **Hecho** (2026-11-01, CYC-96). Fase 2 opcional: rol de base aparte para la API |

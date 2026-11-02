@@ -2,10 +2,10 @@
 type: prd
 level: feature
 parent: "[[PRD-General]]"
-status: draft
+status: in-progress
 phase: "Fase 3.5 — Piloto"
 created: 2026-10-12
-updated: 2026-10-12
+updated: 2026-11-01
 tags: [prd, feature/legal, privacidad]
 related: ["[[PRD-Autenticacion]]", "[[PRD-LandingContacto]]", "[[PRD-AppMovilAtleta]]"]
 ---
@@ -96,7 +96,7 @@ Apple exige que una app con registro deje **iniciar el borrado de la cuenta dent
 - **Atleta:** se borra todo: cuenta, series (`ExerciseLog`), cierres (`SessionFeedback`), avisos, sesiones, aceptaciones de la política, tokens y vínculos con coaches. Sus **planes quedan como plantillas en la Biblioteca del coach** (nombre, objetivo, tipo, frecuencia y semanas), sin atleta, sin fechas reales y sin rutinas puestas. Un plan que ya venía de una plantilla no se duplica. Un macrociclo (solo contenedor) no pasa a plantilla.
 - **Coach:** se desvincula de sus atletas (la relación queda `inactive`), pero **no se borran los datos de los atletas**: su historial se conserva para que puedan vincularse con otro coach y llevarle su rendimiento. Como los planes y sesiones de esos atletas apuntan a la fila del coach, esa fila **se anonimiza** en vez de borrarse: nombre «Coach eliminado», correo `cuenta-eliminada-<id>@cycles.invalid`, sin contraseña, sin consentimiento, sin tokens, avisos ni aceptaciones. Se borran su Biblioteca (rutinas y plantillas) y sus invitaciones pendientes; sus ejercicios propios solo se ocultan porque el historial de los atletas los usa.
 - **Cuentas admin:** no se pueden eliminar desde la app.
-- **Excepción a «append-only»:** `ExerciseLog` y `SessionFeedback` no se editan ni se borran (SEGURIDAD.md, R7), salvo cuando la **persona dueña elimina su cuenta**.
+- **Excepción a «append-only»:** `ExerciseLog` y `SessionFeedback` no se editan ni se borran (SEGURIDAD.md, R7), salvo cuando la **persona dueña elimina su cuenta**. Desde 2026-11-01 la base de datos lo impone con triggers y el borrado de cuenta declara la excepción dentro de su transacción (`SET LOCAL cycles.allow_purge = 'on'`).
 
 **Pendientes y límites:**
 - No se manda correo de aviso tras eliminar (se puede agregar).

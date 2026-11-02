@@ -121,6 +121,9 @@ async function borrarDemo() {
   const sesiones = { cycle: ciclos };
 
   await prisma.$transaction(async (tx) => {
+    // Los registros históricos no se borran salvo con esta excepción, que vale solo
+    // dentro de esta transacción (docs/SEGURIDAD.md, S-12).
+    await tx.$executeRaw`SELECT set_config('cycles.allow_purge', 'on', true)`;
     // Correcciones que apuntan a otro registro: primero se sueltan.
     await tx.exerciseLog.updateMany({ where: { athleteId: { in: ids } }, data: { supersedesId: null } });
     await tx.sessionFeedback.updateMany({ where: { athleteId: { in: ids } }, data: { supersedesId: null } });

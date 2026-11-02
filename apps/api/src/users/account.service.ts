@@ -68,6 +68,11 @@ export class AccountService {
       });
     }
 
+    // Borrar el historial de quien se va es la única excepción a «los registros
+    // no se borran»: sin esto el trigger de la base lo rechaza (SEGURIDAD.md, S-12).
+    // `true` = vale solo dentro de esta transacción.
+    await tx.$executeRaw`SELECT set_config('cycles.allow_purge', 'on', true)`;
+
     const cycleIds = cycles.map((c) => c.id);
     const sessionIds = (await tx.trainingSession.findMany({ where: { cycleId: { in: cycleIds } }, select: { id: true } })).map(
       (s) => s.id,

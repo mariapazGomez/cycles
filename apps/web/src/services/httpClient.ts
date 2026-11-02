@@ -35,27 +35,48 @@ async function extractErrorMessage(response: Response): Promise<string> {
   return "Ocurrió un error inesperado. Intenta de nuevo.";
 }
 
+// La web se identifica ante la API para que entregue el refresh token en una cookie
+// `httpOnly` (nunca en el cuerpo) y la lea de ahí. Con `credentials: "include"` el
+// navegador manda y guarda esa cookie aunque la API esté en otro subdominio.
+const WEB_CLIENT_HEADERS = { "X-Cycles-Client": "web" };
+
 // Evita disparar varios refresh en paralelo si varias requests reciben 401 a la vez.
 let refreshInFlight: Promise<void> | null = null;
 
-async function refreshSession(): Promise<void> {
-  const refreshToken = tokenStore.getRefreshToken();
-  if (!refreshToken) {
-    throw new ApiError(401, "Sesión expirada");
+// El refresh token rota en cada uso y reusar uno viejo cierra todas las sesiones
+// (R2). Dos pestañas que refrescan a la vez con la misma cookie lo provocarían, así
+// que el refresh se hace de a una pestaña por vez (Web Locks).
+function withRefreshLock<T>(run: () => Promise<T>): Promise<T> {
+  const locks = typeof navigator !== "undefined" ? navigator.locks : undefined;
+  return locks ? (locks.request("cycles-refresh", run) as Promise<T>) : run();
+}
+
+// Pide un access token nuevo con la cookie de la sesión. También restaura la sesión
+// al cargar la página (el access token solo vive en memoria).
+export function refreshSession(): Promise<void> {
+  if (!refreshInFlight) {
+    refreshInFlight = withRefreshLock(async () => {
+      // Puente: una sesión guardada antes de la cookie se cambia por la cookie.
+      const legacyToken = tokenStore.takeLegacyRefreshToken();
+      const response = await fetch(`${API_URL}/auth/refresh`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", ...WEB_CLIENT_HEADERS },
+        body: JSON.stringify(legacyToken ? { refreshToken: legacyToken } : {}),
+      });
+
+      if (!response.ok) {
+        tokenStore.clear();
+        throw new ApiError(401, "Sesión expirada");
+      }
+
+      const { accessToken } = (await response.json()) as { accessToken: string };
+      tokenStore.setAccessToken(accessToken);
+    }).finally(() => {
+      refreshInFlight = null;
+    });
   }
-
-  const response = await fetch(`${API_URL}/auth/refresh`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refreshToken }),
-  });
-
-  if (!response.ok) {
-    tokenStore.clear();
-    throw new ApiError(401, "Sesión expirada");
-  }
-
-  tokenStore.setTokens(await response.json());
+  return refreshInFlight;
 }
 
 export async function apiRequest<T>(
@@ -64,7 +85,7 @@ export async function apiRequest<T>(
   isRetry = false,
 ): Promise<T> {
   const { method = "GET", body, auth = true } = options;
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const headers: Record<string, string> = { "Content-Type": "application/json", ...WEB_CLIENT_HEADERS };
 
   if (auth) {
     const accessToken = tokenStore.getAccessToken();
@@ -75,17 +96,13 @@ export async function apiRequest<T>(
 
   const response = await fetch(`${API_URL}${path}`, {
     method,
+    credentials: "include",
     headers,
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
 
   if (response.status === 401 && auth && !isRetry) {
-    if (!refreshInFlight) {
-      refreshInFlight = refreshSession().finally(() => {
-        refreshInFlight = null;
-      });
-    }
-    await refreshInFlight;
+    await refreshSession();
     return apiRequest<T>(path, options, true);
   }
 

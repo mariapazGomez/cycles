@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   ForbiddenException,
@@ -9,6 +10,7 @@ import {
   Post,
   Req,
   Res,
+  UnauthorizedException,
   UseGuards,
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
@@ -26,6 +28,14 @@ import { CompleteProfileDto } from "./dto/complete-profile.dto";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 import { CurrentUser, AuthenticatedUser } from "../common/decorators/current-user.decorator";
 import { GoogleProfile } from "./strategies/google.strategy";
+import {
+  assertAllowedOrigin,
+  clearRefreshCookie,
+  deliverTokens,
+  isWebClient,
+  readRefreshCookie,
+} from "../common/auth-cookie";
+import { corsOrigins } from "../common/config/env.validation";
 
 @Controller("auth")
 export class AuthController {
@@ -43,21 +53,41 @@ export class AuthController {
   @Throttle(LIMITS.login)
   @Post("login")
   @HttpCode(HttpStatus.OK)
-  login(@Body() dto: LoginDto, @Ip() ip: string) {
-    return this.authService.login(dto, ip);
+  async login(@Body() dto: LoginDto, @Ip() ip: string, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    return deliverTokens(req, res, await this.authService.login(dto, ip), this.secureCookies);
   }
 
   @Throttle(LIMITS.refresh)
   @Post("refresh")
   @HttpCode(HttpStatus.OK)
-  refresh(@Body() dto: RefreshTokenDto, @Ip() ip: string) {
-    return this.authService.refresh(dto.refreshToken, ip);
+  async refresh(@Body() dto: RefreshTokenDto, @Ip() ip: string, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const web = isWebClient(req);
+    // En la web el token viene de la cookie; el cuerpo solo lo usa el puente temporal
+    // para sesiones guardadas antes de la cookie (CYC-89) y la app móvil.
+    const token = dto.refreshToken ?? (web ? this.cookieToken(req) : undefined);
+    if (!token) {
+      throw new UnauthorizedException("Refresh token inválido");
+    }
+    try {
+      return deliverTokens(req, res, await this.authService.refresh(token, ip), this.secureCookies);
+    } catch (error) {
+      // Un token rechazado no sirve de nada: se borra la cookie para no repetir el intento.
+      if (web && error instanceof UnauthorizedException) clearRefreshCookie(res, this.secureCookies);
+      throw error;
+    }
   }
 
   @Post("logout")
   @HttpCode(HttpStatus.NO_CONTENT)
-  async logout(@Body() dto: LogoutDto) {
-    await this.authService.logout(dto.refreshToken);
+  async logout(@Body() dto: LogoutDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const web = isWebClient(req);
+    const token = dto.refreshToken ?? (web ? this.cookieToken(req) : undefined);
+    if (web) clearRefreshCookie(res, this.secureCookies);
+    if (!token) {
+      if (web) return; // ya no había sesión: nada que revocar
+      throw new BadRequestException("Falta el refresh token.");
+    }
+    await this.authService.logout(token);
   }
 
   @Throttle(LIMITS.tokenUse)
@@ -131,21 +161,33 @@ export class AuthController {
   @Throttle(LIMITS.login)
   @Post("google/token")
   @HttpCode(HttpStatus.OK)
-  googleToken(@Body() dto: SocialLoginDto) {
-    return this.authService.loginWithIdentityToken("google", dto);
+  async googleToken(@Body() dto: SocialLoginDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    return deliverTokens(req, res, await this.authService.loginWithIdentityToken("google", dto), this.secureCookies);
   }
 
   @Throttle(LIMITS.login)
   @Post("apple")
   @HttpCode(HttpStatus.OK)
-  appleLogin(@Body() dto: SocialLoginDto) {
-    return this.authService.loginWithIdentityToken("apple", dto);
+  async appleLogin(@Body() dto: SocialLoginDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    return deliverTokens(req, res, await this.authService.loginWithIdentityToken("apple", dto), this.secureCookies);
   }
 
   @Throttle(LIMITS.tokenUse)
   @Post("google/exchange")
   @HttpCode(HttpStatus.OK)
-  exchangeGoogleCode(@Body() dto: GoogleExchangeDto) {
-    return this.authService.exchangeGoogleCode(dto.code);
+  async exchangeGoogleCode(@Body() dto: GoogleExchangeDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    return deliverTokens(req, res, await this.authService.exchangeGoogleCode(dto.code), this.secureCookies);
+  }
+
+  // La cookie solo viaja en `Secure` en producción (en local se usa http).
+  private get secureCookies(): boolean {
+    return this.config.get<string>("NODE_ENV") === "production";
+  }
+
+  // Lee la cookie y exige que el pedido venga de la web de Cycles (CSRF).
+  private cookieToken(req: Request): string | undefined {
+    const token = readRefreshCookie(req);
+    if (token) assertAllowedOrigin(req, corsOrigins(this.config));
+    return token;
   }
 }

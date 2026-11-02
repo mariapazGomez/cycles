@@ -3,7 +3,7 @@ type: reference
 tags: [seguridad, reglas]
 status: vigente
 created: 2026-09-26
-updated: 2026-10-27
+updated: 2026-11-01
 ---
 
 # Seguridad de Cycles
@@ -68,7 +68,7 @@ Política de CYC-156 (épica «Accesos y contraseñas»). Aplica a toda cuenta, 
 | Archivo | Qué hace |
 |---|---|
 | `apps/api/src/contact/contact.service.ts` | `POST /contact`, sin sesión: formulario de la landing. Filtra bots (campo señuelo, tiempo mínimo de llenado, máximo de enlaces), ignora el mismo correo dentro de 24 h y tiene un tope de 40 mensajes al día. Guarda en `ContactRequest` (sin IP) y avisa a Slack con el texto escapado. |
-| `apps/api/src/common/throttle/throttle.ts` (`LIMITS.contact`) | 3 intentos por hora por IP y 2 por día por correo. |
+| `apps/api/src/common/throttle/throttle.ts` (`LIMITS.contact`) | 10 intentos por hora por IP y 2 por día por correo (cada petición cuenta, también las que fallan al validar). |
 | `apps/api/scripts/purgar-contactos.ts` | Borra los mensajes de contacto con más de 12 meses (la política lo promete). Ensayo por defecto, `--aplicar` para borrar; solo imprime cantidades. Se corre a mano, como mínimo cada 3 meses. |
 | `SLACK_CONTACT_WEBHOOK_URL` | Webhook de un canal privado propio (`#cycles-early-adopters`). Lleva el correo completo de quien escribe, por eso no se mezcla con el canal de actividad. Es un secreto (R1). |
 
@@ -78,6 +78,7 @@ Política de CYC-156 (épica «Accesos y contraseñas»). Aplica a toda cuenta, 
 |---|---|
 | `apps/api/src/auth/auth.service.ts` | Registro, login, refresh con rotación, verificación de email, recuperación de contraseña, login con Google. Aquí viven los TTL de los tokens. |
 | `apps/api/src/auth/auth.controller.ts` | Endpoints públicos de `/auth/*` y el callback de Google. |
+| `apps/api/src/common/auth-cookie.ts` | Cookie `cycles_rt` del refresh token de la web (CYC-89, S-08): `httpOnly`, `SameSite=Strict`, `Path=/auth`, `Secure` en producción. Solo con la cabecera `X-Cycles-Client: web`; en modo web el refresh **nunca** va en el cuerpo, y la cookie se ignora sin esa cabecera. Con cookie, `refresh` y `logout` exigen `Origin` en la lista de CORS (CSRF). CORS con `credentials: true`. La app móvil sigue con el token en el cuerpo. |
 | `apps/api/src/auth/token.util.ts` | Genera tokens aleatorios y los hashea (SHA-256) antes de guardarlos. |
 | `apps/api/src/auth/strategies/jwt.strategy.ts` | Valida el access token en cada request. |
 | `apps/api/src/auth/strategies/google.strategy.ts` | OAuth con Google (scopes `email` y `profile`). |
@@ -103,10 +104,10 @@ Política de CYC-156 (épica «Accesos y contraseñas»). Aplica a toda cuenta, 
 
 | Archivo | Qué hace |
 |---|---|
-| `apps/web/src/services/tokenStore.ts` | Guarda los tokens en `localStorage` (ver hallazgo S-08). |
-| `apps/web/src/services/httpClient.ts` | Adjunta el token y refresca la sesión ante un 401. |
+| `apps/web/src/services/tokenStore.ts` | **Ya no guarda tokens en `localStorage`** (S-08, resuelto): el access token vive solo en memoria y el refresh token en la cookie `httpOnly` `cycles_rt`. Solo persiste la marca `cycles.session` (sin secreto) que dice si hay sesión que restaurar, para que la landing no espere a la API. Incluye un puente temporal que cambia un refresh token viejo de `localStorage` por la cookie. |
+| `apps/web/src/services/httpClient.ts` | Adjunta el access token, manda `X-Cycles-Client: web` y `credentials: "include"`, y refresca la sesión con la cookie ante un 401 o al cargar la página. El refresh se hace de a una pestaña por vez (Web Locks), porque el token rota y reusar uno viejo cierra todas las sesiones. |
 | `apps/web/src/pages/OAuthCallbackPage.tsx` | Recibe un código de un solo uso de Google por la URL y lo cambia por los tokens con un `POST` (hallazgo S-02, resuelto). |
-| `apps/mobile/src/services/tokenStore.ts` *(rama `worktree-mobile-app`, sin mergear)* | Guarda los tokens del celular en `AsyncStorage` (ver hallazgo S-09). |
+| `apps/mobile/src/services/tokenStore.ts` | Guarda los tokens del celular en el **Keychain de iOS** (`react-native-keychain`; en Android, el Keystore), con acceso `AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY`: no salen del dispositivo ni entran en sus copias de respaldo. Mantiene una copia en memoria para armar el header sin esperar al Keychain. Migra una sesión vieja de `AsyncStorage` y, en el primer arranque de una instalación, descarta lo que haya en el Keychain (iOS lo conserva al desinstalar). Hallazgo S-09, resuelto. |
 
 ### Email
 
@@ -172,7 +173,7 @@ En los flujos públicos de **recuperación de contraseña** y **reenvío de veri
 3. Cualquier texto de un usuario que se inserte en HTML (emails) se escapa.
 
 ### R7 · Integridad y privacidad de los datos
-1. `ExerciseLog` y `SessionFeedback` son **append-only**: no hay endpoints que los editen o borren; una corrección es una fila nueva con `supersedesId`. **Única excepción:** cuando la persona dueña elimina su cuenta (`DELETE /users/me`, ver PRD-PrivacidadYTerminos §8), sus series y cierres se borran.
+1. `ExerciseLog` y `SessionFeedback` son **append-only**: no hay endpoints que los editen o borren; una corrección es una fila nueva con `supersedesId`. **Única excepción:** cuando la persona dueña elimina su cuenta (`DELETE /users/me`, ver PRD-PrivacidadYTerminos §8), sus series y cierres se borran. Desde 2026-11-01 la **base de datos lo impone** con triggers (S-12): solo deja anular una fila (`active` 1 a 0), y el borrado de cuenta, `seed-demo` y las pruebas declaran la excepción con `SET LOCAL cycles.allow_purge = 'on'` dentro de su transacción. Una corrección manual excepcional por SQL también la usa (`BEGIN; SET LOCAL cycles.allow_purge = 'on'; …; COMMIT;`), **solo con respaldo previo y con aviso a la fundadora**; el uso queda en el historial del repo si se hace con un script, y en el log de Supabase si se hace desde la consola.
 2. Los timestamps se guardan en UTC.
 3. Ningún dato de un atleta se usa en análisis entre atletas sin `dataConsentAt` (ver [[VISION]]).
 4. Pesos en kg; la conversión es solo de presentación.
@@ -230,12 +231,12 @@ Severidad: **Alta** = resolver antes de abrir el piloto; **Media** = antes de su
 | S-05 | ~~Media~~ **Resuelto** (2026-09-27, PR 1B) | **Un coach conserva acceso a los planes y sesiones de un atleta cuya relación dejó de estar activa.** Contradice [[PRD-General]] §4 y la regla R5.2. Ejecución y seguimiento sí lo chequean; `cycles` y `sessions` no. | `apps/api/src/cycles/cycles.service.ts:114`, `apps/api/src/sessions/sessions.service.ts:210` | Sumar el chequeo de relación activa para el coach en `assertAccess` y `assertCycleAccess`. El atleta mantiene su acceso. |
 | S-06 | ~~Media~~ **Resuelto** (2026-09-27, PR 1B) | **Sin validación de variables de entorno al arrancar.** Si en producción falta `RESEND_API_KEY`, el `MailService` entra en modo desarrollo y **escribe en el log los enlaces con token** (verificación, recuperación, invitación). También arranca sin avisar si falta `FRONTEND_URL`. | `apps/api/src/mail/mail.service.ts:52`; `ConfigModule.forRoot` sin validación | Validar las variables al iniciar y, con `NODE_ENV=production`, exigir `RESEND_API_KEY`, `MAIL_FROM`, `FRONTEND_URL`, los secretos JWT y `DATABASE_URL`. Si falta alguna, que la API no arranque. |
 | S-07 | ~~Media~~ **Resuelto** (API 2026-09-27, PR 1B: `helmet`; web 2026-09-29, PR #21: cabeceras en `vercel.json`) | **Sin cabeceras de seguridad HTTP** (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Content-Security-Policy`). | `main.ts` sin `helmet`; sin `vercel.json` | `helmet` en la API. En Vercel, cabeceras con una CSP que solo permita el propio origen, la API y Google Fonts, y `Referrer-Policy: no-referrer`. |
-| S-08 | Media | **Tokens en `localStorage` en la web:** si algún día entra un XSS, puede leerlos. Hoy está mitigado (React escapa el contenido y no hay `innerHTML`). | `apps/web/src/services/tokenStore.ts:11-15` | Aceptado para el piloto, junto con la CSP de S-07. Más adelante, mover el refresh token a una cookie `httpOnly`, `Secure` y `SameSite`. |
-| S-09 | Media | **App móvil** *(rama sin mergear)*: guarda los tokens en `AsyncStorage`, que no está cifrado. | `apps/mobile/src/services/tokenStore.ts` | Antes de publicarla, usar el Keychain de iOS (p. ej. `react-native-keychain`). |
-| S-10 | Baja | **Enumeración de cuentas:** el registro y la invitación dicen si el email existe (excepción aceptada en R3), y el login tarda menos cuando el email no existe porque no calcula bcrypt. | `auth.service.ts:48, 70`; `athletes.service.ts:25` | Opcional: comparar contra un hash ficticio cuando el usuario no existe, para igualar los tiempos. |
-| S-11 | Baja | **Sin tests automáticos ni CI:** las reglas R4 y R5 se verificaron a mano en cada fase, así que un cambio futuro podría romperlas sin que nadie lo note. | No hay tests ni `.github/workflows` | Tests de autorización (otro rol, otro dueño, relación inactiva) y un CI mínimo con typecheck, build y `npm audit`. |
-| S-12 | Baja | **Append-only solo en la aplicación:** la base de datos no impide un `UPDATE` o `DELETE` directo sobre `ExerciseLog` o `SessionFeedback`. | `schema.prisma` | Aceptado por ahora. Más adelante, un permiso de base de datos o un trigger que lo impida. |
-| S-13 | ~~Alta~~ **Resuelto** (2026-09-28, antes de abrir el piloto) | **En Render la API no veía la IP real del cliente.** Con `TRUST_PROXY=1`, `req.ip` era la IP de un proxy interno de Render (`10.x`, que cambia entre pedidos), no la del cliente. Consecuencias: el límite de intentos por IP no frenaba a un atacante (sus pedidos se repartían entre varias IPs internas) y, a la vez, todos los usuarios compartían unas pocas IPs, así que el tráfico legítimo podía bloquear a todos; las alertas de 1E mostraban la IP interna. | Prueba en producción: 7 registros seguidos sin ningún 429; la alerta de 1E mostró `10.31.18.12`. | Variable `CLIENT_IP_HEADER=true-client-ip`: la IP sale del header que pone Cloudflare (delante de Render), que el cliente no puede pisar (`apps/api/src/main.ts`). Verificado: con IPs inventadas en `X-Forwarded-For` y `True-Client-IP` el sexto pedido da 429, y la alerta muestra la IP pública real. |
+| S-08 | ~~Media~~ **Resuelto** (2026-11-02, CYC-89; API #128 y web #129) | **Tokens en `localStorage` en la web:** si algún día entra un XSS, puede leerlos. | `apps/web/src/services/tokenStore.ts` | Hecho: el refresh token va en una cookie `httpOnly`, `SameSite=Strict`, `Secure` en producción, `Path=/auth`; el access token solo en memoria. La API entrega la cookie solo con `X-Cycles-Client: web`, no devuelve el refresh en el cuerpo y exige `Origin` permitido (CSRF). Un XSS aún podría usar la sesión mientras la página esté abierta, pero ya no puede llevarse el token de 30 días. Pruebas: `apps/api/test/cookie.e2e-spec.ts`. |
+| S-09 | ~~Media~~ **Resuelto** (2026-10-02, verificado contra el código el 2026-11-01) | **App móvil:** guardaba los tokens en `AsyncStorage`, que no está cifrado. | `apps/mobile/src/services/tokenStore.ts` | Hecho: Keychain (iOS) / Keystore (Android) con `react-native-keychain` 10, sin cambiar la interfaz del `tokenStore`. Cubierto por `apps/mobile/__tests__/tokenStore.test.ts` (guardar y recuperar, migrar la sesión antigua, descartar un Keychain heredado, `clear`). Falta confirmarlo en un dispositivo con TestFlight. |
+| S-10 | ~~Baja~~ **Resuelto** (2026-11-01, CYC-95) | **Enumeración de cuentas:** el registro y la invitación dicen si el email existe (excepción aceptada en R3), y el login tardaba menos cuando el email no existe porque no calculaba bcrypt (**resuelto el 2026-11-01, CYC-95**: el login compara contra un hash ficticio del mismo costo, `DUMMY_PASSWORD_HASH` en `auth.service.ts`; pruebas en `auth.service.login.spec.ts`). En la recuperación de contraseña y el reenvío de verificación el tiempo también delataba la cuenta (un correo registrado hacía escrituras y esperaba a Resend; uno inexistente respondía al instante). **Resuelto:** ambos responden de inmediato y hacen el trabajo en segundo plano (`inBackground` en `auth.service.ts`; los fallos van al log sin el correo). Pruebas: `auth.service.recovery.spec.ts`. Se mantiene aceptada la excepción de R3 en registro e invitación. | `auth.service.ts:48, 70`; `athletes.service.ts:25` | Opcional: comparar contra un hash ficticio cuando el usuario no existe, para igualar los tiempos. |
+| S-11 | Baja | **Resuelto en lo técnico** (2026-11-01): `.github/workflows/ci.yml` corre tipos, pruebas, ESLint, la **matriz de autorización e2e** (CYC-90, `docs/PRUEBAS-E2E.md`) y `npm audit` como aviso en cada PR. Falta exigir el CI en la rama `main`. Antes: **sin tests automáticos ni CI:** las reglas R4 y R5 se verificaron a mano en cada fase, así que un cambio futuro podría romperlas sin que nadie lo note. | No hay tests ni `.github/workflows` | Tests de autorización (otro rol, otro dueño, relación inactiva) y un CI mínimo con typecheck, build y `npm audit`. |
+| S-12 | ~~Baja~~ **Resuelto** (2026-11-01, CYC-96; migración `20261101200000_registros_solo_agregan`) | **Append-only solo en la aplicación:** la base no impedía un `UPDATE` o `DELETE` directo sobre `ExerciseLog` o `SessionFeedback`. | `apps/api/prisma/migrations/20261101200000_registros_solo_agregan/` | Hecho con triggers de PostgreSQL: solo se puede anular una fila (`active` 1 a 0); editar otra columna, reactivar, borrar o vaciar da error, salvo dentro de una transacción con `SET LOCAL cycles.allow_purge = 'on'`. Protege de errores (un bug, un `UPDATE` sin `WHERE` en la consola), **no de quien tenga la contraseña del dueño de las tablas**, que puede desactivar el trigger; cerrar eso exige un rol de base aparte para la API sin `UPDATE`/`DELETE` (fase 2, opcional). Pruebas: `apps/api/test/append-only.e2e-spec.ts`. |
+| S-13 | ~~Alta~~ **Resuelto** (2026-09-28, antes de abrir el piloto) | **En Render la API no veía la IP real del cliente.** Con `TRUST_PROXY=1`, `req.ip` era la IP de un proxy interno de Render (`10.x`, que cambia entre pedidos), no la del cliente. Consecuencias: el límite de intentos por IP no frenaba a un atacante (sus pedidos se repartían entre varias IPs internas) y, a la vez, todos los usuarios compartían unas pocas IPs, así que el tráfico legítimo podía bloquear a todos; las alertas de 1E mostraban la IP interna. | Prueba en producción: 7 registros seguidos sin ningún 429; la alerta de 1E mostró `10.31.18.12`. | Variable `CLIENT_IP_HEADER=true-client-ip`: la IP sale del header que pone Cloudflare (delante de Render), que el cliente no puede pisar (`apps/api/src/common/config/client-ip.ts`). Verificado: con IPs inventadas en `X-Forwarded-For` y `True-Client-IP` el sexto pedido da 429, y la alerta muestra la IP pública real. |
 | S-14 | Media | **Secretos locales mal ubicados** (auditoría 2026-10-28, sin secretos en el repo ni en su historial): el `.env` de desarrollo de la API trae la URL de la base de producción y claves reales de Resend y Slack; `apps/web/.env` trae el secreto de Google; los `.env` tienen permisos 644; la llave de Android existe en un solo equipo. | `docs/AUDITORIA-SECRETOS.md` | Pendiente: ver la tabla de hallazgos del informe (permisos 600, sacar lo de producción del `.env` local, respaldar la llave en 1Password). |
 
 ### 3.4 Excepciones aceptadas
@@ -244,7 +245,32 @@ Severidad: **Alta** = resolver antes de abrir el piloto; **Media** = antes de su
 |---|---|---|---|
 | `@nestjs/core` ≤ 11.1.17 ([GHSA-36xv-jgw5-4q75](https://github.com/advisories/GHSA-36xv-jgw5-4q75)) | Moderada | Solo se corrige migrando NestJS 10 → 11.1.18 o superior, una migración mayor (Express 5, cambios de rutas). Las demás vulnerabilidades de NestJS se cerraron forzando versiones corregidas de `multer`, `body-parser`, `qs`, `lodash` y `file-type`. | Al migrar NestJS, tarea propia después del piloto (`docs/PLAN-Seguridad.md`, 1A paso 5). |
 
-### 3.5 Resumen para el deploy
+### 3.5 Revisión de endpoints nuevos (2026-11-01)
+
+Revisión del código de `main` de los endpoints y funciones que no existían en la auditoría del 2026-09-26: ejercicios propios, ciclos plantilla, borrado lógico y duplicado de sesiones, avisos, resumen de actividad, formulario de contacto, código del piloto y PostHog. Para cada ruta se miró el guard, el rol y, sobre todo, que el servicio verifique **de quién es el dato** (R4 y R5).
+
+| Grupo | Rutas | Sesión y rol | Propiedad del dato |
+|---|---|---|---|
+| Ejercicios | `GET /exercises`; `POST`, `PATCH /:id`, `PATCH /:id/deactivate` | `JwtAuthGuard`; escribir solo `coach` | Un atleta ve el catálogo global; un coach, el global y los suyos. Solo se edita o desactiva un ejercicio con `createdBy` igual al coach: el catálogo global (`createdBy` nulo) no se toca. Al usar un ejercicio en una rutina o sesión se exige que esté activo y sea global o propio. Hay pruebas en `exercises.service.spec.ts`. |
+| Ciclos y plantillas | `/cycles` (crear, plantillas, asignar, ver, editar, `children`) | `coach` para escribir; ver para ambos roles | Plantilla solo visible para su coach; asignar exige relación activa; el atleta no recibe plantillas. |
+| Sesiones | crear, leer, mover, quitar (`DELETE`), `restore`, `duplicate`, ejercicios de la sesión | `coach` para escribir | `getSessionForCoach` y `assertActiveRelation`. «Quitar» es lógico; solo se destruye lo que no tiene series ni cierre (R7). Mover o quitar se rechaza si el atleta ya registró algo. |
+| Rutinas | `/routines` | `coach` | Cada operación filtra por `coachId`; la rutina elegida debe ser del coach. |
+| Seguimiento | `GET /coach/attention`, `athletes/:id/summary`, `cycles/:id/progress`, `POST cycles/:id/load-adjustments` | `coach` | Relación activa con el atleta en cada uno; `attention` solo recorre los atletas del coach. |
+| Ejecución | `/me/today`, `/me/summary`, `sessions/:id/start`, `reopen`, `schedule`, `feedback`, `session-exercises/:id/logs` | `athlete` | El atleta solo opera sobre sus sesiones. |
+| Avisos | `GET /notifications`, `unread-count`, `read-all`, `:id/read` | `JwtAuthGuard` | Todo se filtra por el `userId` del token; marcar como leído busca por `{ id, userId }`. |
+| Resumen de actividad | `POST /internal/activity/daily-summary` | Sin sesión: `Authorization: Bearer ACTIVITY_CRON_SECRET`, comparado en tiempo constante | Sin el secreto configurado la ruta responde 404; no devuelve totales, solo si se envió. |
+| Contacto | `POST /contact` | Pública | Anti-bots, límites por IP y por correo, tope diario; no guarda IP. |
+| Registro con código del piloto | `POST /auth/register` con `accessCode` | Pública, 5 por hora por IP | `PILOT_ACCESS_CODE` se compara con hashes en tiempo constante, exige un largo mínimo y solo crea cuentas de coach. En la web el código viaja en el enlace privado, se guarda en `sessionStorage` y se quita de la barra de direcciones; `Referrer-Policy: no-referrer` evita que salga en el `Referer`. |
+| PostHog (web) | — | — | Apagado sin `VITE_POSTHOG_KEY`; región UE; sin cookies ni almacenamiento (`persistence: "memory"`); sin autocaptura ni grabación; las direcciones se limpian de query e IDs antes de salir; nunca datos de salud (ver `docs/deploy/POSTHOG.md`). La CSP solo permite `connect-src` a `eu.i.posthog.com`. |
+
+**Resultado:** ningún hallazgo nuevo de severidad alta ni media. Quedan dos observaciones:
+
+- **El código del piloto es un secreto compartido:** quien tenga el enlace puede crear una cuenta de coach. Se acepta durante el piloto; se rota cambiando `PILOT_ACCESS_CODE` en Render (guardado en 1Password, bóveda «Cycles · Producción»).
+- **Las notas del coach** (épica 3) **todavía no existen** en la API. Cuando se construyan hay que auditarlas: son texto libre sobre una persona, posiblemente con datos de salud, y deben verse solo por su coach autor (R5, R7).
+
+Seguimiento: S-08, S-10, S-11 (matriz de autorización completa, `docs/PRUEBAS-E2E.md`) y S-12 quedaron resueltos el 2026-11-01 y 2026-11-02; sigue abierto S-14 (secretos locales).
+
+### 3.6 Resumen para el deploy
 
 El plan para corregir cada hallazgo, con orden, archivos y pruebas, está en [`docs/PLAN-Seguridad.md`](PLAN-Seguridad.md).
 

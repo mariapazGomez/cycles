@@ -1,4 +1,7 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, Res, UseGuards } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import type { Request, Response } from "express";
+import { deliverTokens } from "../common/auth-cookie";
 import { Throttle } from "@nestjs/throttler";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 import { LIMITS } from "../common/throttle/throttle";
@@ -11,7 +14,10 @@ import { AcceptInvitationDto } from "./dto/accept-invitation.dto";
 
 @Controller("athletes")
 export class AthletesController {
-  constructor(private readonly athletesService: AthletesService) {}
+  constructor(
+    private readonly athletesService: AthletesService,
+    private readonly config: ConfigService,
+  ) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles("coach")
@@ -24,8 +30,9 @@ export class AthletesController {
   @Throttle(LIMITS.tokenUse)
   @Post("invitations/accept")
   @HttpCode(HttpStatus.OK)
-  acceptInvitation(@Body() dto: AcceptInvitationDto) {
-    return this.athletesService.acceptInvitation(dto.token, dto.password);
+  async acceptInvitation(@Body() dto: AcceptInvitationDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const tokens = await this.athletesService.acceptInvitation(dto.token, dto.password);
+    return deliverTokens(req, res, tokens, this.config.get<string>("NODE_ENV") === "production");
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
