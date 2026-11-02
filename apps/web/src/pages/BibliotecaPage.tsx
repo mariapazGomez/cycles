@@ -99,7 +99,63 @@ function RoutineRow({
   );
 }
 
-function CycleRow({ entry }: { entry: CycleEntry }) {
+function CycleRow({ entry, onDone, onError }: { entry: CycleEntry; onDone: (message: string) => void; onError: (message: string) => void }) {
+  const queryClient = useQueryClient();
+  const [confirming, setConfirming] = useState(false);
+  const impactQuery = useQuery({
+    queryKey: ["cycles", "templates", entry.id, "impact"],
+    queryFn: () => cyclesApi.getTemplateImpact(entry.id),
+    enabled: confirming && entry.isTemplate,
+  });
+
+  // Desasignar quita el ciclo de ese atleta; eliminar borra la plantilla y la
+  // quita de todos. Con entrenamientos registrados queda archivado, no borrado.
+  const mutation = useMutation<{ result: cyclesApi.RemovalResult } | { unassigned: number; archived: number }>({
+    mutationFn: () => (entry.isTemplate ? cyclesApi.removeTemplate(entry.id) : cyclesApi.unassignCycle(entry.id)),
+    onSuccess: (outcome) => {
+      setConfirming(false);
+      queryClient.invalidateQueries({ queryKey: ["cycles"] });
+      if ("result" in outcome) {
+        onDone(
+          outcome.result === "archived"
+            ? "Ciclo desasignado: tiene entrenamientos registrados, así que quedó archivado."
+            : entry.fromTemplate
+              ? "Ciclo desasignado. Sigue en tu Biblioteca."
+              : "Ciclo desasignado y eliminado.",
+        );
+      } else {
+        onDone(
+          outcome.archived > 0
+            ? `Ciclo eliminado. Se quitó de los atletas; ${plural(outcome.archived, "quedó archivado", "quedaron archivados")} por tener entrenamientos registrados.`
+            : "Ciclo eliminado de la Biblioteca y de todos sus atletas.",
+        );
+      }
+    },
+    onError: (error: unknown) => {
+      setConfirming(false);
+      onError(error instanceof ApiError ? error.message : "No se pudo quitar el ciclo.");
+    },
+  });
+
+  const impact = impactQuery.data?.athletes ?? [];
+  const archivedCount = impact.filter((a) => a.hasHistory).length;
+  // Solo se quita lo vigente: lo completado o archivado queda como historial.
+  const removable = entry.status === "active";
+
+  let question: string;
+  if (entry.isTemplate) {
+    question = impactQuery.isLoading
+      ? "Revisando a quién está asignado…"
+      : impact.length === 0
+        ? "¿Eliminar este ciclo de tu Biblioteca? No está asignado a nadie."
+        : `¿Eliminar este ciclo? Se quitará de ${plural(impact.length, "atleta", "atletas")}: ${impact.map((a) => a.name).join(", ")}.` +
+          (archivedCount > 0 ? ` ${plural(archivedCount, "tiene", "tienen")} entrenamientos registrados y quedará${archivedCount === 1 ? "" : "n"} archivado${archivedCount === 1 ? "" : "s"}.` : "");
+  } else {
+    question = entry.fromTemplate
+      ? `¿Desasignar este ciclo de ${entry.athleteName ?? "su atleta"}? Sigue en tu Biblioteca.`
+      : `¿Desasignar este ciclo de ${entry.athleteName ?? "su atleta"}? No es una plantilla de tu Biblioteca: se eliminará (si ya tiene entrenamientos registrados, queda archivado).`;
+  }
+
   return (
     <li className="lb-row">
       <TypeIcon kind="cycle" />
@@ -117,16 +173,50 @@ function CycleRow({ entry }: { entry: CycleEntry }) {
         </div>
         <div className="lb-tags">
           <span className="pill lb-pill-cycle">Ciclo</span>
-          <span className={entry.status === "active" ? "pill pill-ok" : "pill"}>{CYCLE_STATUS_LABEL[entry.status]}</span>
+          {entry.isTemplate ? (
+            <span className="pill">Sin asignar</span>
+          ) : (
+            <span className={entry.status === "active" ? "pill pill-ok" : "pill"}>{CYCLE_STATUS_LABEL[entry.status]}</span>
+          )}
           <span className="pill">{CYCLE_TYPE_LABEL[entry.cycleType]}</span>
           {entry.weeks > 0 && <span className="pill">{plural(entry.weeks, "semana", "semanas")}</span>}
           {entry.sessionsPerWeek !== null && <span className="pill">{formatInteger(entry.sessionsPerWeek)} por semana</span>}
         </div>
+        {confirming && (
+          <p className="rt-hint" role="alert">
+            {question}
+          </p>
+        )}
       </div>
       <div className="lb-actions">
-        <Link className="rt-ghost" to={`/cycles/${entry.id}`}>
-          Ver en el atleta
-        </Link>
+        {confirming ? (
+          <>
+            <button
+              type="button"
+              className="rt-ghost rt-ghost-danger"
+              disabled={mutation.isPending || (entry.isTemplate && impactQuery.isLoading)}
+              onClick={() => mutation.mutate()}
+            >
+              {entry.isTemplate ? "Sí, eliminar" : "Sí, desasignar"}
+            </button>
+            <button type="button" className="rt-ghost" onClick={() => setConfirming(false)}>
+              No
+            </button>
+          </>
+        ) : (
+          <>
+            {!entry.isTemplate && (
+              <Link className="rt-ghost" to={`/cycles/${entry.id}`}>
+                Ver en el atleta
+              </Link>
+            )}
+            {removable && (
+              <button type="button" className="rt-ghost" onClick={() => setConfirming(true)}>
+                {entry.isTemplate ? "Eliminar" : "Desasignar"}
+              </button>
+            )}
+          </>
+        )}
       </div>
     </li>
   );
@@ -168,10 +258,11 @@ export function BibliotecaPage() {
   const [showCycleForm, setShowCycleForm] = useState(params.get("crear") === "ciclo");
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const routinesQuery = useQuery({ queryKey: ["routines"], queryFn: routinesApi.listRoutines, enabled: isCoach });
-  const cyclesQuery = useQuery({ queryKey: ["cycles"], queryFn: cyclesApi.listCycles, enabled: isCoach });
+  const cyclesQuery = useQuery({ queryKey: ["cycles", "library"], queryFn: cyclesApi.listLibraryCycles, enabled: isCoach });
   const athletesQuery = useQuery({ queryKey: ["athletes"], queryFn: athletesApi.listAthletes, enabled: isCoach });
 
   const deleteMutation = useMutation({
@@ -284,6 +375,12 @@ export function BibliotecaPage() {
         </div>
       )}
 
+      {notice && (
+        <div className="success-banner" role="status">
+          {notice}
+        </div>
+      )}
+
       {failed && (
         <div className="error-banner lb-error" role="alert">
           <span>No se pudo cargar tu biblioteca.</span>
@@ -358,7 +455,18 @@ export function BibliotecaPage() {
                 onDelete={() => deleteMutation.mutate(entry.id)}
               />
             ) : (
-              <CycleRow key={`c-${entry.id}`} entry={entry} />
+              <CycleRow
+                key={`c-${entry.id}`}
+                entry={entry}
+                onDone={(message) => {
+                  setDeleteError(null);
+                  setNotice(message);
+                }}
+                onError={(message) => {
+                  setNotice(null);
+                  setDeleteError(message);
+                }}
+              />
             ),
           )}
         </ul>

@@ -21,6 +21,10 @@ export interface CycleEntry {
   id: string;
   name: string;
   athleteName: string | null;
+  // Ciclo de la Biblioteca sin atleta: se puede asignar a varios.
+  isTemplate: boolean;
+  // El ciclo de un atleta salió de una plantilla que sigue en la Biblioteca.
+  fromTemplate: boolean;
   status: CycleStatus;
   cycleType: CycleType;
   weeks: number;
@@ -88,6 +92,8 @@ export function cycleEntry(cycle: TrainingCycle, athleteNames: Map<string, strin
     id: cycle.id,
     name: cycle.name,
     athleteName: athleteNames.get(cycle.athleteId) ?? null,
+    isTemplate: cycle.isTemplate,
+    fromTemplate: Boolean(cycle.templateId),
     status: cycle.status,
     cycleType: cycle.cycleType,
     weeks: cycleWeeks(cycle.startDate, cycle.endDate),
