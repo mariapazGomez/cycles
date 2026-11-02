@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { User } from '@cycles/shared';
 import * as authApi from '../services/authApi';
 import { ApiError, onSessionExpired } from '../services/httpClient';
@@ -12,6 +12,9 @@ interface AuthContextValue {
   logout: () => Promise<void>;
   // Acepta los Términos y la Política vigentes y recarga el perfil (T-147).
   acceptPolicy: () => Promise<void>;
+  // true entre el inicio de sesión y el final de la animación de bienvenida.
+  welcome: boolean;
+  endWelcome: () => void;
   // Vuelve a pedir el perfil (p. ej. tras cambiar el consentimiento).
   refreshUser: () => Promise<void>;
 }
@@ -32,6 +35,8 @@ async function startSession(tokens: authApi.AuthTokens): Promise<User> {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<'loading' | 'signedOut' | 'signedIn'>('loading');
   const [user, setUser] = useState<User | null>(null);
+  const [welcome, setWelcome] = useState(false);
+  const endWelcome = useCallback(() => setWelcome(false), []);
 
   useEffect(() => {
     onSessionExpired(() => {
@@ -68,11 +73,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     setUser(await startSession(await authApi.login({ email, password })));
+    setWelcome(true);
     setStatus('signedIn');
   };
 
   const loginWithApple = async (credential: { idToken: string; nonce: string }) => {
     setUser(await startSession(await authApi.loginWithApple(credential)));
+    setWelcome(true);
     setStatus('signedIn');
   };
 
@@ -98,8 +105,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const value = useMemo(
-    () => ({ status, user, login, loginWithApple, logout, acceptPolicy, refreshUser }),
-    [status, user],
+    () => ({ status, user, welcome, endWelcome, login, loginWithApple, logout, acceptPolicy, refreshUser }),
+    [status, user, welcome, endWelcome],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
