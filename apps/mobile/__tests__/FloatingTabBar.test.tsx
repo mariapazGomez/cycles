@@ -30,17 +30,19 @@ function renderBar(index: number) {
 const texts = (tree: ReactTestRenderer.ReactTestRenderer) =>
   tree.root.findAllByType('Text' as never).map(n => n.props.children);
 
-test('todas las opciones muestran su etiqueta, sea cual sea la activa', () => {
-  const all = ['Calendario', 'Inicio', 'Resumen', 'Asistente'];
-  expect(texts(renderBar(1).tree)).toEqual(all);
-  expect(texts(renderBar(0).tree)).toEqual(all);
-  expect(texts(renderBar(3).tree)).toEqual(all);
+test('la isla solo muestra íconos, pero cada opción conserva su nombre accesible', () => {
+  const { tree } = renderBar(1);
+  expect(texts(tree)).toEqual([]);
+  const names = tree.root
+    .findAll(n => n.props.accessibilityRole === 'button' && typeof n.props.onPress === 'function')
+    .map(n => n.props.accessibilityLabel);
+  expect([...new Set(names)]).toEqual(['Calendario', 'Inicio', 'Resumen', 'Asistente']);
 });
 
 test('la isla mide lo mismo en cualquier pestaña', () => {
   const island = (index: number) => {
     const node = renderBar(index).tree.root.findAll(
-      n => Array.isArray(n.props.style) && n.props.style.some((s: { width?: number }) => s && s.width === 290),
+      n => Array.isArray(n.props.style) && n.props.style.some((s: { width?: number }) => s && s.width === 250),
     )[0];
     return node ? StyleSheetFlatten(node.props.style) : null;
   };
