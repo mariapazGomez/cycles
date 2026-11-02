@@ -20,6 +20,7 @@ import { Spinner } from '../components/Spinner';
 import { reopenSession, submitFeedback } from '../services/executionApi';
 import { fetchSessionDetail, type SessionDetail } from '../services/planApi';
 import type { AppStackParamList } from '../navigation/types';
+import { CoachNote } from '../components/CoachNote';
 import { colors } from '../theme/colors';
 import { cardShadow, primaryShadow } from '../theme/elevation';
 import { formatDay, sessionDay } from '../utils/planCalendar';
@@ -240,6 +241,7 @@ export function SessionDetailScreen({ route }: Props) {
                   <Text style={styles.exerciseTarget}>
                     {`${item.targetSets} × ${item.targetReps}${item.targetWeight ? ` · ${item.targetWeight} kg` : ''}`}
                   </Text>
+                  <CoachNote note={item.note} compact />
                 </View>
                 <Text style={styles.exerciseCount}>{`${logs.length}/${item.targetSets}`}</Text>
               </View>

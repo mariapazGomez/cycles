@@ -18,6 +18,7 @@ import { cardShadow, primaryShadow } from '../theme/elevation';
 import { useRestTimer } from '../store/RestTimerContext';
 import type { AppStackParamList } from '../navigation/types';
 import { Spinner } from '../components/Spinner';
+import { CoachNote } from '../components/CoachNote';
 import { colors } from '../theme/colors';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ExerciseLog'>;
@@ -162,6 +163,7 @@ export function ExerciseLogScreen({ route }: Props) {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.title}>{sessionExercise.exercise.name}</Text>
+        <CoachNote note={sessionExercise.note} />
 
         <View style={styles.progressRow}>
           {rows.map((row, index) => (
