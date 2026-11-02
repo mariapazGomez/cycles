@@ -8,6 +8,7 @@ interface AuthContextValue {
   status: 'loading' | 'signedOut' | 'signedIn';
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
+  loginWithApple: (credential: { idToken: string; nonce: string }) => Promise<void>;
   logout: () => Promise<void>;
   // Acepta los Términos y la Política vigentes y recarga el perfil (T-147).
   acceptPolicy: () => Promise<void>;
@@ -16,6 +17,17 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+
+// Guarda los tokens y devuelve a la persona, solo si es atleta: esta app no es para coaches.
+async function startSession(tokens: authApi.AuthTokens): Promise<User> {
+  await tokenStore.setTokens(tokens);
+  const currentUser = await authApi.fetchCurrentUser();
+  if (currentUser.role !== 'athlete') {
+    await tokenStore.clear();
+    throw new Error('Esta app es solo para atletas. Ingresa desde la web si eres coach.');
+  }
+  return currentUser;
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<'loading' | 'signedOut' | 'signedIn'>('loading');
@@ -55,14 +67,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const tokens = await authApi.login({ email, password });
-    await tokenStore.setTokens(tokens);
-    const currentUser = await authApi.fetchCurrentUser();
-    if (currentUser.role !== 'athlete') {
-      await tokenStore.clear();
-      throw new Error('Esta app es solo para atletas. Ingresa desde la web si eres coach.');
-    }
-    setUser(currentUser);
+    setUser(await startSession(await authApi.login({ email, password })));
+    setStatus('signedIn');
+  };
+
+  const loginWithApple = async (credential: { idToken: string; nonce: string }) => {
+    setUser(await startSession(await authApi.loginWithApple(credential)));
     setStatus('signedIn');
   };
 
@@ -88,7 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const value = useMemo(
-    () => ({ status, user, login, logout, acceptPolicy, refreshUser }),
+    () => ({ status, user, login, loginWithApple, logout, acceptPolicy, refreshUser }),
     [status, user],
   );
 

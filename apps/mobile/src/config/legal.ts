@@ -3,3 +3,6 @@
 // app (TestFlight externo y App Store).
 export const PRIVACY_URL = 'https://app.getcycles.app/privacidad';
 export const TERMS_URL = 'https://app.getcycles.app/terminos';
+
+// Página de registro: la app no crea cuentas, el registro es en la web.
+export const REGISTER_URL = 'https://app.getcycles.app/register';
