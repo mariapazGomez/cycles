@@ -10,7 +10,7 @@ function setup(user: object | null) {
   const alerts = { failedLogin: jest.fn() };
   const jwt = { sign: jest.fn().mockReturnValue("jwt") };
   const prismaFull = { ...prisma, refreshToken: { create: jest.fn() } };
-  const service = new AuthService(prismaFull as never, jwt as never, { get: jest.fn() } as never, {} as never, alerts as never, {} as never);
+  const service = new AuthService(prismaFull as never, jwt as never, { get: jest.fn() } as never, {} as never, alerts as never, {} as never, {} as never);
   return { service, alerts };
 }
 
