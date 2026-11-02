@@ -47,3 +47,24 @@ jest.mock('react-native-keychain', () => {
     }),
   };
 });
+
+// Sin el módulo nativo de Apple: un botón de prueba y una solicitud simulada
+// que cada test puede reemplazar.
+jest.mock('@invertase/react-native-apple-authentication', () => {
+  const React = require('react');
+  const { Pressable, Text } = require('react-native');
+  const AppleButton = ({ onPress }) =>
+    React.createElement(Pressable, { onPress, accessibilityRole: 'button', accessibilityLabel: 'Continuar con Apple' }, React.createElement(Text, null, 'Apple'));
+  AppleButton.Style = { BLACK: 1 };
+  AppleButton.Type = { CONTINUE: 1 };
+  return {
+    AppleButton,
+    appleAuth: {
+      isSupported: true,
+      performRequest: jest.fn(),
+      Operation: { LOGIN: 1 },
+      Scope: { EMAIL: 0, FULL_NAME: 1 },
+      Error: { CANCELED: '1001' },
+    },
+  };
+});

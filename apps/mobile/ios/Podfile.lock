@@ -1695,6 +1695,8 @@ PODS:
     - React-utils (= 0.87.1)
     - ReactNativeDependencies
   - ReactNativeDependencies (0.87.1)
+  - RNAppleAuthentication (2.5.1):
+    - React-Core
   - RNKeychain (10.0.0):
     - hermes-engine
     - RCTRequired
@@ -1901,6 +1903,7 @@ DEPENDENCIES:
   - ReactCodegen (from `build/generated/ios/ReactCodegen`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeDependencies (from `../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec`)
+  - "RNAppleAuthentication (from `../../../node_modules/@invertase/react-native-apple-authentication`)"
   - RNKeychain (from `../../../node_modules/react-native-keychain`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
@@ -2079,6 +2082,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   ReactNativeDependencies:
     :podspec: "../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec"
+  RNAppleAuthentication:
+    :path: "../../../node_modules/@invertase/react-native-apple-authentication"
   RNKeychain:
     :path: "../../../node_modules/react-native-keychain"
   RNScreens:
@@ -2109,7 +2114,7 @@ SPEC CHECKSUMS:
   React-bridging: 36710fbb84391e0c1ca07392e855a73f328058aa
   React-callinvoker: 33c0c2c46a808f55ef5a2927fa373977a334ea3e
   React-Core: a85e5b125475d5d744af9614165ddb0944b1f86d
-  React-Core-prebuilt: cd44efd12c9bfad37c194372a6d3a18a6a6d5c00
+  React-Core-prebuilt: d02240839df49bdfe03148fae0a647aaf7288d53
   React-CoreModules: 6bc28ab7a1b0450fe502b38b1ba6323db9f2a472
   React-cxxreact: cc133718b2f46a384b4ffafda73c87e8de23eab2
   React-cxxstableapi: 1e0ad8a5ecb7f2f5440c012798cf20bec6341c1f
@@ -2176,6 +2181,7 @@ SPEC CHECKSUMS:
   ReactCodegen: 35b96d81c5528b5774f73e938ce4be8eb879d7bd
   ReactCommon: 7d2d036b7250e66dce71d19f47160d4b31fbb92a
   ReactNativeDependencies: 94c922c39e0e6150ee9ad05e2ca1946e0ef55783
+  RNAppleAuthentication: d6fe579e5f43cf8db54bdc48518bccea61c592a4
   RNKeychain: c21223f99385f30e3353355f1a130c150f23c96d
   RNScreens: b156e2601e24bf64c2a7325fd033e2bcc221ef55
   RNSVG: df7b2c0679ac7b9a668af6c6b40e2c6cb4df88f5

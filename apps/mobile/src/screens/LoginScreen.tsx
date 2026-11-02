@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { AppleButton } from '@invertase/react-native-apple-authentication';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../store/AuthContext';
 import { ApiError } from '../services/httpClient';
@@ -20,7 +21,8 @@ import { PressableScale } from '../components/PressableScale';
 import { Spinner } from '../components/Spinner';
 import { colors } from '../theme/colors';
 import { cardShadow } from '../theme/elevation';
-import { PRIVACY_URL, TERMS_URL } from '../config/legal';
+import { PRIVACY_URL, REGISTER_URL, TERMS_URL } from '../config/legal';
+import { AppleSignInCancelled, isAppleSignInAvailable, requestAppleCredential } from '../services/appleSignIn';
 
 // Si el login tarda más que esto, se avisa que el servidor está despertando.
 const SLOW_LOGIN_MS = 6000;
@@ -35,7 +37,7 @@ function loginErrorMessage(err: unknown): string {
 }
 
 export function LoginScreen() {
-  const { login } = useAuth();
+  const { login, loginWithApple } = useAuth();
   const insets = useSafeAreaInsets();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -43,6 +45,8 @@ export function LoginScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [slow, setSlow] = useState(false);
+  // Apple entregó una identidad válida pero no hay cuenta: la app no crea cuentas.
+  const [noAccount, setNoAccount] = useState(false);
 
   useEffect(() => {
     if (!submitting) {
@@ -63,6 +67,28 @@ export function LoginScreen() {
       await login(email.trim(), password);
     } catch (err) {
       setError(loginErrorMessage(err));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleApple = async () => {
+    if (submitting) {
+      return;
+    }
+    setError(null);
+    setNoAccount(false);
+    setSubmitting(true);
+    try {
+      await loginWithApple(await requestAppleCredential());
+    } catch (err) {
+      if (err instanceof AppleSignInCancelled) {
+        return;
+      }
+      if (err instanceof ApiError && err.code === 'no_account') {
+        setNoAccount(true);
+      }
+      setError(err instanceof Error ? err.message : 'No pudimos iniciar sesión con Apple.');
     } finally {
       setSubmitting(false);
     }
@@ -92,6 +118,32 @@ export function LoginScreen() {
                 <Icon name="alert" size={18} color={colors.painInk} />
                 <Text style={styles.bannerText}>{error}</Text>
               </View>
+            )}
+
+            {noAccount && (
+              <TouchableOpacity
+                style={styles.registerLink}
+                onPress={() => Linking.openURL(REGISTER_URL)}
+                accessibilityRole="link">
+                <Text style={styles.registerLinkText}>Registrarme en la web</Text>
+              </TouchableOpacity>
+            )}
+
+            {isAppleSignInAvailable && (
+              <>
+                <AppleButton
+                  buttonStyle={AppleButton.Style.BLACK}
+                  buttonType={AppleButton.Type.CONTINUE}
+                  cornerRadius={999}
+                  style={[styles.appleButton, submitting && styles.dimmed]}
+                  onPress={handleApple}
+                />
+                <View style={styles.dividerRow}>
+                  <View style={styles.dividerLine} />
+                  <Text style={styles.dividerText}>o</Text>
+                  <View style={styles.dividerLine} />
+                </View>
+              </>
             )}
 
             <Text style={styles.label}>Correo</Text>
@@ -208,6 +260,12 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   bannerText: { flex: 1, color: colors.painInk, fontSize: 13 },
+  appleButton: { height: 50, width: '100%', marginBottom: 14 },
+  dividerRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: colors.grayBorder },
+  dividerText: { color: colors.inkSecondary, fontSize: 13 },
+  registerLink: { alignItems: 'center', minHeight: 44, justifyContent: 'center', marginBottom: 10 },
+  registerLinkText: { color: colors.blue, fontSize: 15, fontWeight: '700' },
   label: { fontSize: 12, fontWeight: '600', color: colors.ink, marginBottom: 6 },
   input: {
     borderWidth: 1,

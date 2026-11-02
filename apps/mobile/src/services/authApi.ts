@@ -14,6 +14,15 @@ export function login(data: { email: string; password: string }) {
   });
 }
 
+// Inicio de sesión con Apple: el token de identidad y el nonce con que se pidió.
+export function loginWithApple(data: { idToken: string; nonce: string }) {
+  return apiRequest<AuthTokens>('/auth/apple', {
+    method: 'POST',
+    auth: false,
+    body: data,
+  });
+}
+
 export function logout(refreshToken: string) {
   return apiRequest<void>('/auth/logout', {
     method: 'POST',
