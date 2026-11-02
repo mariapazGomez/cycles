@@ -40,12 +40,23 @@ export function ExerciseFormCard({ editing, initialName, compact, submitLabel, o
   const [serverError, setServerError] = useState<string | null>(null);
   const nameRef = useRef<HTMLInputElement>(null);
   const noticeRef = useRef<HTMLDivElement>(null);
+  const actionsRef = useRef<HTMLDivElement>(null);
+  // Cuenta los intentos fallidos de guardar, para llevar la vista al primer error.
+  const [failedTries, setFailedTries] = useState(0);
 
   useEffect(() => nameRef.current?.focus(), []);
   // El aviso del servidor va arriba del formulario: se acerca para que se vea.
   useEffect(() => {
     if (serverError) noticeRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [serverError]);
+
+  // Con el formulario largo (sobre todo en el celular) el error puede quedar
+  // lejos del botón: se acerca el primero para que se vea qué falta.
+  useEffect(() => {
+    if (failedTries === 0) return;
+    const first = actionsRef.current?.closest(".ex-form")?.querySelector(".ex-error");
+    first?.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [failedTries]);
 
   const save = useMutation({
     mutationFn: (): Promise<Exercise> => {
@@ -73,6 +84,7 @@ export function ExerciseFormCard({ editing, initialName, compact, submitLabel, o
     const found = validateForm(form);
     setErrors(found);
     if (Object.keys(found).length === 0) save.mutate();
+    else setFailedTries((n) => n + 1);
   }
 
   function set<K extends keyof ExerciseForm>(key: K, value: ExerciseForm[K]) {
@@ -146,7 +158,7 @@ export function ExerciseFormCard({ editing, initialName, compact, submitLabel, o
 
       <div className="ex-field">
         <label className="ex-label" htmlFor="exName">
-          Nombre
+          Nombre <span className="ex-optional">(obligatorio)</span>
         </label>
         <input
           id="exName"
@@ -167,7 +179,7 @@ export function ExerciseFormCard({ editing, initialName, compact, submitLabel, o
 
       <div className="ex-field">
         <span className="ex-label" id="exGroupLabel">
-          Grupo muscular
+          Grupo muscular <span className="ex-optional">(obligatorio)</span>
         </span>
         <div className="ex-chips" role="radiogroup" aria-labelledby="exGroupLabel">
           {GROUP_OPTIONS.map((group) => (
@@ -192,7 +204,7 @@ export function ExerciseFormCard({ editing, initialName, compact, submitLabel, o
 
       <div className="ex-field">
         <span className="ex-label" id="exEquipLabel">
-          Implementos
+          Implementos <span className="ex-optional">(obligatorio)</span>
         </span>
         <div className="ex-chips" role="group" aria-labelledby="exEquipLabel">
           {EQUIPMENT_OPTIONS.map((item) => (
@@ -233,7 +245,13 @@ export function ExerciseFormCard({ editing, initialName, compact, submitLabel, o
         optionalFields
       )}
 
-      <div className="ex-actions">
+      {missingList(errors) && (
+        <p className="ex-error ex-summary" role="alert">
+          Revisa: {missingList(errors)}.
+        </p>
+      )}
+
+      <div className="ex-actions" ref={actionsRef}>
         <button
           type={compact ? "button" : "submit"}
           className="button-primary rt-cta"
@@ -250,3 +268,17 @@ export function ExerciseFormCard({ editing, initialName, compact, submitLabel, o
   );
 }
 
+
+const FIELD_LABEL: Record<keyof FormErrors, string> = {
+  name: "el nombre",
+  muscleGroup: "el grupo muscular",
+  equipment: "los implementos",
+  videoUrl: "el enlace del video",
+};
+
+function missingList(errors: FormErrors): string {
+  return (Object.keys(errors) as (keyof FormErrors)[])
+    .filter((key) => errors[key])
+    .map((key) => FIELD_LABEL[key])
+    .join(", ");
+}
