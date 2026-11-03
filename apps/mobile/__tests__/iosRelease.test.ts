@@ -10,6 +10,7 @@ const {
   lastUpload,
   checkVersioning,
   xcodeTeamIsFree,
+  bundleIdsAreValid,
   iconIsSingleSize,
   isXcodeCloud,
 } = require('../scripts/ios-release');
@@ -150,4 +151,13 @@ test('reconoce las compilaciones de Xcode Cloud por su variable de entorno', () 
   expect(isXcodeCloud({ CI_XCODE_CLOUD: 'FALSE' })).toBe(false);
   expect(isXcodeCloud({ CI: 'true' })).toBe(false);
   expect(isXcodeCloud({})).toBe(false);
+});
+
+test('acepta la app y sus extensiones, y rechaza identificadores ajenos o sin la app', () => {
+  expect(bundleIdsAreValid(['app.getcycles.mobile', 'app.getcycles.mobile.RestTimerWidget'])).toBe(true);
+  expect(bundleIdsAreValid(['app.getcycles.mobile'])).toBe(true);
+  expect(bundleIdsAreValid(['app.getcycles.mobile.RestTimerWidget'])).toBe(false);
+  expect(bundleIdsAreValid(['app.getcycles.mobile', 'app.otra.cosa'])).toBe(false);
+  expect(bundleIdsAreValid(['app.getcycles.mobile', 'app.getcycles.mobilex'])).toBe(false);
+  expect(bundleIdsAreValid([])).toBe(false);
 });
