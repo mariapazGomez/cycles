@@ -84,6 +84,17 @@ h1,h2,h3{font-family:var(--font-display);margin:0}
 .old-dim{position:absolute;inset:0;background:rgba(31,34,40,.35);z-index:5}
 .tbl{width:100%;max-width:880px;margin:0 auto;border-collapse:collapse;font-size:.88rem;background:#fff;border-radius:10px;overflow:hidden}.tbl td,.tbl th{padding:10px;border-top:1px solid var(--line);text-align:left;vertical-align:top}.tbl th{font-size:.76rem;color:var(--ink2);border-top:0}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.pop{margin-top:10px;max-width:260px;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--pop);padding:12px}.pop p{margin:0 0 8px;font-size:.88rem}
+.ritem{border:1px solid var(--line);border-radius:var(--radius-md);padding:8px 12px;margin-top:6px;background:var(--bg)}.ritem small{display:block;color:var(--ink2);font-size:.78rem}
+.drw{position:absolute;top:0;right:0;bottom:0;width:340px;max-width:92%;background:var(--bg);border-left:1px solid var(--line);box-shadow:var(--pop);padding:20px;z-index:3}.drw h3{font-size:1.2rem;margin-bottom:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chips span{background:var(--blue-100);color:var(--blue);border-radius:var(--radius-sm);padding:4px 10px;font-size:.84rem;font-weight:600}
+.intro{position:absolute;right:20px;bottom:20px;width:440px;max-width:calc(100% - 40px);background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--pop);padding:18px;z-index:9}
+.intro h3{font-size:1.25rem;margin-bottom:10px}.intro p{margin:0 0 4px;font-size:.92rem}
+.nest{border:2px solid var(--ink);border-radius:var(--radius-lg);padding:10px;margin:10px 0 12px}.nest>b{font-size:.84rem}
+.nest .r{border:2px solid var(--brand);border-radius:var(--radius-md);padding:8px;margin-top:8px;background:var(--blue-100)}.nest .r>b{font-size:.8rem;color:var(--blue)}
+.nest .r div{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}.nest .r span{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-sm);padding:2px 8px;font-size:.78rem;font-weight:600}
+.nest .rr{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ball small .lv{background:#3a3f48;border-radius:var(--radius-sm);padding:0 6px;margin-left:6px;color:#fff}
 </style>
 </head>
 <body>
@@ -106,36 +117,37 @@ h1,h2,h3{font-family:var(--font-display);margin:0}
 <script>
 // Paradas y marcas. t = elemento resaltado (data-t), s = pantalla, x = opciones de pantalla.
 const P=[
- {id:'w',n:'Bienvenida',note:'No es un diálogo: un globo anclado al menú. La app sigue visible y clicable.',m:[{s:'inicio',t:'nav-ej',tx:'Te guío por Cycles en cinco pasos, sobre la app real.',b:['Empezar'],l:['Ahora no'],lab:'Bienvenida'}]},
- {id:'1',n:'1 · Ejercicios',note:'Parada opcional: el catálogo ya trae los básicos. Se completa al hacer la acción o con «Saltar paso».',m:[
-  {s:'inicio',t:'nav-ej',tx:'Entra a Ejercicios.',k:'Paso 1 de 6'},
-  {s:'ejercicios',t:'new-ex',tx:'Toca Nuevo ejercicio. Si el catálogo te basta, salta este paso.',k:'Paso 1 de 6',skip:1},
-  {s:'ejercicios',x:'form',t:'save-ex',tx:'Escribe el nombre, elige el grupo y guarda.',k:'Paso 1 de 6'}]},
- {id:'2',n:'2 · Rutina',note:'Cada marca lleva a la pantalla real: Biblioteca → Crear → Rutina → editor.',m:[
-  {s:'ejercicios',t:'nav-bib',tx:'Ahora tu primera rutina. Entra a Biblioteca.',k:'Paso 2 de 6'},
-  {s:'biblioteca',x:'menu',t:'item-rut',tx:'Toca Crear y elige Rutina.',k:'Paso 2 de 6',dim:1},
-  {s:'editor',t:'rut-name',tx:'Ponle nombre y agrega 2 o 3 ejercicios.',k:'Paso 2 de 6'},
-  {s:'editor',t:'rut-save',tx:'Cuando termines, toca Crear rutina.',k:'Paso 2 de 6'}]},
- {id:'3',n:'3 · Invitar',note:'Con la lista vacía el formulario ya está abierto en Atletas.',m:[
-  {s:'biblioteca',t:'nav-at',tx:'Invita a tu atleta. Entra a Atletas.',k:'Paso 3 de 6'},
-  {s:'atletas',t:'inv-form',tx:'Escribe su nombre y el email con el que se registrará.',k:'Paso 3 de 6'},
-  {s:'atletas',t:'inv-send',tx:'Toca Enviar invitación.',k:'Paso 3 de 6'}]},
- {id:'4',n:'4 · Espera',note:'Sin marca: la pantalla queda libre y solo hay un chip discreto. Cuando la atleta acepta, el chip lo dice.',m:[
-  {s:'inicio',chip:'Guía · Paso 4 de 6 · Esperando a Camila',btn:'Seguir',lab:'Esperando'},
+ {id:'i',n:'Así se arma un ciclo',note:'Explicación breve antes de la guía: un ciclo contiene rutinas y las rutinas contienen ejercicios. Tarjeta pequeña, sin velo, con la app visible detrás.',m:[{s:'inicio',intro:1,lab:'Explicación inicial'}]},
+ {id:'1',n:'1 · Tu atleta',note:'Primero, el prerrequisito: un ciclo se crea para una atleta que ya aceptó. Invitar toma días, por eso va primero.',m:[
+  {s:'inicio',t:'nav-at',tx:'Primero, tu atleta. Entra a Atletas.',k:'Paso 1 de 6',lv:'Atleta'},
+  {s:'atletas',t:'inv-form',tx:'Escribe su nombre y el email con el que se registrará.',k:'Paso 1 de 6',lv:'Atleta'},
+  {s:'atletas',t:'inv-send',tx:'Toca Enviar invitación.',k:'Paso 1 de 6',lv:'Atleta'}]},
+ {id:'e',n:'Espera',note:'Sin marca: la pantalla queda libre y solo hay un chip discreto. Cuando la atleta acepta, el chip lo dice.',m:[
+  {s:'inicio',chip:'Guía · Paso 1 de 6 · Esperando a Camila',btn:'Seguir',lab:'Esperando'},
   {s:'inicio',chip:'Camila ya aceptó. Crea su ciclo.',btn:'Seguir',lab:'Ya aceptó'}]},
- {id:'5',n:'5 · Ciclo',note:'Del atleta a la pizarra: Atletas → ficha → Nuevo ciclo → «+» de un día. El ciclo queda activo con la primera sesión.',m:[
-  {s:'atletas2',t:'row-cam',tx:'Abre a Camila para crearle un ciclo.',k:'Paso 5 de 6'},
-  {s:'ficha',t:'new-cyc',tx:'Toca Nuevo ciclo.',k:'Paso 5 de 6'},
-  {s:'ficha',x:'dlg',t:'cyc-ok',tx:'Elige nombre, inicio y semanas, y crea el ciclo.',k:'Paso 5 de 6',dim:1},
-  {s:'ficha',x:'board',t:'plus',tx:'Toca «+» en un día y elige una rutina.',k:'Paso 5 de 6'}]},
- {id:'6',n:'6 · Seguimiento',note:'Cierra mostrando dónde mirar cada día: Inicio y Resumen del atleta.',m:[
+ {id:'2',n:'2 · Ciclo',note:'La caja grande: el ciclo. Se crea desde la ficha de la atleta.',m:[
+  {s:'atletas2',t:'row-cam',tx:'Abre a Camila para crearle un ciclo.',k:'Paso 2 de 6',lv:'Ciclo'},
+  {s:'ficha2',x:'empty',t:'new-cyc',tx:'Toca Nuevo ciclo.',k:'Paso 2 de 6',lv:'Ciclo'},
+  {s:'ficha2',x:'dlg',t:'cyc-ok',tx:'Ponle nombre, inicio y semanas.',k:'Paso 2 de 6',lv:'Ciclo',dim:1}]},
+ {id:'3',n:'3 · Rutina',note:'Una caja dentro del ciclo. Se crea sin salir de la pizarra: «Crear rutina nueva» abre un cajón.',m:[
+  {s:'ficha2',x:'board',t:'plus',tx:'Toca «+» en un día.',k:'Paso 3 de 6',lv:'Rutina'},
+  {s:'ficha2',x:'pop',t:'new-rut',tx:'Crea la rutina de ese día.',k:'Paso 3 de 6',lv:'Rutina'},
+  {s:'ficha2',x:'drawer',t:'rut-name',tx:'Ponle nombre. Por ejemplo, Torso A.',k:'Paso 3 de 6',lv:'Rutina',dim:1}]},
+ {id:'4',n:'4 · Ejercicios',note:'Las fichas dentro de la rutina. Si falta un ejercicio, «Crear «nombre»» lo crea y lo agrega ahí mismo: no hace falta pasar por Ejercicios.',m:[
+  {s:'ficha2',x:'drawer',t:'ex-search',tx:'Busca y agrega 2 o 3 ejercicios.',k:'Paso 4 de 6',lv:'Ejercicios',dim:1},
+  {s:'ficha2',x:'drawerc',t:'ex-create',tx:'¿Falta uno? Toca Crear «Remo con mancuerna».',k:'Paso 4 de 6',lv:'Ejercicios',skip:1,dim:1},
+  {s:'ficha2',x:'drawerd',t:'rut-ok',tx:'Cuando termines, toca Crear rutina.',k:'Paso 4 de 6',lv:'Ejercicios',dim:1}]},
+ {id:'5',n:'5 · Ponla en un día',note:'Se cierra el ciclo: al asignar la primera sesión queda activo y la atleta lo ve en Hoy.',m:[
+  {s:'ficha2',x:'pick',t:'pick-r',tx:'Elige la rutina para ese día.',k:'Paso 5 de 6',lv:'Ciclo'}]},
+ {id:'6',n:'6 · Seguimiento',note:'Cierra mostrando dónde mirar cada día: Inicio y Resumen de la atleta.',m:[
   {s:'inicio2',t:'chip-att',tx:'En Inicio ves quién necesita tu atención.',k:'Paso 6 de 6'},
-  {s:'ficha',x:'board',t:'res',tx:'En Resumen ves su carga y adherencia.',k:'Paso 6 de 6',last:1},
+  {s:'ficha2',x:'resumen',t:'res',tx:'En Resumen ves su carga y adherencia.',k:'Paso 6 de 6',last:1},
   {s:'inicio2',t:'avatar',tx:'Listo. Reabre la guía en Cómo usar Cycles.',k:'Cierre',b:['Entendido'],lab:'Cierre'}]},
  {id:'a',n:'Atleta (web)',note:'La atleta en el navegador usa el mismo mecanismo: tres marcas sobre su menú.',m:[
   {s:'hoy',t:'nav-hoy',tx:'Aquí está tu sesión de hoy.',k:'Paso 1 de 3'},{s:'hoy',t:'nav-cal',tx:'Aquí ves tu semana y tu ciclo.',k:'Paso 2 de 3'},{s:'hoy',t:'nav-mc',tx:'Aquí están los ciclos que te asigna tu coach.',k:'Paso 3 de 3'}]},
- {id:'mob',n:'App móvil (ajustes)',note:'Veredicto para CYC-192: marcas que piden hacer, atenuado al 12 % o nada y sin cubrir la isla.',m:[]}
+ {id:'mob',n:'App móvil (ajustes)',note:'Veredicto para CYC-192: marcas que piden hacer, atenuado al 12 % o nada y sin cubrir la isla. No depende del orden del ciclo.',m:[]}
 ];
+
 let pi=0,mi=0,w='d',dimOn=false;
 const ctl=(id,fn)=>document.getElementById(id).addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;fn(b.dataset.k);render()});
 ctl('g-p',k=>{pi=+k;mi=0});ctl('g-w',k=>w=k);ctl('g-a',k=>dimOn=k==='1');
@@ -153,6 +165,17 @@ function screen(s,x){
  case 'atletas': return head('atletas')+`<div class="pgc"><div class="ph"><h2>Atletas</h2></div><div class="card" data-t="inv-form"><h3>Invita a tu primer atleta</h3><div class="field"><label>Nombre</label><div class="inp">Camila Rojas</div></div><div class="field"><label>Email</label><div class="inp">camila@ejemplo.com</div></div><button class="btn p" data-t="inv-send">Enviar invitación</button></div></div>`;
  case 'atletas2': return head('atletas')+`<div class="pgc"><div class="ph"><h2>Atletas</h2><button class="btn p">Invitar atleta</button></div><div class="card" data-t="row-cam" style="display:flex;gap:12px;align-items:center"><b>Camila Rojas</b><span style="color:var(--ink2)">Sin ciclo</span></div></div>`;
  case 'ficha': return head('atletas')+`<div class="pgc"><div class="ph"><h2>Camila Rojas</h2><div class="seg2"><span class="on">Ciclo</span><span data-t="res">Resumen</span></div></div>${x==='dlg'?'':`<div style="margin-bottom:10px"><button class="btn" data-t="new-cyc">Nuevo ciclo</button></div>`}${x==='dlg'?`<div class="dim"></div><div class="dlg" role="dialog"><h3>Nuevo ciclo</h3><div class="field"><label>Nombre</label><div class="inp">Fuerza base</div></div><div class="field"><label>Inicio y semanas</label><div class="inp">Lun 9 nov · 4 semanas</div></div><button class="btn p" data-t="cyc-ok">Crear</button></div>`:`<div class="card"><b>Fuerza base</b><div class="days" style="margin-top:8px">${['L','M','M','J','V','S','D'].map((d,i)=>`<div class="day">${d} ${9+i}${i===1?'<i data-t="plus">+</i>':'<i>+</i>'}</div>`).join('')}</div></div>`}</div>`;
+ case 'ficha2': {
+  const board=`<div class="card"><b>Fuerza base</b> <span style="color:var(--ink2);font-size:.84rem">· Lun 9 nov · 6 semanas</span><div class="days" style="margin-top:8px">${['L','M','M','J','V','S','D'].map((d,i)=>`<div class="day">${d} ${9+i}${i===1?'<i data-t="plus">+</i>':'<i>+</i>'}${(x==='drawerd'||x==='pick')&&i===1&&x==='pick'?'':''}</div>`).join('')}</div>${x==='pop'?`<div class="pop"><p>Todavía no tienes rutinas.</p><button class="btn p" data-t="new-rut">Crear rutina nueva</button></div>`:''}${x==='pick'?`<div class="pop"><div class="inp" style="margin-bottom:6px">Buscar rutina</div><div class="ritem" data-t="pick-r"><b>Torso A</b><small>3 ejercicios</small></div></div>`:''}</div>`;
+  const side=`<div class="card side"><h3>Rutinas</h3><p style="margin:0 0 8px;font-size:.86rem;color:var(--ink2)">Aún no hay rutinas.</p><button class="btn" data-t="new-rut">Crear rutina nueva</button></div>`;
+  if(x==='empty')return head('atletas')+`<div class="pgc"><div class="ph"><h2>Camila Rojas</h2><div class="seg2"><span class="on">Ciclo</span><span>Resumen</span></div></div><div class="card" style="max-width:520px"><p style="margin:0 0 10px">Camila todavía no tiene ciclos. Asigna uno de la Biblioteca o crea uno nuevo aquí.</p><button class="btn p" data-t="new-cyc">Nuevo ciclo</button></div></div>`;
+  if(x==='dlg')return head('atletas')+`<div class="pgc"><div class="ph"><h2>Camila Rojas</h2></div><div class="dim"></div><div class="dlg" role="dialog"><h3>Nuevo ciclo</h3><div class="field"><label>Nombre</label><div class="inp">Fuerza base</div></div><div class="field"><label>Inicio y semanas</label><div class="inp">Lun 9 nov · 6 semanas</div></div><button class="btn p" data-t="cyc-ok">Crear</button></div></div>`;
+  if(x==='resumen')return head('atletas')+`<div class="pgc"><div class="ph"><h2>Camila Rojas</h2><div class="seg2"><span>Ciclo</span><span class="on" data-t="res">Resumen</span></div></div><div class="card">Carga semanal y adherencia</div></div>`;
+  const drawer=(sub)=>`<div class="dim"></div><aside class="drw" role="dialog" aria-label="Crear rutina"><h3>Crear rutina</h3><div class="field"><label>Nombre</label><div class="inp" data-t="rut-name">${x==='drawer'?'Torso A':'Torso A'}</div></div><div class="field"><label>Ejercicios</label><div class="inp" data-t="ex-search">${sub.q}</div></div>${sub.list}<button class="btn p" data-t="rut-ok" style="margin-top:8px">Crear rutina</button></aside>`;
+  if(x==='drawer')return head('atletas')+`<div class="pgc"><div class="ph"><h2>Camila Rojas</h2></div>${board}</div>`+drawer({q:'Buscar ejercicio',list:''});
+  if(x==='drawerc')return head('atletas')+`<div class="pgc"><div class="ph"><h2>Camila Rojas</h2></div>${board}</div>`+drawer({q:'Remo con mancuerna',list:'<div class="ritem" data-t="ex-create"><b>Crear «Remo con mancuerna»</b><small>Se crea y se agrega a la rutina</small></div>'});
+  if(x==='drawerd')return head('atletas')+`<div class="pgc"><div class="ph"><h2>Camila Rojas</h2></div>${board}</div>`+drawer({q:'Buscar ejercicio',list:'<div class="chips"><span>Press banca</span><span>Remo con mancuerna</span><span>Fondos</span></div>'});
+  return head('atletas')+`<div class="pgc"><div class="ph"><h2>Camila Rojas</h2><div class="seg2"><span class="on">Ciclo</span><span>Resumen</span></div></div><div style="display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:12px">${board}${side}</div></div>`}
  case 'hoy': return head('hoy','ath')+`<div class="pgc"><div class="ph"><h2>Hoy</h2></div><div class="card empty"><h3>Tu coach está preparando tu ciclo</h3>Cuando te asigne tu primera sesión, la verás aquí.</div></div>`;
  }
 }
@@ -165,20 +188,21 @@ function mobile(){
  <p style="max-width:880px;margin:16px auto 0;font-size:.86rem;color:var(--ink2)">M3: atenuar al 12 % o nada y nunca cubrir la isla ni el botón resaltado. M4: mismo globo que la web (paso, hasta 12 palabras, Siguiente y Saltar). M5: se conservan la pista de la primera serie, el cierre de la primera sesión y «Cómo usar Cycles» en el avatar.</p>`}
 function place(win,mk){
  const q=sel=>win.querySelector(`[data-t="${sel}"]`);
- const wr=win.getBoundingClientRect();
+ const wr=win.getBoundingClientRect(),z=+win.dataset.z||1;
  win.querySelectorAll('.halo,.ball,.gchip').forEach(e=>e.remove());
+ if(mk.intro){const c=document.createElement('div');c.className='intro';c.setAttribute('role','dialog');c.setAttribute('aria-labelledby','it');c.innerHTML=`<h3 id="it">Así se arma un ciclo</h3><div class="nest"><b>Ciclo · Fuerza base · 6 semanas</b><div class="rr"><div class="r"><b>Rutina · Torso A</b><div><span>Press banca</span><span>Remo</span></div></div><div class="r"><b>Rutina · Pierna</b><div><span>Sentadilla</span><span>Prensa</span></div></div></div></div><p>Un ciclo organiza las semanas de tu atleta.</p><p>Contiene rutinas: la sesión de cada día.</p><p>Cada rutina contiene ejercicios.</p><p style="margin:8px 0 12px;font-weight:700">Lo armamos en ese orden.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn p">Empezar la guía</button><button class="btn">Ahora no</button></div>`;win.appendChild(c);return}
  if(mk.chip){const c=document.createElement('div');c.className='gchip';c.innerHTML=`<span>${mk.chip}</span><button class="b">${mk.btn}</button>`;win.appendChild(c);return}
  const el=q(mk.t);if(!el)return;
  const r=el.getBoundingClientRect(),pad=4;
- const left=r.left-wr.left-pad,top=r.top-wr.top-pad,wd=r.width+pad*2,ht=r.height+pad*2;
+ const left=(r.left-wr.left)/z-pad,top=(r.top-wr.top)/z-pad,wd=r.width/z+pad*2,ht=r.height/z+pad*2;
  const rad=getComputedStyle(el).borderRadius;
  const h=document.createElement('div');h.className='halo';Object.assign(h.style,{left:left+'px',top:top+'px',width:wd+'px',height:ht+'px',borderRadius:(rad==='50%'?'999px':rad==='0px'?'6px':rad)});win.appendChild(h);
  const b=document.createElement('div');b.className='ball';b.setAttribute('role','complementary');b.setAttribute('aria-label','Guía de inicio');
  const btns=(mk.b||(mk.last?['Listo']:['Siguiente'])).map(x=>`<button class="b">${x}</button>`).join('');
  const ls=mk.l||(mk.skip?['Saltar paso','Salir de la guía']:['Salir de la guía']);
- b.innerHTML=`<small>${mk.k||'Bienvenida'}</small><p>${mk.tx}</p><div class="ac">${btns}${ls.map(x=>`<button class="l">${x}</button>`).join('')}</div>`;
+ b.innerHTML=`<small>${mk.k||'Bienvenida'}${mk.lv?`<span class="lv">${mk.lv}</span>`:''}</small><p>${mk.tx}</p><div class="ac">${btns}${ls.map(x=>`<button class="l">${x}</button>`).join('')}</div>`;
  win.appendChild(b);
- const bw=b.offsetWidth,bh=b.offsetHeight,ww=wr.width,wh=wr.height;
+ const bw=b.offsetWidth,bh=b.offsetHeight,ww=wr.width/z,wh=wr.height/z;
  if(win.classList.contains('w-m')){b.className='ball dock';return}
  if(el.closest('.menu')){b.className='ball';b.style.left=Math.max(8,left-bw-12)+'px';b.style.top=top+'px';b.style.setProperty('--ax','0px');b.classList.add('side');return}
  let bl=Math.min(Math.max(8,left),ww-bw-8),bt,dir;
@@ -196,7 +220,8 @@ function render(){
  sb.innerHTML=`<button class="btn" id="prev" ${mi===0?'disabled':''}>← Marca anterior</button><span class="cnt">Marca ${mi+1} de ${p.m.length}${mk.lab?' · '+mk.lab:''}</span><button class="btn p" id="next" ${mi===p.m.length-1?'disabled':''}>Marca siguiente →</button>`;
  document.getElementById('prev').onclick=()=>{mi--;render()};document.getElementById('next').onclick=()=>{mi++;render()};
  const width=w==='d'?1180:w==='t'?820:390;
- stage.innerHTML=`<div class="win ${w==='m'?'w-m':w==='t'?'w-t':''}" id="win" style="width:${width}px;max-width:100%">${screen(mk.s,mk.x)}${dimOn&&!mk.dim?'<div class="dim" style="z-index:5"></div>':''}${mk.dim&&mk.x!=='dlg'?'<div class="dim"></div>':''}</div>`;
+ const avail=Math.max(320,document.documentElement.clientWidth-32),z=Math.min(1,avail/width);
+ stage.innerHTML=`<div style="width:${width*z}px;margin:0 auto"><div class="win ${w==='m'?'w-m':w==='t'?'w-t':''}" id="win" data-z="${z}" style="width:${width}px;zoom:${z}">${screen(mk.s,mk.x)}${dimOn&&!mk.dim?'<div class="dim" style="z-index:5"></div>':''}${mk.dim&&mk.x!=='dlg'?'<div class="dim"></div>':''}</div></div>`;
  const win=document.getElementById('win');
  requestAnimationFrame(()=>place(win,mk));
 }
