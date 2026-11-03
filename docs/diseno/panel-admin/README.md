@@ -9,7 +9,7 @@ updated: 2026-11-03
 
 # Portal del equipo de Cycles (CYC-212)
 
-> Diseño previo de CYC-193. **Versión 2:** ya no es un panel dentro de la web de la app, sino un **portal independiente en su propio subdominio, solo para el equipo de desarrollo de Cycles**, con su propio inicio de sesión. Bloquea CYC-193. Contrastado con `origin/main`. Acceso con **Cloudflare Access** (sin login propio). Estado: propuesto, pendiente de aprobación de la usuaria. Maqueta en [`propuestas.html`](propuestas.html).
+> Diseño previo de CYC-193. **Versión 2:** ya no es un panel dentro de la web de la app, sino un **portal independiente en su propio subdominio, solo para el equipo de desarrollo de Cycles**, con su propio inicio de sesión. Bloquea CYC-193. Contrastado con `origin/main`. Acceso con **Cloudflare Access** (sin login propio, confirmado por la usuaria el 2026-11-03). Estado: propuesto, pendiente de aprobación de la usuaria. Maqueta en [`propuestas.html`](propuestas.html).
 
 ## Qué cambia respecto a la versión 1
 
@@ -129,7 +129,7 @@ Protecciones: el portal responde con `noindex` y `X-Frame-Options: DENY`, cada c
 
 ## Preguntas para la usuaria
 
-1. ¿Confirmas **Cloudflare Access** en lugar de la llave dinámica? (Es lo que propone este diseño.)
+1. ~~¿Cloudflare Access o llave dinámica?~~ **Cerrada 2026-11-03: Cloudflare Access** (decisión de la usuaria).
 2. ¿Qué subdominio usamos? En la maqueta aparece `admin.getcycles.app` como ejemplo.
 3. ¿Qué correos del equipo entran y con qué método (Google o código por correo)? Se configura en Cloudflare, no en el portal.
 4. ¿La versión de la app iOS se ingresa a mano en el portal?
