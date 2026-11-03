@@ -31,6 +31,8 @@ import { ProfileAvatar } from '../components/ProfileAvatar';
 import { NotificationBell } from '../components/NotificationBell';
 import { useTabBarClearance } from '../components/FloatingTabBar';
 import { CoachNote } from '../components/CoachNote';
+import { TourAnchor } from '../components/tour/TourAnchor';
+import { useTourAnchor } from '../store/TourContext';
 import { colors } from '../theme/colors';
 import { cardShadow } from '../theme/elevation';
 
@@ -109,6 +111,9 @@ export function TodayScreen({ navigation }: Props) {
   const currentIndex = exercises.findIndex(e => !isComplete(e));
   const doneSets = exercises.reduce((sum, e) => sum + Math.min(e.logs.length, e.targetSets), 0);
   const plannedSets = exercises.reduce((sum, e) => sum + e.targetSets, 0);
+  // La guía de primer uso señala el botón de la sesión (o la tarjeta vacía si no hay sesión).
+  const startLabel = routineStarted ? (currentIndex === -1 ? 'Cerrar sesión' : 'Continuar') : 'Iniciar rutina';
+  const emptyRef = useTourAnchor('todayEmpty', 18);
   const startedAtMs = data?.session.startedAt ? Date.parse(data.session.startedAt) : NaN;
   const elapsedMinutes = Number.isFinite(startedAtMs)
     ? Math.max(1, Math.round((Date.now() - startedAtMs) / 60000))
@@ -160,7 +165,7 @@ export function TodayScreen({ navigation }: Props) {
       {error && <Text style={styles.error}>{error}</Text>}
 
       {data === null && !error && (
-        <View style={[styles.card, styles.emptyCard]}>
+        <View ref={emptyRef} collapsable={false} style={[styles.card, styles.emptyCard]}>
           <ChainBackground />
           <View style={styles.emptyBox}>
             <Text style={styles.emptyTitle}>{withoutCoach ? 'Falta tu coach' : 'No tienes una sesión pendiente'}</Text>
@@ -198,6 +203,7 @@ export function TodayScreen({ navigation }: Props) {
               </View>
             </View>
 
+            <TourAnchor id="start" radius={999} label={startLabel}>
             {routineStarted ? (
               nextExercise ? (
                 <PressableScale style={styles.heroButton} onPress={() => openExercise(nextExercise)}>
@@ -227,6 +233,7 @@ export function TodayScreen({ navigation }: Props) {
                 )}
               </PressableScale>
             )}
+            </TourAnchor>
           </View>
 
           {routineStarted && !nextExercise && (

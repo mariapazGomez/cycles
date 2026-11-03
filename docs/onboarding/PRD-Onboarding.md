@@ -238,6 +238,16 @@ Una sola marca por cuenta, compartida por web y móvil (diseño en `docs/diseno/
 - `PATCH /users/me/tour` con `{ "status": "pending" | "skipped" | "completed" }` → 204. `pending` sirve para «Volver a ver la guía». 400 si el valor no existe; 401 sin sesión.
 - Sale en la exportación de datos de la cuenta y se borra con ella.
 
+### 11.2 Guía de primer uso en la app móvil (CYC-192, 2026-11-03)
+
+Diseño v3.1 «Tour móvil», ajustes M1–M5. Solo atletas, sobre la interfaz real (sin velo ni pantallas propias):
+
+- **Tres marcas** con halo azul y un globo corto (`#1f2228`, radio 10, hasta 12 palabras, **Siguiente** y **Saltar**): **Inicio** (el botón real de la sesión, nombrado con su texto: «Toca Iniciar rutina cuando vayas a entrenar.»; sin sesión se señala la tarjeta vacía: «Aquí aparecerá tu sesión de hoy.»), **Calendario** y **Resumen** (íconos de la isla, «Toca Calendario.» / «Toca Resumen.»). El Asistente queda fuera mientras sea demo.
+- El halo **no bloquea toques** y no se atenúa el resto de la pantalla. Avanzan al tocar el botón o la pestaña, o con **Siguiente**; tocar Resumen termina la guía.
+- Aparece con `tourStatus = pending`, después de la bienvenida, solo sobre las pestañas. **Saltar** guarda `skipped`; terminar guarda `completed`. **Cómo usar Cycles** (menú del avatar) vuelve a pedirla (`pending`) y lleva a Inicio. Se guarda con `PATCH /users/me/tour`; si falla, la pantalla igual cambia y la guía puede repetirse una vez.
+- **Pista de la primera serie** (una sola vez, en el registro de serie) y **cierre de la primera sesión** («Primera sesión guardada. Tu coach ya puede verla.», una sola vez, solo al cerrar como hecha). Ambas marcas viven en el dispositivo (`cycles.hint.firstSet`, `cycles.hint.firstSession`).
+- Código: `store/TourContext.tsx` (estado y anclas), `components/tour/` (capa, ancla, pistas). Texto sin movimiento propio; el globo se anuncia a los lectores de pantalla.
+
 ## 12. Historial de versiones
 
 | Versión | Fecha | Cambio |

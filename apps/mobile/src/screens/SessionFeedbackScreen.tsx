@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { submitFeedback } from '../services/executionApi';
+import { FirstSessionClosing, shouldShowFirstSessionClosing } from '../components/tour/FirstUseHints';
 import type { AppStackParamList } from '../navigation/types';
 import { BeadChain } from '../components/BeadChain';
 import { Icon } from '../components/Icon';
@@ -52,6 +53,8 @@ export function SessionFeedbackScreen({ route, navigation }: Props) {
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Cierre de la primera sesión guardada (guía de primer uso).
+  const [firstClosing, setFirstClosing] = useState(false);
   // Guarda sincrónica contra doble-tap: `submitting` (estado) recién se
   // refleja en el próximo render, así que un segundo toque en el mismo
   // frame podría colarse antes de que el botón se deshabilite. A
@@ -103,6 +106,10 @@ export function SessionFeedbackScreen({ route, navigation }: Props) {
         painNotes: trained && pain && painNotes.trim() !== '' ? painNotes : undefined,
         notes: buildNotes({ result, doneSets, plannedSets, reason, notes }),
       });
+      if (trained && (await shouldShowFirstSessionClosing())) {
+        setFirstClosing(true);
+        return;
+      }
       navigation.goBack();
     } catch (err) {
       submittingRef.current = false;
@@ -110,6 +117,10 @@ export function SessionFeedbackScreen({ route, navigation }: Props) {
       setSubmitting(false);
     }
   };
+
+  if (firstClosing) {
+    return <FirstSessionClosing onDone={() => navigation.goBack()} />;
+  }
 
   return (
     <View style={styles.container}>

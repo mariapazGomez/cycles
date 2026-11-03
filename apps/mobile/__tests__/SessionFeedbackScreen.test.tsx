@@ -2,6 +2,8 @@ import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import { SessionFeedbackScreen } from '../src/screens/SessionFeedbackScreen';
 import { submitFeedback } from '../src/services/executionApi';
+import { markFirstSessionClosingSeen } from '../src/services/hintStorage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
@@ -33,7 +35,11 @@ const press = async (tree: ReactTestRenderer.ReactTestRenderer, predicate: (n: R
 const hasText = (tree: ReactTestRenderer.ReactTestRenderer, text: string) =>
   tree.root.findAll(n => n.props.children === text || (Array.isArray(n.props.children) && n.props.children.join('') === text)).length > 0;
 
-beforeEach(() => jest.clearAllMocks());
+// Salvo en las pruebas del cierre de la primera sesión, la primera vez ya pasó.
+beforeEach(async () => {
+  jest.clearAllMocks();
+  await markFirstSessionClosingSeen();
+});
 
 test('con todas las series hechas propone "Hiciste las 19 series"', () => {
   const { tree } = mount(19);
@@ -82,4 +88,28 @@ test('sin ninguna serie se envía skipped sin esfuerzo ni dolor', async () => {
     painNotes: undefined,
     notes: undefined,
   });
+});
+
+test('la primera sesión guardada muestra el cierre y recién al tocarlo vuelve', async () => {
+  await AsyncStorage.removeItem('cycles.hint.firstSession');
+  submit.mockResolvedValue({});
+  const { tree, navigation } = mount(19);
+  await press(tree, n => n.props.accessibilityLabel === 'Esfuerzo 7');
+  await press(tree, n => n.findAll(c => c.props.children === 'Enviar').length > 0);
+  expect(hasText(tree, 'Primera sesión guardada')).toBe(true);
+  expect(hasText(tree, 'Tu coach ya puede verla.')).toBe(true);
+  expect(navigation.goBack).not.toHaveBeenCalled();
+
+  await press(tree, n => n.props.accessibilityLabel === 'Volver a Inicio');
+  expect(navigation.goBack).toHaveBeenCalled();
+  expect(await AsyncStorage.getItem('cycles.hint.firstSession')).toBe('1');
+});
+
+test('una sesión no hecha no muestra el cierre de la primera sesión', async () => {
+  await AsyncStorage.removeItem('cycles.hint.firstSession');
+  submit.mockResolvedValue({});
+  const { tree, navigation } = mount(0);
+  await press(tree, n => n.findAll(c => c.props.children === 'Enviar').length > 0);
+  expect(hasText(tree, 'Primera sesión guardada')).toBe(false);
+  expect(navigation.goBack).toHaveBeenCalled();
 });

@@ -4,6 +4,7 @@ import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon, type IconName } from './Icon';
 import { PressableScale } from './PressableScale';
+import { TourAnchor } from './tour/TourAnchor';
 import { useReduceMotion } from '../hooks/useReduceMotion';
 import { colors } from '../theme/colors';
 import { cardShadow } from '../theme/elevation';
@@ -91,15 +92,16 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
             }
           };
           return (
-            <PressableScale
-              key={route.key}
-              onPress={onPress}
-              accessibilityRole="button"
-              accessibilityLabel={item.label}
-              accessibilityState={{ selected: focused }}
-              style={styles.item}>
-              <Icon name={item.icon} size={22} color={focused ? colors.blue : colors.inkSecondary} />
-            </PressableScale>
+            <TourAnchor key={route.key} id={`tab:${route.name}`} radius={(TAB_BAR_HEIGHT - 10) / 2} style={styles.item}>
+              <PressableScale
+                onPress={onPress}
+                accessibilityRole="button"
+                accessibilityLabel={item.label}
+                accessibilityState={{ selected: focused }}
+                style={styles.itemPress}>
+                <Icon name={item.icon} size={22} color={focused ? colors.blue : colors.inkSecondary} />
+              </PressableScale>
+            </TourAnchor>
           );
         })}
       </View>
@@ -127,10 +129,6 @@ const styles = StyleSheet.create({
     borderRadius: (TAB_BAR_HEIGHT - 10) / 2,
     backgroundColor: colors.blueTint,
   },
-  item: {
-    width: SLOT_WIDTH,
-    height: TAB_BAR_HEIGHT - 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  item: { width: SLOT_WIDTH, height: TAB_BAR_HEIGHT - 10 },
+  itemPress: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 });
