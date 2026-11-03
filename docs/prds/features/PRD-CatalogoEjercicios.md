@@ -103,3 +103,8 @@ Ninguno adicional a los del PRD general.
 - `videoUrl`: el seed no completa este campo (el dataset evaluado tenía fotos, no videos, y no había una fuente de videos ya lista). Queda vacío hasta que se decida una fuente.
 - Edición de ejercicios propios: construida con la pestaña Ejercicios de la web (2026-10-30), junto con los implementos (`Exercise.equipment`, lista cerrada). Diseño en `docs/diseno/crear-ejercicio`.
 - **Pendiente:** asignar implementos a los 54 ejercicios del catálogo (hoy tienen la lista vacía), el atajo «Crear» en el editor de rutinas y la búsqueda «con lo que tengo».
+
+
+## Video en la app del atleta
+
+El video de un ejercicio (`videoUrl`, solo https) nunca se reproduce ni se incrusta por defecto. En la app móvil aparece un botón con ícono de video junto al nombre del ejercicio, en el detalle de la sesión y en la pantalla de registro de series; al tocarlo se abre el enlace fuera de la app (YouTube, Safari). La primera vez que la persona ve el botón sale un aviso explicativo con «Entendido»; se guarda en el teléfono (`cycles.hint.exerciseVideo`) y no vuelve a salir. Sin `videoUrl` no hay botón ni aviso.

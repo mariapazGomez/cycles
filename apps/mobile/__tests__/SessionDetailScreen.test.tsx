@@ -21,7 +21,7 @@ const feedbackMock = submitFeedback as jest.Mock;
 
 const exercises = [
   {
-    id: 'se1', targetSets: 3, targetReps: 8, targetWeight: 60, exercise: { name: 'Sentadilla con barra' },
+    id: 'se1', targetSets: 3, targetReps: 8, targetWeight: 60, exercise: { name: 'Sentadilla con barra', videoUrl: 'https://youtu.be/abc' },
     logs: [
       { id: 'l1', setNumber: 1, actualReps: 8, actualWeight: 60 },
       { id: 'l2', setNumber: 2, actualReps: 8, actualWeight: 60 },
@@ -156,4 +156,12 @@ test('muestra la nota del coach bajo el ejercicio, y nada si no hay nota', async
   // Solo hay una nota: el segundo ejercicio no dibuja el recuadro.
   expect(tree.root.findAll(n => (n.type as unknown) === Text).filter(n => n.props.children === 'Nota de tu coach')).toHaveLength(1);
   expect(tree.root.findAll(n => n.props.accessibilityLabel === 'Nota de tu coach: Baja lento y cuida el hombro.').length).toBeGreaterThan(0);
+});
+
+test('un ejercicio con video muestra el acceso directo y el aviso de la primera vez, sin reproducir nada solo', async () => {
+  detailMock.mockResolvedValue(detail('planned'));
+  const tree = await mount();
+  expect(tree.root.findAll(n => n.props.accessibilityLabel === 'Ver ejemplo de Sentadilla con barra' && typeof n.props.onPress === 'function').length).toBeGreaterThan(0);
+  expect(tree.root.findAll(n => n.props.accessibilityLabel === 'Ver ejemplo de Flexiones de brazos')).toHaveLength(0);
+  expect(texts(tree)).toContain('Ejemplo en video');
 });
