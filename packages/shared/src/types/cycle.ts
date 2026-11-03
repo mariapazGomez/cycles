@@ -95,6 +95,8 @@ export interface Exercise {
   id: string;
   name: string;
   muscleGroup?: MuscleGroup;
+  // Grupos que trabaja además del principal; vacío si solo tiene uno.
+  secondaryMuscleGroups?: MuscleGroup[];
   description?: string;
   videoUrl?: string;
   // Vacío en los ejercicios del catálogo que aún no se revisan.

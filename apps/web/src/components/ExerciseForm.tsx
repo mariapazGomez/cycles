@@ -11,6 +11,7 @@ import {
   GROUP_OPTIONS,
   formFromExercise,
   toggleEquipment,
+  toggleSecondary,
   validateForm,
   type ExerciseForm,
   type FormErrors,
@@ -63,6 +64,7 @@ export function ExerciseFormCard({ editing, initialName, compact, submitLabel, o
       const input = {
         name: form.name.trim(),
         muscleGroup: form.muscleGroup as MuscleGroup,
+        secondaryMuscleGroups: form.secondaryMuscleGroups.filter((g) => g !== form.muscleGroup),
         equipment: form.equipment,
         description: form.description.trim() || (editing ? null : undefined),
         videoUrl: form.videoUrl.trim() || (editing ? null : undefined),
@@ -189,7 +191,11 @@ export function ExerciseFormCard({ editing, initialName, compact, submitLabel, o
               role="radio"
               aria-checked={form.muscleGroup === group}
               className="ex-chip"
-              onClick={() => set("muscleGroup", group)}
+              onClick={() => {
+                set("muscleGroup", group);
+                // Si ya estaba entre los secundarios, deja de serlo.
+                setForm((current) => ({ ...current, secondaryMuscleGroups: current.secondaryMuscleGroups.filter((g) => g !== group) }));
+              }}
             >
               {MUSCLE_GROUP_LABEL[group]}
             </button>
@@ -200,6 +206,25 @@ export function ExerciseFormCard({ editing, initialName, compact, submitLabel, o
             {errors.muscleGroup}
           </p>
         )}
+      </div>
+
+      <div className="ex-field">
+        <span className="ex-label" id="exSecondaryLabel">
+          Otros grupos que trabaja <span className="ex-optional">(opcional)</span>
+        </span>
+        <div className="ex-chips" role="group" aria-labelledby="exSecondaryLabel">
+          {GROUP_OPTIONS.filter((group) => group !== form.muscleGroup).map((group) => (
+            <button
+              key={group}
+              type="button"
+              className="ex-chip"
+              aria-pressed={form.secondaryMuscleGroups.includes(group)}
+              onClick={() => set("secondaryMuscleGroups", toggleSecondary(form.secondaryMuscleGroups, group))}
+            >
+              {MUSCLE_GROUP_LABEL[group]}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="ex-field">

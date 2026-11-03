@@ -1,5 +1,5 @@
 import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import { Equipment } from "@prisma/client";
+import { Equipment, MuscleGroup } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuthenticatedUser } from "../common/decorators/current-user.decorator";
 import { CreateExerciseDto } from "./dto/create-exercise.dto";
@@ -37,6 +37,7 @@ export class ExercisesService {
   async create(coachId: string, dto: CreateExerciseDto) {
     const name = dto.name.trim();
     this.assertEquipment(dto.equipment);
+    this.assertSecondaries(dto.muscleGroup, dto.secondaryMuscleGroups);
     await this.assertNameFree(coachId, name);
     return this.prisma.exercise.create({
       data: { ...dto, name, createdBy: coachId },
@@ -56,6 +57,13 @@ export class ExercisesService {
     }
     if (dto.equipment !== undefined) {
       this.assertEquipment(dto.equipment);
+    }
+    // Si cambia el principal o los secundarios, se revisa el par resultante.
+    if (dto.muscleGroup !== undefined || dto.secondaryMuscleGroups !== undefined) {
+      this.assertSecondaries(
+        dto.muscleGroup ?? exercise.muscleGroup ?? undefined,
+        dto.secondaryMuscleGroups ?? exercise.secondaryMuscleGroups,
+      );
     }
     return this.prisma.exercise.update({ where: { id: exerciseId }, data });
   }
@@ -83,6 +91,13 @@ export class ExercisesService {
   private assertEquipment(equipment: Equipment[]) {
     if (equipment.includes(Equipment.bodyweight) && equipment.length > 1) {
       throw new BadRequestException("«Peso corporal» no se combina con otros implementos.");
+    }
+  }
+
+  // El grupo principal no se repite entre los secundarios.
+  private assertSecondaries(main: MuscleGroup | undefined, secondary: MuscleGroup[] | undefined) {
+    if (main && secondary?.includes(main)) {
+      throw new BadRequestException("El grupo principal no puede repetirse como secundario.");
     }
   }
 

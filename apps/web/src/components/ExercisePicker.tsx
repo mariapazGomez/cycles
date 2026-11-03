@@ -2,6 +2,7 @@ import { useId, useMemo, useState } from "react";
 import type { Exercise } from "@cycles/shared";
 import { ExerciseFormCard } from "./ExerciseForm";
 import { muscleGroupLabel } from "../lib/muscleGroups";
+import { exerciseGroups } from "../lib/exercises";
 
 const MAX_RESULTS = 8;
 
@@ -30,7 +31,7 @@ export function ExercisePicker({ exercises, isLoading, isError, onPick }: Exerci
     const needle = normalize(query.trim());
     const all = exercises ?? [];
     const matches = needle
-      ? all.filter((e) => normalize(`${e.name} ${muscleGroupLabel(e.muscleGroup)}`).includes(needle))
+      ? all.filter((e) => normalize(`${e.name} ${exerciseGroups(e).map(muscleGroupLabel).join(" ")}`).includes(needle))
       : all;
     return matches.slice(0, MAX_RESULTS);
   }, [exercises, query]);

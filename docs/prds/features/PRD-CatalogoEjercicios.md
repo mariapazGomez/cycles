@@ -65,6 +65,7 @@ enum MuscleGroup {
 model Exercise {
   // ...campos existentes...
   muscleGroup MuscleGroup?
+  secondaryMuscleGroups MuscleGroup[] @default([])  // CYC-196 B
   isActive    Boolean      @default(true)
 }
 ```
@@ -76,7 +77,7 @@ model Exercise {
 ## 6. Diseño de API — implementado en `apps/api/src/exercises`
 
 - `GET /exercises` (autenticado) — catálogo global + propios (coach) o solo global (atleta).
-- `POST /exercises` (rol `coach`) — body `{ name, muscleGroup, equipment[], description?, videoUrl? }`. Grupo muscular e implementos son obligatorios; `bodyweight` (peso corporal) va solo; el enlace debe empezar con `https://`. 409 si el nombre repite uno del catálogo o uno propio activo (se comparan sin tildes, mayúsculas ni espacios de más).
+- `POST /exercises` (rol `coach`) — body `{ name, muscleGroup, secondaryMuscleGroups?[], equipment[], description?, videoUrl? }`. Grupo muscular e implementos son obligatorios; `bodyweight` (peso corporal) va solo; el enlace debe empezar con `https://`. 409 si el nombre repite uno del catálogo o uno propio activo (se comparan sin tildes, mayúsculas ni espacios de más).
 - `PATCH /exercises/:id` (rol `coach`, dueño) — corrige cualquier campo del alta; `null` en descripción o video los borra. 403 si el ejercicio no es suyo o es del catálogo.
 - `PATCH /exercises/:id/deactivate` (rol `coach`, dueño) — 403 si el ejercicio no es suyo.
 
@@ -102,6 +103,7 @@ Ninguno adicional a los del PRD general.
 - **Fuente del seed:** se evaluó importar un dataset público en inglés (`yuhonas/free-exercise-db`, dominio público, 876 ejercicios) y traducirlo automáticamente, pero la traducción palabra-por-palabra daba nombres con orden gramatical incorrecto (ej. "Un brazo por encima de la cabeza pesa rusa sentadilla"). Se descartó ese enfoque a favor de una lista curada a mano de 54 ejercicios comunes, con nombres en español correctos desde el día uno. Se puede ampliar el catálogo global más adelante agregando filas a mano o retomando una fuente externa con una traducción de mejor calidad.
 - `videoUrl`: el seed no completa este campo (el dataset evaluado tenía fotos, no videos, y no había una fuente de videos ya lista). Queda vacío hasta que se decida una fuente.
 - Edición de ejercicios propios: construida con la pestaña Ejercicios de la web (2026-10-30), junto con los implementos (`Exercise.equipment`, lista cerrada). Diseño en `docs/diseno/crear-ejercicio`.
+- **Varios grupos musculares (CYC-196 B, 2026-11-03):** cada ejercicio tiene un grupo principal obligatorio (`muscleGroup`) y grupos secundarios opcionales (`secondaryMuscleGroups`, sin repetir el principal). Migración aditiva: los ejercicios existentes conservan su grupo como principal y quedan sin secundarios. El filtro por grupo de la pestaña Ejercicios y la búsqueda del editor de rutinas encuentran un ejercicio por cualquiera de sus grupos. El reparto de series del Resumen sigue contando solo el grupo principal, para no duplicar series. Pendiente: mostrar los secundarios en la app móvil.
 - **Pendiente:** asignar implementos a los 54 ejercicios del catálogo (hoy tienen la lista vacía), el atajo «Crear» en el editor de rutinas y la búsqueda «con lo que tengo».
 
 

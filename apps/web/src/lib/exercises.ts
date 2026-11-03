@@ -42,20 +42,32 @@ export function toggleEquipment(current: Equipment[], value: Equipment): Equipme
   return without.includes(value) ? without.filter((e) => e !== value) : [...without, value];
 }
 
+// Marca o desmarca un grupo secundario. El principal no puede ser también secundario.
+export function toggleSecondary(current: MuscleGroup[], value: MuscleGroup): MuscleGroup[] {
+  return current.includes(value) ? current.filter((g) => g !== value) : [...current, value];
+}
+
+// Todos los grupos que trabaja un ejercicio: el principal y luego los secundarios.
+export function exerciseGroups(exercise: Exercise): MuscleGroup[] {
+  return [exercise.muscleGroup ?? "other", ...(exercise.secondaryMuscleGroups ?? [])];
+}
+
 export interface ExerciseForm {
   name: string;
   muscleGroup: MuscleGroup | null;
+  secondaryMuscleGroups: MuscleGroup[];
   equipment: Equipment[];
   description: string;
   videoUrl: string;
 }
 
-export const EMPTY_FORM: ExerciseForm = { name: "", muscleGroup: null, equipment: [], description: "", videoUrl: "" };
+export const EMPTY_FORM: ExerciseForm = { name: "", muscleGroup: null, secondaryMuscleGroups: [], equipment: [], description: "", videoUrl: "" };
 
 export function formFromExercise(exercise: Exercise): ExerciseForm {
   return {
     name: exercise.name,
     muscleGroup: exercise.muscleGroup ?? null,
+    secondaryMuscleGroups: exercise.secondaryMuscleGroups ?? [],
     equipment: exercise.equipment ?? [],
     description: exercise.description ?? "",
     videoUrl: exercise.videoUrl ?? "",
@@ -88,7 +100,7 @@ export function visibleExercises(
   const needle = normalizeText(search);
   return exercises
     .filter((e) => (tab === "mine" ? e.createdBy === coachId : !e.createdBy))
-    .filter((e) => group === "all" || (e.muscleGroup ?? "other") === group)
+    .filter((e) => group === "all" || exerciseGroups(e).includes(group))
     .filter((e) => !needle || normalizeText(e.name).includes(needle))
     .sort((a, b) => a.name.localeCompare(b.name, "es"));
 }

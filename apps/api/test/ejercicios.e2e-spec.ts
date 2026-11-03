@@ -38,6 +38,43 @@ describe("Crear ejercicio", () => {
     expect([res.body.message].flat()).toContain(message);
   });
 
+  describe("grupos secundarios (CYC-196 B)", () => {
+    it("se guardan junto al principal; sin ellos queda vacío", async () => {
+      const con = await create(c.token.coachA, { name: "Sentadilla frontal", muscleGroup: "legs", secondaryMuscleGroups: ["glutes", "core"], equipment: ["barbell"] });
+      expect(con.status).toBe(201);
+      expect(con.body.muscleGroup).toBe("legs");
+      expect(con.body.secondaryMuscleGroups).toEqual(["glutes", "core"]);
+      const sin = await create(c.token.coachA, { name: "Curl concentrado", muscleGroup: "arms", equipment: ["dumbbells"] });
+      expect(sin.body.secondaryMuscleGroups).toEqual([]);
+    });
+
+    it.each([
+      ["repite el principal", { muscleGroup: "legs", secondaryMuscleGroups: ["legs"] }, "El grupo principal no puede repetirse como secundario."],
+      ["repite un secundario", { muscleGroup: "legs", secondaryMuscleGroups: ["glutes", "glutes"] }, "Hay grupos secundarios repetidos."],
+      ["usa un grupo que no existe", { muscleGroup: "legs", secondaryMuscleGroups: ["cuello"] }, "Hay un grupo secundario que no existe."],
+    ])("se rechaza si %s", async (_caso, extra, message) => {
+      const res = await create(c.token.coachA, { name: "Prueba secundarios", equipment: ["barbell"], ...extra });
+      expect(res.status).toBe(400);
+      expect([res.body.message].flat()).toContain(message);
+    });
+
+    it("al corregir, el principal nuevo no puede estar ya entre los secundarios", async () => {
+      const made = await create(c.token.coachA, { name: "Peso muerto con déficit", muscleGroup: "back", secondaryMuscleGroups: ["legs"], equipment: ["barbell"] });
+      const patch = (body: Record<string, unknown>) => app.http("patch", `/exercises/${made.body.id}`, c.token.coachA).send(body);
+      expect((await patch({ muscleGroup: "legs" })).status).toBe(400);
+      const ok = await patch({ muscleGroup: "legs", secondaryMuscleGroups: ["back"] });
+      expect(ok.status).toBe(200);
+      expect(ok.body.secondaryMuscleGroups).toEqual(["back"]);
+    });
+
+    it("los ejercicios del catálogo existentes siguen con su grupo y sin secundarios", async () => {
+      const list = (await app.http("get", "/exercises", c.token.coachA)).body as { muscleGroup: string; secondaryMuscleGroups: string[]; createdBy: string | null }[];
+      const global = list.filter((e) => !e.createdBy);
+      expect(global.length).toBeGreaterThan(0);
+      expect(global.every((e) => e.muscleGroup && e.secondaryMuscleGroups.length === 0)).toBe(true);
+    });
+  });
+
   it("un atleta no crea ejercicios", async () => {
     expect((await create(c.token.athleteA, { name: "X", muscleGroup: "back", equipment: ["barbell"] })).status).toBe(403);
   });
