@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../store/AuthContext';
+import { useTour } from '../store/TourContext';
 import { colors } from '../theme/colors';
 import { cardShadow } from '../theme/elevation';
 import { PRIVACY_URL, TERMS_URL } from '../config/legal';
@@ -16,6 +17,7 @@ export function ProfileAvatar() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
   const [open, setOpen] = useState(false);
+  const tour = useTour();
 
   const initials =
     (user?.name ?? '')
@@ -45,6 +47,17 @@ export function ProfileAvatar() {
               accessibilityRole="button">
               <Text style={styles.linkText}>Mi cuenta</Text>
             </TouchableOpacity>
+            {tour && (
+              <TouchableOpacity
+                style={styles.item}
+                onPress={() => {
+                  setOpen(false);
+                  tour.restart();
+                }}
+                accessibilityRole="button">
+                <Text style={styles.linkText}>Cómo usar Cycles</Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
               style={styles.item}
               onPress={() => Linking.openURL(PRIVACY_URL)}

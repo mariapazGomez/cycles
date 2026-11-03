@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import type { User } from '@cycles/shared';
+import type { TourStatus, User } from '@cycles/shared';
 import * as authApi from '../services/authApi';
+import { updateTourStatus } from '../services/tourApi';
 import { ApiError, onSessionExpired } from '../services/httpClient';
 import { tokenStore } from '../services/tokenStore';
 
@@ -17,6 +18,9 @@ interface AuthContextValue {
   endWelcome: () => void;
   // Vuelve a pedir el perfil (p. ej. tras cambiar el consentimiento).
   refreshUser: () => Promise<void>;
+  // Guarda el estado de la guía de primer uso. La pantalla cambia al instante;
+  // si la API falla, la guía vuelve a salir en la próxima apertura.
+  setTourStatus: (status: TourStatus) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -104,9 +108,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(await authApi.fetchCurrentUser());
   };
 
+  const setTourStatus = useCallback(async (tourStatus: TourStatus) => {
+    setUser(current => (current ? { ...current, tourStatus } : current));
+    try {
+      await updateTourStatus(tourStatus);
+    } catch {
+      // Best-effort: sin red la marca no se guarda y la guía puede repetirse una vez más.
+    }
+  }, []);
+
   const value = useMemo(
-    () => ({ status, user, welcome, endWelcome, login, loginWithApple, logout, acceptPolicy, refreshUser }),
-    [status, user, welcome, endWelcome],
+    () => ({ status, user, welcome, endWelcome, login, loginWithApple, logout, acceptPolicy, refreshUser, setTourStatus }),
+    [status, user, welcome, endWelcome, setTourStatus],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

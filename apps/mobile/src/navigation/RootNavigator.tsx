@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { StatusBar, StyleSheet, View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useAuth } from '../store/AuthContext';
@@ -21,8 +21,11 @@ import { NotificationsScreen } from '../screens/NotificationsScreen';
 import { AccountScreen } from '../screens/AccountScreen';
 import { PolicyAcceptanceScreen } from '../screens/PolicyAcceptanceScreen';
 import type { AppStackParamList, TabParamList } from './types';
+import { TourProvider } from '../store/TourContext';
+import { TourOverlay } from '../components/tour/TourOverlay';
 import { colors } from '../theme/colors';
 
+const navigationRef = createNavigationContainerRef<AppStackParamList>();
 const Stack = createNativeStackNavigator<AppStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 
@@ -54,6 +57,14 @@ export function RootNavigator() {
   // de segundo plano: el estado vive mientras la app esté abierta.
   const [splashDone, setSplashDone] = useState(false);
   const finishSplash = useCallback(() => setSplashDone(true), []);
+  // Pantalla enfocada: la guía de primer uso sabe así en qué pestaña está la persona.
+  const [route, setRoute] = useState<string | undefined>(undefined);
+  const syncRoute = useCallback(() => setRoute(navigationRef.getCurrentRoute()?.name), []);
+  const goToday = useCallback(() => {
+    if (navigationRef.isReady()) {
+      navigationRef.navigate('Tabs', { screen: 'Today' });
+    }
+  }, []);
 
   if (!splashDone) {
     return (
@@ -76,31 +87,34 @@ export function RootNavigator() {
   }
 
   return (
-    <View style={styles.root}>
-      <NavigationContainer>
-        {status === 'signedOut' ? (
-          <LoginScreen />
-        ) : (
-          <Stack.Navigator screenOptions={{ headerTintColor: colors.blue }}>
-            <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
-            <Stack.Screen
-              name="ExerciseLog"
-              component={ExerciseLogScreen}
-              options={{ title: '' }}
-            />
-            <Stack.Screen name="SessionDetail" component={SessionDetailScreen} options={{ title: '' }} />
-            <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ headerShown: false }} />
-            <Stack.Screen name="Account" component={AccountScreen} options={{ headerShown: false }} />
-            <Stack.Screen
-              name="SessionFeedback"
-              component={SessionFeedbackScreen}
-              options={{ title: '', presentation: 'modal' }}
-            />
-          </Stack.Navigator>
-        )}
-      </NavigationContainer>
-      {welcome && <WelcomeCurtain onDone={endWelcome} reduceMotion={reduceMotion} />}
-    </View>
+    <TourProvider route={route} onGoToday={goToday}>
+      <View style={styles.root}>
+        <NavigationContainer ref={navigationRef} onReady={syncRoute} onStateChange={syncRoute}>
+          {status === 'signedOut' ? (
+            <LoginScreen />
+          ) : (
+            <Stack.Navigator screenOptions={{ headerTintColor: colors.blue }}>
+              <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
+              <Stack.Screen
+                name="ExerciseLog"
+                component={ExerciseLogScreen}
+                options={{ title: '' }}
+              />
+              <Stack.Screen name="SessionDetail" component={SessionDetailScreen} options={{ title: '' }} />
+              <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ headerShown: false }} />
+              <Stack.Screen name="Account" component={AccountScreen} options={{ headerShown: false }} />
+              <Stack.Screen
+                name="SessionFeedback"
+                component={SessionFeedbackScreen}
+                options={{ title: '', presentation: 'modal' }}
+              />
+            </Stack.Navigator>
+          )}
+        </NavigationContainer>
+        <TourOverlay />
+        {welcome && <WelcomeCurtain onDone={endWelcome} reduceMotion={reduceMotion} />}
+      </View>
+    </TourProvider>
   );
 }
 

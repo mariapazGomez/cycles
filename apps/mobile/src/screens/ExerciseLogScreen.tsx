@@ -19,6 +19,7 @@ import { useRestTimer } from '../store/RestTimerContext';
 import type { AppStackParamList } from '../navigation/types';
 import { Spinner } from '../components/Spinner';
 import { CoachNote } from '../components/CoachNote';
+import { FirstSetHint, useFirstSetHint } from '../components/tour/FirstUseHints';
 import { ExerciseVideoButton, VideoHint, playableUrl, useVideoHint } from '../components/ExerciseVideo';
 import { colors } from '../theme/colors';
 
@@ -73,6 +74,7 @@ export function ExerciseLogScreen({ route }: Props) {
   const { sessionExercise } = route.params;
   const videoUrl = playableUrl(sessionExercise.exercise.videoUrl);
   const videoHint = useVideoHint(Boolean(videoUrl));
+  const firstSetHint = useFirstSetHint();
   const { startRest } = useRestTimer();
   const [rows, setRows] = useState<SetRowState[]>(() =>
     buildInitialRows(
@@ -172,6 +174,7 @@ export function ExerciseLogScreen({ route }: Props) {
           )}
         </View>
         {videoHint.visible && <VideoHint onDismiss={videoHint.dismiss} />}
+        {firstSetHint.visible && !videoHint.visible && <FirstSetHint onDismiss={firstSetHint.dismiss} />}
         <CoachNote note={sessionExercise.note} />
 
         <View style={styles.progressRow}>
