@@ -1,5 +1,6 @@
 import React from 'react';
-import { Vibration } from 'react-native';
+import { AppState, Vibration } from 'react-native';
+import notifee from 'react-native-notify-kit';
 import ReactTestRenderer from 'react-test-renderer';
 import { RestTimerProvider, useRestTimer } from '../src/store/RestTimerContext';
 import { clearRest, loadRest, saveRest } from '../src/services/restTimerStorage';
@@ -75,4 +76,59 @@ test('una pausa restaurada que termina vibra una vez y se borra', async () => {
   expect(vibrate).toHaveBeenCalledTimes(1);
   jest.useRealTimers();
   vibrate.mockRestore();
+});
+
+describe('aviso del sistema al minimizar', () => {
+  const notifications = notifee as unknown as {
+    requestPermission: jest.Mock;
+    createTriggerNotification: jest.Mock;
+    cancelTriggerNotification: jest.Mock;
+  };
+  let emit: (state: string) => void;
+  beforeEach(() => {
+    jest.spyOn(AppState, 'addEventListener').mockImplementation(((_: string, cb: (s: string) => void) => {
+      emit = cb;
+      return { remove: jest.fn() };
+    }) as never);
+  });
+  afterEach(() => jest.restoreAllMocks());
+
+  const startRest = async (seconds: number) => {
+    load.mockResolvedValue(null);
+    await mount();
+    await ReactTestRenderer.act(async () => {
+      latest.setRoutineStarted(true);
+    });
+    await ReactTestRenderer.act(async () => {
+      latest.startRest(seconds);
+    });
+  };
+
+  test('pide el permiso al iniciar el descanso, con la app abierta', async () => {
+    await startRest(60);
+    expect(notifications.requestPermission).toHaveBeenCalled();
+  });
+
+  test('al minimizar agenda la notificación para la hora de fin', async () => {
+    await startRest(60);
+    const endsAt = (saveRest as jest.Mock).mock.calls.at(-1)[0].endsAt;
+    await ReactTestRenderer.act(async () => emit('background'));
+    const [content, trigger] = notifications.createTriggerNotification.mock.calls.at(-1);
+    expect(content.title).toBe('Descanso terminado');
+    expect(trigger.timestamp).toBe(endsAt);
+  });
+
+  test('al volver a la app cancela la notificación', async () => {
+    await startRest(60);
+    await ReactTestRenderer.act(async () => emit('background'));
+    await ReactTestRenderer.act(async () => emit('active'));
+    expect(notifications.cancelTriggerNotification).toHaveBeenCalledWith('rest-timer-end');
+  });
+
+  test('sin descanso en curso, minimizar no agenda nada', async () => {
+    load.mockResolvedValue(null);
+    await mount();
+    await ReactTestRenderer.act(async () => emit('background'));
+    expect(notifications.createTriggerNotification).not.toHaveBeenCalled();
+  });
 });

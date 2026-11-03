@@ -68,3 +68,18 @@ jest.mock('@invertase/react-native-apple-authentication', () => {
     },
   };
 });
+
+// Sin el módulo nativo de notificaciones: los tests que lo necesitan revisan
+// estas funciones simuladas.
+jest.mock('react-native-notify-kit', () => ({
+  __esModule: true,
+  default: {
+    requestPermission: jest.fn(async () => ({})),
+    createChannel: jest.fn(async id => id.id),
+    createTriggerNotification: jest.fn(async () => 'id'),
+    cancelTriggerNotification: jest.fn(async () => {}),
+  },
+  AndroidImportance: { HIGH: 4 },
+  AlarmType: { SET_ALARM_CLOCK: 4 },
+  TriggerType: { TIMESTAMP: 0 },
+}));

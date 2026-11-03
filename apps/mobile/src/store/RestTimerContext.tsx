@@ -7,8 +7,9 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Vibration } from 'react-native';
+import { AppState, Vibration } from 'react-native';
 import { RestModal } from '../components/RestTimer';
+import { cancelRestEnd, requestRestPermission, scheduleRestEnd } from '../services/restNotification';
 import { clearRest, loadRest, saveRest } from '../services/restTimerStorage';
 
 export const DEFAULT_REST_SECONDS = 90;
@@ -71,6 +72,22 @@ export function RestTimerProvider({ children }: { children: React.ReactNode }) {
     }
   }, [endsAt, total]);
 
+  // Al minimizar la app con una pausa en curso se agenda el aviso del sistema
+  // para la hora de fin; al volver se cancela, porque en primer plano el
+  // temporizador avisa solo (vibración).
+  const endsAtRef = useRef<number | null>(null);
+  endsAtRef.current = endsAt;
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', state => {
+      if (state === 'active') {
+        cancelRestEnd();
+      } else if (endsAtRef.current !== null && endsAtRef.current > Date.now()) {
+        scheduleRestEnd(endsAtRef.current);
+      }
+    });
+    return () => sub.remove();
+  }, []);
+
   useEffect(() => {
     if (endsAt === null) {
       return;
@@ -96,6 +113,7 @@ export function RestTimerProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       finished.current = false;
+      requestRestPermission();
       const start = Date.now();
       setNow(start);
       setTotal(seconds);
