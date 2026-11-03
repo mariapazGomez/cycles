@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Inicio del coach Cycles</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&display=swap">
+<style>
+/* Concepto: el Inicio del coach es un tablero de trabajo. Usa casi todo el ancho (hasta 1680 px), la fila crece con las sesiones del día y los radios siguen una sola escala de rectángulos con esquinas redondeadas; la cápsula queda solo para etiquetas. Contrastado con origin/main 3352f9b. Solo modo claro. Datos de ejemplo. */
+:root{
+  --font-display:"Bricolage Grotesque","Inter",system-ui,sans-serif; --font-body:"Inter",system-ui,sans-serif;
+  --brand:#3080fc; --blue:#1a66dd; --blue-50:#f3f8ff; --blue-100:#eaf2ff;
+  --bg:#fff; --ink:#1f2228; --ink2:#5c6068; --gray:#f6f7f9; --line:#dfe2e7; --page:#f3f5f8;
+  --done-bg:#e3f1e7; --done-ring:#bcdac5; --done-ink:#1e6b32; --warn-bg:#fff1e3; --warn-ink:#9a4a00; --warn-fill:#e08a2e; --pain-bg:#fdecec; --pain-ink:#a3282c;
+  --e1:0 0 0 1px rgba(31,34,40,.06),0 1px 2px rgba(31,34,40,.06),0 3px 8px -2px rgba(31,34,40,.08);
+  --radius-xs:4px; --radius-sm:6px; --radius-md:8px; --radius-lg:10px; --radius-xl:12px; --radius-pill:999px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+h1,h2,h3{font-family:var(--font-display);margin:0}
+.ctl{max-width:1180px;margin:0 auto;padding:16px 16px 0;display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center}
+.ctl h1{font-size:1.3rem;width:100%}
+.grp{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.grp>span{font-size:.78rem;font-weight:700;color:var(--ink2)}
+.seg{display:flex;flex-wrap:wrap;gap:3px;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);padding:3px}
+.seg button{border:0;background:none;padding:6px 12px;min-height:34px;border-radius:var(--radius-sm);font-size:.84rem;font-weight:600;color:var(--ink2)}
+.seg button[aria-pressed=true]{background:var(--ink);color:#fff}
+.note{max-width:1180px;margin:10px auto 0;padding:0 16px;font-size:.86rem;color:var(--ink2)}
+.stage{padding:16px;overflow:hidden}
+.view{display:none}.view.on{display:block}
+.win{margin:0 auto;background:var(--page);border:1px solid var(--line);transform-origin:top left}
+.app-h{display:flex;align-items:center;gap:24px;padding:12px 24px;background:var(--bg);border-bottom:1px solid var(--line)}
+.app-h b{font-family:var(--font-display);font-size:1.15rem}
+.app-h .n{display:flex;gap:18px;font-size:.9rem;font-weight:600;color:var(--ink2)}
+.app-h .n .on{color:var(--ink);border-bottom:2px solid var(--brand)}
+.av{margin-left:auto;width:34px;height:34px;border-radius:50%;background:var(--ink);color:#fff;font-size:.78rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.main{margin:0 auto;width:100%}
+/* ---------- Inicio ---------- */
+.home{padding:28px 32px 40px}
+.w-tab .home{padding:24px}.w-mob .home{padding:16px}
+.ph{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.ph h2{font-size:2rem}
+.btn{border:1px solid #8a8f98;background:var(--bg);border-radius:var(--radius-md);padding:8px 16px;min-height:40px;font-weight:600;font-size:.92rem}
+.strip{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;background:var(--ink);color:#fff;border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:16px}
+.strip b{font-family:var(--font-display);font-size:1.5rem;line-height:1}
+.strip p{margin:0;flex:1;min-width:200px;color:#e6ebf5;font-size:.92rem}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:4px 4px 12px}
+.bar h3{font-size:1.1rem}
+.pill{display:inline-block;border-radius:var(--radius-pill);padding:2px 10px;font-size:.78rem;font-weight:700;background:var(--blue-100);color:var(--blue)}
+.pill.warn{background:var(--warn-bg);color:var(--warn-ink)}.pill.pain{background:var(--pain-bg);color:var(--pain-ink)}
+.chip{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:var(--radius-md);background:var(--bg);box-shadow:var(--e1);padding:6px 12px;min-height:36px;font-size:.84rem;font-weight:700;color:var(--ink2)}
+.chip em{background:var(--pain-bg);color:var(--pain-ink);border-radius:var(--radius-pill);padding:0 7px;font-size:.74rem;font-style:normal}
+.sp{flex:1}
+.leg{display:flex;gap:14px;font-size:.78rem;color:var(--ink2)}
+.layout-b{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start}
+.side{background:var(--bg);border-radius:var(--radius-lg);box-shadow:var(--e1);padding:16px;position:sticky;top:12px}
+.side h3{font-size:1.05rem;margin-bottom:10px}
+.side li{list-style:none;padding:10px 0;border-top:1px solid var(--line);font-size:.9rem}
+.side ul{margin:0;padding:0}
+/* tablero */
+.head,.row{display:grid;gap:8px}
+.w-desk .head,.w-desk .row{grid-template-columns:220px repeat(7,minmax(116px,1fr)) 88px}
+.head{padding:8px 16px;font-size:.8rem;font-weight:600;color:var(--ink2);background:var(--page);position:sticky;top:0;z-index:2}
+.head .t{color:var(--blue)}
+.cardlist{display:flex;flex-direction:column;gap:12px;margin:0;padding:0;list-style:none}
+.card{background:var(--bg);box-shadow:var(--e1);border-radius:var(--radius-lg);overflow:hidden}
+.card.pain{box-shadow:inset 4px 0 0 #d5484d,var(--e1)}.card.warn{box-shadow:inset 4px 0 0 var(--warn-fill),var(--e1)}
+.row{padding:14px 16px;align-items:stretch}
+.who{display:flex;gap:12px;align-items:flex-start;min-width:0}
+.who .a{width:32px;height:32px;border-radius:50%;background:var(--blue-100);color:var(--blue);font-weight:700;font-size:.78rem;display:flex;align-items:center;justify-content:center;flex:none}
+.who b{display:block;font-size:.95rem}.who small{display:block;font-size:.8rem;color:var(--ink2)}
+.who .pill{margin-top:4px;border:0}
+.day{display:flex;flex-direction:column;gap:6px;min-width:0}
+.w-desk .day{margin:-14px 0;padding:14px 4px;position:relative}
+.w-desk .day::after{content:"";position:absolute;left:-5px;top:0;bottom:0;width:1px;background:var(--line)}
+.day.we{background:var(--gray)}.day.td{background:var(--blue-100)}
+.tile{display:flex;flex-direction:column;gap:2px;min-height:76px;padding:10px 12px;border-radius:var(--radius-sm);background:var(--bg);box-shadow:var(--e1);font-size:.84rem;font-weight:600;line-height:1.3;color:var(--ink);position:relative}
+.tile .nm{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tile .st{font-size:.78rem;font-weight:500;color:var(--ink2)}
+.tile .pn{font-size:.76rem;font-weight:700;color:var(--pain-ink)}
+.tile.done{background:var(--done-bg);color:#24472f;box-shadow:0 0 0 1px var(--done-ring)}.tile.done .st{color:var(--done-ink)}
+.tile.skip{background:var(--warn-bg);color:var(--warn-ink);box-shadow:0 0 0 1px #f0d3b3}.tile.skip .st{color:var(--warn-ink)}
+.td .tile{box-shadow:0 0 0 2px var(--brand),var(--e1)}
+.more{border:0;background:none;color:var(--blue);font-weight:700;font-size:.82rem;text-align:left;padding:4px 2px;min-height:32px;text-decoration:underline}
+.sum{display:flex;flex-direction:column;justify-content:center;font-size:.76rem;color:var(--ink2)}.sum b{font-size:1rem;color:var(--ink)}
+.msg{grid-column:2/10;align-self:center;margin:0;font-size:.9rem;color:var(--ink2)}
+.none{padding:32px;border-radius:var(--radius-lg);background:var(--bg);box-shadow:var(--e1);color:var(--ink2);text-align:center}
+.tilebar{display:none}
+/* tablet: nombre y resumen arriba, 7 días debajo con nombre visible */
+.w-tab .head,.w-mob .head{display:none}
+.w-tab .row,.w-mob .row{grid-template-columns:repeat(7,minmax(0,1fr));gap:8px 6px;padding:12px}
+.w-tab .who,.w-mob .who{grid-column:1/6}.w-tab .sum,.w-mob .sum{grid-column:6/8;align-items:flex-end}
+.w-tab .msg,.w-mob .msg{grid-column:1/8;grid-row:2}
+.w-tab .who,.w-mob .who,.w-tab .sum,.w-mob .sum{grid-row:1}
+.w-tab .row>.day,.w-mob .row>.day{grid-row:2}
+.w-tab .day::before,.w-mob .day::before{content:attr(data-d);font-size:.72rem;font-weight:600;color:var(--ink2);text-align:center}
+.w-tab .day.td::before,.w-mob .day.td::before{color:var(--blue)}
+.w-tab .day.td,.w-mob .day.td{border-radius:var(--radius-sm)}
+.w-tab .tile{padding:8px;font-size:.78rem;min-height:68px}
+.w-mob .tile{min-height:44px;height:44px;padding:4px;align-items:center;justify-content:center;border-radius:var(--radius-sm)}
+.w-mob .tile .nm,.w-mob .tile .st,.w-mob .tile .pn{display:none}
+.w-mob .tile .g{display:block}
+.g{display:none;font-size:1.1rem;font-weight:800;line-height:1}
+.w-mob .more{font-size:.72rem;text-align:center;text-decoration:none}
+.w-mob .ph h2{font-size:1.6rem}
+.w-mob .strip b{font-size:1.25rem}
+.w-mob .layout-b{display:block}
+/* antes */
+.old .card{border-radius:18px}.old .tile{border-radius:12px;min-height:64px}.old .tile .nm{-webkit-line-clamp:1;white-space:nowrap;display:block;text-overflow:ellipsis}
+.old .strip{border-radius:16px}.old .btn,.old .chip{border-radius:999px}.old .row{padding:12px 16px}
+.old .day{margin:-12px 0;padding:14px 2px}
+/* radios */
+.rad{max-width:980px;margin:0 auto;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-lg);padding:24px}
+.rad h2{font-size:1.4rem;margin-bottom:6px}
+.rtab{width:100%;border-collapse:collapse;font-size:.88rem;margin-top:12px}
+.rtab th,.rtab td{text-align:left;padding:10px 8px;border-top:1px solid var(--line);vertical-align:middle}
+.rtab th{font-size:.78rem;color:var(--ink2)}
+.sw{width:84px;height:44px;background:var(--blue-100);border:2px solid var(--brand)}
+.cmp{display:flex;flex-wrap:wrap;gap:24px;margin-top:20px}
+.cmp>div{flex:1;min-width:260px}
+.cmp h3{font-size:1rem;margin-bottom:8px}
+</style>
+</head>
+<body>
+<div class="ctl">
+  <h1>Inicio del coach <span class="pill">origin/main 3352f9b</span></h1>
+  <div class="grp"><span>Variante</span><div class="seg" id="g-var">
+    <button aria-pressed="false" data-k="old">Hoy (antes)</button>
+    <button aria-pressed="true" data-k="A">A · Fluido (recomendada)</button>
+    <button aria-pressed="false" data-k="B">B · Panel lateral</button>
+    <button aria-pressed="false" data-k="C">C · Fila con tope</button>
+    <button aria-pressed="false" data-k="R">Radios</button></div></div>
+  <div class="grp"><span>Estado</span><div class="seg" id="g-st">
+    <button aria-pressed="true" data-k="n">Normal</button>
+    <button aria-pressed="false" data-k="one">1 atleta</button>
+    <button aria-pressed="false" data-k="many">Muchos (12)</button>
+    <button aria-pressed="false" data-k="none">Sin sesiones</button></div></div>
+  <div class="grp"><span>Ancho</span><div class="seg" id="g-w">
+    <button aria-pressed="false" data-k="1920">1920</button>
+    <button aria-pressed="true" data-k="1440">1440</button>
+    <button aria-pressed="false" data-k="1024">1024</button>
+    <button aria-pressed="false" data-k="768">768</button>
+    <button aria-pressed="false" data-k="390">390</button></div></div>
+</div>
+<p class="note" id="note"></p>
+<div class="stage"><div id="stage"></div></div>
+
+<script>
+const D=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'], NUM=[2,3,4,5,6,7,8], TODAY=1;
+const T=(n,s,p)=>({n,s,p}); // nombre, estado (d,s,p), dolor
+const base=[
+ {n:'Camila Rojas',c:'Fuerza · semana 2',days:[[T('Torso A con énfasis en empuje','d')],[T('Pierna con énfasis en cuádriceps','p'),T('Core y movilidad','p'),T('Cardio suave 30 min','p')],[],[T('Torso B','p')],[],[],[]]},
+ {n:'Mateo Díaz',c:'Hipertrofia · semana 4',att:['pain','Dolor reportado'],days:[[T('Full body A','d',1)],[T('Full body B','p')],[],[T('Full body C','p')],[],[],[]]},
+ {n:'Valentina Soto',c:'Fuerza · semana 1',att:['warn','Sesión omitida'],days:[[T('Pierna y glúteo','s')],[],[T('Torso con barra y mancuernas','p')],[],[T('Pierna y glúteo','p')],[],[]]},
+ {n:'Joaquín Pérez',c:null,status:'no_plan',days:null},
+ {n:'Sofía Herrera',c:null,status:'pending',days:null}
+];
+const names=['Lucía Mora','Diego Vera','Ana Ruiz','Pablo León','Marta Gil','Iván Cruz','Nora Bravo'];
+function many(){const r=[...base];names.forEach((n,i)=>r.push({n,c:'Fuerza · semana '+(i%4+1),days:[[T('Torso A','d')],[T('Pierna','p')],[],[T('Torso B','p')],[],[],[]]}));return r}
+function none(){return base.map(a=>a.days?{...a,days:[[],[],[],[],[],[],[]],att:null}:a)}
+function data(st){return st==='one'?[base[0]]:st==='many'?many():st==='none'?none():base}
+
+let v='A',st='n',w=1440;
+const g=(id,fn)=>document.getElementById(id).addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  [...document.getElementById(id).children].forEach(x=>x.setAttribute('aria-pressed',x===b));fn(b.dataset.k);render()});
+g('g-var',k=>v=k);g('g-st',k=>st=k);g('g-w',k=>w=+k);
+
+function tile(s){const done=s.s==='d',skip=s.s==='s';
+ const label=done?'Hecha':skip?'Omitida':'Pendiente', glyph=done?'✓':skip?'×':'○';
+ return `<a class="tile ${done?'done':skip?'skip':''}" aria-label="${s.n}, ${label}${s.p?', dolor':''}"><span class="g" aria-hidden="true">${glyph}</span><span class="nm">${s.n}</span><span class="st">${done?'✓ ':skip?'× ':''}${label}</span>${s.p?'<span class="pn">Dolor</span>':''}</a>`}
+function dayHtml(list,i,cap){const we=i>=5,td=i===TODAY;
+ const shown=cap&&list.length>cap?list.slice(0,cap):list, extra=list.length-shown.length;
+ return `<div class="day ${we?'we':''} ${td?'td':''}" data-d="${D[i][0]} ${NUM[i]}">${shown.map(tile).join('')}${extra>0?`<button class="more">+${extra} más</button>`:''}</div>`}
+function card(a,cap){
+ const cls=a.att?a.att[0]:'';const ini=a.n.split(' ').map(x=>x[0]).join('');
+ const who=`<div class="who"><span class="a" aria-hidden="true">${ini}</span><div><b>${a.n}</b>${a.c?`<small>${a.c}</small>`:''}${a.att?`<button class="pill ${a.att[0]}">${a.att[1]}</button>`:''}</div></div>`;
+ if(!a.days){const m=a.status==='pending'?'Invitación pendiente.':'Sin ciclo activo esta semana. <u>Crear ciclo</u>';return `<li class="card"><div class="row">${who}<p class="msg">${m}</p><div class="sum"></div></div></li>`}
+ const all=a.days.flat(), done=all.filter(s=>s.s==='d').length;
+ return `<li class="card ${cls}"><div class="row">${who}${a.days.map((l,i)=>dayHtml(l,i,cap)).join('')}<div class="sum">${all.length?`<b>${done} de ${all.length}</b>sesiones`:''}</div></div></li>`}
+function board(rows,cap){
+ const att=rows.filter(r=>r.att).length;
+ const sorted=[...rows].sort((a,b)=>(b.att?1:0)-(a.att?1:0));
+ return `<section><div class="bar"><h3>Esta semana</h3><span class="pill">2 – 8 nov</span>${att?`<button class="chip">Necesitan atención <em>${att}</em></button>`:''}<span class="sp"></span><span class="leg" aria-hidden="true"><span>✓ Hecha</span><span>○ Pendiente</span><span>× Omitida</span></span></div>
+ <div class="head" aria-hidden="true"><span></span>${D.map((d,i)=>`<span class="${i===TODAY?'t':''}">${d} ${NUM[i]}</span>`).join('')}<span>Semana</span></div>
+ <ul class="cardlist">${sorted.map(a=>card(a,cap)).join('')}</ul>${rows.length?'':'<p class="none">Nadie necesita atención esta semana.</p>'}</section>`}
+function home(){
+ const rows=data(st), noSess=st==='none';
+ const today=rows.flatMap(a=>a.days?a.days[TODAY]:[]); const att=rows.filter(a=>a.att).length;
+ const title=noSess?'Hoy no hay sesiones':today.length+(today.length===1?' sesión hoy':' sesiones hoy');
+ const line=(today.length&&!noSess?`${today.filter(s=>s.s==='d').length===0?'Ninguna completada todavía. ':''}`:'')+(att?`${att} ${att===1?'atleta necesita':'atletas necesitan'} tu atención.`:'Ningún atleta necesita tu atención.');
+ const cap=v==='C'?2:3;
+ let inner=`<div class="ph"><h2>Inicio</h2><button class="btn">Invitar atleta</button></div>
+ <section class="strip" aria-label="Resumen de tus atletas"><b>${title}</b><p>${line}</p></section>`;
+ if(v==='B'&&w>=1440){
+   inner+=`<div class="layout-b">${board(rows,cap)}<aside class="side"><h3>Necesitan atención</h3><ul>${rows.filter(a=>a.att).map(a=>`<li><b>${a.n}</b><br><span class="pill ${a.att[0]}">${a.att[1]}</span></li>`).join('')||'<li>Nadie por ahora.</li>'}</ul></aside></div>`;
+ } else inner+=board(rows,cap);
+ return `<div class="home">${inner}</div>`}
+function render(){
+ const note=document.getElementById('note'),stage=document.getElementById('stage');
+ if(v==='R'){note.textContent='Escala única de radios: rectángulos con esquinas redondeadas. La cápsula queda solo para etiquetas pequeñas y el avatar. Web y móvil usan los mismos nombres y valores.';stage.innerHTML=radios();return}
+ note.textContent={old:'Hoy: contenido de 1120 px, tiles de 64 px con el nombre en una línea y radios de 12 a 999.',A:'Recomendada: ancho fluido hasta 1680 px, la fila crece con las sesiones del día (hasta 3 visibles) y radios de la escala nueva. Camila tiene 3 sesiones el martes (hoy).',B:'Alternativa: a partir de 1440 px los avisos pasan a un panel lateral. Cuesta ancho a la semana y repite lo que ya sale bajo cada nombre.',C:'Válvula de seguridad: máximo 2 sesiones visibles por día y «+N más». Útil solo si hay 4 o más; con 3 resulta peor que A.'}[v];
+ const mode=w>=1280?'w-desk':w>=641?'w-tab':'w-mob';
+ const max=v==='old'?1120:1680;
+ const avail=Math.min(window.innerWidth-32,1180)||1000, z=Math.min(1,avail/w);
+ stage.innerHTML=`<div style="width:${w*z}px;margin:0 auto;overflow:hidden"><div class="win ${mode} ${v==='old'?'old':''}" style="width:${w}px;zoom:${z}">
+  <div class="app-h"><b>Cycles</b><div class="n"><span class="on">Inicio</span><span>Atletas</span><span>Biblioteca</span><span>Ejercicios</span></div><span class="av">LG</span></div>
+  <div class="main" style="max-width:${max}px">${home()}</div></div></div>`}
+function radios(){
+ const rows=[['--radius-xs','4 px','Marcas internas: barra de color de atención, cuadrito de la leyenda','3–4 → 4',4],
+ ['--radius-sm','6 px','Celdas y tiles de sesión, tarjetas pequeñas','12 → 6',6],
+ ['--radius-md','8 px','Botones, chips de filtro, campos, ítems de menú','999 → 8',8],
+ ['--radius-lg','10 px','Tarjetas de atleta, banner de sesiones hoy, paneles, estados vacíos','16 y 18 → 10',10],
+ ['--radius-xl','12 px','Diálogos, hojas, tarjeta oscura grande de ciclo','22 → 12',12],
+ ['--radius-pill','999 px','Solo etiquetas pequeñas (estado, Dolor, rango de semana, contador)','se conserva',999]];
+ return `<div class="rad"><h2>Escala de radios</h2><table class="rtab"><tr><th>Muestra</th><th>Token</th><th>Valor</th><th>Para qué</th><th>Antes → ahora</th></tr>
+ ${rows.map(r=>`<tr><td><div class="sw" style="border-radius:${r[4]}px;${r[4]===999?'height:28px':''}"></div></td><td><code>${r[0]}</code></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('')}</table>
+ <div class="cmp"><div><h3>Antes</h3><div style="background:var(--page);padding:12px;border-radius:8px"><div style="background:#fff;border-radius:18px;box-shadow:var(--e1);padding:12px"><b>Mateo Díaz</b><br><span class="pill pain">Dolor reportado</span><div style="background:#e3f1e7;border-radius:12px;padding:10px;margin-top:8px;font-size:.84rem;font-weight:600">Full body A<br><span style="font-weight:500">Hecha</span></div><button class="btn" style="border-radius:999px;margin-top:10px">Invitar atleta</button></div></div></div>
+ <div><h3>Ahora</h3><div style="background:var(--page);padding:12px;border-radius:8px"><div style="background:#fff;border-radius:10px;box-shadow:var(--e1);padding:12px"><b>Mateo Díaz</b><br><span class="pill pain">Dolor reportado</span><div style="background:#e3f1e7;border-radius:6px;padding:10px;margin-top:8px;font-size:.84rem;font-weight:600">Full body A<br><span style="font-weight:500">Hecha</span></div><button class="btn" style="margin-top:10px">Invitar atleta</button></div></div></div></div></div>`}
+window.addEventListener('resize',render);render();
+</script>
+</body>
+</html>
