@@ -6,7 +6,7 @@
 <title>Panel de administración Cycles</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&display=swap">
 <style>
-/* Concepto: un panel de lectura densa para una sola persona. Tablas claras, totales reales siempre separados de las cuentas demo y cada estado dicho con texto, no solo con color. Radios de la escala de CYC-206 (4/6/8/10). Contrastado con origin/main de25ad6. Solo modo claro. Datos de ejemplo. */
+/* Concepto: un panel de lectura densa para una sola persona. Tablas claras, totales reales siempre separados de las cuentas demo y cada estado dicho con texto, no solo con color. Radios de la escala de CYC-206 (4/6/8/10). Contrastado con origin/main 737fe00. Solo modo claro. Datos de ejemplo. */
 :root{
   --font-display:"Bricolage Grotesque","Inter",system-ui,sans-serif;--font-body:"Inter",system-ui,sans-serif;
   --brand:#3080fc;--blue:#1a66dd;--blue-100:#eaf2ff;--bg:#fff;--ink:#1f2228;--ink2:#5c6068;--gray:#f6f7f9;--line:#dfe2e7;--page:#f3f5f8;--ctl:#8a8f98;
@@ -83,11 +83,14 @@ td small{display:block;color:var(--ink2);font-size:.8rem}
  .num{text-align:left}.two{display:block}.two>*{margin-bottom:16px}.app-h .n{display:none}
  td:empty{display:none}
 }
+.urlbar{display:flex;gap:10px;align-items:center;padding:6px 14px;background:#e9ecf1;border-bottom:1px solid var(--line);font-size:.8rem;font-weight:600}.urlbar small{color:var(--ink2);font-weight:500}
+.tag.env{background:var(--ok-bg);color:var(--ok-ink)}
+.gate{display:flex;justify-content:center;padding:48px 16px}.auth{width:100%;max-width:400px;background:var(--bg);border-radius:var(--radius-lg);box-shadow:var(--e1);padding:28px}.auth h1{font-size:1.6rem;margin-bottom:16px}.fine{font-size:.82rem;color:var(--ink2);margin:12px 0 0}
 </style>
 </head>
 <body>
 <div class="ctl">
-  <h1>Panel de administración <span class="tag">origin/main de25ad6</span></h1>
+  <h1>Portal del equipo <span class="tag">origin/main 737fe00</span></h1>
   <div class="grp"><span>Vista</span><div class="seg" id="g-v">
     <button aria-pressed="true" data-k="acc">Acceso</button><button aria-pressed="false" data-k="usr">Usuarios</button><button aria-pressed="false" data-k="uso">Uso</button><button aria-pressed="false" data-k="mail">Correos</button><button aria-pressed="false" data-k="enl">Enlaces y versiones</button></div></div>
   <div class="grp"><span>Estado</span><div class="seg" id="g-s"></div></div>
@@ -97,16 +100,16 @@ td small{display:block;color:var(--ink2);font-size:.8rem}
 <div class="stage" id="stage"></div>
 
 <script>
-const STATES={acc:[['a','Administradora'],['b','Coach o atleta'],['c','Intenta entrar']],
+const STATES={acc:[['login','Iniciar sesión'],['sent','Enlace enviado'],['bad','Enlace vencido'],['exp','Sesión expirada']],
  usr:[['real','Reales'],['demo','Demo'],['load','Cargando'],['empty','Vacío'],['err','Error'],['detail','Detalle']],
  uso:[['ok','Normal'],['load','Cargando'],['empty','Vacío'],['err','Error de PostHog'],['off','No conectado']],
  mail:[['ok','Normal'],['empty','Vacío'],['edit','Editando']],enl:[['ok','Normal'],['err','Error de una versión']]};
-const NOTES={acc:'La entrada «Administración» existe solo para la administradora (isAdmin, validado también en la API). Quien intente entrar, sea coach, atleta o por URL escrita a mano, ve la misma página que una ruta inexistente: no se confirma que el panel exista.',
+const NOTES={acc:'Portal aparte en su propio subdominio, solo para el equipo de desarrollo. Tiene su propio inicio de sesión: no usa el login de la app, no hay entrada en el menú de la app y nadie lo enlaza desde la web. Para cualquier correo, la respuesta es la misma, así no se revela quién está autorizado.',
  usr:'Totales reales siempre separados de las demo, que no suman en ninguna cifra. Las demo se marcan con texto «Demo» y una franja, no solo con color. Nunca se muestran contraseñas, tokens ni datos de entrenamiento.',
  uso:'Interacciones de PostHog sin demo. PostHog guarda solo el ID interno; el nombre se cruza en el servidor. Solo web: la app iOS aún no se mide.',
  mail:'Directorio guardado en la base de datos y editable desde el panel, sin tocar el código. Datos de ejemplo.',
  enl:'Enlaces rápidos y versiones. De 1Password se muestra solo el nombre de la bóveda, nunca un enlace a un secreto.'};
-let v='acc',s='a',w='d';
+let v='acc',s='login',w='d';
 function seg(id,fn){document.getElementById(id).addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;fn(b.dataset.k);render()})}
 seg('g-v',k=>{v=k;s=STATES[k][0][0]});seg('g-s',k=>s=k);seg('g-w',k=>w=k);
 function states(){document.getElementById('g-s').innerHTML=STATES[v].map(x=>`<button aria-pressed="${x[0]===s}" data-k="${x[0]}">${x[1]}</button>`).join('');
@@ -124,7 +127,7 @@ function usr(){
  else if(s==='empty')body=tools+`<div class="card empty"><h3>Aún no hay cuentas reales</h3>Cuando alguien se registre, aparecerá aquí.</div>`;
  else if(s==='err')body=tools+`<div class="banner err" role="alert">No pudimos cargar los usuarios. Inténtalo de nuevo. <button class="btn sm">Reintentar</button></div>`;
  else if(s==='demo')body=tools+`<div class="banner demo">Cuentas ficticias. No cuentan en ninguna métrica.</div><div class="card">${tbl(demo,true)}</div>`;
- else body=kp+tools+`<div class="card">${tbl(rows,false)}<div class="pager"><span>1–25 de 43</span><span><button class="btn sm">Anterior</button> <button class="btn sm">Siguiente</button></span></div></div><details class="card" style="margin-top:12px"><summary style="min-height:40px;font-weight:700;cursor:pointer">Registro de consultas</summary><p style="margin:8px 0 0;font-size:.88rem">3 nov, 09:14 · Laura Gómez consultó Usuarios · 2 nov, 18:02 · Laura Gómez consultó Uso</p></details>`;
+ else body=kp+tools+`<div class="card">${tbl(rows,false)}<div class="pager"><span>1–25 de 43</span><span><button class="btn sm">Anterior</button> <button class="btn sm">Siguiente</button></span></div></div><details class="card" style="margin-top:12px"><summary style="min-height:40px;font-weight:700;cursor:pointer">Registro de consultas</summary><p style="margin:8px 0 0;font-size:.88rem">3 nov, 09:14 · ana@getcycles.app consultó Usuarios · 2 nov, 18:02 · leo@getcycles.app consultó Uso</p></details>`;
  let dr='';
  if(s==='detail')dr=`<div class="drawer" role="dialog" aria-label="Detalle"><h3>Camila Rojas</h3><table><tbody><tr><td>Rol</td><td>Atleta</td></tr><tr><td>Teléfono</td><td>iPhone</td></tr><tr><td>Tour de primer uso</td><td>Terminado</td></tr><tr><td>Coach</td><td>Laura Gómez</td></tr><tr><td>Política</td><td>v1.1</td></tr></tbody></table><p style="font-size:.84rem;color:var(--ink2)">No se muestran contraseñas, tokens ni datos de entrenamiento.</p><button class="btn">Ver uso</button> <button class="btn">Cerrar</button></div>`;
  return (s==='detail'?kp+tools+`<div class="card">${tbl(rows,false)}</div>`:body)+dr}
@@ -150,15 +153,23 @@ function enl(){
  const V=[['Web','Vercel','Producción','a1b2c3d','Correcta'],['API','Render','Producción','e4f5a6b','Correcta'],['Base','Supabase','Producción','Migración 0042','Correcta'],['App iOS','TestFlight','Build 23','1.0.0',s==='err'?'No pudimos leer la versión':'Correcta'],['Política de privacidad','Vigente','—','v1.1','Correcta']];
  return `<div class="card" style="margin-bottom:16px"><h3 style="margin-bottom:10px;font-size:1.1rem">Enlaces rápidos</h3><div class="grid">${L.map(l=>`<a class="lnk" href="#">${l[0]}<small>${l[1]} ↗</small></a>`).join('')}</div></div>
  <div class="card"><table><caption>Versiones y entornos</caption><thead><tr><th>Servicio</th><th>Entorno</th><th>Versión</th><th>Detalle</th><th>Estado</th></tr></thead><tbody>${V.map(x=>`<tr><td data-l="Servicio"><b>${x[0]}</b></td><td data-l="Entorno">${x[1]}</td><td data-l="Versión">${x[2]}</td><td data-l="Detalle">${x[3]}</td><td data-l="Estado"><span class="tag ${x[4]==='Correcta'?'ok':'bad'}">${x[4]==='Correcta'?'✓ Correcta':'✕ '+x[4]}</span></td></tr>`).join('')}</tbody></table></div>`}
-function shell(inner,opt={}){return `<div class="win ${w==='m'?'mob':''}" style="width:${w==='m'?390:'min(100%,1180px)'}"><div class="app-h"><b>Cycles</b>${w==='m'?'':'<div class="n"><span class="on">Inicio</span><span>Atletas</span><span>Biblioteca</span><span>Ejercicios</span></div>'}<span class="av">${opt.ini||'LG'}${opt.menu||''}</span></div><div class="rel" style="min-height:${opt.h||520}px">${inner}</div></div>`}
+function shell(inner,opt={}){
+ const mobile=w==='m';
+ const top=opt.anon?`<div class="app-h"><b>Cycles</b><span class="tag">Equipo</span><span class="tag env">Producción</span></div>`:`<div class="app-h"><b>Cycles</b><span class="tag">Equipo</span><span class="tag env">Producción</span><span style="margin-left:auto;font-size:.84rem;color:var(--ink2)">${mobile?'':'ana@getcycles.app'}</span><button class="btn sm">Cerrar sesión</button></div>`;
+ return `<div class="win ${mobile?'mob':''}" style="width:${mobile?390:'min(100%,1180px)'}"><div class="urlbar"><span>🔒 admin.getcycles.app</span><small>ejemplo de subdominio</small></div>${top}<div class="rel" style="min-height:${opt.h||520}px">${inner}</div></div>`}
 function acc(){
- const m=(adm)=>`<div class="menu"><div><b>Laura Gómez</b><small>laura@ejemplo.com</small></div><div>Mi cuenta</div>${adm?'<hr><div class="hl">Administración</div><hr>':''}<div>Cerrar sesión</div></div>`;
- if(s==='a')return shell('<div class="pg"><p style="color:var(--ink2);max-width:60%">Menú de la administradora: «Administración» entre Mi cuenta y Cerrar sesión.</p></div>',{menu:m(true),h:300});
- if(s==='b')return shell('<div class="pg"><p style="color:var(--ink2)">Menú de un coach o atleta: sin ninguna pista del panel.</p></div>',{menu:m(false),ini:'MD',h:300});
- return shell('<div class="nf"><h2>No encontramos esta página</h2><p>Puede que el enlace esté mal escrito o que ya no exista.</p><button class="btn p">Ir a Inicio</button></div>',{ini:'MD',h:340})}
+ const card=(inner)=>`<div class="auth"><h1>Portal del equipo</h1>${inner}</div>`;
+ const form=(msg)=>`${msg||''}<div class="field"><label for="em">Correo</label><input id="em" class="inp" value="ana@getcycles.app"></div><button class="btn p" style="width:100%">Enviar enlace</button><p class="fine">Solo para el equipo de Cycles. Si tu correo está autorizado, te enviamos un enlace de un solo uso que vence en 10 minutos.</p>`;
+ let inner;
+ if(s==='login')inner=card(form());
+ else if(s==='sent')inner=card(`<div class="banner info" role="status">Si tu correo está autorizado, te enviamos un enlace. Revisa tu bandeja.</div><p class="fine">El enlace vence en 10 minutos y sirve una sola vez.</p><button class="btn" style="width:100%">Usar otro correo</button>`);
+ else if(s==='bad')inner=card(`<div class="banner err" role="alert">Este enlace ya no sirve. Pide uno nuevo.</div><button class="btn p" style="width:100%">Pedir un enlace nuevo</button>`);
+ else inner=card(`<div class="banner info" role="status">Tu sesión terminó por inactividad. Inicia sesión de nuevo.</div>${form()}`);
+ return shell(`<div class="gate">${inner}</div>`,{anon:true,h:470});
+}
 function page(){const tabs=[['usr','Usuarios'],['uso','Uso'],['mail','Correos'],['enl','Enlaces y versiones']];
  const inner={usr,uso,mail,enl}[v]();
- return shell(`<div class="pg"><h1>Administración</h1><div class="tabs" role="tablist">${tabs.map(t=>`<button role="tab" aria-selected="${t[0]===v}">${t[1]}</button>`).join('')}</div><div role="tabpanel">${inner}</div></div>`,{menu:'',h:600})}
+ return shell(`<div class="pg"><h1>Administración</h1><div class="tabs" role="tablist">${tabs.map(t=>`<button role="tab" aria-selected="${t[0]===v}">${t[1]}</button>`).join('')}</div><div role="tabpanel">${inner}</div></div>`,{h:600})}
 function render(){states();document.getElementById('note').textContent=NOTES[v];document.getElementById('stage').innerHTML=v==='acc'?acc():page()}
 render();
 </script>
