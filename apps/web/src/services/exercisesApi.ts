@@ -4,6 +4,7 @@ import { apiRequest } from "./httpClient";
 export interface ExerciseInput {
   name: string;
   muscleGroup: MuscleGroup;
+  secondaryMuscleGroups?: MuscleGroup[];
   equipment: Equipment[];
   description?: string | null;
   videoUrl?: string | null;

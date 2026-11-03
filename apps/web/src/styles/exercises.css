@@ -105,6 +105,8 @@
 .ex-name h2 { margin: 0; font-size: 1.02rem; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
 .ex-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .ex-row-new .pill-blue { background: var(--color-bg); }
+/* Grupos secundarios: más discretos que el principal. */
+.ex-tags .pill-soft { background: transparent; box-shadow: inset 0 0 0 1px var(--color-gray-border); }
 .ex-confirm-text { margin: 0; font-size: 0.9rem; line-height: 1.45; }
 .ex-row-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .ex-row-actions .rt-ghost { min-height: 40px; }

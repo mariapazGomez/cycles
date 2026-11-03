@@ -42,6 +42,11 @@ function ExerciseRow({
         </div>
         <div className="ex-tags">
           <span className="pill">{muscleGroupLabel(exercise.muscleGroup)}</span>
+          {(exercise.secondaryMuscleGroups ?? []).map((item) => (
+            <span key={item} className="pill pill-soft">
+              {muscleGroupLabel(item)}
+            </span>
+          ))}
           {(exercise.equipment ?? []).map((item) => (
             <span key={item} className="pill pill-blue">
               {EQUIPMENT_LABEL[item]}

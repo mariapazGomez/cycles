@@ -1,4 +1,4 @@
-import { ArrayMinSize, ArrayUnique, IsArray, IsEnum, IsOptional, IsString, IsUrl, MaxLength, MinLength } from "class-validator";
+import { ArrayMaxSize, ArrayMinSize, ArrayUnique, IsArray, IsEnum, IsOptional, IsString, IsUrl, MaxLength, MinLength } from "class-validator";
 import { Equipment, MuscleGroup } from "@prisma/client";
 
 export class CreateExerciseDto {
@@ -9,6 +9,14 @@ export class CreateExerciseDto {
 
   @IsEnum(MuscleGroup, { message: "Elige un grupo muscular." })
   muscleGroup!: MuscleGroup;
+
+  // Opcionales; no pueden repetirse ni incluir el principal (se valida en el servicio).
+  @IsOptional()
+  @IsArray({ message: "Los grupos secundarios no son válidos." })
+  @ArrayMaxSize(8, { message: "Los grupos secundarios no son válidos." })
+  @ArrayUnique({ message: "Hay grupos secundarios repetidos." })
+  @IsEnum(MuscleGroup, { each: true, message: "Hay un grupo secundario que no existe." })
+  secondaryMuscleGroups?: MuscleGroup[];
 
   // Al menos uno; «bodyweight» va solo (se valida en el servicio).
   @IsArray({ message: "Elige los implementos o marca «Peso corporal»." })

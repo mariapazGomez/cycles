@@ -357,6 +357,8 @@ model Exercise {
   id          String       @id @default(uuid())
   name        String
   muscleGroup MuscleGroup?
+  // Otros grupos que trabaja además del principal (opcional, sin repetir el principal).
+  secondaryMuscleGroups MuscleGroup[] @default([])
   description String?
   videoUrl    String?
   // Vacío mientras el ejercicio del catálogo no tenga sus implementos revisados.
