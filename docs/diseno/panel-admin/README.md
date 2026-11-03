@@ -9,7 +9,7 @@ updated: 2026-11-03
 
 # Portal del equipo de Cycles (CYC-212)
 
-> Diseño previo de CYC-193. **Versión 2:** ya no es un panel dentro de la web de la app, sino un **portal independiente en su propio subdominio, solo para el equipo de desarrollo de Cycles**, con su propio inicio de sesión. Bloquea CYC-193. Contrastado con `origin/main` 737fe00. Acceso con **llave dinámica, sin envío de correos**. Estado: propuesto, pendiente de aprobación de la usuaria. Maqueta en [`propuestas.html`](propuestas.html).
+> Diseño previo de CYC-193. **Versión 2:** ya no es un panel dentro de la web de la app, sino un **portal independiente en su propio subdominio, solo para el equipo de desarrollo de Cycles**, con su propio inicio de sesión. Bloquea CYC-193. Contrastado con `origin/main`. Acceso con **Cloudflare Access** (sin login propio). Estado: propuesto, pendiente de aprobación de la usuaria. Maqueta en [`propuestas.html`](propuestas.html).
 
 ## Qué cambia respecto a la versión 1
 
@@ -17,17 +17,17 @@ updated: 2026-11-03
 |---|---|---|
 | Dónde vive | Ruta `/admin` de `app.getcycles.app` | **Subdominio propio** (ejemplo: `admin.getcycles.app`), aplicación aparte |
 | Quién entra | La fundadora | **El equipo de desarrollo** (varias personas) |
-| Inicio de sesión | El de la app; «Administración» en el menú de usuario | **Propio del portal, con una llave de acceso dinámica.** Sin relación con el login, el menú ni las sesiones de la app, y sin correos |
+| Inicio de sesión | El de la app; «Administración» en el menú de usuario | **Cloudflare Access** delante del subdominio: no construimos login. Sin relación con el login, el menú ni las sesiones de la app |
 | `isAdmin` en `/auth/me` | Sí | **No.** La app no sabe que el portal existe |
 | Qué ve un coach o atleta | «No encontramos esta página» dentro de la app | **Nada:** el portal no está enlazado desde ningún lugar de la app ni de la web |
-| Cómo se entra | Cuenta de la app con correo de administradora | **Llave de acceso dinámica** que genera el equipo; sin cuentas ni envío de correos |
+| Cómo se entra | Cuenta de la app con correo de administradora | **Cloudflare Access**: política con los correos del equipo; inicio de sesión de Cloudflare, sin cuentas ni correos que enviemos nosotros |
 | Pantallas de datos | Usuarios, Uso, Correos, Enlaces y versiones | **Sin cambios**; solo cambia el cromo (cabecera) |
 
 ## Verificado contra origin/main 737fe00
 
 | Tema | Archivo(s) | Qué hay hoy y cómo lo usa el diseño |
 |---|---|---|
-| Dominios | `docs/deploy/PLAN-Deploy.md` | Hay `app.`, `api.` y `mail.getcycles.app` (y `www.` parcial). El portal sería un subdominio más; la web de la app **no** se toca. |
+| Dominios y DNS | `docs/deploy/PLAN-Deploy.md` | Hay `app.`, `api.` y `mail.getcycles.app` (y `www.` parcial). **El registrador y el DNS ya están en Cloudflare**, así que Access es viable. Hoy los registros de Vercel y Render van con el proxy **desactivado**; el del portal tendría que ir con el proxy **activado** (Access lo exige). La web de la app **no** se toca. |
 | CORS de la API | `apps/api/src/main.ts` (`enableCors({ origin: corsOrigins(config) })`) | El origen del portal se agrega **solo para las rutas `/admin/*`**; no se amplía el CORS del resto de la API. |
 | Modelo `User` | `apps/api/prisma/schema.prisma` | Tiene `isDemo`, `emailVerifiedAt`, `dataConsent*`, `phonePlatform`, `tourStatus`; **falta `lastLoginAt`** (campo nuevo propuesto). |
 | PostHog | `lib/analytics.ts`, `docs/deploy/POSTHOG.md` | UE, solo web; la persona se identifica por ID interno y rol, **nunca por nombre o correo**. El portal cruza el ID con la base **en el servidor**. |
@@ -37,34 +37,35 @@ updated: 2026-11-03
 
 | # | Decisión | Detalle |
 |---|---|---|
-| S1 | **Acceso con llave dinámica, sin correos** | El equipo **genera una llave de acceso** (por ejemplo con un comando en el servidor) y quien la recibe la escribe en el portal. No hay cuentas, contraseñas ni envío de correos. La llave se muestra **una sola vez** al generarla; el servidor guarda solo su huella. |
-| S2 | **Sesión aislada de la app** | Al entrar con una llave válida se abre una sesión en cookie `httpOnly`, `Secure`, solo del subdominio, con secreto de firma y audiencia propios (`ADMIN_SESSION_SECRET`). **No acepta tokens de la app** y la app no acepta los del portal. |
+| S1 | **Acceso con Cloudflare Access** | Cloudflare protege el subdominio: nadie ve el portal sin autenticarse antes. La política permite solo los **correos del equipo** (la lista se administra en Cloudflare). El método de inicio lo maneja Cloudflare (por ejemplo, Google o un código de un solo uso al correo). **No construimos pantalla de inicio de sesión, llaves, envío de correos ni límite de intentos.** |
+| S2 | **La API también valida** | Que el tráfico pase por Cloudflare **no basta**: cada ruta `/admin/*` verifica el token firmado que Cloudflare agrega a la petición (firma, audiencia de la aplicación y vencimiento) y rechaza con 401 lo que no lo traiga, aunque alguien llegue directo a `api.getcycles.app`. La identidad (el correo) sale de ese token. |
 | S3 | **Último ingreso** | Campo nuevo `lastLoginAt` en `User` (migración aditiva con respaldo previo). Las cuentas existentes salen «Sin dato» hasta su próximo ingreso. |
 | S4 | **PostHog** | Clave de **solo lectura** en el servidor; nunca en el navegador. |
-| S5 | **Directorio de correos** en la base de datos, editable desde el portal | Datos iniciales cargados por el desarrollo. (Es el directorio de direcciones de Cycles; no se usa para iniciar sesión.) |
+| S5 | **Directorio de correos** en la base de datos, editable desde el portal | Datos iniciales cargados por el desarrollo. (Es el directorio de direcciones de Cycles; no tiene relación con el acceso.) |
 
-**Supuestos sobre la llave (a confirmar):** al generarla se le pone un **nombre de la persona** (por ejemplo «Ana») y una **vigencia** (por ejemplo 8 horas). Ese nombre es el que se ve en la cabecera y en el registro de consultas, porque no hay correos que identifiquen a nadie. La llave tiene formato legible, `CYC-XXXX-XXXX-XXXX`, y el campo ignora espacios y guiones.
+**Por qué es más simple:** el cifrado en tránsito ya lo da Cloudflare (y `.app` exige HTTPS), y con Access se evitan la tabla de llaves, el comando para generarlas, el límite de intentos y la pantalla de inicio. Cloudflare Zero Trust es gratis hasta 50 personas.
+
+**Lo que hay que resolver al construirlo (CYC-193):**
+- El token de Access solo viaja a los hosts protegidos. Para que llegue a la API, la API del portal se sirve **bajo el mismo host protegido** (por ejemplo `admin.getcycles.app/api/*` que reenvía a Render) o se protege también la ruta `/admin/*` de `api.` con otra aplicación de Access. Se recomienda lo primero, porque `api.` hoy va con el proxy desactivado.
+- Cerrar sesión: el enlace de la cabecera usa el cierre de Access (`/cdn-cgi/access/logout`).
+- Duración de la sesión de Access: 8 horas (configurable en Cloudflare).
 
 ## Cómo se entra
 
-1. Quien genera la llave la entrega a la persona del equipo por un canal privado (por ejemplo, 1Password). **El portal no envía nada.**
-2. La persona abre el subdominio (en marcadores; **no hay enlace desde la app, la landing ni correos**).
-3. **Iniciar sesión:** escribe la llave en **Llave de acceso** (campo oculto, con botón **Mostrar**) y toca **Entrar**.
-4. Con una llave válida llega a **Usuarios** y la cabecera dice «Sesión de Ana · vence a las 17:00».
-5. **Llave inválida o vencida:** el mensaje es siempre el mismo («Esa llave no sirve. Revisa que esté completa o pide una nueva»), sin decir si existió o venció.
-6. **Demasiados intentos:** tras 5 llaves erróneas desde la misma IP, el botón queda deshabilitado unos minutos con un aviso.
-7. **Sesión expirada** (vigencia de la llave o 30 minutos de inactividad): vuelve a la pantalla de inicio con el aviso.
-8. **Cerrar sesión** en la cabecera.
+1. La persona abre el subdominio (en marcadores; **no hay enlace desde la app, la landing ni correos**).
+2. **Cloudflare** le pide autenticarse. Esa pantalla **no la construimos nosotros**; se ve en la maqueta solo como referencia.
+3. Si su correo está en la política, entra directo a **Usuarios** y la cabecera dice «Sesión de {correo}».
+4. Si no está en la política, Cloudflare muestra su página de **Acceso denegado** y **no llega ni una petición al portal ni a la API**.
+5. **Sesión terminada:** si el token vence con el portal abierto, la API responde 401 y el portal muestra «Tu sesión terminó» con **Volver a entrar**, que recarga la página y Cloudflare vuelve a pedir la autenticación.
+6. **Cerrar sesión** en la cabecera.
 
-**Vigencia de la llave:** una llave tiene hora de vencimiento; si además es de **un solo uso**, deja de servir al entrar (a confirmar).
-
-Protecciones: límite de intentos por IP, el portal responde con `noindex` y `X-Frame-Options: DENY`, las llaves se guardan solo como huella y cada consulta de datos de usuarios queda registrada con el nombre de la llave.
+Protecciones: el portal responde con `noindex` y `X-Frame-Options: DENY`, cada consulta de datos de usuarios queda registrada con el correo de quien la hizo, y la API rechaza toda petición sin token válido.
 
 ## Cromo del portal (distinto de la app)
 
-- Cabecera blanca: **Cycles**, etiqueta **Equipo**, etiqueta de entorno **Producción** (verde, con texto), «Sesión de {nombre} · vence a las HH:MM» y **Cerrar sesión**. **No** lleva el menú del coach (Inicio, Atletas, Biblioteca, Ejercicios) ni avatar de usuario de la app.
+- Cabecera blanca: **Cycles**, etiqueta **Equipo**, etiqueta de entorno **Producción** (verde, con texto), «Sesión de {correo}» y **Cerrar sesión**. **No** lleva el menú del coach (Inicio, Atletas, Biblioteca, Ejercicios) ni avatar de usuario de la app.
 - Debajo, las cuatro pestañas (`role="tablist"`): **Usuarios · Uso · Correos · Enlaces y versiones**. Sin subtítulos grises bajo los títulos.
-- Antes de iniciar sesión solo se ve la cabecera con las etiquetas y la tarjeta «Portal del equipo» con el campo de la llave.
+- Antes de autenticarse no se ve nada del portal: lo único visible es la pantalla de Cloudflare.
 
 ## Pantallas
 
@@ -76,7 +77,7 @@ Protecciones: límite de intentos por IP, el portal responde con `noindex` y `X-
 - **Columnas:** nombre y correo · rol · registro · correo verificado · política (versión o «Pendiente») · último ingreso («hoy», «hace 3 días», «Sin dato»; la fecha exacta en el `title`).
 - **Búsqueda** por nombre o correo, filtros por **Rol** y **Verificación**, **paginación** de 25 por página.
 - **Detalle** al abrir una fila (panel lateral): rol, teléfono, estado del tour, relación coach–atleta. **Nunca** contraseñas, tokens ni datos de entrenamiento o salud.
-- **Registro de consultas** (plegado, al final): el nombre de la llave, qué vista consultó y cuándo.
+- **Registro de consultas** (plegado, al final): el correo de quien consultó, qué vista y cuándo.
 - **Estados:** cargando, vacío («Aún no hay cuentas reales»), sin resultados, error («No pudimos cargar los usuarios. Inténtalo de nuevo.») y muchos usuarios.
 
 ### 2. Uso (PostHog)
@@ -108,7 +109,7 @@ Protecciones: límite de intentos por IP, el portal responde con `noindex` y `X-
 
 ## Accesibilidad
 
-- **Inicio de sesión:** campo **Llave de acceso** con `label` y `autocomplete="off"`, botón **Mostrar** con nombre accesible, errores y avisos en `role="alert"`/`role="status"`, foco en el campo al abrir y botón de 40 px; el bloqueo se dice con texto, no solo deshabilitando el botón.
+- **Inicio de sesión:** lo maneja Cloudflare. Lo nuestro es el aviso «Tu sesión terminó» (`role="status"`, con el botón **Volver a entrar** de 40 px y foco en él al aparecer).
 - **Teclado:** pestañas con flechas, panel lateral con foco atrapado, Esc para cerrar y foco devuelto.
 - **Tablas:** `caption`, `th scope` y orden con `aria-sort`; botones de columna ≥ 40 px.
 - **Estado más allá del color:** verificado = ✓ «Sí»; demo = etiqueta «Demo»; entorno = «Producción» en texto; compilación = «Correcta» o «Falló» con ícono.
@@ -117,29 +118,29 @@ Protecciones: límite de intentos por IP, el portal responde con `noindex` y `X-
 
 ## Seguridad y privacidad (contra `docs/SEGURIDAD.md`)
 
-- **Aplicación aparte** (no una ruta de la web): despliegue, cookies y CSP propios; cookie host-only en el subdominio.
-- La API de `/admin/*` exige la sesión del portal en **cada** ruta; sin ella responde 401. Sin `isAdmin` en la app, sin menú y sin enlaces.
-- **Llaves:** valor aleatorio largo, guardadas solo como huella (hash), con vencimiento, revocables y mostradas una única vez al generarlas. Nunca se registran en logs, en Linear ni en el repo.
-- Mensaje de error único para llave inválida, vencida o revocada.
+- **Aplicación aparte** (no una ruta de la web): despliegue y CSP propios, protegida por Cloudflare Access.
+- La API de `/admin/*` valida el token de Access en **cada** ruta (firma, audiencia y vencimiento); sin token válido responde 401. Sin `isAdmin` en la app, sin menú y sin enlaces.
+- La lista de quién entra vive en Cloudflare, no en el código ni en variables de la app.
 - CORS: el origen del portal solo se acepta en `/admin/*`.
-- La clave de PostHog y `ADMIN_SESSION_SECRET` solo viven en variables del servidor.
+- La clave de PostHog solo vive en variables del servidor.
 - Se muestra lo mínimo de cada persona: sin contraseñas, tokens ni datos de entrenamiento.
-- Cada consulta queda registrada con el nombre de la llave; las demo se excluyen de totales y de Uso.
-- Quien tenga acceso al servidor genera y revoca llaves; el portal no las administra.
+- Cada consulta queda registrada con el correo del token; las demo se excluyen de totales y de Uso.
+- Si Cloudflare Access fallara o se mal configurara, la API sigue rechazando todo lo que no traiga el token.
 
 ## Preguntas para la usuaria
 
-1. ¿Qué subdominio usamos? En la maqueta aparece `admin.getcycles.app` como ejemplo.
-2. ¿La llave es de **un solo uso** o sirve durante toda su vigencia? ¿Qué vigencia por defecto (por ejemplo 8 horas)?
-3. ¿Cada llave lleva el **nombre de la persona** (para la cabecera y el registro de consultas)?
+1. ¿Confirmas **Cloudflare Access** en lugar de la llave dinámica? (Es lo que propone este diseño.)
+2. ¿Qué subdominio usamos? En la maqueta aparece `admin.getcycles.app` como ejemplo.
+3. ¿Qué correos del equipo entran y con qué método (Google o código por correo)? Se configura en Cloudflare, no en el portal.
 4. ¿La versión de la app iOS se ingresa a mano en el portal?
 5. ¿Las cuentas demo quedan en una lista aparte dentro de Usuarios (recomendado)?
 
 ## Para CYC-193 (implementación)
 
-- **Aplicación nueva** (por ejemplo `apps/admin`, desplegada en el subdominio) que reutiliza tokens de estilo; **sin** cambios en `apps/web` (sin menú, sin `isAdmin`).
-- **Llaves de acceso:** tabla con huella, nombre, vencimiento, uso y revocación; comando en el servidor para generarlas y revocarlas, que muestra la llave una sola vez.
-- API: `POST /admin/auth/login` (llave → sesión, con límite de intentos por IP), `POST /admin/auth/logout`, `GET /admin/session` (nombre y vencimiento); `GET /admin/users`, `GET /admin/usage`, `GET/PUT/POST/DELETE /admin/emails`, `GET /admin/versions`; todas con la sesión del portal y registro de consulta.
-- Base: `lastLoginAt` en `User`, tabla del directorio de correos, tabla de llaves y tabla de registro de consultas (migraciones aditivas con respaldo).
-- DNS del subdominio y CORS solo para `/admin/*`.
-- Pruebas: sin sesión del portal toda ruta `/admin/*` responde 401; un token de la app no sirve en el portal; una llave inválida, vencida o revocada recibe el mismo mensaje; el límite de intentos bloquea; las demo no aparecen en totales ni en Uso.
+- **Cloudflare** (lo hace quien administra la cuenta): registro DNS del subdominio con proxy activado, aplicación de Access con la política del equipo y duración de sesión, y copiar el identificador de audiencia para la API.
+- **Aplicación nueva** (por ejemplo `apps/admin`, en el subdominio) que reutiliza tokens de estilo; **sin** cambios en `apps/web`.
+- **API:** guarda de `/admin/*` que valida el token de Access (firma contra las claves públicas del equipo de Cloudflare, audiencia, vencimiento) y extrae el correo; variables `CF_ACCESS_TEAM_DOMAIN` y `CF_ACCESS_AUD` solo en el servidor; `GET /admin/session` (correo); `GET /admin/users`, `GET /admin/usage`, `GET/PUT/POST/DELETE /admin/emails`, `GET /admin/versions`; todas con registro de consulta.
+- Servir la API del portal bajo el host protegido (reenvío a Render) para que el token llegue.
+- Base: `lastLoginAt` en `User`, tabla del directorio de correos y tabla de registro de consultas (migraciones aditivas con respaldo).
+- CORS solo para `/admin/*`.
+- Pruebas: sin token toda ruta `/admin/*` responde 401; un token de la app no sirve; un token con audiencia distinta o vencido se rechaza; las demo no aparecen en totales ni en Uso.
