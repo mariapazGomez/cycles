@@ -6,6 +6,7 @@ import { UsersService } from "./users.service";
 import { AccountService } from "./account.service";
 import { AcceptPolicyDto } from "./dto/accept-policy.dto";
 import { DataConsentDto } from "./dto/data-consent.dto";
+import { TourStatusDto } from "./dto/tour-status.dto";
 import { DeleteAccountDto } from "./dto/delete-account.dto";
 
 @UseGuards(JwtAuthGuard)
@@ -25,6 +26,13 @@ export class UsersController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async acceptPolicy(@CurrentUser() user: AuthenticatedUser, @Body() _dto: AcceptPolicyDto): Promise<void> {
     await this.usersService.acceptPolicy(user.id);
+  }
+
+  // Guía de primer uso: saltada, terminada o vuelta a abrir (pending).
+  @Patch("me/tour")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async setTour(@CurrentUser() user: AuthenticatedUser, @Body() dto: TourStatusDto): Promise<void> {
+    await this.usersService.setTourStatus(user.id, dto.status);
   }
 
   // Retirar (o volver a dar) el consentimiento opcional de estadísticas.

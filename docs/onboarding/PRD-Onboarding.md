@@ -229,6 +229,15 @@ Embudo propuesto: `coach_registrada → email_verificado → atleta_invitada →
 
 > Vacío en v0.1. Se completa cuando §10 esté cerrado y §8 aprobado. Formato previsto: lista ordenada de tareas pequeñas, cada una con archivos a tocar, criterio de aceptación y PR sugerido, en línea con el checklist de cierre de fase (PRD-General §10.1).
 
+### 11.1 API de la guía de primer uso (CYC-191, 2026-11-03)
+
+Una sola marca por cuenta, compartida por web y móvil (diseño en `docs/diseno/tour-primer-uso`, decisión D7). Todo lo demás se deriva de los datos.
+
+- `User.tourStatus`: `pending` (por defecto, también para las cuentas que ya existían) · `skipped` · `completed`. Migración aditiva `20261103170000_estado_guia_primer_uso`.
+- `GET /users/me` devuelve `tourStatus` y `phonePlatform` (`ios` / `android` / `null`: lo que el atleta eligió al registrarse solo; con él el traspaso web → app salta el selector).
+- `PATCH /users/me/tour` con `{ "status": "pending" | "skipped" | "completed" }` → 204. `pending` sirve para «Volver a ver la guía». 400 si el valor no existe; 401 sin sesión.
+- Sale en la exportación de datos de la cuenta y se borra con ella.
+
 ## 12. Historial de versiones
 
 | Versión | Fecha | Cambio |
