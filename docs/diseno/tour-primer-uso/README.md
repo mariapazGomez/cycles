@@ -7,189 +7,174 @@ created: 2026-11-03
 updated: 2026-11-03
 ---
 
-# Tour de primer uso (CYC-190)
+# Guía de primer uso, v3.1: encima de la interfaz real y en el orden de un ciclo (CYC-213)
 
-> Diseño del recorrido de la primera vez para que web y móvil se construyan sobre lo mismo. Bloquea CYC-191 (web) y CYC-192 (móvil). **Versión 2, contrastada con `origin/main` 76555e5** (la versión 1 se hizo sobre un checkout del 29-10, 100 commits atrasado). **Estado: propuesto, pendiente de aprobación de la usuaria.** Se ve en [`propuestas.html`](propuestas.html).
+> **Versión 3.1.** La v2 (CYC-190, ya construida en la web por CYC-191) mostraba la guía como diálogo, tarjeta y barra propios: pareció una presentación. La v3 la pasó a **marcas sobre la interfaz real** (halo + globo corto). Esta v3.1 corrige el **orden**: la v3 empezaba creando un ejercicio, que se usa dentro de una rutina, que se usa dentro de un ciclo que aún no existía. Ahora hay una **explicación breve de cómo se piensa un ciclo** y la guía se arma **de arriba hacia abajo**: ciclo → rutinas → ejercicios. Contrastado con `origin/main` de25ad6. Estado: propuesto, pendiente de aprobación de la usuaria. Bloquea CYC-214. Maqueta en [`propuestas.html`](propuestas.html); v2 en [`propuestas-v2.html`](propuestas-v2.html).
 
-## Verificado contra origin/main 76555e5
+## Lo que pidió la usuaria
 
-Pantallas y código contrastados (todo leído en `origin/main`, no en el disco de la carpeta principal):
+1. Antes del manual de uso, **una explicación breve de cómo se piensan los ciclos**: se crea un ciclo, el ciclo contiene rutinas y las rutinas contienen ejercicios.
+2. Que la guía **siga ese orden de creación**. Pedir como primer paso «crea un ejercicio» no tiene sentido si el ejercicio se usa dentro de una rutina o de un ciclo que todavía no existe.
 
-| Tema | Archivo(s) | Qué hay hoy y cómo lo toma el diseño |
+## Verificado contra origin/main de25ad6
+
+| Tema | Archivo(s) | Qué hay hoy y cómo lo toma la guía |
 |---|---|---|
-| Registro | `RegisterPage.tsx`, `RoleChoice.tsx`, `lib/features.ts` | Dos opciones, **Soy coach** y **Soy atleta** (CYC-187). El atleta elige **iPhone o Android** y, en iPhone, el correo de su Apple ID para TestFlight (CYC-194). El registro público sigue cerrado: se entra con el **enlace privado del piloto**. Corrige la versión 1, que decía que la coach llegaba con la cuenta creada. |
-| Verificación | `CheckEmailPage.tsx` | «Revisa tu email» → link → inicio de sesión. El tour de la coach empieza **después del primer ingreso**. |
-| Aceptar invitación | `AcceptInvitationPage.tsx` | Dos casos: sin cuenta («Activa tu cuenta», define contraseña) y con cuenta («Acepta la invitación»). Termina en «Listo». El traspaso web → app se diseña sobre esa pantalla. |
-| Atleta sin coach | `TodayPage.tsx`, `TodayScreen.tsx` | Ya existe «Falta tu coach» (se registró solo y nadie lo vinculó). Se **mantiene**: es el primer estado del recorrido de quien se registra solo. |
-| Menú de usuario | `UserMenu.tsx` (web), `ProfileAvatar.tsx` (móvil) | Web: Mi cuenta, Cerrar sesión. Móvil: Mi cuenta, Política de privacidad, Términos de uso, Cerrar sesión. «Cómo usar Cycles» entra en ambos. |
-| Navegación web | `AppLayout.tsx` | Coach: Inicio, Atletas, Biblioteca, Ejercicios. Atleta: Hoy, Calendario, Mis ciclos. |
-| Biblioteca | `BibliotecaPage.tsx` | Rutinas y ciclos en una sola lista (con plantillas). Vacío actual: «Tu biblioteca está vacía» con **Crear rutina** y **Crear ciclo**. |
-| Atletas | `AthletesPanel.tsx` | Sin atletas, el formulario de invitar **ya se muestra abierto** («Invita a tu primer atleta»). No hace falta estado vacío nuevo. |
-| Ejercicios | `ExercisesPage.tsx` | Vacío actual: «Todavía no creaste ejercicios» con **Nuevo ejercicio**. Varios grupos musculares (CYC-196). |
-| Inicio del coach | `AttentionPage.tsx`, `CoachHero.tsx`, `CoachWeekBoard.tsx` | Franja oscura «Empieza invitando a un atleta» con botón **Invitar atleta**; semana con la división de cada día (#151). La tarjeta del tour **reemplaza** ese estado mientras la guía esté activa. |
-| Calendario del ciclo | `docs/diseno/ciclos-pizarra`, `docs/diseno/ciclo-en-calendario` | El ciclo se arma en la **pizarra** de la ficha del atleta (arrastrar, «+», autoguardado). El paso 4 apunta ahí. |
-| Isla móvil | `FloatingTabBar.tsx` | **Cuatro pestañas**, solo íconos, tamaño fijo y resaltado deslizante (CYC-185): Calendario, Inicio, Resumen y Asistente. La etiqueta existe solo como nombre accesible. |
-| Asistente móvil | `AssistantScreen.tsx` | Es demo: responde con texto provisorio. **No entra al tour** para no prometer lo que aún no hace. |
-| Rol en móvil | `store/AuthContext.tsx` | `startSession` rechaza todo rol distinto de `athlete`: **la app es solo de atletas**. Se mantiene D5. |
-| Inicio de sesión móvil | `LoginScreen.tsx`, `WelcomeCurtain` | Pantalla rediseñada (anillo, etiqueta flotante) y cortina de bienvenida al entrar. **El tour empieza cuando la cortina termina.** |
-| Contraseña | `PasswordField` | Botón de ojo (CYC-195). Sin cambios para el tour. |
-| Descanso y notas | `RestTimer`, notas por ejercicio (CYC-60..63) | La pista de la primera serie menciona el descanso y la nota del coach. |
-| Estados vacíos del atleta | `TodayScreen.tsx`, `CalendarScreen.tsx`, `SummaryScreen.tsx`, `CyclesPage.tsx` | Calendario y Resumen ya tienen su texto. Falta distinguir, en Hoy, «sin ciclo» de «al día», y dar contenido a «Mis ciclos». |
+| Guía v2 construida | `components/tour/*`, `lib/tour.ts`, `hooks/useTour.ts`, `services/tourApi.ts` | La parte visual se reemplaza; `tourApi` y `tourStatus` se conservan. |
+| **El ciclo se arma desde la ficha del atleta** | `AthletePage.tsx`, `components/board/NewCycleDialog.tsx`, `CycleSection.tsx` | **Nuevo ciclo** pide un atleta que **ya aceptó** (el atleta queda fijado). Por eso invitar es el prerrequisito, no un paso de «contenido». |
+| **Rutina nueva sin salir de la pizarra** | `components/board/RoutinePanel.tsx`, `RoutineDrawer.tsx` | El panel de rutinas de la pizarra tiene **Crear rutina nueva**, que abre un cajón («Crear rutina») sin salir del ciclo. |
+| **Ejercicio nuevo desde la rutina** | `components/ExercisePicker.tsx` (atajo de CYC-56), `ExerciseForm.tsx` | El buscador de ejercicios ofrece **Crear «nombre»** y el botón «Crear y agregar a la rutina»: el ejercicio se crea **dentro** de la rutina. No hace falta pasar antes por Ejercicios. |
+| Asignar rutina a un día | `board/DayCell.tsx`, `RoutinePicker.tsx` | El **«+»** de cada día abre un buscador de rutinas; elegir una crea la sesión y **activa el ciclo** con la primera. Con cero rutinas, el popover enlaza a `/routines/new` (sale de la pizarra: ver «Ajustes pequeños»). |
+| Navegación del coach | `AppLayout.tsx` | Inicio, Atletas, Biblioteca, Ejercicios. Ejercicios y Biblioteca quedan como lugares de consulta, no como pasos de la guía. |
+| Inicio del coach | `AttentionPage.tsx`, `CoachWeekBoard.tsx` | Nuevo Inicio (#162). |
+| Tour móvil | `apps/mobile/src/` | Aún sin código del tour (CYC-192). Veredicto sin cambios (abajo). |
 
-## Decisiones de diseño (a aprobar)
+**Consecuencia:** el orden «de arriba hacia abajo» **ya es posible en la app tal cual está**, sin construir nada nuevo en las pantallas.
 
-| # | Decisión | Por qué |
+## Explicación inicial: «Así se arma un ciclo»
+
+Una sola tarjeta corta **antes** de la guía, que aparece la primera vez. Es la única pieza que ocupa pantalla: pequeña (máx. 440 px), sin velo, anclada abajo a la derecha, con la app visible detrás. Lleva un dibujo de **tres cajas encajadas** y tres líneas.
+
+**Dibujo (cajas encajadas, solo texto y bordes):**
+- Caja grande: **Ciclo** · «Fuerza base · 6 semanas».
+- Dentro, dos cajas: **Rutina** «Torso A» y **Rutina** «Pierna».
+- Dentro de cada rutina, fichas pequeñas: **Ejercicio** «Press banca», «Remo», «Sentadilla».
+
+**Textos:**
+- Título: «Así se arma un ciclo»
+- «Un ciclo organiza las semanas de tu atleta.»
+- «Contiene rutinas: la sesión de cada día.»
+- «Cada rutina contiene ejercicios.»
+- Cierre: «Lo armamos en ese orden.»
+- Botones: **Empezar la guía** · **Ahora no**
+
+Reglas: aparece una sola vez (antes del primer paso) y se puede releer desde **Cómo usar Cycles → Cómo se piensa un ciclo**. Sin animación. Es la excepción acordada a «sin ventanas»: es breve, no tapa el menú y se cierra con un toque.
+
+## Qué se conserva y qué cambia
+
+| Tema | v3 | v3.1 |
 |---|---|---|
-| D1 | La coach usa un **asistente de 4 pasos sobre las pantallas reales**: una tarjeta en Inicio y una barra de paso arriba de cada pantalla. No hay formularios reducidos propios. | Cierra la pregunta 1b del PRD sin duplicar lógica. |
-| D2 | El asistente **se pausa** en el paso 3 (esperar que el atleta acepte). | La invitación vive hasta 7 días. |
-| D3 | El progreso **se deriva de los datos** (rutina, invitación, atleta activo, sesión asignada). No se guarda un contador. | No se desincroniza. |
-| D4 | El atleta tiene un tour de **3 marcas** sobre la isla (Inicio, Calendario, Resumen), una pista en la primera serie y un cierre de la primera sesión. El Asistente queda fuera hasta que deje de ser demo. | La isla ya no tiene etiquetas: la marca debe nombrar la pestaña en su texto. |
-| D5 | La **app móvil es solo de atletas**; el tour de la coach es solo web. | Verificado en `AuthContext.tsx`. |
-| D6 | Acceso permanente **«Cómo usar Cycles»** en el menú de usuario (web) y en el menú del avatar (móvil). | Reabrir sin buscar. |
-| D7 | Se guarda **una sola cosa por cuenta**: `tourStatus`. Web y móvil la comparten. | Terminar en uno no repite en el otro. |
-| D8 | La tarjeta del tour **reemplaza** la franja «Empieza invitando a un atleta» mientras esté activa. | Evita dos llamados a invitar en la misma pantalla. |
+| Intro | Globo de bienvenida | **Tarjeta «Así se arma un ciclo»** con el dibujo y tres líneas. |
+| Orden | Ejercicio → rutina → invitar → espera → ciclo → seguimiento | **Atleta → ciclo → rutina → ejercicios → ponerla en un día → seguimiento.** |
+| Parada «Ejercicios» | Primer paso | **Desaparece como paso.** Los ejercicios se crean dentro de la rutina con **Crear «nombre»**. La pestaña Ejercicios queda para consulta. |
+| Dónde se crea la rutina | Biblioteca → Crear → Rutina (sale del ciclo) | **Dentro de la pizarra**: **Crear rutina nueva** (cajón). |
+| Pasos | 6 paradas | **6 pasos** con otro orden. |
+| Forma, chip de espera, cierre, `tourStatus`, saltar y reabrir, estados vacíos, atleta web | — | **Sin cambios.** |
 
-## Cómo llega cada persona
+## Anatomía de una marca (sin cambios respecto a la v3)
 
-- **Coach:** enlace privado del piloto → **Soy coach** → «Revisa tu email» → inicio de sesión → Inicio vacío. Aquí empieza el tour.
-- **Atleta que se registra solo:** enlace privado → **Soy atleta** → elige iPhone o Android → «Revisa tu email» → inicio de sesión → **«Falta tu coach»** (ya existe). El tour de la app espera a tener coach; si entra antes, la marca de Inicio lo dice.
-- **Atleta invitado sin cuenta:** correo de la invitación → «Activa tu cuenta» → **traspaso a la app** (nuevo).
-- **Atleta invitado con cuenta:** correo → «Acepta la invitación» → traspaso a la app.
+- **Halo:** anillo de 2 px en `#3080fc`, separación de 4 px, mismo radio del elemento (6, 8 o 10) y fondo suave al 10 %. **No bloquea clics.**
+- **Atenuar el resto:** no por defecto; solo bajo diálogos o cajones, al 12 %.
+- **Globo** (`#1f2228`, texto blanco, radio 10, máx. 280 px, flecha al elemento): «Paso N de 6», **una instrucción de hasta 12 palabras**, **Siguiente** o **Saltar paso** y **Salir de la guía**.
+- **Posición:** abajo del elemento si cabe; si no, arriba o a un lado (junto a un menú, a su izquierda). Nunca tapa el elemento.
+- **Completar:** avanza al detectar la acción, o con **Siguiente** / **Saltar paso**.
+- **Sin movimiento propio.**
 
 ## Recorrido de la coach (web)
 
-Aparece solo a coaches sin rutinas, atletas ni ciclos.
+Parte con `tourStatus = pending` en coaches sin atletas, ciclos ni rutinas (o que ya la empezaron). La tarjeta «Así se arma un ciclo» abre la guía.
 
-**Bienvenida** (diálogo, una sola vez)
-- Título: «Te damos la bienvenida a Cycles»
-- Texto: «Vamos a dejar a tu atleta listo para entrenar. Son cuatro pasos y puedes salir cuando quieras.»
-- Botones: **Empezar** · **Ahora no**
+| Paso | Qué se arma | Marca | Elemento resaltado | Globo | Se completa cuando |
+|---|---|---|---|---|---|
+| **1 · Tu atleta** | El prerrequisito: un ciclo se crea para alguien que ya aceptó | 1a | Ítem **Atletas** | «Primero, tu atleta. Entra a Atletas.» | Ruta `/athletes` |
+| | | 1b | Formulario de invitación | «Escribe su nombre y el email con el que se registrará.» | Campos completos |
+| | | 1c | **Enviar invitación** | «Toca Enviar invitación.» | Existe ≥1 invitación |
+| **Espera** | — | — | Solo el **chip** | «Esperando a {Nombre}. Te avisamos aquí.» | Un atleta acepta |
+| **2 · Ciclo** | La caja grande | 2a | Fila del atleta | «Abre a {Nombre} para crearle un ciclo.» | Ruta `/athletes/:id` |
+| | | 2b | **Nuevo ciclo** | «Toca Nuevo ciclo.» | Se abre el diálogo |
+| | | 2c | **Crear** del diálogo | «Ponle nombre, inicio y semanas.» | Existe el ciclo |
+| **3 · Rutina** | Una caja dentro del ciclo | 3a | **«+»** de un día | «Toca «+» en un día.» | Se abre el selector |
+| | | 3b | **Crear rutina nueva** (panel de rutinas) | «Crea la rutina de ese día.» | Se abre el cajón |
+| | | 3c | Campo **Nombre** del cajón | «Ponle nombre. Por ejemplo, Torso A.» | Hay nombre |
+| **4 · Ejercicios** | Las fichas dentro de la rutina | 4a | Buscador de ejercicios del cajón | «Busca y agrega 2 o 3 ejercicios.» | ≥1 ejercicio agregado |
+| | | 4b | **Crear «nombre»** (si no aparece) | «¿Falta uno? Toca Crear «nombre».» | Opcional (se muestra cuando la búsqueda no encuentra) |
+| | | 4c | **Crear rutina** del cajón | «Cuando termines, toca Crear rutina.» | Existe la rutina con ejercicios |
+| **5 · Ponla en un día** | Cerrar el ciclo | 5a | **«+»** del día, y la rutina en el selector | «Elige la rutina para ese día.» | El ciclo tiene ≥1 sesión (**queda activo**) |
+| **6 · Seguimiento** | Dónde mirar después | 6a | Ítem **Inicio** / chip **Necesitan atención** | «En Inicio ves quién necesita tu atención.» | Ruta `/` |
+| | | 6b | Selector **Resumen** de la ficha | «En Resumen ves su carga y adherencia.» | Cambia a Resumen o **Siguiente** |
+| **Cierre** | — | — | Avatar | «Listo. Reabre la guía en Cómo usar Cycles.» | **Entendido** → `tourStatus = completed` |
 
-**Los cuatro pasos**
+El globo de cada marca muestra además el **nivel** con una migaja corta («Ciclo», «Rutina», «Ejercicios») para que se vea el encaje de la explicación inicial.
 
-| # | Paso | Dónde lo hace | Se completa cuando | Texto de la barra |
-|---|---|---|---|---|
-| 1 | Crea tu primera rutina | Biblioteca → Crear rutina | Existe ≥1 rutina | «Una rutina es una sesión que armas una vez y reutilizas. Empieza con 2 o 3 ejercicios.» |
-| 2 | Invita a tu atleta | Atletas (formulario abierto) | Existe ≥1 invitación | «Escribe su nombre y su email, el mismo con el que se registre. Le llega un correo para entrar.» |
-| 3 | Espera su aceptación | Cualquier pantalla | Un atleta acepta | «Tu atleta aún no acepta. Mientras tanto, arma más rutinas.» |
-| 4 | Crea su ciclo y asigna la primera sesión | Ficha del atleta → Nuevo ciclo → pizarra | El ciclo tiene ≥1 sesión asignada | «Crea el ciclo y toca «+» en un día para asignar una rutina. Con la primera sesión, el ciclo queda activo.» |
+### Cómo se deriva el avance (sin campos nuevos)
 
-Si falta un ejercicio al armar la rutina, la barra del paso 1 enlaza al atajo **Crear** del buscador de ejercicios.
+| Paso | Hecho si… |
+|---|---|
+| 1 | Existe ≥1 atleta invitado |
+| 2 | La atleta activa tiene ≥1 ciclo |
+| 3 | Existe ≥1 rutina |
+| 4 | Existe ≥1 rutina con ejercicios |
+| 5 | Hay ≥1 ciclo activo (primera sesión asignada) |
+| 6 | **Entendido** en el cierre |
 
-**Pausa en el paso 3.** La tarjeta de Inicio pasa a «Esperando a {Nombre}» con **Reenviar invitación** y **Seguir con la app**.
+Si la coach ya tiene datos (por ejemplo, rutinas), la guía salta los pasos hechos. **Ejercicios propios** deja de contar.
 
-**Retorno.** Cuando el atleta acepta: «{Nombre} ya aceptó. Crea su ciclo.» con **Crear ciclo**.
+### Espera y chip
 
-**Cierre** (al asignar la primera sesión)
-- Título: «Tu atleta ya puede entrenar»
-- Texto: «El ciclo está activo y {Nombre} verá su primera sesión en Hoy. Desde Inicio ves quién necesita tu atención.»
-- Botón: **Ir a Inicio**
+La espera sigue igual: el **chip** («Guía · Paso 1 de 6 · Esperando a Camila» y **Seguir**) no ocupa Inicio. Mientras espera, la coach puede mirar la Biblioteca o Ejercicios sin que la guía interfiera. Al aceptar la atleta, el chip dice «Camila ya aceptó. Crea su ciclo.»
 
-### Piezas
+### Ajustes pequeños en pantallas existentes (para CYC-214)
 
-- **Tarjeta «Empieza con Cycles» en Inicio** (debajo del título, en lugar de la franja de «Empieza invitando a un atleta»): los 4 pasos con marca de hecho, el siguiente resaltado con botón primario y el enlace **No quiero la guía**. Se oculta al completar los 4 o al descartarla; al ocultarse vuelve la franja habitual.
-- **Barra de paso:** fila fija bajo el header, con «Paso 2 de 4», la instrucción y **Salir**.
-- **Panel «Cómo usar Cycles»:** abre desde el menú de usuario. Muestra los 4 pasos con su estado, **Volver a ver la guía** y **Abrir el manual** (`MANUAL-COACH`).
+- **Selector «+» sin rutinas:** hoy dice «Todavía no tienes rutinas. **Crea la primera**» y enlaza a `/routines/new` (sale de la pizarra). Debe **abrir el cajón «Crear rutina nueva»** para mantener la coach dentro del ciclo.
+- **Anclas** `data-tour="…"` en los elementos resaltados.
+
+### Cuando algo se sale del guion (sin cambios respecto a la v3)
+
+Elemento fuera de vista (se desplaza), aún sin cargar (espera 2 s y globo anclado abajo con **Llévame**), cambio de tamaño (recalcula), tablet (globo de 260 px), móvil web (globo abajo a todo el ancho), navegación libre (chip «Volver al paso N» y salto al paso de la pantalla a la que llegue), acción hecha antes (avanza sin mostrar el paso) y diálogos o cajones abiertos (la marca se acomoda dentro y atenúa al 12 %).
 
 ## Recorrido del atleta
 
-### Traspaso web → app (después de aceptar la invitación)
+### Traspaso web → app (sin cambios)
 
-Reemplaza la pantalla «Listo» de `AcceptInvitationPage.tsx`:
+«Tu cuenta está lista» tras aceptar la invitación: «Entrenas desde la app. Entra con {email}.», selector **iPhone / Android** y **Seguir en el navegador**.
 
-- Título: «Tu cuenta está lista»
-- Texto: «Entrenas desde la app. Entra con {email}.»
-- Selector **iPhone** / **Android**:
-  - iPhone: «Instala Cycles con TestFlight. Te invitamos al correo de tu Apple ID.» + **Instalar la app**.
-  - Android: «Abre app.getcycles.app en Chrome y agrégala a tu pantalla de inicio.» + **Ver cómo**.
-- Enlace secundario: **Seguir en el navegador**.
+### Atleta en la web (sin cambios)
 
-Si la API ya sabe qué teléfono eligió (registro con CYC-194), se muestra directo el bloque que corresponde, sin selector. Hoy `phonePlatform` solo viaja en el registro: a confirmar con desarrollo si lo expone al usuario.
+Tres marcas sobre el menú: **Hoy**, **Calendario** y **Mis ciclos**, con el mismo mecanismo.
 
-### Tour en la app móvil (primer ingreso, tras la cortina de bienvenida)
+### Tour móvil (CYC-192): veredicto (sin cambios)
 
-Tres marcas, una por pestaña, con **Siguiente** y **Saltar**. La isla se mantiene sobre el velo y el ícono de la pestaña explicada lleva un anillo. Como la isla es solo de íconos, **cada texto nombra la pestaña**.
-
-| # | Pestaña | Texto |
-|---|---|---|
-| 1 | Inicio | «En Inicio está tu sesión de hoy. Toca **Empezar sesión** cuando vayas a entrenar.» |
-| 2 | Calendario | «En Calendario ves tu semana y todo tu ciclo.» |
-| 3 | Resumen | «En Resumen ves tu carga y tu avance, a medida que registras.» |
-
-Sin coach vinculado, la marca 1 dice «En Inicio aparecerá tu sesión de hoy cuando tu coach te invite.» Sin ciclo: «…cuando tu coach te asigne una.»
-
-**Pista de la primera serie** (una vez, en el registro): «Ajusta reps y peso con − y +, y toca **Registrar serie**. Después te preguntamos cuántas reps más podías hacer. Entre series corre el descanso.» Botón **Entendido**.
-
-**Cierre de la primera sesión:** «Primera sesión guardada. Tu coach ya puede verla.»
-
-**Reabrir:** menú del avatar → **Cómo usar Cycles** (entre Mi cuenta y Política de privacidad).
-
-### Atleta en la web
-
-La atleta que entra por el navegador ve las mismas tres explicaciones como una tarjeta descartable en Hoy, sin marcas sobre la navegación (Hoy, Calendario, Mis ciclos).
+Hay ajustes M1 a M5 (halo sobre «Empezar sesión», marcas 2 y 3 que piden tocar la pestaña, atenuado al 12 % o nada, mismo globo que la web y conservar pista, cierre y «Cómo usar Cycles»). **No dependen del orden del ciclo**, porque el atleta no crea ciclos: solo los entrena.
 
 ## Estados vacíos (CYC-75 y CYC-76)
 
-Se usa el componente `EmptyState` existente. Solo se diseña lo que **falta o cambia**; lo que ya existe se conserva.
-
-### Coach (web)
-
-| Pantalla | Hoy | Propuesta |
-|---|---|---|
-| Inicio, sin atletas | Franja «Empieza invitando a un atleta» | **Cambia** mientras la guía esté activa: la tarjeta «Empieza con Cycles» la reemplaza. Con la guía descartada, queda la franja actual. |
-| Inicio, sin avisos | «Ningún atleta necesita tu atención.» | Se conserva. |
-| Biblioteca vacía | «Tu biblioteca está vacía», con **Crear rutina** y **Crear ciclo** | Se conserva. |
-| Atletas, sin atletas | Formulario abierto «Invita a tu primer atleta» | Se conserva. |
-| Ejercicios, Míos vacío | «Todavía no creaste ejercicios», con **Nuevo ejercicio** | Se conserva. |
-| Crear ciclo, sin atletas activos | No existe | **Nuevo:** «Falta que tu atleta acepte» / «Para crear un ciclo necesitas un atleta que ya haya aceptado su invitación.» / **Ver invitaciones**. |
-
-### Atleta (móvil y web)
-
-| Pantalla | Hoy | Propuesta |
-|---|---|---|
-| Hoy, se registró solo y sin coach | «Falta tu coach» | Se conserva. |
-| Hoy, con coach y sin ciclo | Se confunde con «Todo al día» / «No tienes una sesión pendiente» | **Nuevo:** «Tu coach está preparando tu ciclo» / «Cuando te asigne tu primera sesión, la verás aquí.» |
-| Hoy, con ciclo y sin sesión pendiente | «Todo al día» (web), «No tienes una sesión pendiente» (móvil) | **Cambia** a «Hoy no tienes sesión» / «Descansa.» (voz y tono). |
-| Mis ciclos (web), vacío | Sin texto propio | **Nuevo:** «Aún no tienes ciclos» / «Aparecerán cuando tu coach te asigne uno.» |
-| Calendario y Resumen (móvil) | «Aún no tienes un ciclo activo» | Se conserva. |
+Sin cambios respecto a la v2: se conserva lo que ya existe y solo se diseña lo que falta. La guía no reemplaza la franja «Empieza invitando a un atleta» de Inicio.
 
 ## Qué se guarda por cuenta
 
 | Campo | Valores | Se escribe cuando |
 |---|---|---|
-| `tourStatus` | `pending` (por defecto) · `skipped` · `completed` | Salta o descarta («No quiero la guía», «Saltar», «Ahora no»), o termina |
+| `tourStatus` | `pending` · `skipped` · `completed` | Salir de la guía, **Ahora no**, o terminar |
 
-- Todo lo demás se deriva de los datos. No se guardan pasos.
-- Reabrir con **Cómo usar Cycles** no borra el estado.
+- Todo lo demás se deriva de los datos (atletas, ciclos, rutinas y sus ejercicios).
+- La marca «ya empezó» sigue en el navegador, como en la v2.
+- La tarjeta «Así se arma un ciclo» se considera vista al pulsar **Empezar la guía** o **Ahora no**; reabrirla desde «Cómo usar Cycles» no cambia el estado.
 - Ningún dato de salud ni de rendimiento (R1–R12 de `docs/SEGURIDAD.md`).
-- Móvil y web leen el mismo campo.
 
-## Accesibilidad (notas para el desarrollo)
+## Accesibilidad
 
-- **Foco:** bienvenida y marcas atrapan el foco, lo devuelven al disparador y se cierran con Esc (web) o el gesto atrás (móvil).
-- **Roles:** bienvenida y cierre son `role="dialog"` con `aria-labelledby`. La barra de paso es una región con `aria-label="Guía de inicio"`; el progreso se dice con texto («Paso 2 de 4»).
-- **Isla solo de íconos:** cada marca lleva `accessibilityLabel` con el nombre de la pestaña, la posición («Marca 1 de 3») y el texto. El anillo de la pestaña explicada no es la única señal.
-- **Contraste:** botones con `#1a66dd` sobre blanco; texto secundario `#5c6068`. `#3080fc` solo para estado, nunca en texto chico.
-- **Marca de hecho:** ícono más texto «Hecho», nunca solo color.
-- **Destinos táctiles:** mínimo 44 × 44 px (la isla ya lo cumple).
-- **Movimiento:** sin animaciones propias; si se añade transición, respetar «reducir movimiento» (`useReduceMotion`).
-- **A verificar con código:** orden de tabulación, anuncio del cambio de paso y que la barra no tape contenido con el teclado abierto.
+- **Tarjeta inicial:** `role="dialog"` no modal con `aria-labelledby`; el dibujo lleva una lista equivalente en texto («Un ciclo contiene rutinas; cada rutina contiene ejercicios») y no depende del color. Foco en **Empezar la guía** al abrir; Esc equivale a **Ahora no**.
+- **Teclado:** el halo no quita el foco; **Esc** pausa la guía; **Alt + G** lleva el foco al globo; **← / →** cambian de marca con el foco en el globo.
+- **Lector de pantalla:** globo como región `role="complementary"` con `aria-label="Guía de inicio"` y anuncio en `aria-live="polite"` («Paso 3 de 6, Rutina. Toca «+» en un día.»). El elemento resaltado recibe `aria-describedby`.
+- **Contraste:** globo `#1f2228` con texto blanco (15,9:1); halo `#3080fc` solo como señal, siempre con la instrucción escrita.
+- **Movimiento reducido:** sin animaciones; desplazamiento instantáneo si se pide.
+- **Destinos táctiles:** ≥ 40 px (≥ 44 px en móvil).
+- **A verificar con código:** orden de tabulación con el globo insertado y que el cajón «Crear rutina» conserve el foco mientras la guía lo señala.
 
 ## Fuera de alcance
 
-- Pestaña Asistente en el tour (es demo).
-- Tutoriales en video, correos nuevos de bienvenida o recordatorio.
-- Vista de seguimiento del equipo por coach (PRD §5.3).
-- Rutina de ejemplo precargada (PRD §10.7).
+- Tutoriales en video, correos de bienvenida o recordatorio, pestaña Asistente en el tour móvil.
+- Vista de seguimiento del equipo (PRD §5.3).
 
 ## Preguntas para la usuaria
 
-1. ¿Apruebas los cuatro pasos y que el plan se active solo al asignar la primera sesión?
-2. ¿El Asistente queda fuera del tour mientras sea demo?
-3. ¿Android se muestra como «agregar a la pantalla de inicio» mientras no haya Google Play?
+1. ¿Apruebas la explicación inicial «Así se arma un ciclo» con el dibujo de cajas encajadas?
+2. ¿Apruebas el orden **atleta → ciclo → rutina → ejercicios → ponerla en un día → seguimiento**? Invitar va primero porque un ciclo solo se puede crear para una atleta que ya aceptó; el resto sigue exactamente tu orden.
+3. ¿Quitamos la parada «Ejercicios» como paso y dejamos que los ejercicios se creen dentro de la rutina con **Crear «nombre»**?
+4. ¿Que el selector «+» sin rutinas abra el cajón en vez de enlazar fuera de la pizarra?
 
 ## Cómo se conecta con otras tarjetas
 
-- **CYC-191 (web):** bienvenida, tarjeta en Inicio, barra de paso, panel «Cómo usar Cycles», estados vacíos nuevos del coach (CYC-75), traspaso, tarjeta del atleta en Hoy.
-- **CYC-192 (móvil):** tour de 3 marcas, pista de la primera serie, cierre de la primera sesión, «Cómo usar Cycles» en el avatar, estados nuevos del atleta (CYC-76).
-- **CYC-170:** aporta el contenido del manual enlazado en el panel.
+- **CYC-214 (web):** reemplaza `TourDialog`, `TourCard`, `TourStepBar` y `GuidePanel` por la tarjeta inicial y la capa de marcas (resaltado, globo y chip). Reutiliza `useTour`, `tourApi` y `lib/tour.ts` (cambiar los conteos a atletas, ciclos, rutinas con ejercicios y ciclos activos). Añade las anclas y el ajuste del selector «+».
+- **CYC-192 (móvil):** aplicar M1 a M5.
+- **CYC-170:** aporta el contenido del manual enlazado en «Cómo usar Cycles».

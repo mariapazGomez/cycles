@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tour de primer uso Cycles</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&display=swap">
+<style>
+/* Concepto: el tour vive sobre las pantallas reales. La coach ve una tarjeta en Inicio (que reemplaza la franja de «Empieza invitando») y una barra de paso fija; el atleta, tres marcas sobre la isla de solo íconos. Versión 2, contrastada con origin/main 76555e5. Solo modo claro. Datos de ejemplo. */
+:root{
+  --font-display:"Bricolage Grotesque","Inter",system-ui,sans-serif; --font-body:"Inter",system-ui,sans-serif;
+  --brand:#3080fc; --blue:#1a66dd; --blue-hover:#155ccc; --b100:#eaf2ff;
+  --bg:#fff; --ink:#1f2228; --ink2:#5c6068; --gray:#f6f7f9; --line:#dfe2e7; --ctl:#8a8f98;
+  --ok-bg:#e9f5ec; --ok-ink:#1e6b32; --warn-bg:#fff1e3; --warn-ink:#9a4a00; --page:#f3f5f8;
+  --pop:0 8px 24px -8px rgba(0,0,0,.18); color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5}
+button,a{font:inherit;color:inherit}button{cursor:pointer}
+:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+h1,h2,h3{font-family:var(--font-display);margin:0}
+.top{max-width:1120px;margin:0 auto;padding:20px 16px 0}
+.top h1{font-size:1.35rem;margin-bottom:12px}
+.seg{display:flex;flex-wrap:wrap;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:3px;width:fit-content;max-width:100%}
+.seg button{border:0;background:none;padding:8px 14px;min-height:36px;border-radius:999px;font-size:.88rem;font-weight:600;color:var(--ink2)}
+.seg button[aria-selected=true]{background:var(--ink);color:#fff}
+.stage{max-width:1120px;margin:0 auto;padding:20px 16px 48px}
+.note{max-width:760px;font-size:.88rem;color:var(--ink2);margin:0 0 16px}
+.view{display:none}.view.on{display:block}
+.row{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;justify-content:center}
+.cap{font-size:.82rem;font-weight:600;color:var(--ink2);margin:0 0 8px;text-align:center}
+.tg{display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:1px 8px;margin-left:6px;vertical-align:1px}
+.tg.old{background:var(--gray);color:var(--ink2);border:1px solid var(--line)}
+.tg.new{background:var(--b100);color:var(--blue)}
+.btn{border:1px solid var(--ctl);background:var(--bg);border-radius:999px;padding:9px 18px;min-height:40px;font-size:.95rem;font-weight:600}
+.btn.p{background:var(--blue);border-color:var(--blue);color:#fff}
+.lnk{border:0;background:none;color:var(--blue);font-weight:600;padding:8px 4px;min-height:40px;text-decoration:underline}
+.frame{background:var(--bg);border:1px solid var(--line);border-radius:14px;overflow:hidden;width:100%;max-width:880px;position:relative}
+.hdr{display:flex;align-items:center;gap:28px;padding:12px 20px;border-bottom:1px solid var(--line)}
+.logo{font-family:var(--font-display);font-weight:700;font-size:1.2rem;display:flex;align-items:center;gap:6px}
+.ring{width:18px;height:18px;border-radius:50%;border:3px solid var(--brand);border-right-color:transparent;display:inline-block}
+.nav{display:flex;gap:18px;flex:1;flex-wrap:wrap}
+.nav span{font-size:.92rem;font-weight:600;color:var(--ink2);padding:6px 2px;border-bottom:2px solid transparent}
+.nav span.on{color:var(--ink);border-bottom-color:var(--brand)}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--ink);color:#fff;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.body{padding:20px 24px 28px;min-height:340px;position:relative}
+.body h2{font-size:1.6rem;margin-bottom:16px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:var(--bg)}
+.card h3{font-size:1.1rem;margin-bottom:10px}
+.strip{background:var(--ink);color:#fff;border-radius:12px;padding:14px 18px;margin-bottom:14px}
+.strip b{font-family:var(--font-display);font-size:1.15rem;display:block}
+.strip p{margin:2px 0 0;font-size:.9rem;color:#dfe2e7}
+.steps{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:2px}
+.steps li{display:flex;align-items:center;gap:12px;padding:8px 6px;border-radius:8px;font-size:.95rem}
+.steps li.next{background:var(--b100)}
+.dot{width:24px;height:24px;border-radius:50%;border:2px solid var(--ctl);flex:none;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700}
+.done .dot{background:var(--ok-bg);border-color:var(--ok-ink);color:var(--ok-ink)}
+.next .dot{border-color:var(--brand)}
+.tag{font-size:.8rem;font-weight:600;margin-left:auto;color:var(--ok-ink)}
+.steps .btn{margin-left:auto;padding:6px 14px;min-height:36px}
+.wait .dot{border-style:dashed}
+.stepbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 24px;background:var(--b100);border-bottom:1px solid var(--line)}
+.stepbar b{font-size:.9rem}
+.stepbar p{margin:0;font-size:.9rem;flex:1;min-width:200px}
+.pbar{display:flex;gap:4px}.pbar i{width:22px;height:4px;border-radius:2px;background:var(--line)}.pbar i.f{background:var(--brand)}
+.scrim{position:absolute;inset:0;background:rgba(31,34,40,.45);display:flex;align-items:center;justify-content:center;padding:16px}
+.dlg{background:var(--bg);border-radius:12px;padding:28px;max-width:400px;width:100%;box-shadow:var(--pop)}
+.dlg h2{font-size:1.6rem;margin-bottom:10px}
+.dlg p{margin:0 0 20px}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.menu{position:absolute;right:16px;top:8px;background:var(--bg);border:1px solid var(--line);border-radius:12px;box-shadow:var(--pop);padding:6px;width:230px;z-index:2}
+.menu div{padding:9px 12px;border-radius:8px;font-size:.92rem}
+.menu .hl{background:var(--b100);font-weight:600}
+.menu small{display:block;font-size:.78rem;color:var(--ink2)}
+.panel{position:absolute;right:0;top:0;bottom:0;width:340px;max-width:100%;background:var(--bg);border-left:1px solid var(--line);padding:20px;box-shadow:var(--pop)}
+.panel h3{font-size:1.2rem;margin:56px 0 12px}
+.empty{border-radius:12px;padding:28px 16px;background:var(--gray);display:flex;justify-content:center}
+.empty .card{max-width:380px;width:100%}
+.empty .card p{margin:0 0 14px}
+.empty .card h3{margin-bottom:6px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;max-width:880px;margin:0 auto}
+.grid2 .cap{text-align:left}
+.phone{width:300px;background:#f3f5f8;border:1px solid var(--line);border-radius:28px;overflow:hidden;position:relative;height:560px;flex:none}
+.phone .scr{padding:44px 14px 90px}
+.ph-title{font-family:var(--font-display);font-weight:700;font-size:1.5rem;display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.hero{background:var(--ink);color:#fff;border-radius:16px;padding:14px}
+.hero b{font-family:var(--font-display);font-size:1.3rem}
+.hero .btn{background:#fff;border-color:#fff;color:var(--ink);margin-top:12px;width:100%}
+.mcard{background:#fff;border-radius:14px;padding:12px;margin-top:8px;font-size:.88rem}
+/* isla: 4 pestañas solo íconos, tamaño fijo */
+.island{position:absolute;left:50%;transform:translateX(-50%);bottom:18px;background:#fff;border-radius:999px;box-shadow:var(--pop);display:flex;padding:5px;z-index:4;position:absolute}
+.island span{width:60px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:999px;color:var(--ink2);position:relative}
+.island span.on{background:var(--b100);color:var(--blue)}
+.island span.tgt:after{content:"";position:absolute;inset:-3px 6px;border:2px solid var(--blue);border-radius:999px}
+.island svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mark{position:absolute;left:14px;right:14px;bottom:80px;background:var(--ink);color:#fff;border-radius:14px;padding:14px;z-index:3}
+.mark p{margin:0 0 10px;font-size:.9rem}
+.mark .acts{justify-content:space-between;align-items:center}
+.mark .btn.p{background:#fff;border-color:#fff;color:var(--ink)}
+.mark .lnk{color:#fff}
+.mark:after{content:"";position:absolute;bottom:-7px;width:14px;height:14px;background:var(--ink);transform:rotate(45deg);left:var(--ax,50%);margin-left:-7px}
+.dim{position:absolute;inset:0;background:rgba(31,34,40,.35);z-index:2}
+.seg2{display:flex;gap:4px;background:var(--gray);border-radius:999px;padding:3px;margin:0 0 14px;width:fit-content}
+.seg2 button{border:0;background:none;padding:8px 16px;border-radius:999px;font-weight:600;min-height:36px;color:var(--ink2)}
+.seg2 button[aria-selected=true]{background:var(--ink);color:#fff}
+.auth{max-width:420px;margin:0 auto;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:28px}
+.auth h2{font-size:1.6rem;margin-bottom:8px}
+@media (max-width:640px){.hdr{gap:12px;padding:10px 14px}.body{padding:16px 14px}.stepbar{padding:10px 14px}.panel{position:static;width:auto;box-shadow:none}.panel h3{margin-top:0}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></symbol>
+  <symbol id="i-bar" viewBox="0 0 24 24"><path d="M3 12h18M6 8v8M18 8v8M3 10v4M21 10v4"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M5 5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8l-5 4v-4H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></symbol>
+</svg>
+<div class="top">
+  <h1>Tour de primer uso <span class="tg new">v2 · origin/main 76555e5</span></h1>
+  <div class="seg" role="tablist" aria-label="Pantallas">
+    <button role="tab" aria-selected="true" data-v="c1">Coach: Inicio</button>
+    <button role="tab" aria-selected="false" data-v="c2">Coach: paso 2</button>
+    <button role="tab" aria-selected="false" data-v="c3">Coach: pausa y cierre</button>
+    <button role="tab" aria-selected="false" data-v="c4">Coach: Cómo usar Cycles</button>
+    <button role="tab" aria-selected="false" data-v="c5">Coach: estados vacíos</button>
+    <button role="tab" aria-selected="false" data-v="a1">Atleta: traspaso</button>
+    <button role="tab" aria-selected="false" data-v="a2">Atleta: tour móvil</button>
+    <button role="tab" aria-selected="false" data-v="a3">Atleta: primera sesión</button>
+    <button role="tab" aria-selected="false" data-v="a4">Atleta: estados vacíos</button>
+  </div>
+</div>
+<div class="stage">
+
+<section class="view on" id="c1">
+  <p class="note">Primera vez de la coach, después de registrarse con el enlace privado, verificar el email y entrar. Bienvenida una sola vez y la tarjeta «Empieza con Cycles», que reemplaza la franja actual «Empieza invitando a un atleta» mientras la guía esté activa. El progreso sale de los datos: aquí ya creó su rutina.</p>
+  <div class="row">
+    <div><p class="cap">Hoy: franja de Inicio sin atletas <span class="tg old">ya existe</span></p>
+      <div class="frame" style="max-width:420px"><div class="hdr"><span class="logo"><i class="ring"></i>Cycles</span><div class="nav"><span class="on">Inicio</span></div><span class="avatar">LG</span></div>
+        <div class="body" style="min-height:0"><h2>Inicio</h2><div class="strip"><b>Empieza invitando a un atleta</b><p>Cuando acepte tu invitación, aquí verás cómo le va.</p><p style="margin-top:8px"><u>Invitar atleta</u></p></div></div></div></div>
+    <div><p class="cap">Bienvenida <span class="tg new">nuevo</span></p>
+      <div class="frame" style="max-width:440px"><div class="hdr"><span class="logo"><i class="ring"></i>Cycles</span><div class="nav"><span class="on">Inicio</span><span>Atletas</span><span>Biblioteca</span></div><span class="avatar">LG</span></div>
+        <div class="body" style="min-height:300px"><h2>Inicio</h2>
+          <div class="scrim" role="dialog" aria-labelledby="w1"><div class="dlg"><h2 id="w1">Te damos la bienvenida a Cycles</h2><p>Vamos a dejar a tu atleta listo para entrenar. Son cuatro pasos y puedes salir cuando quieras.</p><div class="acts"><button class="btn p">Empezar</button><button class="btn">Ahora no</button></div></div></div></div></div></div>
+    <div style="flex:1;min-width:320px"><p class="cap">Inicio con la tarjeta <span class="tg new">nuevo</span></p>
+      <div class="frame"><div class="hdr"><span class="logo"><i class="ring"></i>Cycles</span><div class="nav"><span class="on">Inicio</span><span>Atletas</span><span>Biblioteca</span><span>Ejercicios</span></div><span class="avatar">LG</span></div>
+        <div class="body"><h2>Inicio</h2>
+          <div class="card"><h3>Empieza con Cycles</h3>
+            <ul class="steps">
+              <li class="done"><span class="dot" aria-hidden="true">✓</span>Crea tu primera rutina<span class="tag">Hecho</span></li>
+              <li class="next"><span class="dot">2</span>Invita a tu atleta<button class="btn p">Invitar atleta</button></li>
+              <li><span class="dot">3</span>Espera su aceptación</li>
+              <li><span class="dot">4</span>Crea su ciclo y asigna la primera sesión</li>
+            </ul><button class="lnk">No quiero la guía</button></div></div></div></div>
+  </div>
+</section>
+
+<section class="view" id="c2">
+  <p class="note">La barra de paso se queda arriba de la pantalla real. Aquí, Atletas con el formulario de invitar, que hoy ya aparece abierto cuando no hay atletas.</p>
+  <div class="row"><div class="frame">
+    <div class="hdr"><span class="logo"><i class="ring"></i>Cycles</span><div class="nav"><span>Inicio</span><span class="on">Atletas</span><span>Biblioteca</span><span>Ejercicios</span></div><span class="avatar">LG</span></div>
+    <div class="stepbar" role="region" aria-label="Guía de inicio">
+      <div><b>Paso 2 de 4</b><div class="pbar" aria-hidden="true"><i class="f"></i><i class="f"></i><i></i><i></i></div></div>
+      <p>Invita a tu atleta. Escribe su nombre y su email, el mismo con el que se registre. Le llega un correo para entrar.</p>
+      <button class="lnk">Salir</button></div>
+    <div class="body"><h2>Atletas</h2>
+      <div class="card" style="max-width:420px"><h3>Invita a tu primer atleta</h3>
+        <div style="display:grid;gap:12px"><div><label style="font-size:.85rem;font-weight:600">Nombre</label><div style="border:1px solid var(--ctl);border-radius:8px;padding:9px 12px">Camila Rojas</div></div>
+        <div><label style="font-size:.85rem;font-weight:600">Email</label><div style="border:1px solid var(--ctl);border-radius:8px;padding:9px 12px">camila@ejemplo.com</div></div>
+        <div class="acts"><button class="btn p">Enviar invitación</button></div></div></div></div>
+  </div></div>
+</section>
+
+<section class="view" id="c3">
+  <p class="note">Paso 3 es una pausa, no una pantalla de espera. Al asignar la primera sesión en la pizarra del ciclo, el ciclo se activa solo y un cierre lo dice con claridad.</p>
+  <div class="grid2">
+    <div><p class="cap">Pausa: esperando</p>
+      <div class="frame"><div class="body" style="min-height:0"><div class="card"><h3>Esperando a Camila</h3>
+        <ul class="steps"><li class="done"><span class="dot">✓</span>Crea tu primera rutina<span class="tag">Hecho</span></li><li class="done"><span class="dot">✓</span>Invita a tu atleta<span class="tag">Hecho</span></li><li class="next wait"><span class="dot">3</span>Camila aún no acepta</li><li><span class="dot">4</span>Crea su ciclo y asigna la primera sesión</li></ul>
+        <div class="acts"><button class="btn">Reenviar invitación</button><button class="lnk">Seguir con la app</button></div></div></div></div></div>
+    <div><p class="cap">Retorno: ya aceptó</p>
+      <div class="frame"><div class="body" style="min-height:0"><div class="card"><h3>Camila ya aceptó. Crea su ciclo.</h3>
+        <ul class="steps"><li class="done"><span class="dot">✓</span>Crea tu primera rutina<span class="tag">Hecho</span></li><li class="done"><span class="dot">✓</span>Invita a tu atleta<span class="tag">Hecho</span></li><li class="done"><span class="dot">✓</span>Camila aceptó<span class="tag">Hecho</span></li><li class="next"><span class="dot">4</span>Crea su ciclo y asigna la primera sesión<button class="btn p">Crear ciclo</button></li></ul></div></div></div></div>
+    <div style="grid-column:1/-1"><p class="cap">Paso 4 en la pizarra y cierre</p>
+      <div class="frame" style="margin:0 auto"><div class="stepbar" role="region" aria-label="Guía de inicio"><div><b>Paso 4 de 4</b><div class="pbar" aria-hidden="true"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i></div></div><p>Toca «+» en un día para asignar una rutina. Con la primera sesión, el ciclo queda activo.</p><button class="lnk">Salir</button></div>
+      <div class="body" style="min-height:260px"><div class="scrim" style="background:rgba(31,34,40,.2)" role="dialog" aria-labelledby="w2"><div class="dlg"><h2 id="w2">Tu atleta ya puede entrenar</h2><p>El ciclo está activo y Camila verá su primera sesión en Hoy. Desde Inicio ves quién necesita tu atención.</p><div class="acts"><button class="btn p">Ir a Inicio</button></div></div></div></div></div></div>
+  </div>
+</section>
+
+<section class="view" id="c4">
+  <p class="note">Acceso permanente: «Cómo usar Cycles» en el menú de usuario, entre Mi cuenta y Cerrar sesión.</p>
+  <div class="row"><div class="frame">
+    <div class="hdr"><span class="logo"><i class="ring"></i>Cycles</span><div class="nav"><span class="on">Inicio</span><span>Atletas</span><span>Biblioteca</span><span>Ejercicios</span></div><span class="avatar">LG</span></div>
+    <div class="body" style="min-height:380px"><h2>Inicio</h2>
+      <div class="menu"><div>Laura Gómez<small>laura@ejemplo.com</small></div><div>Mi cuenta</div><div class="hl">Cómo usar Cycles</div><div>Cerrar sesión</div></div>
+      <div class="panel"><h3>Cómo usar Cycles</h3>
+        <ul class="steps"><li class="done"><span class="dot">✓</span>Crea tu primera rutina<span class="tag">Hecho</span></li><li class="done"><span class="dot">✓</span>Invita a tu atleta<span class="tag">Hecho</span></li><li class="next"><span class="dot">3</span>Espera su aceptación</li><li><span class="dot">4</span>Crea su ciclo y asigna la primera sesión</li></ul>
+        <div class="acts"><button class="btn p">Volver a ver la guía</button><button class="btn">Abrir el manual</button></div></div></div>
+  </div></div>
+</section>
+
+<section class="view" id="c5">
+  <p class="note">CYC-75. Solo se diseña lo que falta o cambia; lo que ya existe en la app se conserva con su texto actual.</p>
+  <div class="grid2">
+    <div><p class="cap">Biblioteca vacía <span class="tg old">ya existe</span></p><div class="empty"><div class="card"><h3>Tu biblioteca está vacía</h3><p>Aquí vivirán tus rutinas y tus ciclos. Empieza armando una rutina; después puedes combinarlas en un ciclo.</p><div class="acts"><button class="btn p">Crear rutina</button><button class="btn">Crear ciclo</button></div></div></div></div>
+    <div><p class="cap">Ejercicios, Míos <span class="tg old">ya existe</span></p><div class="empty"><div class="card"><h3>Todavía no creaste ejercicios</h3><p>Aquí van los que crees tú. El catálogo de Cycles ya tiene 120 para empezar.</p><button class="btn p">Nuevo ejercicio</button></div></div></div>
+    <div><p class="cap">Atletas, sin atletas <span class="tg old">ya existe</span></p><div class="empty"><div class="card"><h3>Invita a tu primer atleta</h3><p>Formulario abierto con nombre, email y <b>Enviar invitación</b>.</p></div></div></div>
+    <div><p class="cap">Inicio, sin atletas y con guía descartada <span class="tg old">ya existe</span></p><div class="empty"><div class="card"><h3>Empieza invitando a un atleta</h3><p>Cuando acepte tu invitación, aquí verás cómo le va.</p><button class="btn p">Invitar atleta</button></div></div></div>
+    <div><p class="cap">Crear ciclo, sin atletas activos <span class="tg new">nuevo</span></p><div class="empty"><div class="card"><h3>Falta que tu atleta acepte</h3><p>Para crear un ciclo necesitas un atleta que ya haya aceptado su invitación.</p><button class="btn p">Ver invitaciones</button></div></div></div>
+  </div>
+</section>
+
+<section class="view" id="a1">
+  <p class="note">Reemplaza la pantalla «Listo» al aceptar la invitación en el navegador del celular. Si la API ya sabe qué teléfono eligió en el registro, muestra directo el bloque que corresponde.</p>
+  <div class="row"><div class="auth">
+    <h2>Tu cuenta está lista</h2>
+    <p style="margin:0 0 14px">Entrenas desde la app. Entra con camila@ejemplo.com.</p>
+    <div class="seg2" role="tablist" aria-label="Tu celular"><button role="tab" aria-selected="true" data-t="ios">iPhone</button><button role="tab" aria-selected="false" data-t="and">Android</button></div>
+    <div id="t-ios"><p style="margin:0 0 14px">Instala Cycles con TestFlight. Te invitamos al correo de tu Apple ID.</p><button class="btn p">Instalar la app</button></div>
+    <div id="t-and" style="display:none"><p style="margin:0 0 14px">Abre app.getcycles.app en Chrome y agrégala a tu pantalla de inicio.</p><button class="btn p">Ver cómo</button></div>
+    <p style="margin:16px 0 0"><button class="lnk">Seguir en el navegador</button></p>
+  </div></div>
+</section>
+
+<section class="view" id="a2">
+  <p class="note">Tras la cortina de bienvenida de la app. La isla es de solo íconos y tiene 4 pestañas (Calendario, Inicio, Resumen y Asistente): por eso cada texto nombra la pestaña y el ícono explicado lleva un anillo. El Asistente queda fuera mientras sea demo.</p>
+  <div class="row">
+    <div><p class="cap">Marca 1 de 3</p><div class="phone"><div class="scr"><div class="ph-title"><i class="ring"></i>Inicio</div>
+      <div class="hero"><small>Semana 1</small><br><b>Torso A</b><button class="btn">Empezar sesión</button></div><div class="mcard">Press banca · 4 × 8</div><div class="mcard">Remo con barra · 4 × 10</div></div>
+      <div class="dim"></div><div class="mark" style="--ax:40%" role="dialog" aria-label="Marca 1 de 3"><p>En Inicio está tu sesión de hoy. Toca <b>Empezar sesión</b> cuando vayas a entrenar.</p><div class="acts"><button class="lnk">Saltar</button><button class="btn p">Siguiente</button></div></div>
+      <div class="island"><span><svg><use href="#i-cal"/></svg></span><span class="on tgt"><svg><use href="#i-bar"/></svg></span><span><svg><use href="#i-chart"/></svg></span><span><svg><use href="#i-chat"/></svg></span></div></div></div>
+    <div><p class="cap">Marca 2 de 3</p><div class="phone"><div class="scr"><div class="ph-title"><i class="ring"></i>Calendario</div><div class="mcard">Semana 1 de 4</div><div class="mcard">Lun · Torso A</div><div class="mcard">Mié · Pierna</div></div>
+      <div class="dim"></div><div class="mark" style="--ax:23%" role="dialog" aria-label="Marca 2 de 3"><p>En Calendario ves tu semana y todo tu ciclo.</p><div class="acts"><button class="lnk">Saltar</button><button class="btn p">Siguiente</button></div></div>
+      <div class="island"><span class="on tgt"><svg><use href="#i-cal"/></svg></span><span><svg><use href="#i-bar"/></svg></span><span><svg><use href="#i-chart"/></svg></span><span><svg><use href="#i-chat"/></svg></span></div></div></div>
+    <div><p class="cap">Marca 3 de 3</p><div class="phone"><div class="scr"><div class="ph-title"><i class="ring"></i>Resumen</div><div class="mcard">Carga por grupo muscular</div><div class="mcard">Series registradas</div></div>
+      <div class="dim"></div><div class="mark" style="--ax:57%" role="dialog" aria-label="Marca 3 de 3"><p>En Resumen ves tu carga y tu avance, a medida que registras.</p><div class="acts"><button class="lnk">Saltar</button><button class="btn p">Listo</button></div></div>
+      <div class="island"><span><svg><use href="#i-cal"/></svg></span><span><svg><use href="#i-bar"/></svg></span><span class="on tgt"><svg><use href="#i-chart"/></svg></span><span><svg><use href="#i-chat"/></svg></span></div></div></div>
+  </div>
+</section>
+
+<section class="view" id="a3">
+  <p class="note">Dos apoyos dentro del uso real, una sola vez cada uno: la pista de la primera serie (menciona el descanso) y el cierre de la primera sesión.</p>
+  <div class="row">
+    <div><p class="cap">Pista de la primera serie</p><div class="phone"><div class="scr"><div class="ph-title">Press banca</div><div class="mcard"><b>Serie 1 de 4</b><div style="margin-top:10px;font-weight:700">Reps 8 · Peso 60 kg</div><button class="btn p" style="margin-top:12px;width:100%">Registrar serie</button></div></div>
+      <div class="mark" style="bottom:20px;--ax:50%" role="dialog" aria-label="Pista"><p>Ajusta reps y peso con − y +, y toca <b>Registrar serie</b>. Después te preguntamos cuántas reps más podías hacer. Entre series corre el descanso.</p><div class="acts" style="justify-content:flex-end"><button class="btn p">Entendido</button></div></div></div></div>
+    <div><p class="cap">Cierre de la primera sesión</p><div class="phone"><div class="scr" style="padding-top:120px;text-align:center"><div style="width:56px;height:56px;border-radius:50%;background:var(--ok-bg);color:var(--ok-ink);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:1.5rem;font-weight:700" aria-hidden="true">✓</div><h2 style="font-size:1.4rem;margin-bottom:8px">Primera sesión guardada</h2><p style="margin:0 0 20px">Tu coach ya puede verla.</p><button class="btn p">Volver a Inicio</button></div></div></div>
+  </div>
+</section>
+
+<section class="view" id="a4">
+  <p class="note">CYC-76. Hoy distingue tres casos que la app mezcla: sin coach (ya resuelto), con coach y sin ciclo, y con ciclo y al día. Calendario y Resumen móvil conservan su texto actual.</p>
+  <div class="grid2">
+    <div><p class="cap">Hoy, se registró solo y sin coach <span class="tg old">ya existe</span></p><div class="empty"><div class="card"><h3>Falta tu coach</h3><p>Pídele que te invite a Cycles con el correo camila@ejemplo.com. Cuando aceptes la invitación, tus entrenamientos aparecerán aquí.</p></div></div></div>
+    <div><p class="cap">Hoy, con coach y sin ciclo <span class="tg new">nuevo</span></p><div class="empty"><div class="card"><h3>Tu coach está preparando tu ciclo</h3><p>Cuando te asigne tu primera sesión, la verás aquí.</p></div></div></div>
+    <div><p class="cap">Hoy, con ciclo y sin sesión pendiente <span class="tg new">cambia</span></p><div class="empty"><div class="card"><h3>Hoy no tienes sesión</h3><p>Descansa.</p></div></div></div>
+    <div><p class="cap">Mis ciclos (web), vacío <span class="tg new">nuevo</span></p><div class="empty"><div class="card"><h3>Aún no tienes ciclos</h3><p>Aparecerán cuando tu coach te asigne uno.</p></div></div></div>
+    <div><p class="cap">Calendario y Resumen (móvil) <span class="tg old">ya existe</span></p><div class="empty"><div class="card"><h3>Aún no tienes un ciclo activo</h3><p>Cuando tu coach active uno, verás tus sesiones aquí.</p></div></div></div>
+  </div>
+</section>
+
+</div>
+<script>
+const tabs=document.querySelectorAll('.top .seg [role=tab]');
+tabs.forEach(b=>b.addEventListener('click',()=>{
+  tabs.forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id===b.dataset.v));
+}));
+document.querySelectorAll('.seg2 [role=tab]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.seg2 [role=tab]').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.getElementById('t-ios').style.display=b.dataset.t==='ios'?'':'none';
+  document.getElementById('t-and').style.display=b.dataset.t==='and'?'':'none';
+}));
+</script>
+</body>
+</html>
