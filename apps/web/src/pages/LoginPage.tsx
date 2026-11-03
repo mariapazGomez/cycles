@@ -6,6 +6,7 @@ import { GoogleButton } from "../components/GoogleButton";
 import { ApiError } from "../services/httpClient";
 import { REGISTRATION_OPEN } from "../lib/features";
 import { track } from "../lib/analytics";
+import { PasswordField } from "../components/PasswordField";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -64,17 +65,7 @@ export function LoginPage() {
           />
         </div>
 
-        <div className="field">
-          <label htmlFor="password">Contraseña</label>
-          <input
-            id="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
+        <PasswordField id="password" label="Contraseña" autoComplete="current-password" value={password} onChange={setPassword} />
 
         <p className="auth-footer" style={{ textAlign: "right", margin: "-8px 0 16px" }}>
           <Link to="/forgot-password">¿Olvidaste tu contraseña?</Link>

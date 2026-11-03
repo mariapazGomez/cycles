@@ -7,6 +7,7 @@ import * as athletesApi from "../services/athletesApi";
 import { ApiError } from "../services/httpClient";
 import { PolicyCheckbox } from "../components/PolicyCheckbox";
 import { track } from "../lib/analytics";
+import { PasswordField } from "../components/PasswordField";
 
 export function AcceptInvitationPage() {
   const [searchParams] = useSearchParams();
@@ -128,31 +129,8 @@ export function AcceptInvitationPage() {
       <form onSubmit={handleSubmit} noValidate>
         {!hasAccount && (
           <>
-            <div className="field">
-              <label htmlFor="password">Contraseña</label>
-              <input
-                id="password"
-                type="password"
-                autoComplete="new-password"
-                minLength={8}
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-
-            <div className="field">
-              <label htmlFor="confirmPassword">Confirmar contraseña</label>
-              <input
-                id="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                minLength={8}
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            </div>
+            <PasswordField id="password" label="Contraseña" autoComplete="new-password" minLength={8} value={password} onChange={setPassword} />
+            <PasswordField id="confirmPassword" label="Confirmar contraseña" autoComplete="new-password" minLength={8} value={confirmPassword} onChange={setConfirmPassword} />
           </>
         )}
 

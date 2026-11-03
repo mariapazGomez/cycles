@@ -9,6 +9,7 @@ import { RoleChoice } from "../components/RoleChoice";
 import { PolicyCheckbox } from "../components/PolicyCheckbox";
 import { REGISTRATION_OPEN, clearAccessCode } from "../lib/features";
 import { track } from "../lib/analytics";
+import { PasswordField } from "../components/PasswordField";
 
 // `accessCode` viene del enlace privado del piloto; con el registro abierto no hace falta.
 export function RegisterPage({ accessCode }: { accessCode?: string | null }) {
@@ -104,18 +105,7 @@ export function RegisterPage({ accessCode }: { accessCode?: string | null }) {
           />
         </div>
 
-        <div className="field">
-          <label htmlFor="password">Contraseña</label>
-          <input
-            id="password"
-            type="password"
-            autoComplete="new-password"
-            minLength={8}
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
+        <PasswordField id="password" label="Contraseña" autoComplete="new-password" minLength={8} value={password} onChange={setPassword} />
 
         {role === "athlete" && (
           <fieldset className="field phone-choice">
