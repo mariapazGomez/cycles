@@ -1719,6 +1719,51 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
+  - RNNotifee (10.10.0):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-bridging
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - RNNotifee/NotifeeCore (= 10.10.0)
+    - Yoga
+  - RNNotifee/NotifeeCore (10.10.0):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-bridging
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
   - RNScreens (4.28.0):
     - hermes-engine
     - RCTRequired
@@ -1905,6 +1950,7 @@ DEPENDENCIES:
   - ReactNativeDependencies (from `../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec`)
   - "RNAppleAuthentication (from `../../../node_modules/@invertase/react-native-apple-authentication`)"
   - RNKeychain (from `../../../node_modules/react-native-keychain`)
+  - RNNotifee (from `../node_modules/react-native-notify-kit`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - SocketRocket (from `build/rndeps-facades/SocketRocket`)
@@ -2086,6 +2132,8 @@ EXTERNAL SOURCES:
     :path: "../../../node_modules/@invertase/react-native-apple-authentication"
   RNKeychain:
     :path: "../../../node_modules/react-native-keychain"
+  RNNotifee:
+    :path: "../node_modules/react-native-notify-kit"
   RNScreens:
     :path: "../node_modules/react-native-screens"
   RNSVG:
@@ -2183,6 +2231,7 @@ SPEC CHECKSUMS:
   ReactNativeDependencies: 94c922c39e0e6150ee9ad05e2ca1946e0ef55783
   RNAppleAuthentication: d6fe579e5f43cf8db54bdc48518bccea61c592a4
   RNKeychain: c21223f99385f30e3353355f1a130c150f23c96d
+  RNNotifee: f8264129eb92ff4f0f4eb0019713a364408a9c53
   RNScreens: b156e2601e24bf64c2a7325fd033e2bcc221ef55
   RNSVG: df7b2c0679ac7b9a668af6c6b40e2c6cb4df88f5
   SocketRocket: d57b1af80c029e12a75cd9b218287c67381e4593
