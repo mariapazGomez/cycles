@@ -18,7 +18,7 @@ function setup(user: object | null, opts: { mailFails?: boolean } = {}) {
     sendPasswordResetEmail: jest.fn(() => (opts.mailFails ? Promise.reject(new Error("Resend caído")) : slow(undefined))),
     sendVerificationEmail: jest.fn(() => slow(undefined)),
   };
-  const service = new AuthService(prisma as never, {} as never, { get: jest.fn() } as never, mail as never, {} as never, {} as never, {} as never);
+  const service = new AuthService(prisma as never, {} as never, { get: jest.fn() } as never, mail as never, {} as never, {} as never, {} as never, { recordRegistration: jest.fn(), onEmailVerified: jest.fn() } as never);
   return { service, prisma, mail };
 }
 

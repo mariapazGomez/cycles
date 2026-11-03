@@ -23,6 +23,9 @@ export function register(data: {
   dataConsent: boolean;
   acceptPolicy: boolean;
   accessCode?: string;
+  // Solo atletas: con iPhone se invita a TestFlight al correo del Apple ID.
+  phonePlatform?: "ios" | "android";
+  appleIdEmail?: string;
 }) {
   return apiRequest<{ id: string; email: string }>("/auth/register", {
     method: "POST",

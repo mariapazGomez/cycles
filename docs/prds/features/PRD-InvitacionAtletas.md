@@ -91,6 +91,10 @@ model AthleteInvitationToken {
 - % de invitaciones enviadas que terminan aceptadas.
 - Tiempo entre invitación enviada y aceptación.
 
+## 10.1 Invitación a TestFlight desde el registro (CYC-194, 2026-11-02)
+
+El atleta que se **registra solo** (no el que acepta la invitación de un coach ni el que entra con Google) elige «¿Qué teléfono usas?». Con iPhone, la API lo agrega al grupo externo «Piloto» de TestFlight con el correo de su Apple ID (precargado con el de la cuenta, editable); con Android recibe un correo con el acceso web. Se invita **al verificar el correo de la cuenta**, nunca antes. Un fallo de Apple no bloquea el registro: queda `failed` y se reintenta con `POST /internal/testflight/retry`. Modelo: `User.phonePlatform` y tabla `BetaInvite` (correo único, estado, intentos). Operación, variables y creación de la llave: `docs/deploy/TESTFLIGHT-AUTOMATICO.md`. La política de privacidad sube a la versión 1.2.
+
 ## 11. Estado y decisiones abiertas
 
 - Aceptación vía Google pospuesta (ver sección 3) — se retoma cuando se configuren credenciales reales de Google OAuth.

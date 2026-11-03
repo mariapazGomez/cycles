@@ -24,7 +24,7 @@ function setup(opts: {
     verify: jest.fn().mockResolvedValue(opts.verified ?? { subject: "s1", email: "ana@x.cl", emailVerified: true }),
   };
   const config = { get: (key: string) => (key === "REGISTRATION_OPEN" && opts.open ? "true" : undefined) };
-  const service = new AuthService(prisma as never, {} as never, config as never, {} as never, {} as never, {} as never, verifier as never);
+  const service = new AuthService(prisma as never, {} as never, config as never, {} as never, {} as never, {} as never, verifier as never, { recordRegistration: jest.fn(), onEmailVerified: jest.fn() } as never);
   const issue = jest.spyOn(service as never, "issueTokenPair" as never).mockImplementation(((u: { id: string }) =>
     Promise.resolve({ accessToken: `a-${u.id}`, refreshToken: "r" })) as never);
   return { service, prisma, verifier, issue };

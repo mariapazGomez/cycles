@@ -19,6 +19,9 @@ export function RegisterPage({ accessCode }: { accessCode?: string | null }) {
   const [password, setPassword] = useState("");
   const [dataConsent, setDataConsent] = useState(false);
   const [acceptPolicy, setAcceptPolicy] = useState(false);
+  const [phone, setPhone] = useState<"ios" | "android" | "">("");
+  // El correo del Apple ID viene del de la cuenta mientras no se escriba otro.
+  const [appleEmail, setAppleEmail] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
 
   const mutation = useMutation({
@@ -47,7 +50,22 @@ export function RegisterPage({ accessCode }: { accessCode?: string | null }) {
       return;
     }
 
-    mutation.mutate({ role, name, email, password, dataConsent, acceptPolicy, ...(accessCode ? { accessCode } : {}) });
+    if (role === "athlete" && !phone) {
+      setFormError("Elige qué teléfono usas: iPhone o Android.");
+      return;
+    }
+
+    mutation.mutate({
+      role,
+      name,
+      email,
+      password,
+      dataConsent,
+      acceptPolicy,
+      ...(accessCode ? { accessCode } : {}),
+      ...(role === "athlete" && phone ? { phonePlatform: phone } : {}),
+      ...(role === "athlete" && phone === "ios" ? { appleIdEmail: (appleEmail ?? email).trim() } : {}),
+    });
   }
 
   return (
@@ -98,6 +116,42 @@ export function RegisterPage({ accessCode }: { accessCode?: string | null }) {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
+
+        {role === "athlete" && (
+          <fieldset className="field phone-choice">
+            <legend>¿Qué teléfono usas?</legend>
+            <label className="checkbox-field">
+              <input type="radio" name="phone" checked={phone === "ios"} onChange={() => setPhone("ios")} />
+              <span>iPhone</span>
+            </label>
+            <label className="checkbox-field">
+              <input type="radio" name="phone" checked={phone === "android"} onChange={() => setPhone("android")} />
+              <span>Android</span>
+            </label>
+            {phone === "ios" && (
+              <>
+                <label htmlFor="appleEmail">Correo de tu Apple ID</label>
+                <input
+                  id="appleEmail"
+                  type="email"
+                  autoComplete="off"
+                  value={appleEmail ?? email}
+                  onChange={(e) => setAppleEmail(e.target.value)}
+                />
+                <p className="auth-note">
+                  Lo usamos solo para invitarte a instalar la app con TestFlight de Apple. Puede ser distinto del
+                  correo de tu cuenta de Cycles.
+                </p>
+              </>
+            )}
+            {phone === "android" && (
+              <p className="auth-note">
+                La app para Android aún no está en Google Play. Te enviamos un correo para que uses Cycles desde el
+                navegador de tu celular.
+              </p>
+            )}
+          </fieldset>
+        )}
 
         <label className="checkbox-field">
           <input
