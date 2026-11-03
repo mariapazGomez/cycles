@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Panel de administración Cycles</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&display=swap">
+<style>
+/* Concepto: un panel de lectura densa para una sola persona. Tablas claras, totales reales siempre separados de las cuentas demo y cada estado dicho con texto, no solo con color. Radios de la escala de CYC-206 (4/6/8/10). Contrastado con origin/main de25ad6. Solo modo claro. Datos de ejemplo. */
+:root{
+  --font-display:"Bricolage Grotesque","Inter",system-ui,sans-serif;--font-body:"Inter",system-ui,sans-serif;
+  --brand:#3080fc;--blue:#1a66dd;--blue-100:#eaf2ff;--bg:#fff;--ink:#1f2228;--ink2:#5c6068;--gray:#f6f7f9;--line:#dfe2e7;--page:#f3f5f8;--ctl:#8a8f98;
+  --ok-bg:#e9f5ec;--ok-ink:#1e6b32;--warn-bg:#fff1e3;--warn-ink:#9a4a00;--pain-bg:#fdecec;--pain-ink:#a3282c;
+  --e1:0 0 0 1px rgba(31,34,40,.06),0 1px 2px rgba(31,34,40,.06),0 3px 8px -2px rgba(31,34,40,.08);--pop:0 8px 24px -8px rgba(0,0,0,.18);
+  --radius-xs:4px;--radius-sm:6px;--radius-md:8px;--radius-lg:10px;--radius-pill:999px;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5}
+button,input,select{font:inherit;color:inherit}button{cursor:pointer}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+h1,h2,h3{font-family:var(--font-display);margin:0}
+.ctl{max-width:1180px;margin:0 auto;padding:16px 16px 0;display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center}
+.ctl h1{font-size:1.3rem;width:100%}
+.grp{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.grp>span{font-size:.78rem;font-weight:700;color:var(--ink2)}
+.seg{display:flex;flex-wrap:wrap;gap:3px;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);padding:3px}
+.seg button{border:0;background:none;padding:6px 12px;min-height:34px;border-radius:var(--radius-sm);font-size:.84rem;font-weight:600;color:var(--ink2)}
+.seg button[aria-pressed=true]{background:var(--ink);color:#fff}
+.note{max-width:1180px;margin:10px auto 0;padding:0 16px;font-size:.86rem;color:var(--ink2)}
+.stage{padding:16px}
+.win{margin:0 auto;background:var(--page);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden}
+.app-h{display:flex;align-items:center;gap:24px;padding:12px 24px;background:var(--bg);border-bottom:1px solid var(--line)}
+.app-h b{font-family:var(--font-display);font-size:1.15rem}.app-h .n{display:flex;gap:18px;font-size:.9rem;font-weight:600;color:var(--ink2)}
+.app-h .n .on{color:var(--ink);border-bottom:2px solid var(--brand)}
+.av{margin-left:auto;width:34px;height:34px;border-radius:50%;background:var(--ink);color:#fff;font-size:.78rem;font-weight:700;display:flex;align-items:center;justify-content:center;position:relative}
+.menu{position:absolute;right:0;top:42px;width:230px;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--pop);padding:6px;text-align:left;z-index:5;color:var(--ink);font-weight:500}
+.menu div{padding:9px 12px;border-radius:var(--radius-sm);font-size:.9rem}.menu small{display:block;color:var(--ink2);font-size:.78rem}
+.menu hr{border:0;border-top:1px solid var(--line);margin:4px 0}.menu .hl{background:var(--blue-100);font-weight:700}
+.pg{padding:24px 32px 36px;max-width:1280px;margin:0 auto}.mob .pg{padding:16px}
+.pg h1{font-size:2rem;margin-bottom:14px}.mob .pg h1{font-size:1.6rem}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:18px;overflow-x:auto}
+.tabs button{border:0;background:none;padding:10px 14px;min-height:44px;font-weight:600;color:var(--ink2);border-bottom:2px solid transparent;white-space:nowrap}
+.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--brand)}
+.card{background:var(--bg);border-radius:var(--radius-lg);box-shadow:var(--e1);padding:16px 18px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.kpi b{display:block;font-family:var(--font-display);font-size:1.8rem;line-height:1.1}.kpi span{font-size:.84rem;color:var(--ink2)}
+.kpi.demo{background:var(--gray);box-shadow:inset 0 0 0 1px var(--line)}
+.bars{display:flex;align-items:flex-end;gap:6px;height:44px;margin-top:8px}.bars i{flex:1;background:var(--brand);border-radius:var(--radius-xs);opacity:.85}
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+.inp{border:1px solid var(--ctl);border-radius:var(--radius-md);padding:8px 12px;min-height:40px;background:var(--bg);min-width:220px}
+.btn{border:1px solid var(--ctl);background:var(--bg);border-radius:var(--radius-md);padding:8px 16px;min-height:40px;font-weight:600;font-size:.9rem}
+.btn.p{background:var(--blue);border-color:var(--blue);color:#fff}.btn.sm{padding:4px 12px;min-height:36px}
+.tag{display:inline-block;border-radius:var(--radius-pill);padding:1px 9px;font-size:.76rem;font-weight:700;background:var(--blue-100);color:var(--blue)}
+.tag.demo{background:#e8e3f6;color:#4a2f8a}.tag.ok{background:var(--ok-bg);color:var(--ok-ink)}.tag.warn{background:var(--warn-bg);color:var(--warn-ink)}.tag.bad{background:var(--pain-bg);color:var(--pain-ink)}
+table{width:100%;border-collapse:collapse;font-size:.88rem}caption{text-align:left;font-weight:700;padding:0 0 8px;font-family:var(--font-display);font-size:1.05rem}
+th,td{text-align:left;padding:10px 10px;border-top:1px solid var(--line);vertical-align:middle}th{font-size:.76rem;color:var(--ink2);font-weight:700;border-top:0}
+th button{border:0;background:none;font-weight:700;color:var(--ink2);padding:6px 0;min-height:36px}
+tbody tr:hover{background:var(--gray)}tr.demo td:first-child{box-shadow:inset 3px 0 0 #8a63d2}
+td small{display:block;color:var(--ink2);font-size:.8rem}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.pager{display:flex;align-items:center;justify-content:space-between;margin-top:12px;font-size:.86rem;color:var(--ink2)}
+.banner{border-radius:var(--radius-md);padding:10px 14px;margin-bottom:12px;font-size:.9rem;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.banner.info{background:var(--blue-100)}.banner.err{background:var(--pain-bg);color:var(--pain-ink)}.banner.demo{background:#efeafb;color:#3d2778}
+.sk{height:14px;border-radius:var(--radius-xs);background:linear-gradient(90deg,#eceef2,#f6f7f9,#eceef2);margin:6px 0}
+.empty{text-align:center;padding:36px 16px;color:var(--ink2)}.empty h3{color:var(--ink);font-size:1.1rem;margin-bottom:4px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.lnk{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:var(--radius-md);padding:12px 14px;background:var(--bg);font-weight:600;min-height:48px}
+.lnk small{font-weight:500;color:var(--ink2)}
+.two{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px}.mob .two{display:block}.mob .two>*{margin-bottom:16px}
+.drawer{position:absolute;top:0;right:0;bottom:0;width:360px;max-width:100%;background:var(--bg);border-left:1px solid var(--line);box-shadow:var(--pop);padding:20px;z-index:4}
+.drawer h3{font-size:1.2rem;margin-bottom:12px}.field{margin-bottom:12px}.field label{display:block;font-size:.82rem;font-weight:700;margin-bottom:4px}.field .inp{width:100%}
+.rel{position:relative}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.nf{max-width:420px;margin:60px auto;text-align:center}.nf h2{font-size:1.8rem;margin-bottom:8px}.nf p{margin:0 0 16px;color:var(--ink2)}
+.cols3{display:flex;flex-wrap:wrap;gap:20px;justify-content:center}
+.cols3>div{flex:1;min-width:300px;max-width:520px}.cap{font-size:.82rem;font-weight:700;color:var(--ink2);margin:0 0 6px}
+.mob table,.mob thead,.mob tbody{display:block}.mob thead{display:none}.mob tbody tr{display:block;border-top:1px solid var(--line);padding:10px 0}
+.mob td{display:flex;justify-content:space-between;gap:12px;border:0;padding:3px 0}.mob td::before{content:attr(data-l);font-size:.76rem;font-weight:700;color:var(--ink2)}
+.mob .num{text-align:left}
+.win{container-type:inline-size}
+@container (max-width:900px){
+ .pg{padding:16px}.pg h1{font-size:1.6rem}
+ table,thead,tbody{display:block}thead{display:none}tbody tr{display:block;border-top:1px solid var(--line);padding:10px 0}
+ td{display:flex;justify-content:space-between;gap:12px;border:0;padding:3px 0}td::before{content:attr(data-l);font-size:.76rem;font-weight:700;color:var(--ink2)}
+ .num{text-align:left}.two{display:block}.two>*{margin-bottom:16px}.app-h .n{display:none}
+ td:empty{display:none}
+}
+</style>
+</head>
+<body>
+<div class="ctl">
+  <h1>Panel de administración <span class="tag">origin/main de25ad6</span></h1>
+  <div class="grp"><span>Vista</span><div class="seg" id="g-v">
+    <button aria-pressed="true" data-k="acc">Acceso</button><button aria-pressed="false" data-k="usr">Usuarios</button><button aria-pressed="false" data-k="uso">Uso</button><button aria-pressed="false" data-k="mail">Correos</button><button aria-pressed="false" data-k="enl">Enlaces y versiones</button></div></div>
+  <div class="grp"><span>Estado</span><div class="seg" id="g-s"></div></div>
+  <div class="grp"><span>Ancho</span><div class="seg" id="g-w"><button aria-pressed="true" data-k="d">Escritorio</button><button aria-pressed="false" data-k="m">Móvil 390</button></div></div>
+</div>
+<p class="note" id="note"></p>
+<div class="stage" id="stage"></div>
+
+<script>
+const STATES={acc:[['a','Administradora'],['b','Coach o atleta'],['c','Intenta entrar']],
+ usr:[['real','Reales'],['demo','Demo'],['load','Cargando'],['empty','Vacío'],['err','Error'],['detail','Detalle']],
+ uso:[['ok','Normal'],['load','Cargando'],['empty','Vacío'],['err','Error de PostHog'],['off','No conectado']],
+ mail:[['ok','Normal'],['empty','Vacío'],['edit','Editando']],enl:[['ok','Normal'],['err','Error de una versión']]};
+const NOTES={acc:'La entrada «Administración» existe solo para la administradora (isAdmin, validado también en la API). Quien intente entrar, sea coach, atleta o por URL escrita a mano, ve la misma página que una ruta inexistente: no se confirma que el panel exista.',
+ usr:'Totales reales siempre separados de las demo, que no suman en ninguna cifra. Las demo se marcan con texto «Demo» y una franja, no solo con color. Nunca se muestran contraseñas, tokens ni datos de entrenamiento.',
+ uso:'Interacciones de PostHog sin demo. PostHog guarda solo el ID interno; el nombre se cruza en el servidor. Solo web: la app iOS aún no se mide.',
+ mail:'Directorio guardado en la base de datos y editable desde el panel, sin tocar el código. Datos de ejemplo.',
+ enl:'Enlaces rápidos y versiones. De 1Password se muestra solo el nombre de la bóveda, nunca un enlace a un secreto.'};
+let v='acc',s='a',w='d';
+function seg(id,fn){document.getElementById(id).addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;fn(b.dataset.k);render()})}
+seg('g-v',k=>{v=k;s=STATES[k][0][0]});seg('g-s',k=>s=k);seg('g-w',k=>w=k);
+function states(){document.getElementById('g-s').innerHTML=STATES[v].map(x=>`<button aria-pressed="${x[0]===s}" data-k="${x[0]}">${x[1]}</button>`).join('');
+ [...document.getElementById('g-v').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===v));
+ [...document.getElementById('g-w').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===w))}
+const rows=[['Laura Gómez','laura@ejemplo.com','Coach','2 nov','Sí','v1.1','hoy'],['Camila Rojas','camila@ejemplo.com','Atleta','2 nov','Sí','v1.1','hace 1 día'],['Mateo Díaz','mateo@ejemplo.com','Atleta','30 oct','Sí','v1.1','hace 3 días'],['Valentina Soto','vale@ejemplo.com','Atleta','29 oct','No','Pendiente','Sin dato'],['Joaquín Pérez','joaquin@ejemplo.com','Coach','27 oct','Sí','v1.0','hace 6 días']];
+const demo=[['Demo Coach','demo.coach@getcycles.app','Coach','12 oct','Sí','v1.1','hace 2 días'],['Demo Atleta 1','demo.atleta1@getcycles.app','Atleta','12 oct','Sí','v1.1','hace 2 días']];
+const tbl=(r,isDemo)=>`<table><caption class="sr">${isDemo?'Cuentas demo':'Cuentas reales'}</caption><thead><tr><th>Nombre y correo</th><th>Rol</th><th><button>Registro ▾</button></th><th>Correo verificado</th><th>Política</th><th>Último ingreso</th></tr></thead><tbody>${r.map(x=>`<tr class="${isDemo?'demo':''}"><td data-l="Nombre"><b>${x[0]}</b> ${isDemo?'<span class="tag demo">Demo</span>':''}<small>${x[1]}</small></td><td data-l="Rol">${x[2]}</td><td data-l="Registro">${x[3]}</td><td data-l="Verificado"><span class="tag ${x[4]==='Sí'?'ok':'warn'}">${x[4]==='Sí'?'✓ Sí':'No'}</span></td><td data-l="Política">${x[5]==='Pendiente'?'<span class="tag warn">Pendiente</span>':x[5]}</td><td data-l="Último ingreso" title="3 nov 2026, 09:14">${x[6]==='Sin dato'?'<span class="tag">Sin dato</span>':x[6]}</td></tr>`).join('')}</tbody></table>`;
+const skel=n=>Array.from({length:n},()=>'<div class="sk"></div><div class="sk" style="width:70%"></div>').join('');
+function usr(){
+ const kp=`<div class="kpis"><div class="card kpi"><b>43</b><span>Cuentas reales</span></div><div class="card kpi"><b>12</b><span>Coaches</span></div><div class="card kpi"><b>31</b><span>Atletas</span></div><div class="card kpi"><b>9 de 12</b><span>Coaches con atletas invitados</span></div><div class="card kpi"><b>18 de 31</b><span>Atletas con una sesión</span></div><div class="card kpi"><b>+7</b><span>Registros esta semana</span><div class="bars" aria-hidden="true"><i style="height:30%"></i><i style="height:60%"></i><i style="height:20%"></i><i style="height:90%"></i><i style="height:40%"></i><i style="height:70%"></i><i style="height:50%"></i></div></div><div class="card kpi demo"><b>6</b><span>Cuentas demo (no cuentan)</span></div></div>`;
+ const tools=`<div class="tools"><div class="seg" role="group" aria-label="Tipo de cuenta"><button aria-pressed="${s!=='demo'}">Reales 43</button><button aria-pressed="${s==='demo'}">Demo 6</button></div><input class="inp" placeholder="Buscar por nombre o correo" aria-label="Buscar"><select class="inp" style="min-width:0" aria-label="Rol"><option>Todos los roles</option></select><select class="inp" style="min-width:0" aria-label="Verificación"><option>Cualquier verificación</option></select></div>`;
+ let body;
+ if(s==='load')body=kp+tools+`<div class="card">${skel(5)}</div>`;
+ else if(s==='empty')body=tools+`<div class="card empty"><h3>Aún no hay cuentas reales</h3>Cuando alguien se registre, aparecerá aquí.</div>`;
+ else if(s==='err')body=tools+`<div class="banner err" role="alert">No pudimos cargar los usuarios. Inténtalo de nuevo. <button class="btn sm">Reintentar</button></div>`;
+ else if(s==='demo')body=tools+`<div class="banner demo">Cuentas ficticias. No cuentan en ninguna métrica.</div><div class="card">${tbl(demo,true)}</div>`;
+ else body=kp+tools+`<div class="card">${tbl(rows,false)}<div class="pager"><span>1–25 de 43</span><span><button class="btn sm">Anterior</button> <button class="btn sm">Siguiente</button></span></div></div><details class="card" style="margin-top:12px"><summary style="min-height:40px;font-weight:700;cursor:pointer">Registro de consultas</summary><p style="margin:8px 0 0;font-size:.88rem">3 nov, 09:14 · Laura Gómez consultó Usuarios · 2 nov, 18:02 · Laura Gómez consultó Uso</p></details>`;
+ let dr='';
+ if(s==='detail')dr=`<div class="drawer" role="dialog" aria-label="Detalle"><h3>Camila Rojas</h3><table><tbody><tr><td>Rol</td><td>Atleta</td></tr><tr><td>Teléfono</td><td>iPhone</td></tr><tr><td>Tour de primer uso</td><td>Terminado</td></tr><tr><td>Coach</td><td>Laura Gómez</td></tr><tr><td>Política</td><td>v1.1</td></tr></tbody></table><p style="font-size:.84rem;color:var(--ink2)">No se muestran contraseñas, tokens ni datos de entrenamiento.</p><button class="btn">Ver uso</button> <button class="btn">Cerrar</button></div>`;
+ return (s==='detail'?kp+tools+`<div class="card">${tbl(rows,false)}</div>`:body)+dr}
+const uses=[['Laura Gómez','Coach',48,12,6,3,'—','hoy'],['Camila Rojas','Atleta',31,9,'—','—',5,'hace 1 día'],['Mateo Díaz','Atleta',22,6,'—','—',3,'hace 3 días'],['Joaquín Pérez','Coach',14,3,2,1,'—','hace 6 días']];
+const scr=[['/',64],['/athletes',28],['/biblioteca',21],['/cycles/:id',17],['/sessions/:id/registro',9]];
+function uso(){
+ const tools=`<div class="tools"><div class="seg"><button aria-pressed="false">7 días</button><button aria-pressed="true">30 días</button></div><span class="tag">Sin cuentas demo</span><span style="flex:1"></span><a class="btn" href="#">Abrir en PostHog</a></div>`;
+ if(s==='off')return tools+`<div class="banner info" role="status">PostHog no está conectado. Falta la clave en el servidor.</div>`;
+ if(s==='err')return tools+`<div class="banner err" role="alert">No pudimos leer PostHog. Las demás pestañas siguen funcionando. <button class="btn sm">Reintentar</button></div>`;
+ if(s==='load')return tools+`<div class="card">${skel(5)}</div>`;
+ if(s==='empty')return tools+`<div class="card empty"><h3>Aún no hay interacciones en este periodo</h3>Prueba con 30 días.</div>`;
+ return tools+`<div class="banner info">Solo web. La app iOS aún no se mide.</div><div class="two"><div class="card"><table><caption>Por usuario</caption><thead><tr><th>Usuario</th><th>Rol</th><th class="num"><button aria-sort="descending">Visitas ▾</button></th><th class="num">Ingresos</th><th class="num">Rutinas</th><th class="num">Ciclos</th><th class="num">Sesiones</th><th>Último evento</th></tr></thead><tbody>${uses.map(u=>`<tr><td data-l="Usuario"><b>${u[0]}</b></td><td data-l="Rol">${u[1]}</td><td class="num" data-l="Visitas">${u[2]}</td><td class="num" data-l="Ingresos">${u[3]}</td><td class="num" data-l="Rutinas">${u[4]}</td><td class="num" data-l="Ciclos">${u[5]}</td><td class="num" data-l="Sesiones">${u[6]}</td><td data-l="Último">${u[7]}</td></tr>`).join('')}</tbody></table></div>
+ <div class="card"><table><caption>Por pantalla</caption><thead><tr><th>Ruta</th><th class="num">Visitas</th></tr></thead><tbody>${scr.map(r=>`<tr><td data-l="Ruta"><code>${r[0]}</code><div style="height:6px;border-radius:3px;background:var(--brand);width:${r[1]}%;margin-top:4px" aria-hidden="true"></div></td><td class="num" data-l="Visitas">${r[1]}</td></tr>`).join('')}</tbody></table></div></div>`}
+const mails=[['redes@getcycles.app','Redes sociales','Solo recepción','Cloudflare Email Routing'],['privacidad@getcycles.app','Consultas de privacidad: eliminar o exportar datos','Solo recepción','Cloudflare Email Routing'],['hola@mail.getcycles.app','Remitente de correos transaccionales (verificación, invitación, recuperación)','Solo envío','Resend'],['contacto@getcycles.app','Contacto y soporte','Envío y recepción','Cloudflare Email Routing']];
+function mail(){
+ const head=`<div class="tools"><span style="flex:1"></span><button class="btn p">Agregar correo</button></div>`;
+ if(s==='empty')return head+`<div class="card empty"><h3>Aún no hay correos</h3>Agrega el primero.</div>`;
+ const t=`<div class="card"><table><caption>Directorio de correos</caption><thead><tr><th>Dirección</th><th>Para qué sirve</th><th>Cómo funciona</th><th>Servicio</th><th></th></tr></thead><tbody>${mails.map(m=>`<tr><td data-l="Dirección"><b>${m[0]}</b></td><td data-l="Para qué">${m[1]}</td><td data-l="Cómo funciona"><span class="tag">${m[2]}</span></td><td data-l="Servicio">${m[3]}</td><td><button class="btn sm">Editar</button></td></tr>`).join('')}</tbody></table></div>`;
+ const dr=s==='edit'?`<div class="drawer" role="dialog" aria-label="Editar correo"><h3>Editar correo</h3><div class="field"><label>Dirección</label><input class="inp" value="redes@getcycles.app"></div><div class="field"><label>Para qué sirve</label><input class="inp" value="Redes sociales"></div><div class="field"><label>Cómo funciona</label><select class="inp"><option>Solo recepción</option></select></div><div class="field"><label>Servicio</label><input class="inp" value="Cloudflare Email Routing"></div><button class="btn p">Guardar</button> <button class="btn">Cancelar</button> <button class="btn" style="color:var(--pain-ink)">Quitar</button></div>`:'';
+ return head+t+dr}
+function enl(){
+ const L=[['PostHog','Uso del piloto'],['Linear','Tareas'],['Resend','Correos'],['Supabase','Base de datos'],['Render','API'],['Vercel','Web'],['App Store Connect','App iOS'],['1Password','Bóveda: Cycles']];
+ const V=[['Web','Vercel','Producción','a1b2c3d','Correcta'],['API','Render','Producción','e4f5a6b','Correcta'],['Base','Supabase','Producción','Migración 0042','Correcta'],['App iOS','TestFlight','Build 23','1.0.0',s==='err'?'No pudimos leer la versión':'Correcta'],['Política de privacidad','Vigente','—','v1.1','Correcta']];
+ return `<div class="card" style="margin-bottom:16px"><h3 style="margin-bottom:10px;font-size:1.1rem">Enlaces rápidos</h3><div class="grid">${L.map(l=>`<a class="lnk" href="#">${l[0]}<small>${l[1]} ↗</small></a>`).join('')}</div></div>
+ <div class="card"><table><caption>Versiones y entornos</caption><thead><tr><th>Servicio</th><th>Entorno</th><th>Versión</th><th>Detalle</th><th>Estado</th></tr></thead><tbody>${V.map(x=>`<tr><td data-l="Servicio"><b>${x[0]}</b></td><td data-l="Entorno">${x[1]}</td><td data-l="Versión">${x[2]}</td><td data-l="Detalle">${x[3]}</td><td data-l="Estado"><span class="tag ${x[4]==='Correcta'?'ok':'bad'}">${x[4]==='Correcta'?'✓ Correcta':'✕ '+x[4]}</span></td></tr>`).join('')}</tbody></table></div>`}
+function shell(inner,opt={}){return `<div class="win ${w==='m'?'mob':''}" style="width:${w==='m'?390:'min(100%,1180px)'}"><div class="app-h"><b>Cycles</b>${w==='m'?'':'<div class="n"><span class="on">Inicio</span><span>Atletas</span><span>Biblioteca</span><span>Ejercicios</span></div>'}<span class="av">${opt.ini||'LG'}${opt.menu||''}</span></div><div class="rel" style="min-height:${opt.h||520}px">${inner}</div></div>`}
+function acc(){
+ const m=(adm)=>`<div class="menu"><div><b>Laura Gómez</b><small>laura@ejemplo.com</small></div><div>Mi cuenta</div>${adm?'<hr><div class="hl">Administración</div><hr>':''}<div>Cerrar sesión</div></div>`;
+ if(s==='a')return shell('<div class="pg"><p style="color:var(--ink2);max-width:60%">Menú de la administradora: «Administración» entre Mi cuenta y Cerrar sesión.</p></div>',{menu:m(true),h:300});
+ if(s==='b')return shell('<div class="pg"><p style="color:var(--ink2)">Menú de un coach o atleta: sin ninguna pista del panel.</p></div>',{menu:m(false),ini:'MD',h:300});
+ return shell('<div class="nf"><h2>No encontramos esta página</h2><p>Puede que el enlace esté mal escrito o que ya no exista.</p><button class="btn p">Ir a Inicio</button></div>',{ini:'MD',h:340})}
+function page(){const tabs=[['usr','Usuarios'],['uso','Uso'],['mail','Correos'],['enl','Enlaces y versiones']];
+ const inner={usr,uso,mail,enl}[v]();
+ return shell(`<div class="pg"><h1>Administración</h1><div class="tabs" role="tablist">${tabs.map(t=>`<button role="tab" aria-selected="${t[0]===v}">${t[1]}</button>`).join('')}</div><div role="tabpanel">${inner}</div></div>`,{menu:'',h:600})}
+function render(){states();document.getElementById('note').textContent=NOTES[v];document.getElementById('stage').innerHTML=v==='acc'?acc():page()}
+render();
+</script>
+</body>
+</html>
