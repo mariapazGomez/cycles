@@ -60,6 +60,18 @@
   box-sizing: border-box;
 }
 
+/* Inicio del coach: usa casi todo el ancho de la ventana (docs/diseno/inicio-coach). */
+.app-main-inicio {
+  max-width: 1680px;
+}
+
+@media (min-width: 1280px) {
+  .app-main-inicio {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
 .user-menu {
   position: relative;
 }

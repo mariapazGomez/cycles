@@ -473,9 +473,10 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  min-height: 40px;
   padding: 5px 14px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--radius-md);
   background: var(--color-bg);
   box-shadow: var(--shadow-e1);
   color: var(--color-ink-secondary);
@@ -510,7 +511,7 @@
 .cb-head,
 .cb-row {
   display: grid;
-  grid-template-columns: 200px repeat(7, minmax(0, 1fr)) 80px;
+  grid-template-columns: 220px repeat(7, minmax(116px, 1fr)) 88px;
   gap: 8px;
 }
 
@@ -543,7 +544,7 @@
 }
 
 .cb-card {
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   background: var(--color-bg);
   box-shadow: var(--shadow-e1);
   transition: box-shadow 150ms ease, transform 150ms ease;
@@ -625,10 +626,10 @@
 .cb-day {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
   padding: 2px;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
 }
 
 .cb-day-today {
@@ -638,13 +639,13 @@
 .cb-tile {
   position: relative;
   display: flex;
-  flex: 1;
+  flex: none;
   flex-direction: column;
   gap: 2px;
   min-width: 0;
-  min-height: 64px;
+  min-height: 76px;
   padding: 10px 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   background: var(--color-bg);
   box-shadow: var(--shadow-e1);
   color: var(--color-ink);
@@ -670,9 +671,35 @@
 }
 
 .cb-tile-name {
+  display: -webkit-box;
   overflow: hidden;
-  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow-wrap: anywhere;
+}
+
+/* Más de tres sesiones en un día: se ven tres y el resto se abre con este botón. */
+.cb-more {
+  min-height: 32px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-blue);
+  font: 700 0.78rem Inter, system-ui, sans-serif;
+  text-decoration: underline;
   white-space: nowrap;
+  cursor: pointer;
+}
+
+.cb-more:hover {
+  background: var(--color-blue-100);
+}
+
+.cb-more:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
 }
 
 .cb-tile-state {
@@ -748,7 +775,7 @@
 
 .cb-none {
   padding: 32px;
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   background: var(--color-bg);
   box-shadow: var(--shadow-e1);
   color: var(--color-ink-secondary);
@@ -758,7 +785,7 @@
 /* Grilla de la semana en pantallas anchas: una línea fina separa cada día, de
    arriba a abajo de la tarjeta; «hoy» se marca más y el fin de semana va en un
    gris apenas más oscuro. (En angosto cada día lleva su propia etiqueta.) */
-@media (min-width: 1001px) {
+@media (min-width: 1280px) {
   .cb-head-day,
   .cb-day,
   .cb-summary {
@@ -808,12 +835,13 @@
 
   /* Las columnas de la ficha y el resumen no se ven afectadas por el margen. */
   .cb-day-empty {
-    min-height: 64px;
+    min-height: 76px;
   }
 }
 
-/* Tablero y calendario en pantallas medianas y angostas: sin barra horizontal. */
-@media (max-width: 1000px) {
+/* Tablero en tablet y portátil chico (hasta 1279 px): el nombre y el resumen van
+   arriba y los siete días debajo, sin barra horizontal. */
+@media (max-width: 1279px) {
   .cb-head {
     display: none;
   }
@@ -877,13 +905,34 @@
   }
 
   .cb-tile {
+    min-height: 76px;
+    padding: 8px 6px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+  }
+
+  .cb-tile-state {
+    font-size: 0.72rem;
+  }
+
+  .cb-day-empty::after {
+    content: "";
+    display: block;
+    min-height: 76px;
+    border-radius: 6px;
+    background: var(--color-gray-light);
+  }
+}
+
+/* Móvil: cada sesión es un glifo de 44 px; varias en un día se apilan. */
+@media (max-width: 640px) {
+  .cb-tile {
     flex: none;
     height: 44px;
     align-items: center;
     justify-content: center;
     min-height: 44px;
     padding: 6px 2px;
-    border-radius: 10px;
     text-align: center;
   }
 
@@ -902,13 +951,11 @@
   }
 
   .cb-day-empty::after {
-    content: "";
-    display: block;
     min-height: 44px;
-    border-radius: 10px;
-    background: var(--color-gray-light);
   }
+}
 
+@media (max-width: 1000px) {
   .pc-head {
     display: none;
   }
@@ -1024,7 +1071,7 @@
 }
 
 .sk-tile {
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
 }
 
 .cy-strip .sk {
@@ -1062,7 +1109,7 @@
 
 .cb-sk-row {
   align-items: center;
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   background: var(--color-bg);
   box-shadow: var(--shadow-e1);
 }
@@ -1103,7 +1150,7 @@
   }
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1279px) {
   .cb-sk-row {
     grid-template-columns: repeat(7, minmax(0, 1fr)) auto;
   }
@@ -1168,4 +1215,16 @@
   margin: 0 0 12px;
   font-size: 0.84rem;
   color: var(--color-ink-secondary);
+}
+
+/* ---------- Inicio del coach: escala de radios nueva (CYC-207) ----------
+   Solo el Inicio: el resto de la app sigue con sus radios hasta CYC-208. */
+.app-main-inicio .cy-strip {
+  border-radius: var(--radius-lg);
+}
+
+.app-main-inicio .cy-strip-cta,
+.app-main-inicio .hm-invite {
+  min-height: 40px;
+  border-radius: var(--radius-md);
 }

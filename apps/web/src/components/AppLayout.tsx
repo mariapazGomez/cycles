@@ -54,7 +54,7 @@ export function AppLayout() {
         </div>
       </header>
       {user?.role === "coach" && pathname !== "/" && <TourStepBar />}
-      <main className="app-main">
+      <main className={user?.role === "coach" && pathname === "/" ? "app-main app-main-inicio" : "app-main"}>
         <Outlet />
       </main>
     </div>
