@@ -8,13 +8,16 @@ import { ApiError } from "../services/httpClient";
 import { PolicyCheckbox } from "../components/PolicyCheckbox";
 import { track } from "../lib/analytics";
 import { PasswordField } from "../components/PasswordField";
+import { AppHandoff } from "../components/tour/AppHandoff";
 
 export function AcceptInvitationPage() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
   const navigate = useNavigate();
-  const { loginWithTokens } = useAuth();
+  const { loginWithTokens, user } = useAuth();
   const [linked, setLinked] = useState(false);
+  // Cuenta nueva ya activada y con sesión: se le muestra el traspaso a la app.
+  const [activated, setActivated] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [acceptPolicy, setAcceptPolicy] = useState(false);
@@ -43,7 +46,7 @@ export function AcceptInvitationPage() {
         return;
       }
       await loginWithTokens(result);
-      navigate("/", { replace: true });
+      setActivated(true);
     },
     onError: (error: unknown) => {
       setFormError(
@@ -105,13 +108,22 @@ export function AcceptInvitationPage() {
     );
   }
 
+  if (activated) {
+    return (
+      <AuthCard title="Tu cuenta está lista">
+        <AppHandoff phonePlatform={user?.phonePlatform} email={user?.email} onBrowser={() => navigate("/", { replace: true })} />
+      </AuthCard>
+    );
+  }
+
   if (linked) {
     return (
-      <AuthCard title="Listo">
-        <p>Ya estás con {preview.data?.coachName}. Entra a tu cuenta para ver tus entrenamientos.</p>
-        <Link to="/login" className="button-primary" style={{ display: "block", textDecoration: "none" }}>
-          Iniciar sesión
-        </Link>
+      <AuthCard title="Tu cuenta está lista">
+        <p>Ya estás con {preview.data?.coachName}. Inicia sesión para ver tus entrenamientos.</p>
+        <AppHandoff phonePlatform={null} email={undefined} />
+        <p className="auth-footer">
+          <Link to="/login">Iniciar sesión</Link>
+        </p>
       </AuthCard>
     );
   }

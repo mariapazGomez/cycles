@@ -8,6 +8,8 @@ import { EmptyState } from "../components/EmptyState";
 import { formatKg } from "../lib/format";
 import { track } from "../lib/analytics";
 import { useAuth } from "../hooks/useAuth";
+import * as cyclesApi from "../services/cyclesApi";
+import { AthleteTourCard } from "../components/tour/AthleteTourCard";
 
 // Inicio del atleta: la próxima sesión pendiente de su plan activo.
 export function TodayPage() {
@@ -15,6 +17,8 @@ export function TodayPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const todayQuery = useQuery({ queryKey: ["today"], queryFn: executionApi.getToday });
+  // Solo para distinguir «sin ciclo todavía» de «hoy no hay sesión».
+  const cyclesQuery = useQuery({ queryKey: ["cycles"], queryFn: cyclesApi.listCycles, enabled: todayQuery.isSuccess && !todayQuery.data });
   const [skipping, setSkipping] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,6 +43,7 @@ export function TodayPage() {
   if (user?.hasActiveCoach === false) {
     return (
       <div className="log-shell">
+        <AthleteTourCard />
         <EmptyState title="Falta tu coach">
           Pídele a tu coach que te invite a Cycles con el correo {user.email}. Cuando aceptes la invitación, tus
           entrenamientos aparecerán aquí.
@@ -52,11 +57,16 @@ export function TodayPage() {
 
   const today = todayQuery.data;
   if (!today) {
+    // Con coach pero sin ningún ciclo: el coach está preparándolo. Con ciclo: hoy toca descansar.
+    const noCycle = cyclesQuery.isSuccess && cyclesQuery.data.length === 0;
     return (
       <div className="log-shell">
-        <EmptyState title="Todo al día">
-          Todavía no tienes sesiones pendientes. Cuando tu coach te asigne una, aparecerá aquí.
-        </EmptyState>
+        <AthleteTourCard />
+        {noCycle ? (
+          <EmptyState title="Tu coach está preparando tu ciclo">Cuando te asigne tu primera sesión, la verás aquí.</EmptyState>
+        ) : (
+          <EmptyState title="Hoy no tienes sesión">Descansa.</EmptyState>
+        )}
       </div>
     );
   }
@@ -72,6 +82,7 @@ export function TodayPage() {
 
   return (
     <div className="log-shell">
+      <AthleteTourCard />
       <div className="stack" style={{ gap: 10 }}>
         <h1 className="page-title">Te toca {session.name}</h1>
         <div className="row">

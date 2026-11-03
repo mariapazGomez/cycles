@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { GuidePanel } from "./tour/GuidePanel";
 
 function getInitials(name: string | undefined): string {
   if (!name) return "?";
@@ -15,6 +16,7 @@ function getInitials(name: string | undefined): string {
 export function UserMenu() {
   const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
+  const [guide, setGuide] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -57,6 +59,17 @@ export function UserMenu() {
             role="menuitem"
             onClick={() => {
               setOpen(false);
+              setGuide(true);
+            }}
+          >
+            Cómo usar Cycles
+          </button>
+          <button
+            type="button"
+            className="user-menu-item"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false);
               logout();
             }}
           >
@@ -64,6 +77,7 @@ export function UserMenu() {
           </button>
         </div>
       )}
+      {guide && <GuidePanel onClose={() => setGuide(false)} />}
     </div>
   );
 }

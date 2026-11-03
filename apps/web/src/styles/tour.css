@@ -1,0 +1,229 @@
+/* Guía de primer uso (CYC-191). Diseño en docs/diseno/tour-primer-uso. */
+.tour-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(31, 34, 40, 0.45);
+}
+
+.tour-dialog {
+  width: min(440px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  padding: 24px;
+  border-radius: 18px;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-e2);
+}
+
+.tour-dialog h2 {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+}
+
+.tour-dialog p {
+  margin: 0 0 16px;
+  color: var(--color-ink-secondary);
+  line-height: 1.5;
+}
+
+.tour-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.tour-dialog-actions .button-primary,
+.tour-dialog-actions .button-secondary {
+  width: auto;
+  text-decoration: none;
+}
+
+.tour-link {
+  padding: 8px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--color-blue);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tour-link:hover {
+  text-decoration: underline;
+}
+
+.tour-link:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.tour-link:focus-visible,
+.tour-card .button-primary:focus-visible,
+.tour-card .button-secondary:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
+}
+
+.tour-card {
+  margin-bottom: 20px;
+  padding: 20px 24px;
+  border-radius: 18px;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-e1);
+}
+
+.tour-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tour-card-head h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.tour-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tour-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-ink-secondary);
+  font-size: 0.95rem;
+}
+
+.tour-step-mark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--color-gray-light);
+  color: var(--color-ink-secondary);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.tour-step-current {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.tour-step-current .tour-step-mark {
+  background: var(--color-blue);
+  color: #fff;
+}
+
+.tour-step-done .tour-step-mark {
+  background: var(--color-ok-bg);
+  color: var(--color-ok-ink);
+}
+
+.tour-step-hecho {
+  font-weight: 500;
+}
+
+.tour-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.tour-cta {
+  width: auto;
+  text-decoration: none;
+}
+
+.tour-note {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--color-ink-secondary);
+  font-size: 0.88rem;
+}
+
+.tour-athlete-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding-left: 18px;
+  line-height: 1.5;
+}
+
+.tour-bar {
+  position: sticky;
+  top: var(--app-header-h);
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 10px 24px;
+  border-bottom: 1px solid var(--color-gray-border);
+  background: var(--color-blue-100);
+  font-size: 0.9rem;
+}
+
+.tour-bar-text {
+  flex: 1;
+  min-width: 220px;
+  color: var(--color-ink);
+}
+
+.tour-empty {
+  margin-top: 8px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--color-gray-light);
+  font-size: 0.88rem;
+}
+
+.tour-empty p {
+  margin: 4px 0 6px;
+  color: var(--color-ink-secondary);
+}
+
+.handoff-block {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--color-blue-100);
+}
+
+.tour-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .tour-card {
+    padding: 16px;
+  }
+
+  .tour-bar {
+    padding: 10px 16px;
+  }
+}

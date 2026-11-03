@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import * as cyclesApi from "../services/cyclesApi";
+import { EmptyState } from "../components/EmptyState";
 import { AthleteCycleList } from "../components/AthleteCycleList";
 
 // «Mis ciclos» del atleta. El coach ya no tiene esta pestaña: sus ciclos viven
@@ -15,7 +16,7 @@ export function CyclesPage() {
         {cyclesQuery.isLoading && <p>Cargando…</p>}
         {cyclesQuery.isError && <div className="error-banner">No se pudo cargar la lista.</div>}
         {cyclesQuery.data && cyclesQuery.data.length === 0 && (
-          <p>Todavía no tienes ciclos. Cuando tu coach te asigne uno, aparecerá aquí.</p>
+          <EmptyState title="Aún no tienes ciclos">Aparecerán cuando tu coach te asigne uno.</EmptyState>
         )}
         {cyclesQuery.data && cyclesQuery.data.length > 0 && <AthleteCycleList cycles={cyclesQuery.data} />}
       </div>
