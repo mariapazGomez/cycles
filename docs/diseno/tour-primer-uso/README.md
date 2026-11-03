@@ -1,7 +1,7 @@
 ---
 type: design
 parent: "[[PRD-Onboarding]]"
-status: proposed
+status: implemented
 tags: [diseno, onboarding, web, mobile]
 created: 2026-11-03
 updated: 2026-11-03
@@ -178,3 +178,17 @@ Sin cambios respecto a la v2: se conserva lo que ya existe y solo se diseña lo 
 - **CYC-214 (web):** reemplaza `TourDialog`, `TourCard`, `TourStepBar` y `GuidePanel` por la tarjeta inicial y la capa de marcas (resaltado, globo y chip). Reutiliza `useTour`, `tourApi` y `lib/tour.ts` (cambiar los conteos a atletas, ciclos, rutinas con ejercicios y ciclos activos). Añade las anclas y el ajuste del selector «+».
 - **CYC-192 (móvil):** aplicar M1 a M5.
 - **CYC-170:** aporta el contenido del manual enlazado en «Cómo usar Cycles».
+
+
+## Implementado (CYC-214)
+
+La guía v3.1 vive en `components/tour/TourLayer.tsx` (halo + globo sobre el elemento con `data-tour="…"`), `TourIntro.tsx` (tarjeta «Así se arma un ciclo» y dibujo), `lib/tour.ts` (pasos y estado local) y `lib/tourMarks.ts` (catálogo de marcas). Capturas de cada paso en [`capturas/`](capturas/).
+
+Decisiones al construir:
+
+- El cajón «Crear rutina» cubre los pasos 3 y 4: la rutina nace con sus ejercicios, así que ambos pasos de datos se cumplen a la vez. Los textos usan el botón real, **Guardar y usar**.
+- En el paso 6 el Resumen va antes que Inicio (la coach ya está en la ficha del atleta tras el paso 5), y el cierre sale en Inicio sobre el avatar.
+- «Saltar paso» y el progreso de la guía se recuerdan en el navegador; en la cuenta solo se guarda `tourStatus`.
+- No se atenúa el resto de la pantalla (los cajones y diálogos ya traen su propio velo).
+- Con la guía en un paso cuya pantalla no está abierta, sale la fichita «Volver al paso N».
+- **Reenviar invitación** y el botón **Instalar la app** de iPhone siguen fuera (sin endpoint y sin enlace público de TestFlight).

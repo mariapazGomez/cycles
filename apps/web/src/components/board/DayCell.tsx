@@ -53,6 +53,7 @@ export function DayCell({ day, isToday, readOnly, dropState, plusOpen, onPlus, o
             type="button"
             className={`bd-plus${has ? " bd-plus-faint" : ""}`}
             aria-haspopup="dialog"
+            data-tour="day-plus"
             aria-expanded={plusOpen}
             aria-label={`${has ? "Agregar otra sesión" : "Asignar rutina"} el ${label}`}
             onClick={(e) => onPlus(e.currentTarget)}

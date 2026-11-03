@@ -172,7 +172,7 @@ export function NewCycleDialog({
             <button type="button" className="bd-btn" onClick={onClose}>
               Cancelar
             </button>
-            <button type="submit" className="bd-btn bd-btn-p" disabled={createMutation.isPending}>
+            <button type="submit" className="bd-btn bd-btn-p" data-tour="cycle-create" disabled={createMutation.isPending}>
               {createMutation.isPending ? "Creando…" : "Crear ciclo"}
             </button>
           </footer>

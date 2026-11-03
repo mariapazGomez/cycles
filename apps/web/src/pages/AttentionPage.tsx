@@ -3,8 +3,6 @@ import { Link } from "react-router-dom";
 import { CoachHero } from "../components/CoachHero";
 import { CoachWeekBoard } from "../components/CoachWeekBoard";
 import { CoachBoardSkeleton, Skeleton, SlowNotice } from "../components/Skeleton";
-import { CoachTour } from "../components/tour/CoachTour";
-import { useTour } from "../hooks/useTour";
 import { usePageBackground } from "../hooks/usePageBackground";
 import { useCoachRoster } from "../hooks/useCoachRoster";
 import { todaySummary } from "../lib/weekBoard";
@@ -16,9 +14,6 @@ import { todaySummary } from "../lib/weekBoard";
 // docs/prds/features/PRD-EjecucionYSeguimiento.md, §7.2.
 export function AttentionPage() {
   const roster = useCoachRoster();
-  const tour = useTour();
-  // Con la guía empezada, su tarjeta ocupa el lugar de la franja de arriba.
-  const tourCard = tour.active && tour.started && tour.progress.current !== null;
   const [applied, setApplied] = useState<string | null>(null);
 
   usePageBackground();
@@ -52,9 +47,7 @@ export function AttentionPage() {
         </>
       ) : (
         <>
-          <CoachTour />
-
-          {!tourCard && !roster.attentionError && <CoachHero attentionCount={attentionGroups.length} hasAthletes={hasAthletes} today={today} />}
+          {!roster.attentionError && <CoachHero attentionCount={attentionGroups.length} hasAthletes={hasAthletes} today={today} />}
 
           {applied && (
             <div className="success-banner" role="status">

@@ -137,7 +137,7 @@ export function AthletesPanel() {
       <div className="page-header">
         <h1 className="page-title">Atletas</h1>
         {!empty && (
-          <button type="button" className="button-primary at-invite-btn" aria-expanded={inviteOpen} onClick={() => setShowInvite((v) => !v)}>
+          <button type="button" className="button-primary at-invite-btn" data-tour="invite-open" aria-expanded={inviteOpen} onClick={() => setShowInvite((v) => !v)}>
             {showInvite ? "Cerrar" : "Invitar atleta"}
           </button>
         )}
@@ -150,7 +150,7 @@ export function AthletesPanel() {
       )}
 
       {inviteOpen && (
-        <section className="at-invite" aria-label="Invitar atleta">
+        <section className="at-invite" aria-label="Invitar atleta" data-tour="invite-form">
           <h2>{empty ? "Invita a tu primer atleta" : "Invitar atleta"}</h2>
           {formError && <div className="error-banner">{formError}</div>}
           <form onSubmit={handleSubmit} noValidate className="at-invite-form">
@@ -162,7 +162,7 @@ export function AthletesPanel() {
               <label htmlFor="athleteEmail">Email</label>
               <input id="athleteEmail" name="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
-            <button type="submit" className="button-primary" disabled={inviteMutation.isPending}>
+            <button type="submit" className="button-primary" data-tour="invite-send" disabled={inviteMutation.isPending}>
               {inviteMutation.isPending ? "Enviando…" : "Enviar invitación"}
             </button>
           </form>

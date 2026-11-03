@@ -3,7 +3,7 @@ import { useAuth } from "../hooks/useAuth";
 import logo from "../assets/logo-cycles.png";
 import { NotificationBell } from "./NotificationBell";
 import { UserMenu } from "./UserMenu";
-import { TourStepBar } from "./tour/TourStepBar";
+import { TourLayer } from "./tour/TourLayer";
 
 function navLinkClass({ isActive }: { isActive: boolean }): string {
   return isActive ? "app-nav-link app-nav-link-active" : "app-nav-link";
@@ -20,10 +20,10 @@ export function AppLayout() {
           <img className="app-logo" src={logo} alt="Cycles" height={26} />
           {user?.role === "coach" && (
             <nav className="app-nav">
-              <NavLink to="/" end className={navLinkClass}>
+              <NavLink to="/" end className={navLinkClass} data-tour="nav-home">
                 Inicio
               </NavLink>
-              <NavLink to="/athletes" className={navLinkClass}>
+              <NavLink to="/athletes" className={navLinkClass} data-tour="nav-athletes">
                 Atletas
               </NavLink>
               <NavLink to="/biblioteca" className={navLinkClass}>
@@ -53,10 +53,10 @@ export function AppLayout() {
           <UserMenu />
         </div>
       </header>
-      {user?.role === "coach" && pathname !== "/" && <TourStepBar />}
       <main className={user?.role === "coach" && pathname === "/" ? "app-main app-main-inicio" : "app-main"}>
         <Outlet />
       </main>
+      <TourLayer />
     </div>
   );
 }

@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import type { RoutineDetail } from "../../services/routinesApi";
 import { SearchIcon } from "./icons";
 
@@ -11,9 +10,12 @@ function normalize(text: string): string {
 export function RoutinePicker({
   routines,
   onPick,
+  onCreate,
 }: {
   routines: RoutineDetail[] | undefined;
   onPick: (routine: RoutineDetail) => void;
+  // Sin rutinas: abre el cajón «Crear rutina» sin salir de la pizarra.
+  onCreate: () => void;
 }) {
   const [query, setQuery] = useState("");
   const filtered = useMemo(() => {
@@ -23,15 +25,19 @@ export function RoutinePicker({
 
   if ((routines ?? []).length === 0) {
     return (
-      <div className="bd-pop-body">
+      <div className="bd-pop-body" data-tour="routine-picker">
         <p className="bd-hint">
-          Todavía no tienes rutinas. <Link to="/routines/new">Crea la primera</Link> para asignarla aquí.
+          Todavía no tienes rutinas.{" "}
+          <button type="button" className="bd-link" data-tour="picker-create" onClick={onCreate}>
+            Crea la primera
+          </button>{" "}
+          para asignarla aquí.
         </p>
       </div>
     );
   }
   return (
-    <div className="bd-pop-body">
+    <div className="bd-pop-body" data-tour="routine-picker">
       <label className="bd-search">
         <SearchIcon />
         <input type="search" placeholder="Buscar rutina" aria-label="Buscar rutina" value={query} onChange={(e) => setQuery(e.target.value)} />
@@ -40,9 +46,9 @@ export function RoutinePicker({
         <p className="bd-hint">Ninguna rutina coincide.</p>
       ) : (
         <ul className="bd-rlist bd-rlist-pop">
-          {filtered.map((routine) => (
+          {filtered.map((routine, i) => (
             <li key={routine.id}>
-              <button type="button" className="bd-ritem" onClick={() => onPick(routine)}>
+              <button type="button" className="bd-ritem" data-tour={i === 0 ? "picker-item" : undefined} onClick={() => onPick(routine)}>
                 <span className="bd-nm">
                   <b>{routine.name}</b>
                   <small>{routine.routineExercises.length} ejercicios</small>

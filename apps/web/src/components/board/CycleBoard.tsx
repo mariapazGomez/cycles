@@ -400,7 +400,14 @@ export function CycleBoard({ cycle, athlete }: { cycle: TrainingCycle; athlete: 
       {pop?.kind === "add" && (
         <Popover anchor={pop.anchor} label={`Asignar rutina el ${dayText(pop.day)}`} onClose={() => setPop(null)}>
           <h3 className="bd-pop-title">Asignar el {dayText(pop.day)}</h3>
-          <RoutinePicker routines={routinesQuery.data} onPick={(routine) => addRoutineTo(routine, (pop as { day: string }).day)} />
+          <RoutinePicker
+            routines={routinesQuery.data}
+            onPick={(routine) => addRoutineTo(routine, (pop as { day: string }).day)}
+            onCreate={() => {
+              setPop(null);
+              setDrawer({ routine: null });
+            }}
+          />
         </Popover>
       )}
 

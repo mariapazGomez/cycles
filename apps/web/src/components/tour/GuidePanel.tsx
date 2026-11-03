@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTour } from "../../hooks/useTour";
 import { useAuth } from "../../hooks/useAuth";
 import { TourDialog } from "./TourDialog";
+import { CycleDiagram } from "./TourIntro";
 
 const MANUAL = "https://github.com/mariapazGomez/cycles/blob/main/docs/MANUAL-COACH.md";
 
@@ -14,6 +16,7 @@ export function GuidePanel({ onClose }: { onClose: () => void }) {
 
 function CoachGuide({ onClose }: { onClose: () => void }) {
   const tour = useTour(true);
+  const [diagram, setDiagram] = useState(false);
   return (
     <TourDialog title="Cómo usar Cycles" onClose={onClose}>
       <ol className="tour-steps">
@@ -25,10 +28,17 @@ function CoachGuide({ onClose }: { onClose: () => void }) {
             <span className="tour-step-text">
               {step.title}
               {step.done && <span className="tour-step-hecho"> · Hecho</span>}
+              {step.skipped && <span className="tour-step-hecho"> · Saltado</span>}
             </span>
           </li>
         ))}
       </ol>
+      {diagram && (
+        <div className="tour-diagram-wrap">
+          <CycleDiagram />
+          <p>Un ciclo organiza las semanas de tu atleta. Contiene rutinas, y cada rutina contiene ejercicios.</p>
+        </div>
+      )}
       <div className="tour-dialog-actions">
         <button
           type="button"
@@ -41,6 +51,9 @@ function CoachGuide({ onClose }: { onClose: () => void }) {
           }}
         >
           Volver a ver la guía
+        </button>
+        <button type="button" className="button-secondary" aria-expanded={diagram} onClick={() => setDiagram((v) => !v)}>
+          Cómo se piensa un ciclo
         </button>
         <a className="button-secondary" href={MANUAL} target="_blank" rel="noreferrer">
           Abrir el manual

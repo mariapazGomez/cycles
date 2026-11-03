@@ -25,7 +25,9 @@ Durante la fase de early adopters **el registro está cerrado**: solo entran per
 
 ### La guía de inicio
 
-La primera vez que entras sin rutinas, atletas ni ciclos, Cycles te da la bienvenida y te acompaña en cuatro pasos: crear tu primera rutina, invitar a tu atleta, esperar que acepte y crear su ciclo con la primera sesión. En **Inicio** ves una tarjeta con tu avance; en las demás pantallas, una barra con el paso en que vas y **Salir**. Puedes dejarla con **No quiero la guía** y volver a abrirla cuando quieras desde tu avatar → **Cómo usar Cycles** → **Volver a ver la guía**.
+La primera vez que entras sin rutinas, atletas ni ciclos, Cycles te muestra una tarjeta, **Así se arma un ciclo** (un ciclo contiene rutinas y cada rutina contiene ejercicios), y luego te guía **sobre la propia pantalla**: resalta el botón o el campo que toca y un globo corto dice qué hacer. Son seis pasos, en el orden en que se arma un ciclo: invitar a tu atleta, crearle un ciclo, crear una rutina, agregarle ejercicios, ponerla en un día y mirar cómo le va. Mientras tu atleta no acepta, la guía espera en una fichita abajo a la izquierda.
+
+En cada globo puedes tocar **Saltar paso** o **Salir de la guía**. **Esc**, con el foco en el globo, la pone en pausa; **Alt + G** lleva el foco al globo. Para volver a verla: tu avatar → **Cómo usar Cycles** → **Volver a ver la guía** (ahí también está **Cómo se piensa un ciclo**).
 
 ## 2. Crea tus rutinas
 
