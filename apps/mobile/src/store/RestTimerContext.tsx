@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import { AppState, Vibration } from 'react-native';
 import { RestModal } from '../components/RestTimer';
+import { hideRestActivity, showRestActivity } from '../services/restActivity';
 import { cancelRestEnd, requestRestPermission, scheduleRestEnd } from '../services/restNotification';
 import { clearRest, loadRest, saveRest } from '../services/restTimerStorage';
 
@@ -50,7 +51,12 @@ export function RestTimerProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let cancelled = false;
     loadRest().then(rest => {
-      if (cancelled || !rest) {
+      if (cancelled) {
+        return;
+      }
+      if (!rest) {
+        // Una actividad que quedó en pantalla de un descanso ya terminado.
+        hideRestActivity();
         return;
       }
       finished.current = false;
@@ -67,8 +73,10 @@ export function RestTimerProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (endsAt === null) {
       clearRest();
+      hideRestActivity();
     } else {
       saveRest({ endsAt, total });
+      showRestActivity(endsAt - total * 1000, endsAt);
     }
   }, [endsAt, total]);
 

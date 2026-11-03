@@ -4,12 +4,14 @@ import notifee from 'react-native-notify-kit';
 import ReactTestRenderer from 'react-test-renderer';
 import { RestTimerProvider, useRestTimer } from '../src/store/RestTimerContext';
 import { clearRest, loadRest, saveRest } from '../src/services/restTimerStorage';
+import { hideRestActivity, showRestActivity } from '../src/services/restActivity';
 
 jest.mock('../src/services/restTimerStorage', () => ({
   loadRest: jest.fn(),
   saveRest: jest.fn(),
   clearRest: jest.fn(),
 }));
+jest.mock('../src/services/restActivity', () => ({ showRestActivity: jest.fn(), hideRestActivity: jest.fn() }));
 jest.mock('../src/components/RestTimer', () => ({ RestModal: () => null }));
 
 const load = loadRest as jest.Mock;
@@ -130,5 +132,48 @@ describe('aviso del sistema al minimizar', () => {
     await mount();
     await ReactTestRenderer.act(async () => emit('background'));
     expect(notifications.createTriggerNotification).not.toHaveBeenCalled();
+  });
+});
+
+describe('isla dinámica (Live Activity)', () => {
+  const mountWithRest = async (seconds: number) => {
+    load.mockResolvedValue(null);
+    await mount();
+    await ReactTestRenderer.act(async () => {
+      latest.setRoutineStarted(true);
+    });
+    await ReactTestRenderer.act(async () => {
+      latest.startRest(seconds);
+    });
+  };
+
+  test('al iniciar un descanso se muestra con su inicio y su fin', async () => {
+    await mountWithRest(60);
+    const [startedAt, endsAt] = (showRestActivity as jest.Mock).mock.calls.at(-1);
+    expect(endsAt - startedAt).toBe(60_000);
+    expect(endsAt).toBeGreaterThan(Date.now());
+  });
+
+  test('ajustar el descanso actualiza la actividad con el nuevo fin', async () => {
+    await mountWithRest(60);
+    const before = (showRestActivity as jest.Mock).mock.calls.at(-1)[1];
+    await ReactTestRenderer.act(async () => {
+      latest.adjust(15);
+    });
+    expect((showRestActivity as jest.Mock).mock.calls.at(-1)[1]).toBe(before + 15_000);
+  });
+
+  test('saltar el descanso oculta la actividad', async () => {
+    await mountWithRest(60);
+    await ReactTestRenderer.act(async () => {
+      latest.skip();
+    });
+    expect(hideRestActivity).toHaveBeenCalled();
+  });
+
+  test('al abrir sin descanso vigente borra una actividad que quedó en pantalla', async () => {
+    load.mockResolvedValue(null);
+    await mount();
+    expect(hideRestActivity).toHaveBeenCalled();
   });
 });
