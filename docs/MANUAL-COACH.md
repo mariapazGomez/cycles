@@ -169,6 +169,7 @@ Hoy la app se instala con **TestFlight**, la app de Apple para probar apps antes
 ## 7. Después: sigue a tu atleta
 
 - **Inicio** te muestra quién necesita atención primero: dolor reportado, sesiones más duras o más fáciles de lo planificado, y propuestas de ajuste de carga.
+  - La semana de cada atleta usa casi todo el ancho de la ventana y cada día crece según sus sesiones; el nombre de la rutina se lee completo (hasta 2 líneas). Si un día tiene más de 3 sesiones, ves las 3 primeras y **+N más** abre el resto (**Ver menos** lo cierra). En tablet los siete días van bajo el nombre del atleta; en el celular cada sesión es un círculo, una bajo otra si hay varias.
 - **Atletas** → toca su nombre para ver su resumen: carga semanal, adherencia y fuerza estimada por ejercicio.
 - En el ciclo ves, por sesión, lo que tu atleta registró: esfuerzo, minutos y dolor.
 - La **campana** de arriba te avisa cuando tu atleta programa o registra una sesión.

@@ -1,7 +1,7 @@
 ---
 type: design
 parent: "[[ciclo-en-calendario]]"
-status: proposed
+status: implemented
 tags: [diseno, inicio, coach, radios, web]
 created: 2026-11-03
 updated: 2026-11-03
@@ -123,3 +123,10 @@ Atletas, Biblioteca, Ejercicios, Mi cuenta, auth y el resto de botones globales 
 - Modificador de ancho en `AppLayout` solo para la ruta Inicio del coach.
 - `CoachWeekBoard`: `line-clamp` de 2 líneas, límite de 3 tiles con «+N más», rejilla nueva y regla de tablet (641–1279 px).
 - Pruebas visuales a 1920, 1440, 1024, 768 y 390 px, y con 1, 5, 12 atletas y 3 sesiones el mismo día.
+
+
+## Implementado (CYC-207)
+
+Variante A con la válvula «+N más». Tokens `--radius-*` en `global.css`; ancho de 1680 px solo en el Inicio (`.app-main-inicio`); tablero con rejilla `220px · 7 × minmax(116px, 1fr) · 88px` desde 1280 px, diseño de tablet hasta 1279 px y glifos de 44 px hasta 640 px. Capturas en [`capturas/`](capturas/): escritorio 1920 y 1440, portátil 1024, tablet 768 y móvil 390.
+
+La escala de radios se aplicó solo al Inicio; alinear Atletas, Biblioteca, Ejercicios y los botones globales queda en CYC-208.

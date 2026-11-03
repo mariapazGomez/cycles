@@ -74,6 +74,9 @@ function Tile({ session, dayName }: { session: BoardSession; dayName: string }) 
   );
 }
 
+// Con más sesiones que esto en un día se ven las primeras y el resto se abre.
+const MAX_TILES = 3;
+
 const MESSAGE: Partial<Record<AthleteStatus, string>> = {
   no_plan: "Sin ciclo activo esta semana.",
   pending: "Invitación pendiente.",
@@ -85,6 +88,7 @@ const MESSAGE: Partial<Record<AthleteStatus, string>> = {
 export function CoachWeekBoard({ rows, monday, todayIso, onDismiss, onApplied }: CoachWeekBoardProps) {
   const [onlyAttention, setOnlyAttention] = useState(false);
   const [open, setOpen] = useState<Record<string, boolean>>({});
+  const [openDays, setOpenDays] = useState<Record<string, boolean>>({});
   const days = weekDays(monday);
   const attentionCount = rows.filter((r) => r.attention.length > 0).length;
   const visible = onlyAttention ? rows.filter((r) => r.attention.length > 0) : rows;
@@ -165,9 +169,19 @@ export function CoachWeekBoard({ rows, monday, todayIso, onDismiss, onApplied }:
                       className={`cb-day${iso === todayIso ? " cb-day-today" : ""}${i >= 5 ? " cb-day-weekend" : ""}${grouped[i].length === 0 ? " cb-day-empty" : ""}`}
                       data-d={`${weekdayShort(iso).slice(0, 1)} ${dayOfMonth(iso)}`}
                     >
-                      {grouped[i].map((session) => (
+                      {(openDays[`${row.id}:${iso}`] ? grouped[i] : grouped[i].slice(0, MAX_TILES)).map((session) => (
                         <Tile key={session.id} session={session} dayName={`${weekdayShort(iso)} ${dayOfMonth(iso)}`} />
                       ))}
+                      {grouped[i].length > MAX_TILES && (
+                        <button
+                          type="button"
+                          className="cb-more"
+                          aria-expanded={Boolean(openDays[`${row.id}:${iso}`])}
+                          onClick={() => setOpenDays((prev) => ({ ...prev, [`${row.id}:${iso}`]: !prev[`${row.id}:${iso}`] }))}
+                        >
+                          {openDays[`${row.id}:${iso}`] ? "Ver menos" : `+${grouped[i].length - MAX_TILES} más`}
+                        </button>
+                      )}
                     </div>
                   ))
                 ) : row.weekLoading ? (
