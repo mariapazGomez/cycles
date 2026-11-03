@@ -78,6 +78,14 @@ enum CycleType {
   macrocycle
 }
 
+// Guía de primer uso (CYC-191/192). Un solo valor por cuenta, compartido por web y móvil;
+// el avance de los pasos se deriva de los datos y no se guarda.
+enum TourStatus {
+  pending
+  skipped
+  completed
+}
+
 model User {
   id                 String         @id @default(uuid())
   email              String         @unique
@@ -94,6 +102,7 @@ model User {
   isDemo             Boolean        @default(false)
   // Qué teléfono usa el atleta que se registró solo (CYC-194). Null si no lo dijo.
   phonePlatform      PhonePlatform?
+  tourStatus         TourStatus     @default(pending)
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
 

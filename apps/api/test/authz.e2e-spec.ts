@@ -151,6 +151,7 @@ const rows: Row[] = [
   { method: "get", path: () => "/users/me", cases: [noSession()] },
   { method: "post", path: () => "/users/me/policy-acceptance", body: () => ({ acceptPolicy: true }), cases: [noSession()] },
   { method: "get", path: () => "/users/me/export", cases: [noSession()] },
+  { method: "patch", path: () => "/users/me/tour", body: () => ({ status: "skipped" }), cases: [noSession()] },
   { method: "patch", path: () => "/users/me/data-consent", body: () => ({ dataConsent: false }), cases: [noSession()] },
   { method: "delete", path: () => "/users/me", body: () => ({ confirmation: "ELIMINAR" }), cases: [noSession()] },
 ];

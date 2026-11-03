@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { TourStatus } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { POLICY_VERSION, policyAcceptanceData } from "../common/policy";
 
@@ -32,6 +33,8 @@ export class UsersService {
       hasActiveCoach,
       authProvider: user.authProvider,
       weightUnit: user.weightUnit,
+      phonePlatform: user.phonePlatform,
+      tourStatus: user.tourStatus,
       emailVerified: Boolean(user.emailVerifiedAt),
       dataConsentAt: user.dataConsentAt,
       policyAcceptedAt: accepted?.acceptedAt ?? null,
@@ -39,6 +42,11 @@ export class UsersService {
       needsPolicyAcceptance: !accepted,
       createdAt: user.createdAt,
     };
+  }
+
+  // Guarda si la persona saltó o terminó la guía de primer uso (o la vuelve a abrir).
+  async setTourStatus(id: string, tourStatus: TourStatus): Promise<void> {
+    await this.prisma.user.update({ where: { id }, data: { tourStatus } });
   }
 
   // Quien ya tiene cuenta acepta la versión vigente desde la pantalla de
