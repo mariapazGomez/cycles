@@ -115,8 +115,8 @@ export function CoachWeekBoard({ rows, monday, todayIso, onDismiss, onApplied }:
 
       <div className="cb-head" aria-hidden="true">
         <span />
-        {days.map((iso) => (
-          <span key={iso} className={iso === todayIso ? "cb-head-today" : undefined}>
+        {days.map((iso, i) => (
+          <span key={iso} className={`cb-head-day${iso === todayIso ? " cb-head-today" : ""}${i >= 5 ? " cb-head-weekend" : ""}`}>
             {weekdayShort(iso)} {dayOfMonth(iso)}
           </span>
         ))}
@@ -162,7 +162,7 @@ export function CoachWeekBoard({ rows, monday, todayIso, onDismiss, onApplied }:
                   days.map((iso, i) => (
                     <div
                       key={iso}
-                      className={`cb-day${iso === todayIso ? " cb-day-today" : ""}${grouped[i].length === 0 ? " cb-day-empty" : ""}`}
+                      className={`cb-day${iso === todayIso ? " cb-day-today" : ""}${i >= 5 ? " cb-day-weekend" : ""}${grouped[i].length === 0 ? " cb-day-empty" : ""}`}
                       data-d={`${weekdayShort(iso).slice(0, 1)} ${dayOfMonth(iso)}`}
                     >
                       {grouped[i].map((session) => (
@@ -172,7 +172,7 @@ export function CoachWeekBoard({ rows, monday, todayIso, onDismiss, onApplied }:
                   ))
                 ) : row.weekLoading ? (
                   days.map((iso, i) => (
-                    <div key={iso} className="cb-day" aria-hidden="true">
+                    <div key={iso} className={`cb-day${iso === todayIso ? " cb-day-today" : ""}${i >= 5 ? " cb-day-weekend" : ""}`} aria-hidden="true">
                       {i % 2 === 0 && i < 5 ? <Skeleton height={56} className="sk-tile" /> : null}
                     </div>
                   ))

@@ -755,6 +755,63 @@
   text-align: center;
 }
 
+/* Grilla de la semana en pantallas anchas: una línea fina separa cada día, de
+   arriba a abajo de la tarjeta; «hoy» se marca más y el fin de semana va en un
+   gris apenas más oscuro. (En angosto cada día lleva su propia etiqueta.) */
+@media (min-width: 1001px) {
+  .cb-head-day,
+  .cb-day,
+  .cb-summary {
+    position: relative;
+  }
+
+  .cb-head-day::after,
+  .cb-day::after,
+  .cb-summary::after {
+    content: "";
+    position: absolute;
+    left: -5px;
+    top: -12px;
+    bottom: -12px;
+    width: 1px;
+    background: var(--color-gray-border);
+    pointer-events: none;
+  }
+
+  .cb-head-day::after {
+    top: -8px;
+    bottom: -8px;
+  }
+
+  /* Los días ocupan todo el alto de la fila, no solo el de sus sesiones. */
+  .cb-day {
+    margin: -12px 0;
+    padding: 14px 2px;
+    border-radius: 0;
+  }
+
+  .cb-day-weekend {
+    background: var(--color-gray-light);
+  }
+
+  .cb-day-today {
+    background: var(--color-blue-100);
+  }
+
+  .cb-head-today::before {
+    content: "";
+    position: absolute;
+    inset: -8px 0 -8px 0;
+    z-index: -1;
+    background: var(--color-blue-100);
+  }
+
+  /* Las columnas de la ficha y el resumen no se ven afectadas por el margen. */
+  .cb-day-empty {
+    min-height: 64px;
+  }
+}
+
 /* Tablero y calendario en pantallas medianas y angostas: sin barra horizontal. */
 @media (max-width: 1000px) {
   .cb-head {
