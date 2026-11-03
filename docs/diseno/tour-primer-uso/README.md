@@ -192,3 +192,5 @@ Decisiones al construir:
 - No se atenúa el resto de la pantalla (los cajones y diálogos ya traen su propio velo).
 - Con la guía en un paso cuya pantalla no está abierta, sale la fichita «Volver al paso N».
 - **Reenviar invitación** y el botón **Instalar la app** de iPhone siguen fuera (sin endpoint y sin enlace público de TestFlight).
+
+**Verificado en tablet (768) y móvil (390):** pasos 3 a 5, incluida la marca 4b («¿Falta uno? Toca Crear»), con el ejercicio creado dentro de la rutina. En tablet el panel de rutinas pasa a un botón **Rutinas**, así que la marca 3b resalta **Crea la primera** dentro del selector. Mientras el formulario «Nuevo ejercicio» está abierto, la marca 4a resalta todo el bloque de ejercicios (queda para pulir).
