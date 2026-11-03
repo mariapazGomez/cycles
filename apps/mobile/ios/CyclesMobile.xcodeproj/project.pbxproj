@@ -7,25 +7,69 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0AF19E13B0BB660F5FA5244A /* ActivityKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 872D4EF020F1464CC2489A84 /* ActivityKit.framework */; };
 		0C80B921A6F3F58F76C31292 /* libPods-CyclesMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-CyclesMobile.a */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		1EFAED9A87AD140179D94CD3 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17DAD9CCF841AA706D655691 /* SwiftUI.framework */; };
+		3C325FD8FBF51246C8198454 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82F138545F2CBD19B84DA792 /* Foundation.framework */; };
+		6AFAD7599C17BC51F4AFCAF1 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99B3FD22101F4F3BAE033722 /* WidgetKit.framework */; };
+		700639B6F649526BAC62AB62 /* RestActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BFDB1914EDDCB5E3F04CD22 /* RestActivity.m */; };
+		75A47FE3CFDE60698CE50AF6 /* RestTimerLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = D26E9539278130DFD0307A8E /* RestTimerLiveActivity.swift */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
+		7FF91A32100832618DA6072E /* RestTimerWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = F6C785069E8C06D096793512 /* RestTimerWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		80845CED4DA2E55ED0ADBD46 /* RestTimerAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = D542534DC834E4B6766E5522 /* RestTimerAttributes.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		CA0599170F256096978BE1FC /* RestTimerAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = D542534DC834E4B6766E5522 /* RestTimerAttributes.swift */; };
 		FD91289C4F40FEAB8B881DC5 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
+		FEA1355003492DA23BA7F002 /* RestActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A51335486DAE730A47D7866F /* RestActivity.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		E31A1E51B71110DF99920098 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EA7C6587D71E1203C21B7D2D;
+			remoteInfo = RestTimerWidget;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2B9E81A8CE4EEC0ED5DB944B /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				7FF91A32100832618DA6072E /* RestTimerWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		003FAD567C41106D1CD30D2E /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* CyclesMobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CyclesMobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = CyclesMobile/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = CyclesMobile/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = CyclesMobile/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		17DAD9CCF841AA706D655691 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/SwiftUI.framework; sourceTree = DEVELOPER_DIR; };
 		3B4392A12AC88292D35C810B /* Pods-CyclesMobile.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CyclesMobile.debug.xcconfig"; path = "Target Support Files/Pods-CyclesMobile/Pods-CyclesMobile.debug.xcconfig"; sourceTree = "<group>"; };
+		3BFDB1914EDDCB5E3F04CD22 /* RestActivity.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = RestActivity.m; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-CyclesMobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CyclesMobile.release.xcconfig"; path = "Target Support Files/Pods-CyclesMobile/Pods-CyclesMobile.release.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-CyclesMobile.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-CyclesMobile.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = CyclesMobile/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = CyclesMobile/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		82F138545F2CBD19B84DA792 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		872D4EF020F1464CC2489A84 /* ActivityKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ActivityKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/ActivityKit.framework; sourceTree = DEVELOPER_DIR; };
+		99B3FD22101F4F3BAE033722 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/WidgetKit.framework; sourceTree = DEVELOPER_DIR; };
 		A1B2C3D4E5F60718293A4B5C /* CyclesMobile.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = CyclesMobile.entitlements; path = CyclesMobile/CyclesMobile.entitlements; sourceTree = "<group>"; };
+		A51335486DAE730A47D7866F /* RestActivity.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RestActivity.swift; sourceTree = "<group>"; };
+		D26E9539278130DFD0307A8E /* RestTimerLiveActivity.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RestTimerLiveActivity.swift; sourceTree = "<group>"; };
+		D542534DC834E4B6766E5522 /* RestTimerAttributes.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RestTimerAttributes.swift; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F6C785069E8C06D096793512 /* RestTimerWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = RestTimerWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,9 +81,29 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D52AC7A3EB02B1091FE464D9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C325FD8FBF51246C8198454 /* Foundation.framework in Frameworks */,
+				6AFAD7599C17BC51F4AFCAF1 /* WidgetKit.framework in Frameworks */,
+				1EFAED9A87AD140179D94CD3 /* SwiftUI.framework in Frameworks */,
+				0AF19E13B0BB660F5FA5244A /* ActivityKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		034C4D24ED049590001EC845 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				D542534DC834E4B6766E5522 /* RestTimerAttributes.swift */,
+			);
+			name = Shared;
+			path = Shared;
+			sourceTree = "<group>";
+		};
 		13B07FAE1A68108700A75B9A /* CyclesMobile */ = {
 			isa = PBXGroup;
 			children = (
@@ -49,6 +113,8 @@
 				A1B2C3D4E5F60718293A4B5C /* CyclesMobile.entitlements */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
+				A51335486DAE730A47D7866F /* RestActivity.swift */,
+				3BFDB1914EDDCB5E3F04CD22 /* RestActivity.m */,
 			);
 			name = CyclesMobile;
 			sourceTree = "<group>";
@@ -58,8 +124,20 @@
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				5DCACB8F33CDC322A6C60F78 /* libPods-CyclesMobile.a */,
+				3CC843AF2815391A6F9E7F2F /* iOS */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		3CC843AF2815391A6F9E7F2F /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				82F138545F2CBD19B84DA792 /* Foundation.framework */,
+				99B3FD22101F4F3BAE033722 /* WidgetKit.framework */,
+				17DAD9CCF841AA706D655691 /* SwiftUI.framework */,
+				872D4EF020F1464CC2489A84 /* ActivityKit.framework */,
+			);
+			name = iOS;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -77,6 +155,8 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
+				034C4D24ED049590001EC845 /* Shared */,
+				8B98E75D8B3623D5434AA2BA /* RestTimerWidget */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -87,8 +167,19 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* CyclesMobile.app */,
+				F6C785069E8C06D096793512 /* RestTimerWidget.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		8B98E75D8B3623D5434AA2BA /* RestTimerWidget */ = {
+			isa = PBXGroup;
+			children = (
+				D26E9539278130DFD0307A8E /* RestTimerLiveActivity.swift */,
+				003FAD567C41106D1CD30D2E /* Info.plist */,
+			);
+			name = RestTimerWidget;
+			path = RestTimerWidget;
 			sourceTree = "<group>";
 		};
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
@@ -115,15 +206,34 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */,
 				E235C05ADACE081382539298 /* [CP] Copy Pods Resources */,
+				2B9E81A8CE4EEC0ED5DB944B /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				FFDAB50E648516793448E48C /* PBXTargetDependency */,
 			);
 			name = CyclesMobile;
 			productName = CyclesMobile;
 			productReference = 13B07F961A680F5B00A75B9A /* CyclesMobile.app */;
 			productType = "com.apple.product-type.application";
+		};
+		EA7C6587D71E1203C21B7D2D /* RestTimerWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0E426AADB6309EA3B43BBBF8 /* Build configuration list for PBXNativeTarget "RestTimerWidget" */;
+			buildPhases = (
+				E8B75DB8BD3C77DEAFB2AA67 /* Sources */,
+				D52AC7A3EB02B1091FE464D9 /* Frameworks */,
+				CE687295D724666E16AB9F85 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RestTimerWidget;
+			productName = RestTimerWidget;
+			productReference = F6C785069E8C06D096793512 /* RestTimerWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -152,6 +262,7 @@
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* CyclesMobile */,
+				EA7C6587D71E1203C21B7D2D /* RestTimerWidget */,
 			);
 		};
 /* End PBXProject section */
@@ -164,6 +275,13 @@
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				FD91289C4F40FEAB8B881DC5 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CE687295D724666E16AB9F85 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -266,10 +384,31 @@
 			buildActionMask = 2147483647;
 			files = (
 				761780ED2CA45674006654EE /* AppDelegate.swift in Sources */,
+				FEA1355003492DA23BA7F002 /* RestActivity.swift in Sources */,
+				700639B6F649526BAC62AB62 /* RestActivity.m in Sources */,
+				CA0599170F256096978BE1FC /* RestTimerAttributes.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E8B75DB8BD3C77DEAFB2AA67 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				75A47FE3CFDE60698CE50AF6 /* RestTimerLiveActivity.swift in Sources */,
+				80845CED4DA2E55ED0ADBD46 /* RestTimerAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		FFDAB50E648516793448E48C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = RestTimerWidget;
+			target = EA7C6587D71E1203C21B7D2D /* RestTimerWidget */;
+			targetProxy = E31A1E51B71110DF99920098 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
@@ -335,6 +474,32 @@
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
+		};
+		36B0D347542DD8E79D162D5F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Y6Z96XJBFW;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = RestTimerWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.getcycles.mobile.RestTimerWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
 		};
 		83CBBA201A601CBA00E9B192 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -492,9 +657,45 @@
 			};
 			name = Release;
 		};
+		ECBA8D0288E5066B6358526A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Y6Z96XJBFW;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = RestTimerWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.getcycles.mobile.RestTimerWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		0E426AADB6309EA3B43BBBF8 /* Build configuration list for PBXNativeTarget "RestTimerWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ECBA8D0288E5066B6358526A /* Release */,
+				36B0D347542DD8E79D162D5F /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "CyclesMobile" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
