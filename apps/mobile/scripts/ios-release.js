@@ -102,6 +102,13 @@ function isXcodeCloud(env) {
   return env.CI_XCODE_CLOUD === 'TRUE';
 }
 
+// La app lleva el identificador exacto; sus extensiones (por ejemplo el widget de
+// la isla dinámica) cuelgan de él: app.getcycles.mobile.RestTimerWidget. Apple
+// exige ese prefijo, así que se aceptan ambos y al menos uno es la app.
+function bundleIdsAreValid(ids) {
+  return ids.includes(BUNDLE_ID) && ids.every(id => id === BUNDLE_ID || id.startsWith(`${BUNDLE_ID}.`));
+}
+
 // ¿El conjunto de íconos declara un solo ícono universal de 1024 px? Xcode genera
 // de ahí todos los tamaños. Con el formato antiguo (tamaños sueltos sin archivo)
 // el paquete queda sin el ícono de 120 px y Apple rechaza la subida.
@@ -203,10 +210,10 @@ function checkProject({ ci = false } = {}) {
 
   // Identificador y equipo de firma
   const bundleIds = readSetting(pbx, 'PRODUCT_BUNDLE_IDENTIFIER');
-  if (bundleIds.length > 0 && bundleIds.every(id => id === BUNDLE_ID)) {
-    results.push(ok(`Identificador ${BUNDLE_ID}`));
+  if (bundleIdsAreValid(bundleIds)) {
+    results.push(ok(`Identificador ${BUNDLE_ID} (y sus extensiones)`));
   } else {
-    results.push(fail(`El identificador debe ser ${BUNDLE_ID} (hoy: ${bundleIds.join(', ') || 'ninguno'}).`));
+    results.push(fail(`El identificador debe ser ${BUNDLE_ID}, o ${BUNDLE_ID}.<extensión> para las extensiones (hoy: ${bundleIds.join(', ') || 'ninguno'}).`));
   }
   const teams = readSetting(pbx, 'DEVELOPMENT_TEAM');
   if (teams.length === 0 || teams.some(t => !t)) {
@@ -410,4 +417,4 @@ if (require.main === module) {
   process.exit(main());
 }
 
-module.exports = { isXcodeCloud, readSetting, writeSetting, parseVersion, compareVersions, pngInfo, lastUpload, checkVersioning, xcodeTeamIsFree, iconIsSingleSize };
+module.exports = { isXcodeCloud, readSetting, writeSetting, parseVersion, compareVersions, pngInfo, lastUpload, checkVersioning, xcodeTeamIsFree, iconIsSingleSize, bundleIdsAreValid };
