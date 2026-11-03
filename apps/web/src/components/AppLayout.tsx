@@ -1,8 +1,9 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import logo from "../assets/logo-cycles.png";
 import { NotificationBell } from "./NotificationBell";
 import { UserMenu } from "./UserMenu";
+import { TourStepBar } from "./tour/TourStepBar";
 
 function navLinkClass({ isActive }: { isActive: boolean }): string {
   return isActive ? "app-nav-link app-nav-link-active" : "app-nav-link";
@@ -10,6 +11,7 @@ function navLinkClass({ isActive }: { isActive: boolean }): string {
 
 export function AppLayout() {
   const { user } = useAuth();
+  const { pathname } = useLocation();
 
   return (
     <div className="app-shell">
@@ -51,6 +53,7 @@ export function AppLayout() {
           <UserMenu />
         </div>
       </header>
+      {user?.role === "coach" && pathname !== "/" && <TourStepBar />}
       <main className="app-main">
         <Outlet />
       </main>

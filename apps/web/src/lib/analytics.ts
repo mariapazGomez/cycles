@@ -99,7 +99,9 @@ export type AnalyticsEvent =
   | "cycle_created"
   | "routine_created"
   | "routine_assigned"
-  | "session_closed";
+  | "session_closed"
+  | "tour_completed"
+  | "tour_skipped";
 
 // Propiedades permitidas: solo categorías y conteos.
 type Props = Record<string, string | number | boolean>;

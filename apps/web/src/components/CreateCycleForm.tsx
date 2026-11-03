@@ -73,9 +73,11 @@ export function CreateCycleForm({ onDone }: CreateCycleFormProps) {
             ))}
           </select>
           {athletesQuery.data && activeAthletes.length === 0 && (
-            <p style={{ fontSize: "0.8rem", color: "var(--color-ink-secondary)" }}>
-              Todavía no tienes atletas activos. <Link to="/athletes">Invita uno primero</Link>.
-            </p>
+            <div className="tour-empty" role="status">
+              <b>Falta que tu atleta acepte</b>
+              <p>Para crear un ciclo necesitas un atleta que ya haya aceptado su invitación.</p>
+              <Link to="/athletes">Ver invitaciones</Link>
+            </div>
           )}
         </div>
 
