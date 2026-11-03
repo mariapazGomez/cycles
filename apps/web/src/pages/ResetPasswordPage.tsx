@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { AuthCard } from "../components/AuthCard";
 import * as authApi from "../services/authApi";
 import { ApiError } from "../services/httpClient";
+import { PasswordField } from "../components/PasswordField";
 
 export function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
@@ -64,31 +65,8 @@ export function ResetPasswordPage() {
       {formError && <div className="error-banner">{formError}</div>}
 
       <form onSubmit={handleSubmit} noValidate>
-        <div className="field">
-          <label htmlFor="newPassword">Nueva contraseña</label>
-          <input
-            id="newPassword"
-            type="password"
-            autoComplete="new-password"
-            minLength={8}
-            required
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-          />
-        </div>
-
-        <div className="field">
-          <label htmlFor="confirmPassword">Confirmar contraseña</label>
-          <input
-            id="confirmPassword"
-            type="password"
-            autoComplete="new-password"
-            minLength={8}
-            required
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-        </div>
+        <PasswordField id="newPassword" label="Nueva contraseña" autoComplete="new-password" minLength={8} value={newPassword} onChange={setNewPassword} />
+        <PasswordField id="confirmPassword" label="Confirmar contraseña" autoComplete="new-password" minLength={8} value={confirmPassword} onChange={setConfirmPassword} />
 
         <button type="submit" className="button-primary" disabled={mutation.isPending}>
           {mutation.isPending ? "Guardando…" : "Guardar nueva contraseña"}
