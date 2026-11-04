@@ -63,6 +63,20 @@ Política de CYC-156 (épica «Accesos y contraseñas»). Aplica a toda cuenta, 
 
 **Recuperación.** Se imprime el kit de recuperación de 1Password y se guarda en un lugar físico seguro, y se nombra un contacto de emergencia con acceso a la cuenta de 1Password. Una vez al trimestre se prueba entrar al gestor desde otro equipo con el kit. Sin esto, perder el equipo o la contraseña maestra dejaría sin acceso a producción. La llave de Android tiene además una copia propia: si se pierde, no se pueden publicar actualizaciones con la misma identidad.
 
+### Reporte de caídas (app móvil, CYC-104)
+
+Sentry (`@sentry/react-native`) registra los cierres inesperados de la app. Es un proveedor nuevo que hay que nombrar en la Política de privacidad (datos de fallos, sin identidad). Reglas: R1 (la clave no está en el repo), R8 (nada de contraseñas, tokens ni enlaces con token) y la privacidad del atleta (R7).
+
+| Archivo | Qué hace |
+|---|---|
+| `apps/mobile/src/services/crashReporting.ts` | Enciende Sentry solo en compilaciones Release y con clave. `sendDefaultPii` apagado, sin capturas, sin jerarquía de vistas, sin sesiones ni migas de pan. `scrubEvent` quita usuario, petición, datos extra, nombre del aparato, idioma y zona horaria, y `redact` oculta correos, tokens y parámetros de URL en los mensajes de error. Lo que sale: tipo de error, traza, versión de la app, modelo del teléfono y sistema operativo. |
+| `apps/mobile/src/components/AppErrorBoundary.tsx` | Error boundary de toda la app; registra el error con el árbol de componentes (solo nombres de componentes). |
+| `apps/mobile/src/config/sentry.ts` | Clave pública del proyecto (DSN), vacía en el repo. |
+| `apps/mobile/scripts/write-sentry-config.js` | Escribe la clave desde la variable `SENTRY_DSN` al compilar (Xcode Cloud: `ci_post_clone.sh`; Android: `android.yml`). Valida el formato y nunca la imprime. Sin la variable, el reporte queda apagado. |
+| `apps/mobile/ios/CyclesMobile/PrivacyInfo.xcprivacy` | Declara «Datos de fallos», no vinculados a la persona, sin seguimiento. |
+
+Pendiente de la usuaria: crear la cuenta y el proyecto de Sentry (clave en 1Password; en el proyecto, activar «Prevent Storing of IP Addresses» en Security & Privacy, porque Sentry infiere la IP de la conexión aunque la app no la envíe), definir `SENTRY_DSN` en Xcode Cloud y como secreto de GitHub, actualizar la Política de privacidad y la declaración de privacidad de App Store.
+
 ### Endpoint público de contacto (landing)
 
 | Archivo | Qué hace |

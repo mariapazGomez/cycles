@@ -114,6 +114,11 @@ jobs:
       - name: Instalar dependencias
         run: npm ci --workspace apps/mobile --workspace packages/shared --include-workspace-root
 
+      - name: Dejar la clave de Sentry (reporte de caídas)
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: node apps/mobile/scripts/write-sentry-config.js
+
       - name: Compilar el APK para teléfono
         working-directory: apps/mobile/android
         run: ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a
@@ -162,6 +167,11 @@ jobs:
 
       - name: Instalar dependencias
         run: npm ci --workspace apps/mobile --workspace packages/shared --include-workspace-root
+
+      - name: Dejar la clave de Sentry (reporte de caídas)
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: node apps/mobile/scripts/write-sentry-config.js
 
       - name: Dejar la llave en un archivo temporal
         run: |

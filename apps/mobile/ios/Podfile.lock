@@ -1811,6 +1811,29 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
+  - RNSentry (8.33.0):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-bridging
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
   - RNSVG (15.15.5):
     - hermes-engine
     - RCTRequired
@@ -1952,6 +1975,7 @@ DEPENDENCIES:
   - RNKeychain (from `../../../node_modules/react-native-keychain`)
   - RNNotifee (from `../node_modules/react-native-notify-kit`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNSVG (from `../node_modules/react-native-svg`)
   - SocketRocket (from `build/rndeps-facades/SocketRocket`)
   - Yoga (from `build/rncore-facades/Yoga`)
@@ -2136,6 +2160,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-notify-kit"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNSentry:
+    :path: "../node_modules/@sentry/react-native"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   SocketRocket:
@@ -2233,6 +2259,7 @@ SPEC CHECKSUMS:
   RNKeychain: c21223f99385f30e3353355f1a130c150f23c96d
   RNNotifee: f8264129eb92ff4f0f4eb0019713a364408a9c53
   RNScreens: b156e2601e24bf64c2a7325fd033e2bcc221ef55
+  RNSentry: 5b1c6ae296a04052a23e5ca2ebfcd29da51cb8de
   RNSVG: df7b2c0679ac7b9a668af6c6b40e2c6cb4df88f5
   SocketRocket: d57b1af80c029e12a75cd9b218287c67381e4593
   Yoga: 58b502c52b14ad3c4468805d461fc37d275c2a42

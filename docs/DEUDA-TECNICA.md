@@ -50,9 +50,8 @@ Ya pasó más de una vez: los tipos de `ExerciseLog`/`SessionFeedback` quedaron 
 ### ~~10. Expiración real del refresh token no desloguea al usuario~~ **Resuelto** (2026-11-01, CYC-103, PR #118)
 `httpClient` expone `onSessionExpired` y `AuthContext` lo usa para pasar a «sin sesión» cuando el servidor rechaza el refresh o ya no hay refresh token; un fallo de red no cierra la sesión. Pruebas en `apps/mobile/__tests__/httpClient.test.ts` y `AuthContext.test.tsx`.
 
-### 11. Sin error boundary ni reporte de crashes
-No hay un React error boundary a nivel de app ni ninguna herramienta de crash reporting (ej. Sentry). Un error de render no capturado deja la app en blanco sin ningún registro de qué pasó.
-**Impacto:** medio, crece a medida que se agregan más pantallas.
+### 11. Sin error boundary ni reporte de crashes — resuelto (CYC-104, 2026-11-04)
+La app móvil tiene un error boundary de toda la app (`AppErrorBoundary`: aviso «Algo salió mal» con «Reintentar» en vez de pantalla en blanco) y reporte de caídas con Sentry, sin datos personales (ver [`SEGURIDAD.md`](SEGURIDAD.md), «Reporte de caídas»). **Queda:** subir los mapas de código fuente a Sentry para que las trazas de JavaScript sean legibles (requiere un token de Sentry en Xcode Cloud y en GitHub), y el reporte de la web (no incluido).
 
 ## Backend
 
