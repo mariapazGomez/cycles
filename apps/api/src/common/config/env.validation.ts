@@ -82,6 +82,14 @@ export function validateEnv(config: Record<string, unknown>): Record<string, unk
     errors.push(`Las variables de TestFlight van todas juntas; faltan: ${appleKeys.filter((k) => !value(k)).join(", ")}.`);
   }
 
+  // Revocación de Sign in with Apple al eliminar la cuenta (CYC-220): llave e
+  // identificador juntos o ninguno; sin ellos la revocación se omite y queda un aviso.
+  const appleSignInKeys = ["APPLE_KEY_ID", "APPLE_PRIVATE_KEY"];
+  const appleSignInSet = appleSignInKeys.filter((key) => value(key));
+  if (appleSignInSet.length > 0 && appleSignInSet.length < appleSignInKeys.length) {
+    errors.push(`Las variables de Sign in with Apple van juntas; faltan: ${appleSignInKeys.filter((k) => !value(k)).join(", ")}.`);
+  }
+
   // Portal del equipo (CYC-193): la API valida el token de Cloudflare Access. Las dos
   // juntas o ninguna; sin ellas todas las rutas /admin/* responden 401.
   const accessKeys = ["CF_ACCESS_TEAM_DOMAIN", "CF_ACCESS_AUD"];

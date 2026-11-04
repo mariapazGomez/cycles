@@ -1,8 +1,9 @@
-import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { DATA_CONSENT_VERSION } from "../auth/auth.service";
 import { templateDates } from "../cycles/template-dates";
+import { AppleRevocationService } from "./apple-revocation.service";
 
 // Tope de semanas de una plantilla (CreateTemplateDto).
 const MAX_TEMPLATE_WEEKS = 52;
@@ -17,7 +18,12 @@ export function weeksBetween(start: Date, end: Date): number {
 // 5.1.1(v) de Apple (docs/SEGURIDAD.md).
 @Injectable()
 export class AccountService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(AccountService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly appleRevocation: AppleRevocationService,
+  ) {}
 
   async setDataConsent(userId: string, consent: boolean): Promise<void> {
     await this.prisma.user.update({
@@ -28,17 +34,36 @@ export class AccountService {
     });
   }
 
-  async deleteAccount(userId: string): Promise<void> {
+  async deleteAccount(userId: string, appleAuthorizationCode?: string): Promise<void> {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException("Usuario no encontrado");
     }
+    await this.revokeApple(userId, appleAuthorizationCode);
     if (user.role === "athlete") {
       await this.prisma.$transaction((tx) => this.deleteAthlete(tx, userId), { timeout: 60_000 });
     } else if (user.role === "coach") {
       await this.prisma.$transaction((tx) => this.anonymizeCoach(tx, userId), { timeout: 60_000 });
     } else {
       throw new ForbiddenException("Esta cuenta no se puede eliminar desde la app.");
+    }
+  }
+
+  // Quien entra con Apple: se revoca su autorización antes de borrar. Una falla de
+  // Apple no impide eliminar la cuenta (derecho de supresión); un código de otra
+  // cuenta de Apple sí detiene el borrado. Una versión antigua de la app no manda
+  // código: se elimina igual y queda el aviso en el registro.
+  private async revokeApple(userId: string, authorizationCode?: string): Promise<void> {
+    const apple = await this.prisma.userIdentity.findFirst({ where: { userId, provider: "apple" } });
+    if (!apple) {
+      return;
+    }
+    if (!authorizationCode) {
+      this.logger.warn("Cuenta con Apple eliminada sin código de autorización: no se revocó el token.");
+      return;
+    }
+    if ((await this.appleRevocation.revoke(authorizationCode, apple.subject)) === "mismatch") {
+      throw new BadRequestException("Confirma con la cuenta de Apple con la que entraste.");
     }
   }
 

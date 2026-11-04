@@ -10,7 +10,11 @@ export function exportMyData() {
   return apiRequest<Record<string, unknown>>('/users/me/export');
 }
 
-// Elimina la cuenta. `confirmation` debe ser «ELIMINAR».
-export function deleteMyAccount(confirmation: string) {
-  return apiRequest<void>('/users/me', { method: 'DELETE', body: { confirmation } });
+// Elimina la cuenta. `confirmation` debe ser «ELIMINAR». Con Apple vinculado,
+// `appleAuthorizationCode` permite revocar la autorización de Apple.
+export function deleteMyAccount(confirmation: string, appleAuthorizationCode?: string) {
+  return apiRequest<void>('/users/me', {
+    method: 'DELETE',
+    body: appleAuthorizationCode ? { confirmation, appleAuthorizationCode } : { confirmation },
+  });
 }

@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as accountApi from '../services/accountApi';
 import { ApiError } from '../services/httpClient';
 import { useAuth } from '../store/AuthContext';
+import { AppleSignInCancelled, isAppleSignInAvailable, requestAppleAuthorizationCode } from '../services/appleSignIn';
 import type { AppStackParamList } from '../navigation/types';
 import { Icon } from '../components/Icon';
 import { colors } from '../theme/colors';
@@ -64,7 +65,20 @@ export function AccountScreen({ navigation }: Props) {
 
   const remove = () =>
     run('delete', async () => {
-      await accountApi.deleteMyAccount(confirmation);
+      // Quien entra con Apple confirma con Apple: así se revoca su autorización
+      // al eliminar. Si cierra la hoja de Apple, no se elimina nada.
+      let appleCode: string | undefined;
+      if (user?.hasAppleIdentity && isAppleSignInAvailable) {
+        try {
+          appleCode = await requestAppleAuthorizationCode();
+        } catch (e) {
+          if (e instanceof AppleSignInCancelled) {
+            return;
+          }
+          throw e;
+        }
+      }
+      await accountApi.deleteMyAccount(confirmation, appleCode);
       await logout();
     });
 
@@ -134,6 +148,11 @@ export function AccountScreen({ navigation }: Props) {
             Se borran tu cuenta y todo tu historial: series, cierres de sesión y avisos. No se puede
             deshacer. Los planes que tu coach creó para ti se quedan en su Biblioteca, sin tu nombre.
           </Text>
+          {user?.hasAppleIdentity && isAppleSignInAvailable && (
+            <Text style={[styles.body, styles.appleNote]}>
+              Como entras con Apple, te pediremos confirmarlo con Apple para retirar también su acceso.
+            </Text>
+          )}
           <Text style={styles.label}>
             Para confirmar, escribe <Text style={styles.bold}>{CONFIRM_WORD}</Text>
           </Text>
@@ -174,6 +193,7 @@ const styles = StyleSheet.create({
   muted: { fontSize: 13, color: colors.inkSecondary, marginTop: 2 },
   body: { fontSize: 14, color: colors.inkSecondary, lineHeight: 20 },
   flex: { flex: 1 },
+  appleNote: { marginTop: 10 },
   bold: { fontWeight: '700', color: colors.ink },
   switchRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   label: { fontSize: 14, color: colors.ink, marginTop: 14, marginBottom: 6 },

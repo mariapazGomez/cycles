@@ -72,6 +72,16 @@ Política de CYC-156 (épica «Accesos y contraseñas»). Aplica a toda cuenta, 
 | `apps/api/scripts/purgar-contactos.ts` | Borra los mensajes de contacto con más de 12 meses (la política lo promete). Ensayo por defecto, `--aplicar` para borrar; solo imprime cantidades. Se corre a mano, como mínimo cada 3 meses. |
 | `SLACK_CONTACT_WEBHOOK_URL` | Webhook de un canal privado propio (`#cycles-early-adopters`). Lleva el correo completo de quien escribe, por eso no se mezcla con el canal de actividad. Es un secreto (R1). |
 
+### Revocación de Sign in with Apple (CYC-220)
+
+| Archivo | Qué hace |
+|---|---|
+| `apps/api/src/users/apple-revocation.service.ts` | Al eliminar la cuenta de quien entra con Apple: firma el secreto de cliente con la llave de Sign in with Apple (`APPLE_KEY_ID`, `APPLE_PRIVATE_KEY`; secretos, R1), canjea el código de un solo uso que manda la app y revoca el token. No guarda tokens de Apple y no registra respuestas ni errores completos (R8). Comprueba que el código sea de la misma cuenta de Apple vinculada. |
+| `apps/api/src/users/account.service.ts` (`revokeApple`) | Una falla de Apple no impide eliminar la cuenta; un código de otra cuenta de Apple detiene el borrado. |
+| `apps/mobile/src/services/appleSignIn.ts`, `screens/AccountScreen.tsx` | La app pide a Apple la confirmación antes de eliminar (solo si la cuenta tiene Apple vinculado). Si cierra la hoja de Apple no se elimina nada. |
+
+La llave de Sign in with Apple es distinta de la de App Store Connect (TestFlight). Va en 1Password (`Cycles · Firmas`) y en Render; nunca en el repo, el chat ni Linear.
+
 ### Autenticación y permisos
 
 | Archivo | Qué hace |

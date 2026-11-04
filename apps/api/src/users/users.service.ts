@@ -25,12 +25,16 @@ export class UsersService {
         ? (await this.prisma.coachAthlete.count({ where: { athleteId: id, status: "active" } })) > 0
         : undefined;
 
+    // ¿Tiene Apple vinculado? La app lo usa para pedir la confirmación de Apple al eliminar la cuenta.
+    const hasAppleIdentity = (await this.prisma.userIdentity.count({ where: { userId: id, provider: "apple" } })) > 0;
+
     return {
       id: user.id,
       email: user.email,
       name: user.name,
       role: user.role,
       hasActiveCoach,
+      hasAppleIdentity,
       authProvider: user.authProvider,
       weightUnit: user.weightUnit,
       phonePlatform: user.phonePlatform,

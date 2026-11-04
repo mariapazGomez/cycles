@@ -53,7 +53,7 @@ export class UsersController {
   @Throttle({ default: { limit: 3, ttl: 60_000 } })
   @Delete("me")
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteAccount(@CurrentUser() user: AuthenticatedUser, @Body() _dto: DeleteAccountDto): Promise<void> {
-    await this.accountService.deleteAccount(user.id);
+  async deleteAccount(@CurrentUser() user: AuthenticatedUser, @Body() dto: DeleteAccountDto): Promise<void> {
+    await this.accountService.deleteAccount(user.id, dto.appleAuthorizationCode);
   }
 }

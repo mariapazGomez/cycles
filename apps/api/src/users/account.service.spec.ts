@@ -29,9 +29,11 @@ function setup(user: { id: string; role: string }, cycles: unknown[] = []) {
   };
   const prisma = {
     user: { findUnique: jest.fn().mockResolvedValue(user), update: jest.fn() },
+    userIdentity: { findFirst: jest.fn().mockResolvedValue(null) },
     $transaction: jest.fn((cb: (t: typeof tx) => Promise<void>) => cb(tx)),
   };
-  return { tx, prisma, service: new AccountService(prisma as never) };
+  const revocation = { revoke: jest.fn().mockResolvedValue("revoked") };
+  return { tx, prisma, revocation, service: new AccountService(prisma as never, revocation as never) };
 }
 
 describe("weeksBetween", () => {
@@ -120,5 +122,51 @@ describe("AccountService.setDataConsent", () => {
     const { prisma, service } = setup({ id: "a1", role: "athlete" });
     await service.setDataConsent("a1", false);
     expect(prisma.user.update.mock.calls[0][0].data).toEqual({ dataConsentAt: null, dataConsentVersion: null });
+  });
+});
+
+
+describe("AccountService.deleteAccount (Sign in with Apple)", () => {
+  const athlete = { id: "a1", role: "athlete" };
+  const apple = { id: "i1", userId: "a1", provider: "apple", subject: "001234.apple.sub" };
+
+  it("revoca la autorización de Apple con el código y el identificador vinculado, y borra la cuenta", async () => {
+    const { prisma, revocation, service, tx } = setup(athlete);
+    prisma.userIdentity.findFirst.mockResolvedValue(apple);
+    await service.deleteAccount("a1", "codigo-de-apple");
+    expect(prisma.userIdentity.findFirst).toHaveBeenCalledWith({ where: { userId: "a1", provider: "apple" } });
+    expect(revocation.revoke).toHaveBeenCalledWith("codigo-de-apple", "001234.apple.sub");
+    expect(tx.user.delete).toHaveBeenCalled();
+  });
+
+  it("si Apple falla igual se elimina la cuenta (derecho de supresión)", async () => {
+    const { prisma, revocation, service, tx } = setup(athlete);
+    prisma.userIdentity.findFirst.mockResolvedValue(apple);
+    revocation.revoke.mockResolvedValue("failed");
+    await expect(service.deleteAccount("a1", "codigo")).resolves.toBeUndefined();
+    expect(tx.user.delete).toHaveBeenCalled();
+  });
+
+  it("un código de otra cuenta de Apple detiene el borrado", async () => {
+    const { prisma, revocation, service, tx } = setup(athlete);
+    prisma.userIdentity.findFirst.mockResolvedValue(apple);
+    revocation.revoke.mockResolvedValue("mismatch");
+    await expect(service.deleteAccount("a1", "codigo-ajeno")).rejects.toThrow("Confirma con la cuenta de Apple");
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+
+  it("una versión antigua de la app, sin código, elimina igual sin llamar a Apple", async () => {
+    const { prisma, revocation, service, tx } = setup(athlete);
+    prisma.userIdentity.findFirst.mockResolvedValue(apple);
+    await service.deleteAccount("a1");
+    expect(revocation.revoke).not.toHaveBeenCalled();
+    expect(tx.user.delete).toHaveBeenCalled();
+  });
+
+  it("sin Apple vinculado ignora el código y no llama a Apple", async () => {
+    const { revocation, service, tx } = setup(athlete);
+    await service.deleteAccount("a1", "codigo");
+    expect(revocation.revoke).not.toHaveBeenCalled();
+    expect(tx.user.delete).toHaveBeenCalled();
   });
 });
