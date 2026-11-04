@@ -95,3 +95,11 @@ Entregar: las dos páginas, este documento y el inventario de la sección 3.
 2. Confirmar o corregir los 8 compromisos de la sección 1.
 3. Decidir si se mezcla ya (como borrador, con el correo creado) o después de la revisión legal.
 4. Cuando digas "mezcla el PR", lo mezclo y corro P-21 en producción.
+
+## 7. Historial de versiones
+
+| Versión | Qué cambió |
+|---|---|
+| 1.3 (CYC-218) | Reportes de errores de la app con **Sentry** (UE, sin datos personales ni IP, 30 días); nueva tarjeta en la sección 2, proveedor en la 6, región en la 7 y conservación en la 8. Interés legítimo como base legal. Sube `POLICY_VERSION`: todas las cuentas aceptan de nuevo y se recarga la demo. |
+| 1.2 (CYC-194) | Correo del Apple ID y teléfono del atleta para la invitación a TestFlight. |
+| 1.1 (T-179) | Analítica de uso con PostHog. |
