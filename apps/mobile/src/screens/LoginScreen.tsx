@@ -29,6 +29,7 @@ import { useReduceMotion } from '../hooks/useReduceMotion';
 import { colors } from '../theme/colors';
 import { PRIVACY_URL, REGISTER_URL, TERMS_URL } from '../config/legal';
 import { AppleSignInCancelled, isAppleSignInAvailable, requestAppleCredential } from '../services/appleSignIn';
+import { GoogleSignInCancelled, isGoogleSignInAvailable, requestGoogleCredential } from '../services/googleSignIn';
 
 // Si el login tarda más que esto, se avisa que el servidor está despertando.
 const SLOW_LOGIN_MS = 6000;
@@ -48,7 +49,7 @@ function loginErrorMessage(err: unknown): string {
 }
 
 export function LoginScreen() {
-  const { login, loginWithApple } = useAuth();
+  const { login, loginWithApple, loginWithGoogle } = useAuth();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const reduceMotion = useReduceMotion();
@@ -185,6 +186,28 @@ export function LoginScreen() {
     }
   };
 
+  const handleGoogle = async () => {
+    if (submitting) {
+      return;
+    }
+    setError(null);
+    setNoAccount(false);
+    setSubmitting(true);
+    try {
+      await loginWithGoogle(await requestGoogleCredential());
+    } catch (err) {
+      if (err instanceof GoogleSignInCancelled) {
+        return;
+      }
+      if (err instanceof ApiError && err.code === 'no_account') {
+        setNoAccount(true);
+      }
+      setError(err instanceof Error ? err.message : 'No pudimos iniciar sesión con Google.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const reveal = (i: number) => ({
     opacity: reveals[i],
     transform: [{ translateY: reveals[i].interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) }],
@@ -235,8 +258,9 @@ export function LoginScreen() {
               </TouchableOpacity>
             )}
 
-            {isAppleSignInAvailable && (
+            {(isAppleSignInAvailable || isGoogleSignInAvailable) && (
               <>
+                {isAppleSignInAvailable && (
                 <Animated.View style={[styles.appleWrap, { height: metrics.controlHeight }, submitting && styles.dimmed, reveal(1)]}>
                   <AppleButton
                     buttonStyle={AppleButton.Style.BLACK}
@@ -258,6 +282,19 @@ export function LoginScreen() {
                     ]}
                   />
                 </Animated.View>
+                )}
+                {isGoogleSignInAvailable && (
+                  <Animated.View style={[styles.googleWrap, { height: metrics.controlHeight }, submitting && styles.dimmed, reveal(1)]}>
+                    <TouchableOpacity
+                      style={styles.googleButton}
+                      onPress={handleGoogle}
+                      disabled={submitting}
+                      accessibilityRole="button"
+                      accessibilityLabel="Continuar con Google">
+                      <Text style={styles.googleText}>Continuar con Google</Text>
+                    </TouchableOpacity>
+                  </Animated.View>
+                )}
                 <Animated.View style={[styles.orRow, reveal(2)]}>
                   <View style={styles.orLine} />
                   <Text style={styles.orText}>o</Text>
@@ -381,6 +418,9 @@ const styles = StyleSheet.create({
   registerLinkText: { color: colors.blue, fontSize: 15, fontWeight: '700' },
   appleWrap: { borderRadius: 999, overflow: 'hidden', backgroundColor: colors.ink },
   appleButton: { width: '100%', height: '100%' },
+  googleWrap: { borderRadius: 999, overflow: 'hidden', borderWidth: 1, borderColor: colors.controlBorder, backgroundColor: colors.bg, marginTop: 8 },
+  googleButton: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  googleText: { color: colors.ink, fontSize: 17, fontWeight: '600' },
   sheen: { position: 'absolute', top: 0, bottom: 0, width: 70, backgroundColor: 'rgba(255,255,255,0.28)' },
   dimmed: { opacity: 0.6 },
   orRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 12 },

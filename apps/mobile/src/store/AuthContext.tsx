@@ -10,6 +10,7 @@ interface AuthContextValue {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   loginWithApple: (credential: { idToken: string; nonce: string }) => Promise<void>;
+  loginWithGoogle: (credential: { idToken: string; nonce: string }) => Promise<void>;
   logout: () => Promise<void>;
   // Acepta los Términos y la Política vigentes y recarga el perfil (T-147).
   acceptPolicy: () => Promise<void>;
@@ -87,6 +88,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setStatus('signedIn');
   };
 
+  const loginWithGoogle = async (credential: { idToken: string; nonce: string }) => {
+    setUser(await startSession(await authApi.loginWithGoogle(credential)));
+    setWelcome(true);
+    setStatus('signedIn');
+  };
+
   const logout = async () => {
     const refreshToken = tokenStore.getRefreshToken();
     await tokenStore.clear();
@@ -118,7 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ status, user, welcome, endWelcome, login, loginWithApple, logout, acceptPolicy, refreshUser, setTourStatus }),
+    () => ({ status, user, welcome, endWelcome, login, loginWithApple, loginWithGoogle, logout, acceptPolicy, refreshUser, setTourStatus }),
     [status, user, welcome, endWelcome, setTourStatus],
   );
 
