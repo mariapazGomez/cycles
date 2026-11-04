@@ -40,6 +40,7 @@ export function UserMenu() {
         onClick={() => setOpen((value) => !value)}
         aria-haspopup="menu"
         aria-expanded={open}
+        data-tour="avatar"
       >
         <span className="user-avatar">{getInitials(user?.name)}</span>
       </button>

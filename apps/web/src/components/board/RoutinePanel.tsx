@@ -104,7 +104,7 @@ export function RoutinePanel({ routines, isLoading, isError, disabled, draggingI
         </ul>
       )}
       {!disabled && (
-        <button type="button" className="bd-btn bd-btn-p bd-new" onClick={() => onOpenDrawer(null)}>
+        <button type="button" className="bd-btn bd-btn-p bd-new" data-tour="new-routine" onClick={() => onOpenDrawer(null)}>
           Crear rutina nueva
         </button>
       )}

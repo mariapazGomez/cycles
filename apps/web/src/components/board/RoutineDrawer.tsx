@@ -84,7 +84,7 @@ export function RoutineDrawer({
   return (
     <>
       <div className="bd-scrim bd-scrim-drawer" onClick={onClose} />
-      <section ref={ref} className="bd-drawer" role="dialog" aria-modal="true" aria-labelledby="bd-drawer-title">
+      <section ref={ref} className="bd-drawer" role="dialog" aria-modal="true" aria-labelledby="bd-drawer-title" data-tour="drawer">
         <header>
           <h2 id="bd-drawer-title">{routine ? "Editar rutina" : "Crear rutina"}</h2>
           <button type="button" className="bd-ghost" onClick={onClose} aria-label="Cerrar">
@@ -111,16 +111,16 @@ export function RoutineDrawer({
             <label className="bd-lbl" htmlFor="bd-r-name">
               Nombre
             </label>
-            <input id="bd-r-name" data-autofocus className="bd-inp" type="text" value={name} onChange={(e) => setName(e.target.value)} />
+            <input id="bd-r-name" data-autofocus data-tour="drawer-name" className="bd-inp" type="text" value={name} onChange={(e) => setName(e.target.value)} />
           </div>
 
-          <div className="bd-drawer-ex">
+          <div className="bd-drawer-ex" data-tour="drawer-exercises">
             <h3>Ejercicios</h3>
             {rows.length === 0 && <p className="bd-hint">Agrega el primer ejercicio y define series y reps.</p>}
             {rows.map((row) => {
               const missing = attempted && !isRowComplete(row);
               return (
-                <div key={row.key} className="bd-xrow">
+                <div key={row.key} className="bd-xrow" data-tour="drawer-row">
                   <div className="bd-xt">
                     <b>{row.name}</b>
                     <span className="pill">{muscleGroupLabel(row.muscleGroup)}</span>
@@ -183,7 +183,7 @@ export function RoutineDrawer({
           </div>
         </form>
         <footer>
-          <button type="button" className="bd-btn bd-btn-p" disabled={saveMutation.isPending} onClick={submit}>
+          <button type="button" className="bd-btn bd-btn-p" data-tour="drawer-save" disabled={saveMutation.isPending} onClick={submit}>
             {saveMutation.isPending ? "Guardando…" : routine ? "Guardar cambios" : "Guardar y usar"}
           </button>
           <button type="button" className="bd-btn" onClick={onClose}>

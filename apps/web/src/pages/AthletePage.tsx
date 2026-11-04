@@ -111,6 +111,7 @@ export function AthletePage() {
             type="button"
             className={view === v ? "pl-view pl-view-on" : "pl-view"}
             aria-pressed={view === v}
+            data-tour={v === "resumen" ? "view-summary" : undefined}
             onClick={() => setView(v)}
           >
             {v === "ciclo" ? "Ciclo" : "Resumen"}
@@ -125,14 +126,14 @@ export function AthletePage() {
           <p>
             {athlete.name} todavía no tiene ciclos. Asigna uno de la Biblioteca o crea uno nuevo aquí.
           </p>
-          <button type="button" className="button-primary" style={{ width: "auto" }} onClick={() => setShowNewCycle(true)}>
+          <button type="button" className="button-primary" style={{ width: "auto" }} data-tour="new-cycle" onClick={() => setShowNewCycle(true)}>
             Nuevo ciclo
           </button>
         </div>
       ) : (
         <>
           <div className="pl-cycle-bar">
-            <button type="button" className="button-secondary pl-edit" onClick={() => setShowNewCycle(true)}>
+            <button type="button" className="button-secondary pl-edit" data-tour="new-cycle" onClick={() => setShowNewCycle(true)}>
               Nuevo ciclo
             </button>
           </div>

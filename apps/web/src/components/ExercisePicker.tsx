@@ -66,7 +66,7 @@ export function ExercisePicker({ exercises, isLoading, isError, onPick }: Exerci
       {!isLoading && !isError && results.length === 0 && query.trim() && creating === null && (
         <ul className="rt-results">
           <li>
-            <button type="button" className="rt-pick rt-pick-create" onClick={() => setCreating(query.trim())}>
+            <button type="button" className="rt-pick rt-pick-create" data-tour="exercise-create" onClick={() => setCreating(query.trim())}>
               <span aria-hidden="true" className="rt-create-plus">
                 +
               </span>

@@ -89,7 +89,7 @@ export function AthleteCard({ row, monday, todayIso, adherence, adherenceLoading
   const percent = adherence && adherence.of > 0 ? Math.round((adherence.done / adherence.of) * 100) : null;
 
   return (
-    <li className={`at-card${badge ? (badge.kind === "pain" ? " at-card-pain" : " at-card-warn") : ""}`}>
+    <li className={`at-card${badge ? (badge.kind === "pain" ? " at-card-pain" : " at-card-warn") : ""}`} data-tour="athlete-row" data-tour-id={row.id}>
       <div className="at-top">
         <span className="hm-avatar" aria-hidden="true">
           {initials(row.name)}
