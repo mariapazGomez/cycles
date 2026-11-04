@@ -27,14 +27,33 @@ function escapeHtml(value: string): string {
 
 // El logo se sirve desde la web (apps/web/public/email): los clientes de
 // correo bloquean imágenes embebidas, así que va por URL absoluta.
-function layout({ heading, body, cta, url, note }: { heading: string; body: string; cta: string; url: string; note: string }): string {
+// `preheader` es el texto que la bandeja muestra junto al asunto (va oculto en
+// el cuerpo). `canReply` agrega al pie que se puede responder al correo; solo
+// debe ser true cuando MAIL_REPLY_TO está configurado.
+function layout({
+  heading,
+  body,
+  cta,
+  url,
+  note,
+  preheader,
+  canReply = false,
+}: {
+  heading: string;
+  body: string;
+  cta: string;
+  url: string;
+  note: string;
+  preheader?: string;
+  canReply?: boolean;
+}): string {
   const safeUrl = escapeHtml(url);
   const assets = `${new URL(url).origin}/email`;
   const font = "Helvetica,Arial,sans-serif";
   return `<!doctype html>
 <html lang="es">
 <body style="margin:0;padding:0;background:#f6f7f9;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f7f9;padding:32px 16px;">
+${preheader ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;mso-hide:all;">${escapeHtml(preheader)}</div>\n` : ""}<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f7f9;padding:32px 16px;">
 <tr><td align="center">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border:1px solid #dfe2e7;border-radius:16px;overflow:hidden;">
 <tr><td height="6" style="height:6px;line-height:6px;font-size:0;background:${BRAND_FILL};">&nbsp;</td></tr>
@@ -61,7 +80,7 @@ function layout({ heading, body, cta, url, note }: { heading: string; body: stri
 </table>
 </td></tr>
 <tr><td style="padding:16px 36px;background:#f6f7f9;border-top:1px solid #dfe2e7;font-family:${font};font-size:13px;color:${MUTED};">
-<img src="${assets}/isotipo-cycles.png" width="16" height="16" alt="" style="vertical-align:middle;border:0;margin-right:8px;">Enviado por Cycles
+<img src="${assets}/isotipo-cycles.png" width="16" height="16" alt="" style="vertical-align:middle;border:0;margin-right:8px;">Enviado por Cycles${canReply ? ". ¿Dudas? Responde a este correo." : ""}
 </td></tr>
 </table>
 </td></tr>
@@ -70,17 +89,19 @@ function layout({ heading, body, cta, url, note }: { heading: string; body: stri
 </html>`;
 }
 
-export function verificationEmail(url: string): EmailContent {
+export function verificationEmail(url: string, canReply = false): EmailContent {
   return {
     subject: "Confirma tu email para entrar a Cycles",
     html: layout({
-      heading: "Confirma tu email",
-      body: "Toca el botón para confirmar tu email y empezar a usar Cycles.",
-      cta: "Confirmar email",
+      heading: "Confirma tu correo",
+      body: "Toca el botón para confirmar tu correo y entrar a Cycles.",
+      cta: "Confirmar correo",
       url,
       note: "El enlace vence en 24 horas. Si no creaste una cuenta en Cycles, ignora este mensaje.",
+      preheader: "Un toque y ya puedes entrar.",
+      canReply,
     }),
-    text: `Confirma tu email para entrar a Cycles:\n\n${url}\n\nEl enlace vence en 24 horas. Si no creaste una cuenta en Cycles, ignora este mensaje.`,
+    text: `Confirma tu correo para entrar a Cycles:\n\n${url}\n\nEl enlace vence en 24 horas. Si no creaste una cuenta en Cycles, ignora este mensaje.${canReply ? "\n\n¿Dudas? Responde a este correo." : ""}`,
   };
 }
 
@@ -98,18 +119,20 @@ export function passwordResetEmail(url: string): EmailContent {
   };
 }
 
-export function athleteInvitationEmail(url: string, coachName: string): EmailContent {
+export function athleteInvitationEmail(url: string, coachName: string, canReply = false): EmailContent {
   const coach = escapeHtml(coachName);
   return {
     subject: `${coachName} te invitó a entrenar en Cycles`,
     html: layout({
-      heading: `${coach} te invitó a Cycles`,
+      heading: `${coach} te invitó a entrenar`,
       body: `${coach} va a planificar tus entrenamientos en Cycles. Crea tu cuenta para ver tu ciclo y registrar cada sesión desde el celular.`,
       cta: "Crear mi cuenta",
       url,
       note: "La invitación vence en 7 días. Si no conoces a quien te invitó, ignora este mensaje.",
+      preheader: "Crea tu cuenta para ver tu plan.",
+      canReply,
     }),
-    text: `${coachName} te invitó a entrenar en Cycles. Crea tu cuenta para ver tu ciclo y registrar cada sesión:\n\n${url}\n\nLa invitación vence en 7 días. Si no conoces a quien te invitó, ignora este mensaje.`,
+    text: `${coachName} te invitó a entrenar en Cycles. Crea tu cuenta para ver tu ciclo y registrar cada sesión:\n\n${url}\n\nLa invitación vence en 7 días. Si no conoces a quien te invitó, ignora este mensaje.${canReply ? "\n\n¿Dudas? Responde a este correo." : ""}`,
   };
 }
 

@@ -167,7 +167,7 @@ Si se elige la opción de compañía (`cycles.<dominio>`), la misma idea se adap
 
    | Email | Asunto propuesto | Botón |
    |---|---|---|
-   | Verificación | Confirma tu email para entrar a Cycles | Confirmar email |
+   | Verificación | Confirma tu email para entrar a Cycles | Confirmar correo |
    | Recuperar contraseña | Cambia tu contraseña de Cycles | Elegir nueva contraseña |
    | Invitación de atleta | {Coach} te invitó a entrenar en Cycles | Crear mi cuenta |
 
