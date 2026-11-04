@@ -1,4 +1,4 @@
-import { ForbiddenException } from "@nestjs/common";
+import { ConflictException, ForbiddenException } from "@nestjs/common";
 import { APPLE_HIDDEN_EMAIL_MESSAGE, AuthService, NO_ACCOUNT_MESSAGE, REGISTRATION_CLOSED_MESSAGE } from "./auth.service";
 
 const dto = { idToken: "t", nonce: "nonce-aleatorio-de-prueba-1234" };
@@ -12,6 +12,7 @@ function setup(opts: {
   const prisma = {
     userIdentity: {
       findUnique: jest.fn().mockResolvedValue(opts.identity ?? null),
+      findFirst: jest.fn().mockResolvedValue(null),
       create: jest.fn().mockResolvedValue({}),
     },
     user: {
@@ -82,5 +83,57 @@ describe("AuthService.loginWithIdentityToken", () => {
     const { service, prisma } = setup({ open: true, verified: { subject: "s1", email: null, emailVerified: false } });
     await expect(service.loginWithIdentityToken("apple", dto)).rejects.toBeInstanceOf(ForbiddenException);
     expect(prisma.user.create).not.toHaveBeenCalled();
+  });
+});
+
+
+describe("AuthService.linkIdentity (Vincular Apple)", () => {
+  it("vincula la cuenta de Apple verificada a la cuenta con sesión", async () => {
+    const { service, prisma, verifier } = setup({});
+    await expect(service.linkIdentity("u1", "apple", dto)).resolves.toBeUndefined();
+    expect(verifier.verify).toHaveBeenCalledWith("apple", dto.idToken, dto.nonce);
+    expect(prisma.userIdentity.create).toHaveBeenCalledWith({
+      data: { userId: "u1", provider: "apple", subject: "s1", email: "ana@x.cl" },
+    });
+  });
+
+  it("no guarda un correo que Apple no verificó", async () => {
+    const { service, prisma } = setup({ verified: { subject: "s1", email: "ana@x.cl", emailVerified: false } });
+    await service.linkIdentity("u1", "apple", dto);
+    expect(prisma.userIdentity.create).toHaveBeenCalledWith({
+      data: { userId: "u1", provider: "apple", subject: "s1", email: null },
+    });
+  });
+
+  it("repetir lo ya vinculado no es un error ni crea otra identidad", async () => {
+    const { service, prisma } = setup({ identity: { userId: "u1" } });
+    await expect(service.linkIdentity("u1", "apple", dto)).resolves.toBeUndefined();
+    expect(prisma.userIdentity.create).not.toHaveBeenCalled();
+  });
+
+  it("una cuenta de Apple de otra cuenta de Cycles se rechaza sin vincular", async () => {
+    const { service, prisma } = setup({ identity: { userId: "otra" } });
+    await expect(service.linkIdentity("u1", "apple", dto)).rejects.toThrow("Esa cuenta de Apple ya está vinculada a otra cuenta de Cycles.");
+    expect(prisma.userIdentity.create).not.toHaveBeenCalled();
+  });
+
+  it("una cuenta de Cycles con otra Apple ya vinculada la rechaza", async () => {
+    const { service, prisma } = setup({});
+    prisma.userIdentity.findFirst.mockResolvedValue({ userId: "u1", subject: "otro-sub" });
+    await expect(service.linkIdentity("u1", "apple", dto)).rejects.toBeInstanceOf(ConflictException);
+    expect(prisma.userIdentity.create).not.toHaveBeenCalled();
+  });
+
+  it("si dos pedidos llegan a la vez, el índice único deja pasar solo uno", async () => {
+    const { service, prisma } = setup({});
+    prisma.userIdentity.create.mockRejectedValue({ code: "P2002" });
+    await expect(service.linkIdentity("u1", "apple", dto)).rejects.toBeInstanceOf(ConflictException);
+  });
+
+  it("un token de Apple inválido no vincula nada", async () => {
+    const { service, prisma, verifier } = setup({});
+    verifier.verify.mockRejectedValue(new Error("token inválido"));
+    await expect(service.linkIdentity("u1", "apple", dto)).rejects.toThrow("token inválido");
+    expect(prisma.userIdentity.create).not.toHaveBeenCalled();
   });
 });

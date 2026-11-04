@@ -172,6 +172,15 @@ export class AuthController {
     return deliverTokens(req, res, await this.authService.loginWithIdentityToken("apple", dto), this.secureCookies);
   }
 
+  // «Vincular Apple» desde Mi cuenta de la app: requiere sesión (no crea cuentas).
+  @UseGuards(JwtAuthGuard)
+  @Throttle(LIMITS.login)
+  @Post("apple/link")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async linkApple(@CurrentUser() user: AuthenticatedUser, @Body() dto: SocialLoginDto): Promise<void> {
+    await this.authService.linkIdentity(user.id, "apple", dto);
+  }
+
   @Throttle(LIMITS.tokenUse)
   @Post("google/exchange")
   @HttpCode(HttpStatus.OK)

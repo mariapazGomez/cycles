@@ -213,6 +213,40 @@ export class AuthService {
     throw new ForbiddenException({ statusCode: 403, error: "Forbidden", message, code: "no_account" });
   }
 
+  // «Vincular Apple» desde Mi cuenta: con la sesión abierta, la persona demuestra
+  // con Apple que esa cuenta de Apple es suya y se añade a la cuenta de Cycles.
+  // Una cuenta de Apple pertenece a una sola cuenta de Cycles, y una cuenta de
+  // Cycles tiene una sola cuenta de Apple. Repetir lo ya vinculado no es un error.
+  async linkIdentity(userId: string, provider: SocialProvider, dto: SocialLoginDto): Promise<void> {
+    const identity = await this.identityTokens.verify(provider, dto.idToken, dto.nonce);
+    const label = provider === "apple" ? "Apple" : "Google";
+
+    const found = await this.prisma.userIdentity.findUnique({
+      where: { provider_subject: { provider, subject: identity.subject } },
+    });
+    if (found) {
+      if (found.userId === userId) {
+        return;
+      }
+      throw new ConflictException(`Esa cuenta de ${label} ya está vinculada a otra cuenta de Cycles.`);
+    }
+    const own = await this.prisma.userIdentity.findFirst({ where: { userId, provider } });
+    if (own) {
+      throw new ConflictException(`Tu cuenta ya tiene otra cuenta de ${label} vinculada.`);
+    }
+
+    const email = identity.email && identity.emailVerified ? normalizeEmail(identity.email) : null;
+    try {
+      await this.prisma.userIdentity.create({ data: { userId, provider, subject: identity.subject, email } });
+    } catch (error) {
+      // Dos pedidos a la vez: el índice único deja pasar solo uno.
+      if ((error as { code?: string }).code === "P2002") {
+        throw new ConflictException(`Esa cuenta de ${label} ya está vinculada a otra cuenta de Cycles.`);
+      }
+      throw error;
+    }
+  }
+
   async exchangeGoogleCode(rawCode: string): Promise<AuthTokens> {
     const now = new Date();
     const codeHash = hashToken(rawCode);
