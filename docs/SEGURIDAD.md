@@ -39,11 +39,11 @@ Política de CYC-156 (épica «Accesos y contraseñas»). Aplica a toda cuenta, 
 
 **Dónde vive cada cosa**
 
-| Bóveda (propuesta) | Qué guarda |
+| Bóveda | Qué guarda |
 |---|---|
 | `Cycles · Producción` | Cuentas de los proveedores (GitHub, Supabase, Render, Vercel, Cloudflare, Resend, Slack, PostHog, cron-job.org, Google Cloud) y las claves de producción: URL de la base, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `RESEND_API_KEY`, webhooks de Slack, `ACTIVITY_CRON_SECRET`, `PILOT_ACCESS_CODE`, credenciales de Google |
 | `Cycles · Desarrollo` | Las claves de desarrollo y las cuentas ficticias (`DEMO_PASSWORD`, cuenta de demostración de Apple) |
-| `Cycles · Firmas` | La llave de Android (`cycles-upload.keystore`, su contraseña, el alias y la contraseña de la llave), Apple Developer / App Store Connect y Google Play Console |
+| `Cycles · Tiendas y firma` | La llave de Android (`cycles-upload.keystore`, su contraseña, el alias y la contraseña de la llave), Apple Developer / App Store Connect y Google Play Console |
 | `Cycles · Marca` | El correo de las redes y las cuentas de TikTok, Instagram, LinkedIn y YouTube, y `privacidad@getcycles.app` |
 | `Emergencia` | El kit de recuperación de 1Password y el contacto de emergencia (ver «Recuperación») |
 
@@ -80,7 +80,7 @@ Política de CYC-156 (épica «Accesos y contraseñas»). Aplica a toda cuenta, 
 | `apps/api/src/users/account.service.ts` (`revokeApple`) | Una falla de Apple no impide eliminar la cuenta; un código de otra cuenta de Apple detiene el borrado. |
 | `apps/mobile/src/services/appleSignIn.ts`, `screens/AccountScreen.tsx` | La app pide a Apple la confirmación antes de eliminar (solo si la cuenta tiene Apple vinculado). Si cierra la hoja de Apple no se elimina nada. |
 
-La llave de Sign in with Apple es distinta de la de App Store Connect (TestFlight). Va en 1Password (`Cycles · Firmas`) y en Render; nunca en el repo, el chat ni Linear.
+La llave de Sign in with Apple es distinta de la de App Store Connect (TestFlight). Va en 1Password (`Cycles · Tiendas y firma`) y en Render; nunca en el repo, el chat ni Linear.
 
 ### Autenticación y permisos
 
@@ -248,7 +248,7 @@ Severidad: **Alta** = resolver antes de abrir el piloto; **Media** = antes de su
 | S-11 | Baja | **Resuelto en lo técnico** (2026-11-01): `.github/workflows/ci.yml` corre tipos, pruebas, ESLint, la **matriz de autorización e2e** (CYC-90, `docs/PRUEBAS-E2E.md`) y `npm audit` como aviso en cada PR. Falta exigir el CI en la rama `main`. Antes: **sin tests automáticos ni CI:** las reglas R4 y R5 se verificaron a mano en cada fase, así que un cambio futuro podría romperlas sin que nadie lo note. | No hay tests ni `.github/workflows` | Tests de autorización (otro rol, otro dueño, relación inactiva) y un CI mínimo con typecheck, build y `npm audit`. |
 | S-12 | ~~Baja~~ **Resuelto** (2026-11-01, CYC-96; migración `20261101200000_registros_solo_agregan`) | **Append-only solo en la aplicación:** la base no impedía un `UPDATE` o `DELETE` directo sobre `ExerciseLog` o `SessionFeedback`. | `apps/api/prisma/migrations/20261101200000_registros_solo_agregan/` | Hecho con triggers de PostgreSQL: solo se puede anular una fila (`active` 1 a 0); editar otra columna, reactivar, borrar o vaciar da error, salvo dentro de una transacción con `SET LOCAL cycles.allow_purge = 'on'`. Protege de errores (un bug, un `UPDATE` sin `WHERE` en la consola), **no de quien tenga la contraseña del dueño de las tablas**, que puede desactivar el trigger; cerrar eso exige un rol de base aparte para la API sin `UPDATE`/`DELETE` (fase 2, opcional). Pruebas: `apps/api/test/append-only.e2e-spec.ts`. |
 | S-13 | ~~Alta~~ **Resuelto** (2026-09-28, antes de abrir el piloto) | **En Render la API no veía la IP real del cliente.** Con `TRUST_PROXY=1`, `req.ip` era la IP de un proxy interno de Render (`10.x`, que cambia entre pedidos), no la del cliente. Consecuencias: el límite de intentos por IP no frenaba a un atacante (sus pedidos se repartían entre varias IPs internas) y, a la vez, todos los usuarios compartían unas pocas IPs, así que el tráfico legítimo podía bloquear a todos; las alertas de 1E mostraban la IP interna. | Prueba en producción: 7 registros seguidos sin ningún 429; la alerta de 1E mostró `10.31.18.12`. | Variable `CLIENT_IP_HEADER=true-client-ip`: la IP sale del header que pone Cloudflare (delante de Render), que el cliente no puede pisar (`apps/api/src/common/config/client-ip.ts`). Verificado: con IPs inventadas en `X-Forwarded-For` y `True-Client-IP` el sexto pedido da 429, y la alerta muestra la IP pública real. |
-| S-14 | Media | **Secretos locales mal ubicados** (auditoría 2026-10-28, sin secretos en el repo ni en su historial): el `.env` de desarrollo de la API trae la URL de la base de producción y claves reales de Resend y Slack; `apps/web/.env` trae el secreto de Google; los `.env` tienen permisos 644; la llave de Android existe en un solo equipo. | `docs/AUDITORIA-SECRETOS.md` | Pendiente: ver la tabla de hallazgos del informe (permisos 600, sacar lo de producción del `.env` local, respaldar la llave en 1Password). |
+| S-14 | Media | **Secretos locales mal ubicados** (auditoría 2026-10-28, sin secretos en el repo ni en su historial): el `.env` de desarrollo de la API trae la URL de la base de producción y claves reales de Resend y Slack; `apps/web/.env` trae el secreto de Google; los `.env` tienen permisos 644; la llave de Android existía en un solo equipo. | `docs/AUDITORIA-SECRETOS.md` | Parcial: permisos 600, producción fuera del `.env` local y la llave de Android (rehecha y guardada en 1Password, 2026-11-04) están resueltos; ver la tabla de hallazgos del informe para lo que queda. |
 
 ### 3.4 Excepciones aceptadas
 
