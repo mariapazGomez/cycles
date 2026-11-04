@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Botón de Google Cycles</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&display=swap">
+<style>
+/* Concepto: el botón de Google es un par del de Apple. Mismo ancho, alto y radio; blanco con borde fino y la «G» oficial a color, como piden las pautas de Google. Todo medido sobre la pantalla de acceso real (LoginScreen). Solo modo claro. */
+:root{--font-display:"Bricolage Grotesque","Inter",system-ui,sans-serif;--font-body:"Inter",system-ui,sans-serif;
+ --blue:#1a66dd;--blue-100:#eaf2ff;--bg:#fff;--ink:#1f2228;--ink2:#5c6068;--gray:#f6f7f9;--line:#dfe2e7;--page:#f3f5f8;--ctl:#8a8f98;--pain-bg:#fdecec;--pain-ink:#a3282c;
+ --radius-sm:6px;--radius-md:8px;--radius-lg:10px;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5}
+h1,h2,h3{font-family:var(--font-display);margin:0}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.ctl{max-width:1100px;margin:0 auto;padding:16px 16px 0;display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center}
+.ctl h1{font-size:1.3rem;width:100%}
+.grp{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.grp>span{font-size:.78rem;font-weight:700;color:var(--ink2)}
+.seg{display:flex;flex-wrap:wrap;gap:3px;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);padding:3px}
+.seg button{border:0;background:none;padding:6px 12px;min-height:34px;border-radius:var(--radius-sm);font:600 .84rem var(--font-body);color:var(--ink2);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--ink);color:#fff}
+.note{max-width:1100px;margin:10px auto 0;padding:0 16px;font-size:.86rem;color:var(--ink2)}
+.stage{max-width:1100px;margin:0 auto;padding:16px;display:flex;flex-wrap:wrap;gap:28px;justify-content:center;align-items:flex-start}
+.col{display:flex;flex-direction:column;align-items:center;gap:8px}.cap{font-size:.82rem;font-weight:700;color:var(--ink2);text-align:center}
+.tag{display:inline-block;border-radius:999px;padding:1px 10px;font-size:.74rem;font-weight:700;margin-left:6px}.old{background:var(--pain-bg);color:var(--pain-ink)}.new{background:var(--blue-100);color:var(--blue)}
+/* hoja del acceso: 360 px de contenido, como un iPhone */
+.sheet{width:340px;background:#fff;border:1px solid var(--line);border-radius:30px 30px 0 0;padding:14px 20px 20px;box-shadow:0 8px 24px -8px rgba(0,0,0,.12)}
+.grab{width:38px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 12px}
+.sheet h2{font-size:1.5rem;margin-bottom:12px}
+.apple,.google{display:flex;align-items:center;justify-content:center;width:100%;border-radius:999px;font-weight:500;font-size:17px;gap:12px;position:relative;overflow:hidden}
+.apple{background:#1f2228;color:#fff;border:0}
+.google{background:#fff;color:#1F1F1F;border:1px solid #747775;margin-top:8px;font-family:-apple-system,"SF Pro Text","Inter",system-ui,sans-serif}
+.google.press::after{content:"";position:absolute;inset:0;background:rgba(31,31,31,.08)}
+.google.press{transform:scale(.98)}
+.dim{opacity:.6}
+.or{display:flex;align-items:center;gap:12px;margin:12px 0;color:var(--ink2);font-size:13px}.or i{flex:1;height:1px;background:var(--line)}
+.field{border:1px solid var(--ctl);border-radius:999px;padding:0 18px;display:flex;align-items:center;color:var(--ink2);margin-bottom:8px}
+.banner{display:flex;gap:8px;background:var(--pain-bg);border:1px solid #f3b9b9;border-radius:12px;padding:12px;margin-bottom:12px;color:var(--pain-ink);font-size:13px}
+/* medidas */
+.zoom{background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);padding:18px 18px 12px;width:440px;max-width:100%}
+.zoom .google{margin-top:0;font-size:17px}
+.dims{display:flex;font-size:.72rem;font-weight:700;color:var(--blue);margin-top:6px;text-align:center}
+.dims span{border-top:2px solid var(--blue);padding-top:2px}
+table{border-collapse:collapse;font-size:.86rem;background:#fff;border-radius:var(--radius-lg);overflow:hidden;box-shadow:0 0 0 1px var(--line)}td,th{padding:8px 12px;border-top:1px solid var(--line);text-align:left}th{font-size:.76rem;color:var(--ink2);border-top:0}
+</style>
+</head>
+<body>
+<div class="ctl">
+  <h1>Botón «Continuar con Google» <span class="tag new">origin/main d3586ac</span></h1>
+  <div class="grp"><span>Alto del control</span><div class="seg" id="g-h"><button data-k="46" aria-pressed="false">46 (pantalla chica)</button><button data-k="51" aria-pressed="true">51 (iPhone 15 Pro)</button><button data-k="54" aria-pressed="false">54 (pantalla grande)</button></div></div>
+  <div class="grp"><span>Estado</span><div class="seg" id="g-s"><button data-k="n" aria-pressed="true">Normal</button><button data-k="p" aria-pressed="false">Presionado</button><button data-k="l" aria-pressed="false">Procesando</button><button data-k="e" aria-pressed="false">Con error</button></div></div>
+</div>
+<p class="note">Apple arriba y Google debajo, del mismo ancho, alto y radio. La «G» es el asset oficial a color, sin alterar, y el borde y los colores salen de las pautas de Google.</p>
+<div class="stage" id="stage"></div>
+
+<script>
+let H=51,st='n';
+const G=(s)=>`<svg width="${s}" height="${s}" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62Z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.94v2.33A9 9 0 0 0 9 18Z"/><path fill="#FBBC05" d="M3.95 10.7a5.4 5.4 0 0 1 0-3.4V4.97H.94a9 9 0 0 0 0 8.06l3.01-2.33Z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.46 3.44 1.35l2.58-2.58C13.46.89 11.42 0 9 0A9 9 0 0 0 .94 4.97L3.95 7.3C4.66 5.17 6.65 3.58 9 3.58Z"/></svg>`;
+const APPLE=`<svg width="20" height="22" viewBox="0 0 20 22" aria-hidden="true"><path fill="#fff" d="M16.4 11.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.8-2.1-1.6-.2-3.1.9-3.9.9s-2-.9-3.4-.9C5.7 5.7 4 6.7 3.1 8.3c-1.9 3.3-.5 8.1 1.4 10.8.9 1.3 2 2.8 3.4 2.700 1.400-.1 1.900-.9 3.500-.9s2.100.9 3.500.9c1.500 0 2.400-1.300 3.300-2.600 1-1.500 1.500-2.900 1.500-3-.1 0-2.800-1.100-2.800-4.600ZM13.800 3.700c.7-.9 1.200-2.100 1.100-3.300-1.100 0-2.300.7-3.100 1.600-.7.800-1.300 2-1.100 3.200 1.200.1 2.400-.6 3.100-1.500Z"/></svg>`;
+const gs=()=>H<=48?20:H<=52?22:24;
+function sheet(){
+ const dim=st==='l'?' dim':'';
+ return `<div class="sheet"><div class="grab"></div><h2>Entra a tu cuenta</h2>
+ ${st==='e'?'<div class="banner" role="alert">No pudimos iniciar sesión con Google.</div>':''}
+ <div class="apple${dim}" style="height:${H}px">${APPLE}Continuar con Apple</div>
+ <div class="google${st==='p'?' press':''}${dim}" style="height:${H}px" role="button" aria-label="Continuar con Google">${G(gs())}<span>Continuar con Google</span></div>
+ <div class="or"><i></i>o<i></i></div>
+ <div class="field" style="height:${H}px">Correo</div><div class="field" style="height:${H}px">Contraseña</div></div>`}
+function old(){
+ return `<div class="sheet"><div class="grab"></div><h2>Entra a tu cuenta</h2>
+ <div class="apple" style="height:${H}px">${APPLE}Continuar con Apple</div>
+ <div class="google" style="height:${H}px;border-color:#8a8f98;font-weight:600"><span>Continuar con Google</span></div>
+ <div class="or"><i></i>o<i></i></div>
+ <div class="field" style="height:${H}px">Correo</div><div class="field" style="height:${H}px">Contraseña</div></div>`}
+function render(){
+ [...document.getElementById('g-h').children].forEach(b=>b.setAttribute('aria-pressed',+b.dataset.k===H));
+ [...document.getElementById('g-s').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===st));
+ const side=Math.round(16*H/40);
+ document.getElementById('stage').innerHTML=`
+ <div class="col"><div class="cap">Hoy<span class="tag old">solo texto</span></div>${old()}</div>
+ <div class="col"><div class="cap">Propuesta<span class="tag new">con la «G» oficial</span></div>${sheet()}</div>
+ <div class="col" style="max-width:460px"><div class="cap">Medidas (alto ${H} px)</div>
+  <div class="zoom"><div class="google" style="height:${H}px">${G(gs())}<span>Continuar con Google</span></div>
+  <div class="dims"><span style="flex:${side}">≥ ${side}</span><span style="flex:${gs()};margin:0 2px">G ${gs()}</span><span style="flex:12">12</span><span style="flex:150;margin:0 2px">texto 17 · medio</span><span style="flex:${side}">≥ ${side}</span></div></div>
+  <table><tr><th>Pieza</th><th>Valor</th></tr><tr><td>Relleno</td><td>#FFFFFF</td></tr><tr><td>Borde</td><td>1 px #747775, hacia adentro</td></tr><tr><td>Texto</td><td>#1F1F1F · 17 px · peso medio</td></tr><tr><td>«G»</td><td>${gs()} px, a color</td></tr><tr><td>Radio</td><td>${H/2} px (píldora)</td></tr><tr><td>Separación con Apple</td><td>8 px</td></tr></table></div>`}
+document.getElementById('g-h').addEventListener('click',e=>{const b=e.target.closest('button');if(b){H=+b.dataset.k;render()}});
+document.getElementById('g-s').addEventListener('click',e=>{const b=e.target.closest('button');if(b){st=b.dataset.k;render()}});
+render();
+</script>
+</body>
+</html>
