@@ -30,7 +30,7 @@ Todos están cubiertos por `.gitignore` (`.env` ignora cualquier `.env` en cualq
 | `~/.cycles-secretos/android/cycles-upload.keystore` | 600 | Llave de publicación de Android |
 | `~/.cycles-secretos/demo/DEMO_PASSWORD` | 600 | Contraseña de las cuentas de la demo |
 | `~/.cycles-secretos/demo/cycles_demo-antes-2026-10-27.sql` | 600 | Respaldo de la base demo (con hashes de contraseñas ficticias) |
-| `.claude/`, `content/` | — | Sin secretos (solo configuración y scripts de video). Son carpetas **sin rastrear y sin ignorar** (ver hallazgo 6) |
+| `.claude/`, `content/video/` | — | Sin secretos (solo configuración local y scripts de video). **Ignoradas en Git** (hallazgo 6) |
 
 Las copias de trabajo en `.claude/worktrees/*` solo traen los `.env.example`; ninguna tiene un `.env` real.
 
@@ -50,8 +50,8 @@ Las copias de trabajo en `.claude/worktrees/*` solo traen los `.env.example`; ni
 | 2 | ~~Media~~ **Resuelto (2026-10-28)** | `apps/web/.env` tenía `GOOGLE_CLIENT_ID` y `GOOGLE_CLIENT_SECRET`. Un secreto de servidor no debe estar en la carpeta de la web. Vite solo publica variables `VITE_*`, así que no sale en el navegador, pero no tiene función ahí y es un riesgo de copia accidental. | Aplicado: las dos variables pasaron a `apps/api/.env` (donde las lee la API; estaban vacías) y se quitaron de la web. Rotar el secreto sigue siendo opcional. |
 | 3 | ~~Baja~~ **Resuelto (2026-10-28)** | Los tres `.env` tenían permisos **644**: cualquier otro usuario del equipo puede leerlos. | Aplicado: `chmod 600` a los tres. |
 | 4 | ~~Baja~~ **Resuelto (2026-10-28)** | `.gitignore` solo cubría `.env` y `.env.local`. Un `.env.production` o `.env.staging` se podría subir sin querer. | Aplicado: `.env.*` ignorado, con `!.env.example` para que los ejemplos sigan en el repo. |
-| 5 | Media | La llave de publicación de Android (`cycles-upload.keystore`) y su contraseña existen en un solo equipo. Si se pierden, no se pueden publicar actualizaciones de la app con la misma identidad. | Guardar el archivo y las contraseñas en 1Password (bóveda de secretos de producción) y probar que se puede restaurar. |
-| 6 | Baja | `.claude/` y `content/` aparecen sin rastrear. Un `git add -A` descuidado los subiría. Hoy no contienen secretos. | Parcial (2026-10-28): se ignoran `.claude/worktrees/` y `.claude/settings.local.json`. Queda decidir si `.claude/launch.json` y `content/video/` (scripts de grabación) van al repo o se ignoran. |
+| 5 | ~~Media~~ **Resuelto (2026-11-04)** | La llave de publicación de Android (`cycles-upload.keystore`) y su contraseña existían en un solo equipo. | Aplicado: la llave se rehízo con `apps/mobile/scripts/android-crear-llave.sh`; sus datos están como secretos `ANDROID_*` en GitHub Actions y el archivo con sus contraseñas, en 1Password (bóveda «Cycles · Tiendas y firma»). Sigue valiendo la prueba trimestral de restauración desde otro equipo (ver «Recuperación» en `SEGURIDAD.md`). |
+| 6 | ~~Baja~~ **Resuelto (2026-11-04)** | `.claude/` y `content/` aparecían sin rastrear. Un `git add -A` descuidado los subiría. No contienen secretos. | Aplicado: la usuaria decidió que `.claude/` y `content/video/` no van al repo; ambos están en `.gitignore` y ningún archivo de ellos estaba versionado. Ojo: ignorarlos en Git no los respalda (`content/` no tiene copia en ningún lado). |
 | 7 | Baja | `LINEAR_API_KEY` vive en un `.env` de la raíz. | Moverla a 1Password (CYC-153) y rotarla si alguna vez se copió a otro lado. |
 
 ## 4. Qué rotar
