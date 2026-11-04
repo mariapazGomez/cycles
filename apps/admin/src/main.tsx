@@ -1,3 +1,4 @@
+// Punto de entrada del portal del equipo (admin.getcycles.app).
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
