@@ -1,0 +1,34 @@
+# Aviso en los PR que traen una migración (CYC-43): hace falta un respaldo
+# exitoso de las últimas 24 horas antes de mezclar. Si no hay, el chequeo
+# falla y explica cómo dispararlo (no necesita que nadie lo haga a mano).
+# Ver docs/deploy/RESPALDOS.md.
+
+name: Respaldo previo a migraciones
+
+on:
+  pull_request:
+    paths:
+      - "apps/api/prisma/migrations/**"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  comprobar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Buscar un respaldo exitoso de las últimas 24 horas
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          desde="$(date -u -d '-24 hours' +%Y-%m-%dT%H:%M:%SZ)"
+          ultimo="$(gh run list --repo "$REPO" --workflow respaldo.yml --status success --limit 1 --json createdAt -q '.[0].createdAt // ""')"
+          if [ -n "$ultimo" ] && [[ "$ultimo" > "$desde" ]]; then
+            echo "Hay un respaldo exitoso reciente ($ultimo)."
+            exit 0
+          fi
+          echo "::error::Este PR trae una migración y no hay un respaldo exitoso de las últimas 24 horas. Dispáralo con: gh workflow run respaldo.yml -f motivo=pre-migracion"
+          exit 1

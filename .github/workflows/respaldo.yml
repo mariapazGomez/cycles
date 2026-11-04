@@ -1,0 +1,129 @@
+# Respaldo automático de la base de producción (CYC-43).
+# Ver docs/deploy/RESPALDOS.md.
+#
+# - Corre los lunes y también a pedido (workflow_dispatch): antes de cada
+#   migración nueva, la sesión que la prepara lo lanza con
+#   `gh workflow run respaldo.yml -f motivo=pre-migracion`.
+# - Vuelca solo el esquema `public`, lo CIFRA con age (solo la clave pública
+#   vive aquí; la privada está fuera del repo) y lo sube a un bucket privado
+#   de Cloudflare R2. Nunca queda como artefacto de GitHub: el repositorio es
+#   público.
+# - Borra los respaldos de más de 28 días y avisa a Slack si algo falla.
+#
+# Necesita, en Settings → Secrets and variables → Actions → Secrets:
+#   SUPABASE_DATABASE_URL, R2_ENDPOINT, R2_BUCKET, R2_ACCESS_KEY_ID,
+#   R2_SECRET_ACCESS_KEY y SLACK_WEBHOOK_URL.
+# Mientras falte alguno, el workflow falla con un mensaje claro (y avisa).
+
+name: Respaldo de la base
+
+on:
+  schedule:
+    # Lunes, 07:30 UTC (04:30 o 03:30 en Chile).
+    - cron: "30 7 * * 1"
+  workflow_dispatch:
+    inputs:
+      motivo:
+        description: "Para qué es el respaldo"
+        type: choice
+        options: [manual, pre-migracion]
+        default: manual
+
+permissions: {}
+
+concurrency:
+  group: respaldo
+  cancel-in-progress: false
+
+env:
+  # Clave PÚBLICA de age: sirve solo para cifrar. La privada no está en GitHub.
+  AGE_PUBLIC_KEY: age14vr4anmuqchnqcfwjtkdsm94c2he8k33qqmp257cjyzfu7l0aq7q306g32
+  RETENCION_DIAS: "28"
+
+jobs:
+  respaldo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SUPABASE_DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
+      R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+      R2_BUCKET: ${{ secrets.R2_BUCKET }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      MOTIVO: ${{ github.event_name == 'schedule' && 'semanal' || inputs.motivo }}
+    steps:
+      - name: Comprobar los secretos
+        run: |
+          faltan=""
+          for v in SUPABASE_DATABASE_URL R2_ENDPOINT R2_BUCKET AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY; do
+            [ -n "${!v}" ] || faltan="$faltan $v"
+          done
+          if [ -n "$faltan" ]; then
+            echo "::error::Faltan secretos de Actions:$faltan"
+            exit 1
+          fi
+
+      - name: Instalar pg_dump 17 y age
+        run: |
+          # Supabase usa Postgres 17; el cliente de Ubuntu es más viejo.
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-common age
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y > /dev/null
+          sudo apt-get install -y -qq postgresql-client-17
+
+      - name: Volcar y cifrar
+        run: |
+          set -euo pipefail
+          umask 077
+          ARCHIVO="cycles-$(date -u +%Y-%m-%d-%H%M)-${MOTIVO}.dump.age"
+          echo "ARCHIVO=$ARCHIVO" >> "$GITHUB_ENV"
+          # El volcado pasa directo al cifrado: nunca queda sin cifrar en disco.
+          # La URL no se imprime; si pg_dump falla, se oculta antes de mostrar el error.
+          ERR="$(mktemp)"
+          if ! /usr/lib/postgresql/17/bin/pg_dump "$SUPABASE_DATABASE_URL" -Fc --schema=public --no-owner --no-acl 2>"$ERR" \
+              | age -r "$AGE_PUBLIC_KEY" -o "$ARCHIVO"; then
+            sed -E 's#postgres(ql)?://[^ ]*#<url oculta>#g' "$ERR" >&2
+            echo "::error::El volcado falló."
+            exit 1
+          fi
+          # Un archivo vacío o diminuto es un respaldo roto.
+          TAM="$(stat -c %s "$ARCHIVO")"
+          if [ "$TAM" -lt 20000 ]; then
+            echo "::error::El respaldo pesa solo $TAM bytes: se descarta."
+            exit 1
+          fi
+          echo "Respaldo cifrado listo: $ARCHIVO ($TAM bytes)"
+
+      - name: Subir a R2 (bucket privado)
+        run: |
+          aws s3 cp "$ARCHIVO" "s3://$R2_BUCKET/$ARCHIVO" --endpoint-url "$R2_ENDPOINT" --only-show-errors
+          aws s3 ls "s3://$R2_BUCKET/$ARCHIVO" --endpoint-url "$R2_ENDPOINT"
+
+      - name: Borrar respaldos de más de ${{ env.RETENCION_DIAS }} días
+        run: |
+          # Solo después de un respaldo exitoso, y solo archivos con nuestro nombre.
+          limite="$(date -u -d "-${RETENCION_DIAS} days" +%Y-%m-%d)"
+          borrados=0
+          while read -r nombre; do
+            fecha="${nombre#cycles-}"; fecha="${fecha:0:10}"
+            if [[ "$fecha" < "$limite" ]]; then
+              aws s3 rm "s3://$R2_BUCKET/$nombre" --endpoint-url "$R2_ENDPOINT" --only-show-errors
+              borrados=$((borrados + 1))
+            fi
+          done < <(aws s3 ls "s3://$R2_BUCKET/" --endpoint-url "$R2_ENDPOINT" | awk '{print $4}' | grep -E '^cycles-[0-9]{4}-[0-9]{2}-[0-9]{2}-.*\.dump\.age$' || true)
+          echo "Retención: borré $borrados respaldo(s) de más de $RETENCION_DIAS días."
+
+      - name: Avisar a Slack si falló
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -z "$SLACK_WEBHOOK_URL" ]; then
+            echo "Falta SLACK_WEBHOOK_URL: no se pudo avisar a Slack."
+            exit 0
+          fi
+          curl -sS -X POST -H 'Content-Type: application/json' \
+            --data "{\"text\":\":warning: Falló el respaldo de la base de Cycles (${MOTIVO}). Revisa: ${RUN_URL}\"}" \
+            "$SLACK_WEBHOOK_URL" > /dev/null
