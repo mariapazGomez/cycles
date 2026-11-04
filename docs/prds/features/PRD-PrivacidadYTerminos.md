@@ -68,7 +68,7 @@ Banner de cookies (no hay cookies no esenciales) y versión en inglés.
 ## 7. Aceptación explícita y versionada (T-147, 2026-10-20)
 
 - **Qué se guarda:** una fila `PolicyAcceptance` por persona y por versión (`userId`, `version`, `source`, `acceptedAt`). No se borra ni se sobrescribe: es la evidencia de qué texto aceptó y cuándo. Es distinta del consentimiento **opcional** de estadísticas (`User.dataConsentAt`).
-- **Versión vigente:** `POLICY_VERSION` en `apps/api/src/common/policy.ts` (hoy `"1.2"`: desde 2026-11-02 declara el correo del Apple ID y el teléfono del atleta, CYC-194). Debe coincidir con la que dice el primer párrafo de `/privacidad` y `/terminos`. Al cambiar los textos de forma importante, se sube y todas las personas vuelven a ver la pantalla de aceptar.
+- **Versión vigente:** `POLICY_VERSION` en `apps/api/src/common/policy.ts` (hoy `"1.3"`: declara los reportes de errores de la app con Sentry, CYC-218; la `"1.2"`, desde 2026-11-02, declaró el correo del Apple ID y el teléfono del atleta, CYC-194). Debe coincidir con la que dice el primer párrafo de `/privacidad` y `/terminos`. Al cambiar los textos de forma importante, se sube y todas las personas vuelven a ver la pantalla de aceptar.
 - **Dónde se acepta** (casilla sin marcar, el formulario no avanza sin ella y la API responde 400 si falta `acceptPolicy`):
   | Flujo | `source` |
   |---|---|
