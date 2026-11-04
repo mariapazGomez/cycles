@@ -43,6 +43,7 @@ Este proyecto es un monorepo con npm workspaces.
 npm install          # instala dependencias de todos los workspaces
 npm run dev:web       # levanta el frontend del coach (apps/web)
 npm run dev:api        # levanta el backend (apps/api)
+npm run dev:admin      # portal del equipo (apps/admin), ver docs/deploy/PORTAL-ADMIN.md
 ```
 
 ### App móvil (iOS)

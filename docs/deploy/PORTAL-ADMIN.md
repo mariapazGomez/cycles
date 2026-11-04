@@ -1,6 +1,6 @@
 # Portal del equipo de Cycles (CYC-193)
 
-Portal independiente, solo para el equipo de desarrollo, en **`admin.getcycles.app`**. Sin login propio: lo protege **Cloudflare Access** y la API vuelve a validar el token en cada petición. Diseño: [`docs/diseno/panel-admin`](../diseno/panel-admin/README.md). Este documento cubre la API (PR 1) y lo que debe configurarse en Cloudflare, Vercel y Render; el portal en sí (`apps/admin`) llega en el PR 2.
+Portal independiente, solo para el equipo de desarrollo, en **`admin.getcycles.app`**. Sin login propio: lo protege **Cloudflare Access** y la API vuelve a validar el token en cada petición. Diseño: [`docs/diseno/panel-admin`](../diseno/panel-admin/README.md). Este documento cubre la API (PR 1), el portal (`apps/admin`, PR 2) y lo que debe configurarse en Cloudflare, Vercel y Render.
 
 ## Cómo está protegido
 
@@ -35,6 +35,31 @@ Base de datos (migración aditiva `20261104120000_portal_equipo`): `User.lastLog
 | `POSTHOG_PERSONAL_API_KEY` y `POSTHOG_PROJECT_ID` | Clave personal de solo lectura y el ID del proyecto (ver [`POSTHOG.md`](POSTHOG.md)). Opcionales: sin ellas, la pestaña Uso dice «no conectado». |
 
 Los valores solo viven en Render. Nunca van al repo, a Linear ni a un chat.
+
+## El portal (`apps/admin`)
+
+Aplicación aparte (Vite + React), sin dependencias de `apps/web` ni del login de la app: no hay menú, avatar ni enlace desde ningún sitio. Cuatro pestañas: **Usuarios** (totales reales y demo por separado, búsqueda, filtros, detalle y registro de consultas), **Uso** (PostHog), **Correos** (directorio editable) y **Enlaces y versiones** (incluye la versión de iOS, que se escribe a mano).
+
+- **Mismo origen:** todo va a `/api/*`; `vercel.json` lo reenvía a `https://api.getcycles.app/*`. Así el token de Access viaja y no hace falta CORS.
+- **Sesión:** la cabecera muestra «Sesión de {correo}» y **Cerrar sesión** (`/cdn-cgi/access/logout`). Si la API responde 401 (o Cloudflare devuelve su página en vez de JSON), el portal muestra «Tu sesión terminó» con **Volver a entrar**, que recarga y Cloudflare pide autenticarse otra vez.
+- **Cabeceras:** `noindex`, `X-Frame-Options: DENY`, CSP con `connect-src 'self'` y `Cache-Control: no-store` para el HTML.
+- **Desarrollo local:** `npm run dev --workspace apps/admin` (puerto 5174) reenvía `/api` a `ADMIN_API_TARGET` (por defecto `http://localhost:3000`). La API local exige el token de Access, así que para ver datos hace falta una API con `CF_ACCESS_*` y un token, o un simulador de la API.
+- **Revisión:** la ruta de la API que usa cada pestaña está en la tabla «Rutas de la API».
+
+## Proyecto de Vercel
+
+Crear un proyecto nuevo, **separado** del de la web, con el mismo repositorio:
+
+| Ajuste | Valor |
+|---|---|
+| Root Directory | `apps/admin` |
+| Framework Preset | Vite |
+| Build / Output | `npm run build` / `dist` (ya están en `apps/admin/vercel.json`) |
+| Node | 22.x |
+| Variables de entorno | ninguna |
+| Dominio | `admin.getcycles.app` |
+
+Vercel muestra el destino del `CNAME` al agregar el dominio (normalmente `cname.vercel-dns.com`): usar el valor que muestre.
 
 ## Cloudflare y Vercel (CYC-215), en este orden
 
