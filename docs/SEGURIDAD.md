@@ -75,7 +75,7 @@ Sentry (`@sentry/react-native`) registra los cierres inesperados de la app. Es u
 | `apps/mobile/scripts/write-sentry-config.js` | Escribe la clave desde la variable `SENTRY_DSN` al compilar (Xcode Cloud: `ci_post_clone.sh`; Android: `android.yml`). Valida el formato y nunca la imprime. Sin la variable, el reporte queda apagado. |
 | `apps/mobile/ios/CyclesMobile/PrivacyInfo.xcprivacy` | Declara «Datos de fallos», no vinculados a la persona, sin seguimiento. |
 
-Pendiente de la usuaria: crear la cuenta y el proyecto de Sentry (clave en 1Password), definir `SENTRY_DSN` en Xcode Cloud y como secreto de GitHub, actualizar la Política de privacidad y la declaración de privacidad de App Store.
+Pendiente de la usuaria: crear la cuenta y el proyecto de Sentry (clave en 1Password; en el proyecto, activar «Prevent Storing of IP Addresses» en Security & Privacy, porque Sentry infiere la IP de la conexión aunque la app no la envíe), definir `SENTRY_DSN` en Xcode Cloud y como secreto de GitHub, actualizar la Política de privacidad y la declaración de privacidad de App Store.
 
 ### Endpoint público de contacto (landing)
 
