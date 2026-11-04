@@ -94,6 +94,9 @@ android {
         // El flujo de GitHub pasa -PCYCLES_VERSION_CODE; en local queda en 1.
         versionCode cyclesVersionCode
         versionName "1.0.0"
+        // react-native-app-auth (Google en iOS) exige este valor al fusionar el
+        // manifiesto. Android no usa ese inicio de sesión: es un valor sin efecto.
+        manifestPlaceholders = [appAuthRedirectScheme: "app.getcycles.mobile"]
     }
     // Llave de subida a Google Play. Los datos llegan por variables de entorno
     // (secretos de GitHub); nada de esto vive en el repositorio. Ver
