@@ -72,6 +72,7 @@ Usa directamente `User` (`passwordHash`, `authProvider`, `role` ahora nullable, 
 - `POST /auth/complete-profile` (protegido) — asigna `role: coach` a una cuenta creada vía Google sin rol; falla si ya tiene rol asignado.
 - `GET /auth/google` / `GET /auth/google/callback` — flujo OAuth Google; si el email ya existe (cuenta manual), se vincula en vez de crear un usuario nuevo; si no existe, crea la cuenta con `role: null` pendiente de `complete-profile`. El callback **no** pone tokens en la URL: redirige a `/oauth-callback?code=…` con un código de un solo uso que vence en 60 segundos (se guarda solo su hash, tabla `OAuthExchangeCode`).
 - `POST /auth/google/exchange` (público, con límite de intentos) — recibe `{ code }` y devuelve el par de tokens. Código inválido, usado o vencido: 401. Ver [[SEGURIDAD]], hallazgo S-02.
+- `POST /auth/apple/link` (protegido, con límite de intentos; CYC-220) — «Vincular Apple» desde Mi cuenta de la app: recibe `{ idToken, nonce }` de la hoja de Apple, lo verifica y añade la identidad a la cuenta con sesión. 204. Repetir lo ya vinculado no es un error; una cuenta de Apple de otra cuenta de Cycles, o una segunda Apple en la misma cuenta, responden 409. `GET /users/me` devuelve `hasAppleIdentity`.
 - `POST /auth/password-reset/request` — solicita email de recuperación (respuesta genérica).
 - `POST /auth/password-reset/confirm` — establece nueva contraseña con el token recibido y revoca todas las sesiones activas del usuario.
 

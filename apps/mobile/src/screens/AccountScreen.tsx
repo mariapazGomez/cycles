@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as accountApi from '../services/accountApi';
 import { ApiError } from '../services/httpClient';
 import { useAuth } from '../store/AuthContext';
-import { AppleSignInCancelled, isAppleSignInAvailable, requestAppleAuthorizationCode } from '../services/appleSignIn';
+import { AppleSignInCancelled, isAppleSignInAvailable, requestAppleAuthorizationCode, requestAppleCredential } from '../services/appleSignIn';
 import type { AppStackParamList } from '../navigation/types';
 import { Icon } from '../components/Icon';
 import { colors } from '../theme/colors';
@@ -36,10 +36,10 @@ export function AccountScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const { user, logout, refreshUser } = useAuth();
   const [confirmation, setConfirmation] = useState('');
-  const [busy, setBusy] = useState<'consent' | 'export' | 'delete' | null>(null);
+  const [busy, setBusy] = useState<'consent' | 'export' | 'delete' | 'apple' | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const run = async (kind: 'consent' | 'export' | 'delete', action: () => Promise<void>) => {
+  const run = async (kind: 'consent' | 'export' | 'delete' | 'apple', action: () => Promise<void>) => {
     setBusy(kind);
     setError(null);
     try {
@@ -54,6 +54,21 @@ export function AccountScreen({ navigation }: Props) {
   const toggleConsent = (value: boolean) =>
     run('consent', async () => {
       await accountApi.setDataConsent(value);
+      await refreshUser();
+    });
+
+  // «Vincular Apple»: la hoja de Apple demuestra que la cuenta de Apple es de quien está aquí.
+  // Si cierra la hoja no pasa nada.
+  const linkApple = () =>
+    run('apple', async () => {
+      try {
+        await accountApi.linkApple(await requestAppleCredential());
+      } catch (e) {
+        if (e instanceof AppleSignInCancelled) {
+          return;
+        }
+        throw e;
+      }
       await refreshUser();
     });
 
@@ -125,6 +140,31 @@ export function AccountScreen({ navigation }: Props) {
             />
           </View>
         </View>
+
+        {isAppleSignInAvailable && (
+          <View style={[styles.card, cardShadow]}>
+            <Text style={styles.cardTitle}>Inicio de sesión con Apple</Text>
+            {user?.hasAppleIdentity ? (
+              <Text style={styles.body}>Tu cuenta de Apple está vinculada. Puedes entrar con «Continuar con Apple».</Text>
+            ) : (
+              <>
+                <Text style={styles.body}>Vincula tu cuenta de Apple para entrar a Cycles con un toque.</Text>
+                <TouchableOpacity
+                  style={styles.secondary}
+                  onPress={linkApple}
+                  disabled={busy !== null}
+                  accessibilityRole="button"
+                  accessibilityLabel="Vincular Apple">
+                  {busy === 'apple' ? (
+                    <ActivityIndicator color={colors.ink} />
+                  ) : (
+                    <Text style={styles.secondaryText}>Vincular Apple</Text>
+                  )}
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+        )}
 
         <View style={[styles.card, cardShadow]}>
           <Text style={styles.cardTitle}>Descargar mis datos</Text>

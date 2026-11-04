@@ -6,14 +6,15 @@ import { ApiError } from '../src/services/httpClient';
 import * as apple from '../src/services/appleSignIn';
 
 const mockLogout = jest.fn();
+const mockRefresh = jest.fn();
 let mockUser: Record<string, unknown> = { name: 'Valentina', email: 'v@example.com', dataConsentAt: null };
 jest.mock('../src/services/accountApi');
 jest.mock('../src/store/AuthContext', () => ({
-  useAuth: () => ({ user: mockUser, logout: mockLogout, refreshUser: jest.fn() }),
+  useAuth: () => ({ user: mockUser, logout: mockLogout, refreshUser: mockRefresh }),
 }));
 jest.mock('../src/services/appleSignIn', () => {
   class AppleSignInCancelled extends Error {}
-  return { isAppleSignInAvailable: true, requestAppleAuthorizationCode: jest.fn(), AppleSignInCancelled };
+  return { isAppleSignInAvailable: true, requestAppleAuthorizationCode: jest.fn(), requestAppleCredential: jest.fn(), AppleSignInCancelled };
 });
 jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }) }));
 jest.mock('../src/components/Icon', () => ({ Icon: () => null }));
@@ -135,5 +136,45 @@ describe('cuenta con Apple vinculado', () => {
     const t = tree.root.findAll(n => typeof n.props.children === 'string').map(n => n.props.children as string);
     expect(t).toContain('Confirma con la cuenta de Apple con la que entraste.');
     expect(mockLogout).not.toHaveBeenCalled();
+  });
+});
+
+describe('Vincular Apple', () => {
+  const linkButton = (tree: ReactTestRenderer.ReactTestRenderer) =>
+    tree.root.findAll(n => n.props.accessibilityLabel === 'Vincular Apple' && typeof n.props.onPress === 'function');
+  const texts = (tree: ReactTestRenderer.ReactTestRenderer) =>
+    tree.root.findAll(n => typeof n.props.children === 'string').map(n => n.props.children as string);
+
+  test('sin Apple vinculado ofrece el botón y vincula con la credencial de Apple', async () => {
+    appleMock.requestAppleCredential.mockResolvedValue({ idToken: 't', nonce: 'n' });
+    api.linkApple.mockResolvedValue(undefined);
+    const tree = await mount();
+    expect(linkButton(tree).length).toBeGreaterThan(0);
+    await ReactTestRenderer.act(async () => linkButton(tree)[0].props.onPress());
+    expect(api.linkApple).toHaveBeenCalledWith({ idToken: 't', nonce: 'n' });
+  });
+
+  test('con Apple vinculado lo dice y no ofrece el botón', async () => {
+    mockUser = { ...mockUser, hasAppleIdentity: true };
+    const tree = await mount();
+    expect(linkButton(tree)).toHaveLength(0);
+    expect(texts(tree).some(t => t.includes('Tu cuenta de Apple está vinculada'))).toBe(true);
+  });
+
+  test('si cierra la hoja de Apple no se vincula nada ni se muestra un error', async () => {
+    appleMock.requestAppleCredential.mockRejectedValue(new apple.AppleSignInCancelled());
+    const tree = await mount();
+    await ReactTestRenderer.act(async () => linkButton(tree)[0].props.onPress());
+    expect(api.linkApple).not.toHaveBeenCalled();
+    expect(texts(tree)).not.toContain('Algo salió mal. Intenta de nuevo.');
+  });
+
+  test('si esa cuenta de Apple es de otra cuenta, muestra el mensaje del servidor', async () => {
+    appleMock.requestAppleCredential.mockResolvedValue({ idToken: 't', nonce: 'n' });
+    api.linkApple.mockRejectedValue(new ApiError(409, 'Esa cuenta de Apple ya está vinculada a otra cuenta de Cycles.'));
+    const tree = await mount();
+    await ReactTestRenderer.act(async () => linkButton(tree)[0].props.onPress());
+    expect(texts(tree)).toContain('Esa cuenta de Apple ya está vinculada a otra cuenta de Cycles.');
+    expect(mockRefresh).not.toHaveBeenCalled();
   });
 });

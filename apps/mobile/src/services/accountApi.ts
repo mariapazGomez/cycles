@@ -18,3 +18,8 @@ export function deleteMyAccount(confirmation: string, appleAuthorizationCode?: s
     body: appleAuthorizationCode ? { confirmation, appleAuthorizationCode } : { confirmation },
   });
 }
+
+// «Vincular Apple»: añade la cuenta de Apple (token de identidad y nonce de la hoja de Apple) a esta cuenta.
+export function linkApple(credential: { idToken: string; nonce: string }) {
+  return apiRequest<void>('/auth/apple/link', { method: 'POST', body: credential });
+}
