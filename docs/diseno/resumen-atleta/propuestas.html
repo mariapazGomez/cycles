@@ -59,6 +59,26 @@ table.t{width:100%;border-collapse:collapse;font-size:.84rem}table.t th,table.t 
 .isl{position:absolute;left:50%;transform:translateX(-50%);bottom:18px;background:#fff;border-radius:999px;box-shadow:0 8px 24px -8px rgba(0,0,0,.25);display:flex;padding:5px}
 .isl span{width:60px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:999px;color:var(--ink2)}.isl span.on{background:var(--blue-100);color:var(--blue)}.isl svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 details.mcard summary{font-weight:700;min-height:40px;display:flex;align-items:center;cursor:pointer}
+.mut{font-size:.78rem;font-weight:700;color:var(--ink2);margin:0 0 2px}
+.grid.editing{outline:2px dashed var(--line);outline-offset:6px;border-radius:10px}
+.card.editing{cursor:grab;box-shadow:0 0 0 1px var(--blue-light)}.card.editing.over{box-shadow:0 0 0 2px var(--brand)}.card.editing.drag{opacity:.45}
+.card.editing .ghost{pointer-events:none;opacity:.9;max-height:150px;overflow:hidden}.card.editing .ghost svg{width:auto;max-width:100%;max-height:140px;display:block;margin:0 auto}
+.handle{border:0;background:var(--gray);border-radius:var(--radius-sm);width:34px;height:34px;font-size:1.1rem;font-weight:700;color:var(--ink2);cursor:grab}
+.card .top{justify-content:flex-start}.card .top h3{flex:1}
+.edbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:2px 0 8px}
+.btn{border:1px solid var(--mid);background:var(--bg);border-radius:var(--radius-md);padding:8px 16px;min-height:40px;font-weight:600;font-size:.9rem}.btn.p{background:var(--blue);border-color:var(--blue);color:#fff}.btn.sm{padding:4px 12px;min-height:34px}.btn[disabled]{opacity:.45}
+.saved{font-size:.82rem;font-weight:700;color:var(--ok-ink)}
+.tray{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--bg);border:1px dashed var(--line);border-radius:var(--radius-lg);padding:8px 12px;margin-bottom:12px;font-size:.88rem}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:var(--radius-md);padding:10px 16px;z-index:60;font-size:.9rem;display:flex;gap:12px;align-items:center}
+.win{position:relative}
+.drw{position:absolute;top:0;right:0;bottom:0;width:400px;max-width:100%;background:var(--bg);border-left:1px solid var(--line);box-shadow:0 8px 24px -8px rgba(0,0,0,.18);padding:18px;z-index:20;overflow:auto}
+.drw .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.drw h3{font-size:1.2rem}
+.stp{margin:14px 0}.stp label{display:block;font-size:.82rem;font-weight:700;margin-bottom:6px}.opts{display:flex;flex-wrap:wrap;gap:6px}
+.chip em{font-style:normal;font-size:.72rem;opacity:.7}.chip[disabled]{opacity:.4;cursor:not-allowed}
+.why{font-size:.8rem;color:var(--ink2);margin:6px 0 0}
+.pv{border:1px solid var(--line);border-radius:var(--radius-md);padding:6px}
+.gl{list-style:none;margin:10px 0;padding:0;display:flex;flex-direction:column;gap:8px}.gi{display:flex;justify-content:space-between;gap:10px;align-items:center;border:1px solid var(--line);border-radius:var(--radius-md);padding:8px 12px}.gi small{display:block;color:var(--ink2);font-size:.78rem}
+.inp{border:1px solid var(--mid);border-radius:var(--radius-md);padding:8px 12px;min-height:40px;width:100%;font:inherit}
 </style>
 </head>
 <body>
@@ -128,22 +148,76 @@ function rirBars(){ // desvío de RIR por ejercicio (diverging)
   s+=`<text x="${d>=0?mid+len+6:mid-len-6}" y="${y+14}" text-anchor="${d>=0?'start':'end'}" font-size="11.5" font-weight="700" fill="${INK}">${d>0?'+':''}${f1(d)}</text>`});
  return s+'</svg>'}
 function card(id,title,body,tbl,extra=''){const t=tab[id];return `<section class="card ${extra}"><div class="top"><h3>${title}</h3><button class="link" data-tab="${id}">${t?'Ver gráfico':'Ver como tabla'}</button></div>${t?tbl:body}</section>`}
+// ===== Pizarra de gráficos del coach =====
+const tblP=()=>`<table class="t"><tr><th>Semana</th><th>Carga (kg)</th></tr>${WEEKS.map(k=>`<tr><td>${k.w}${k.cur?' (en curso)':''}</td><td>${k.load??'—'}</td></tr>`).join('')}</table>`;
+const tblC=()=>`<table class="t"><tr><th>Semana</th><th>Hechas</th><th>Omitidas</th><th>Pendientes</th></tr>${WEEKS.map(k=>`<tr><td>${k.w}</td><td>${k.done}</td><td>${k.skip}</td><td>${k.pend}</td></tr>`).join('')}</table>`;
+const tblS=()=>`<table class="t"><tr><th>Sesión</th><th>Esfuerzo</th></tr>${SRPE.map((x,i)=>`<tr><td>${i+1}</td><td>${x==null?'Pendiente':x}</td></tr>`).join('')}</table>`;
+const tblQ=()=>'<p style="margin:0;font-size:.84rem">'+Object.keys(EX).map(n=>n+' '+(EX[n].rir>0?'+':'')+f1(EX[n].rir)).join(' · ')+'</p>';
+function planBody(){
+ const names=Object.keys(EX),e=EX[ex],lab=['Sem 1','Sem 2','Sem 3','Sem 4'],dW=e.aw[3]!=null&&e.pw[3]!=null?e.aw[3]-e.pw[3]:null;
+ const wc=e.pw[0]==null?`<div class="empty"><h3>Sin peso planificado</h3>Este ejercicio es de peso corporal. Mira las repeticiones.</div>`:line({id:'w',w:520,h:210,labels:lab,min:Math.floor(Math.min(...e.pw,...e.aw)/5)*5-5,max:Math.ceil(Math.max(...e.pw,...e.aw)/5)*5+5,step:5,rlab:1,aria:`Peso planificado y cargado en ${ex}, por semana`,series:[{vals:e.pw,color:MID,dash:1,label:'Plan'},{vals:e.aw,color:BLUE,label:'Cargado'}]});
+ const rc=line({id:'r',w:520,h:130,labels:lab,min:0,max:Math.max(...e.pr,...e.ar)+2,step:Math.max(...e.pr,...e.ar)>7?4:2,rlab:1,aria:`Repeticiones planificadas y reales en ${ex}`,series:[{vals:e.pr,color:MID,dash:1,label:'Plan'},{vals:e.ar,color:BLUE,label:'Real'}]});
+ return `<div class="filters" role="group" aria-label="Ejercicio">${names.map(n=>`<button class="chip" data-ex="${n}" aria-pressed="${n===ex}">${n}</button>`).join('')}</div><div class="leg"><span><i style="color:${MID};border-top-style:dashed"></i>Planificado</span><span><i style="color:${BLUE}"></i>Cargado por el atleta</span>${dW!=null?`<span class="delta ${dW>0?'up':dW<0?'dn':''}">Última sesión: ${dW>0?'+':''}${f1(dW)} kg</span>`:''}</div><div style="display:grid;grid-template-columns:${w==='d'?'1.2fr 1fr':'1fr'};gap:14px"><div><div class="mut">Peso (kg)</div>${wc}</div><div><div class="mut">Repeticiones</div>${rc}</div></div>`}
+function planTbl(){const e=EX[ex],lab=['Sem 1','Sem 2','Sem 3','Sem 4'];return `<div class="filters">${Object.keys(EX).map(n=>`<button class="chip" data-ex="${n}" aria-pressed="${n===ex}">${n}</button>`).join('')}</div><table class="t"><tr><th>Sesión</th><th>Peso plan</th><th>Peso real</th><th>Dif.</th><th>Reps plan</th><th>Reps real</th></tr>${lab.map((l,i)=>`<tr><td>${l}</td><td>${f1(e.pw[i])}</td><td>${f1(e.aw[i])}</td><td>${e.pw[i]==null?'—':(e.aw[i]-e.pw[i]>0?'+':'')+f1(e.aw[i]-e.pw[i])}</td><td>${e.pr[i]}</td><td>${f1(e.ar[i])}</td></tr>`).join('')}</table>`}
+// Datos disponibles para los gráficos propios (medida → cómo se puede agrupar → qué formas admite)
+const MED={
+ carga:{n:'Carga',u:'kg',by:{sem:['col','line']},d:{sem:[1100,1250,1350,920]}},
+ series:{n:'Series',u:'series',by:{sem:['col','line']},d:{sem:[38,41,44,29]}},
+ esfuerzo:{n:'Esfuerzo de la sesión',u:'0 a 10',by:{ses:['line','col']},d:{ses:SRPE}},
+ duracion:{n:'Duración de la sesión',u:'min',by:{ses:['line','col']},d:{ses:[62,64,66,60,63,65,64,66,68,67,70,null]}},
+ estado:{n:'Sesiones por estado',u:'sesiones',by:{sem:['stack']},d:{}},
+ peso:{n:'Peso planificado y cargado',u:'kg',by:{sem:['line2']},d:{},ex:1}};
+const BY={sem:'Semana',ses:'Sesión'},FORM={col:'Columnas',line:'Línea',stack:'Columnas apiladas',line2:'Dos líneas (plan y real)'};
+function colsG(lab,vals,unit){const W=520,H=190,m={l:40,r:10,t:14,b:26},iw=W-m.l-m.r,ih=H-m.t-m.b,mx=Math.max(...vals.filter(x=>x!=null)),top=Math.ceil(mx/ (mx>200?500:10))*(mx>200?500:10),bw=Math.min(26,iw/lab.length*.6);
+ let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${unit} por ${lab.length>6?'sesión':'semana'}">`;
+ for(let i=0;i<=3;i++){const g=top*i/3,y=m.t+ih-g/top*ih;s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${y}" y2="${y}" stroke="${GRID}"/><text x="${m.l-6}" y="${y+4}" text-anchor="end" font-size="10.5" fill="${INK2}">${Math.round(g)}</text>`}
+ vals.forEach((v,i)=>{const cx=m.l+iw*(i+.5)/lab.length,x=cx-bw/2;s+=`<text x="${cx}" y="${H-8}" text-anchor="middle" font-size="10.5" fill="${INK2}">${lab[i]}</text>`;if(v==null)return;const h=v/top*ih,y=m.t+ih-h,r=Math.min(4,h/2);s+=`<path d="M${x},${m.t+ih}V${y+r}Q${x},${y} ${x+r},${y}H${x+bw-r}Q${x+bw},${y} ${x+bw},${y+r}V${m.t+ih}Z" fill="${BLUE}"/>`;if(lab.length<=6)s+=`<text x="${cx}" y="${y-5}" text-anchor="middle" font-size="11.5" font-weight="700" fill="${INK}">${v}</text>`});return s+'</svg>'}
+function preview(b){const M=MED[b.m],by=b.by;
+ if(b.m==='estado')return `<div class="leg"><span style="color:${BLUE}"><i class="sq"></i>Hechas</span><span style="color:${WARN}"><i class="sq"></i>Omitidas</span><span style="color:${PEND}"><i class="sq"></i>Pendientes</span></div>`+stack();
+ if(b.m==='peso'){const e=EX[b.ex||'Sentadilla con barra'];return `<div class="mut">${b.ex||'Sentadilla con barra'} · kg</div>`+line({id:'pv',w:520,h:180,labels:['Sem 1','Sem 2','Sem 3','Sem 4'],min:55,max:75,step:5,rlab:1,aria:'Peso planificado y cargado',series:[{vals:e.pw,color:MID,dash:1,label:'Plan'},{vals:e.aw,color:BLUE,label:'Cargado'}]})}
+ const vals=M.d[by],lab=by==='sem'?['Sem 1','Sem 2','Sem 3','Sem 4']:vals.map((x,i)=>String(i+1));
+ if(b.form==='col')return colsG(lab,vals,M.u);
+ const mx=Math.max(...vals.filter(x=>x!=null)),top=M.u==='0 a 10'?10:Math.ceil(mx/10)*10,st=M.u==='0 a 10'?2:top/4;
+ return line({id:'pv',w:520,h:180,labels:lab,min:0,max:top,step:st,rlab:0,aria:M.n,series:[{vals,color:BLUE}]})}
+const REG={
+ prog:{t:'Progreso del ciclo: carga por semana',b:()=>cols(),tb:tblP},
+ cons:{t:'Constancia: hechas, omitidas y pendientes',b:()=>`<div class="leg"><span style="color:${BLUE}"><i class="sq"></i>Hechas</span><span style="color:${WARN}"><i class="sq"></i>Omitidas</span><span style="color:${PEND}"><i class="sq"></i>Pendientes</span></div>${stack()}`,tb:tblC},
+ esf:{t:'Esfuerzo de cada sesión (0 a 10)',b:()=>line({id:'s',w:520,h:190,labels:['1','2','3','4','5','6','7','8','9','10','11','12'],min:0,max:10,step:2,rlab:0,aria:'Esfuerzo de cada sesión de 0 a 10',series:[{vals:SRPE,color:BLUE}]}),tb:tblS},
+ rir:{t:'Cuánto costó cada ejercicio (RIR real contra el planificado)',b:()=>rirBars(),tb:tblQ},
+ plan:{t:'Peso planificado contra el cargado',b:planBody,tb:planTbl}};
+let LAY=[{id:'prog',s:'half'},{id:'cons',s:'half'},{id:'esf',s:'half'},{id:'rir',s:'half'},{id:'plan',s:'full'}],HID=[],edit=false,drawer=null,bld={m:'carga',by:'sem',form:'col',name:'',ex:'Sentadilla con barra'},toast=null,nCustom=0,dragId=null;
+const DEFAULT=()=>[{id:'prog',s:'half'},{id:'cons',s:'half'},{id:'esf',s:'half'},{id:'rir',s:'half'},{id:'plan',s:'full'}];
+function autoName(b){return b.by==='ses'?MED[b.m].n:`${MED[b.m].n} por semana`}
+function snap(){return JSON.stringify({LAY,HID})}
+function undoable(msg){toast={msg,snap:snapBefore};clearTimeout(window.__tt);window.__tt=setTimeout(()=>{toast=null;render()},7000)}
+let snapBefore=null;
+function change(msg,fn){snapBefore=snap();fn();undoable(msg);render()}
+function widgetCard(it,i){
+ const d=REG[it.id],t=tab[it.id],full=it.s==='full';
+ const head=edit?`<div class="top"><button class="handle" aria-label="Mover «${d.t}»" title="Arrastra para mover" data-act="noop">⠿</button><h3>${d.t}</h3></div><div class="edbar"><button class="btn sm" data-act="up" data-id="${it.id}" ${i===0?'disabled':''}>↑ Antes</button><button class="btn sm" data-act="down" data-id="${it.id}" ${i===LAY.length-1?'disabled':''}>↓ Después</button><div class="seg" role="group" aria-label="Tamaño"><button data-act="half" data-id="${it.id}" aria-pressed="${!full}">Mitad</button><button data-act="full" data-id="${it.id}" aria-pressed="${full}">Completo</button></div><button class="btn sm" data-act="hide" data-id="${it.id}">Quitar</button></div>`
+  :`<div class="top"><h3>${d.t}</h3><button class="link" data-tab="${it.id}">${t?'Ver gráfico':'Ver como tabla'}</button></div>`;
+ return `<section class="card${full?' wide':''}${edit?' editing':''}" data-id="${it.id}" ${edit?'draggable="true"':''}>${head}${edit?`<div class="ghost">${d.b()}</div>`:(t?d.tb():d.b())}</section>`}
+function drawerHtml(){
+ if(!drawer)return '';
+ const inLay=new Set(LAY.map(x=>x.id)),all=Object.keys(REG);
+ const gal=all.map(id=>`<li class="gi"><div><b>${REG[id].t}</b><small>${inLay.has(id)?'En la pizarra':'Disponible'}</small></div>${inLay.has(id)?'<span class="delta">En la pizarra</span>':`<button class="btn sm" data-act="addgal" data-id="${id}">Agregar</button>`}</li>`).join('');
+ const M=MED[bld.m],bys=Object.keys(M.by),forms=M.by[bld.by]||[];
+ const tabs=`<div class="seg" role="tablist"><button role="tab" data-act="dtab" data-t="gal" aria-selected="${drawer==='gal'}" aria-pressed="${drawer==='gal'}">Galería</button><button role="tab" data-act="dtab" data-t="new" aria-selected="${drawer==='new'}" aria-pressed="${drawer==='new'}">Crear gráfico</button></div>`;
+ const builder=`<div class="stp"><label>1. ¿Qué quieres medir?</label><div class="opts">${Object.keys(MED).map(k=>`<button class="chip" data-act="bm" data-k="${k}" aria-pressed="${bld.m===k}">${MED[k].n} <em>${MED[k].u}</em></button>`).join('')}</div></div>
+ <div class="stp"><label>2. ¿Cómo lo agrupas?</label><div class="opts">${Object.keys(BY).map(k=>`<button class="chip" data-act="bb" data-k="${k}" aria-pressed="${bld.by===k}" ${bys.includes(k)?'':'disabled'}>${BY[k]}</button>`).join('')}</div>${bys.length<2?`<p class="why">${M.n} solo se puede agrupar por ${BY[bys[0]].toLowerCase()}.</p>`:''}</div>
+ <div class="stp"><label>3. Forma</label><div class="opts">${Object.keys(FORM).map(k=>`<button class="chip" data-act="bf" data-k="${k}" aria-pressed="${bld.form===k}" ${forms.includes(k)?'':'disabled'}>${FORM[k]}${forms[0]===k?' · sugerida':''}</button>`).join('')}</div><p class="why">Una medida por gráfico: kg, repeticiones y esfuerzo tienen unidades distintas y no comparten eje. Para cruzarlas, agrega otro gráfico.</p></div>
+ ${M.ex?`<div class="stp"><label>Ejercicio</label><div class="opts">${Object.keys(EX).filter(n=>EX[n].pw[0]!=null).map(n=>`<button class="chip" data-act="bx" data-k="${n}" aria-pressed="${bld.ex===n}">${n}</button>`).join('')}</div></div>`:''}
+ <div class="stp"><label>Vista previa</label><div class="pv">${preview(bld)}</div></div>
+ <div class="stp"><label for="gname">Nombre</label><input id="gname" class="inp" value="${bld.name}" placeholder="${autoName(bld)}"></div>
+ <button class="btn p" data-act="create">Agregar a la pizarra</button>`;
+ return `<aside class="drw" role="dialog" aria-label="Agregar gráfico"><div class="top"><h3>Agregar gráfico</h3><button class="link" data-act="dclose">Cerrar</button></div>${tabs}${drawer==='gal'?`<ul class="gl">${gal}</ul><p class="why">Los gráficos ocultos vuelven desde aquí con su configuración.</p>`:builder}</aside>`}
 function coach(){
- const names=Object.keys(EX),e=EX[ex],lab=['Sem 1','Sem 2','Sem 3','Sem 4'];
- const last=3,dW=e.aw[last]!=null?e.aw[last]-e.pw[last]:null;
- const avg=Object.values(EX).filter(x=>x.pw[0]!=null).map(x=>x.aw[3]-x.pw[3]),avgd=avg.reduce((a,b)=>a+b,0)/avg.length;
- const kp=`<div class="kpis"><div class="kpi"><b>4 de 6</b><span>Semana del ciclo</span></div><div class="kpi"><b>11 de 18</b><span>Sesiones hechas</span></div><div class="kpi"><b>100 %</b><span>Constancia (11 de 11 pasadas)</span></div><div class="kpi"><b>7,4 de 10</b><span>Esfuerzo promedio</span></div><div class="kpi"><b>${avgd>0?'+':''}${f1(avgd)} kg</b><span>Peso real contra el plan</span></div></div>`;
- const chips=`<div class="filters" role="group" aria-label="Ejercicio">${names.map(n=>`<button class="chip" data-ex="${n}" aria-pressed="${n===ex}">${n}</button>`).join('')}</div>`;
- const weightChart=e.pw[0]==null?`<div class="empty"><h3>Sin peso planificado</h3>Este ejercicio es de peso corporal. Mira las repeticiones.</div>`:line({id:'w',w:520,h:210,labels:lab,min:Math.floor(Math.min(...e.pw,...e.aw)/5)*5-5,max:Math.ceil(Math.max(...e.pw,...e.aw)/5)*5+5,step:5,rlab:1,aria:`Peso planificado y cargado en ${ex}, por semana`,series:[{vals:e.pw,color:MID,dash:1,label:'Plan'},{vals:e.aw,color:BLUE,label:'Cargado'}]});
- const repChart=line({id:'r',w:520,h:130,labels:lab,min:0,max:Math.max(...e.pr,...e.ar)+2,step:Math.max(...e.pr,...e.ar)>7?4:2,rlab:1,aria:`Repeticiones planificadas y reales en ${ex}`,series:[{vals:e.pr,color:MID,dash:1,label:'Plan'},{vals:e.ar,color:BLUE,label:'Real'}]});
- const tblW=`<table class="t"><tr><th>Sesión</th><th>Peso plan</th><th>Peso real</th><th>Dif.</th><th>Reps plan</th><th>Reps real</th></tr>${lab.map((l,i)=>`<tr><td>${l}</td><td>${f1(e.pw[i])}</td><td>${f1(e.aw[i])}</td><td>${e.pw[i]==null?'—':(e.aw[i]-e.pw[i]>0?'+':'')+f1(e.aw[i]-e.pw[i])}</td><td>${e.pr[i]}</td><td>${f1(e.ar[i])}</td></tr>`).join('')}</table>`;
- const plan=`<section class="card wide"><div class="top"><h3>Peso planificado contra el cargado</h3><button class="link" data-tab="p">${tab.p?'Ver gráfico':'Ver como tabla'}</button></div>${chips}${tab.p?tblW:`<div class="leg"><span><i style="color:${MID};border-top-style:dashed"></i>Planificado</span><span><i style="color:${BLUE}"></i>Cargado por el atleta</span>${dW!=null?`<span class="delta ${dW>0?'up':dW<0?'dn':''}">Última sesión: ${dW>0?'+':''}${f1(dW)} kg</span>`:''}</div><div class="${w==='d'?'two':''}" style="display:grid;grid-template-columns:${w==='d'?'1.2fr 1fr':'1fr'};gap:14px"><div><div style="font-size:.78rem;font-weight:700;color:${INK2}">Peso (kg)</div>${weightChart}</div><div><div style="font-size:.78rem;font-weight:700;color:${INK2}">Repeticiones</div>${repChart}</div></div>`}</section>`;
- const srpeSvg=line({id:'s',w:520,h:190,labels:['1','2','3','4','5','6','7','8','9','10','11','12'],min:0,max:10,step:2,rlab:0,aria:'Esfuerzo de cada sesión de 0 a 10',series:[{vals:SRPE,color:BLUE}]});
- const tblS=`<table class="t"><tr><th>Sesión</th><th>Esfuerzo</th></tr>${SRPE.map((x,i)=>`<tr><td>${i+1}</td><td>${x==null?'Pendiente':x}</td></tr>`).join('')}</table>`;
- const tblC=`<table class="t"><tr><th>Semana</th><th>Hechas</th><th>Omitidas</th><th>Pendientes</th></tr>${WEEKS.map(k=>`<tr><td>${k.w}</td><td>${k.done}</td><td>${k.skip}</td><td>${k.pend}</td></tr>`).join('')}</table>`;
- const tblP=`<table class="t"><tr><th>Semana</th><th>Carga (kg)</th></tr>${WEEKS.map(k=>`<tr><td>${k.w}${k.cur?' (en curso)':''}</td><td>${k.load??'—'}</td></tr>`).join('')}</table>`;
- const grid=`<div class="grid">${card('c','Progreso del ciclo: carga por semana',cols(),tblP)}${card('k','Constancia: hechas, omitidas y pendientes',`<div class="leg"><span style="color:${BLUE}"><i class="sq"></i>Hechas</span><span style="color:${WARN}"><i class="sq"></i>Omitidas</span><span style="color:${PEND}"><i class="sq"></i>Pendientes</span></div>${stack()}`,tblC)}${card('s','Esfuerzo de cada sesión (0 a 10)',srpeSvg,tblS)}${card('q','Cuánto costó cada ejercicio (RIR real contra el planificado)',rirBars(),'<p style="margin:0;font-size:.84rem">Valores: '+names.map(n=>n+' '+(EX[n].rir>0?'+':'')+f1(EX[n].rir)).join(' · ')+'</p>')}${plan}</div>`;
- return `<div class="ph"><h2>Matías Fuentes</h2><div class="views"><span>Ciclo</span><span class="on">Resumen</span></div></div><div class="filters"><div class="seg" role="group" aria-label="Periodo"><button aria-pressed="true">Ciclo actual</button><button aria-pressed="false">Últimas 4 semanas</button><button aria-pressed="false">Todo el historial</button></div></div>${kp}${grid}`}
+ const kp=`<div class="kpis"><div class="kpi"><b>4 de 6</b><span>Semana del ciclo</span></div><div class="kpi"><b>11 de 18</b><span>Sesiones hechas</span></div><div class="kpi"><b>100 %</b><span>Constancia (11 de 11 pasadas)</span></div><div class="kpi"><b>7,4 de 10</b><span>Esfuerzo promedio</span></div><div class="kpi"><b>+2 kg</b><span>Peso real contra el plan</span></div></div>`;
+ const bar=`<div class="filters"><div class="seg" role="group" aria-label="Periodo"><button aria-pressed="true">Ciclo actual</button><button aria-pressed="false">Últimas 4 semanas</button><button aria-pressed="false">Todo el historial</button></div><span style="flex:1"></span>${edit?`<span class="saved" role="status">✓ Guardado</span><button class="btn sm" data-act="reset">Restablecer disposición</button><button class="btn p sm" data-act="done">Listo</button>`:`<button class="btn" data-act="edit">Organizar</button>`}</div>`;
+ const grid=`<div class="grid${edit?' editing':''}" id="pizarra">${LAY.map(widgetCard).join('')}</div>`;
+ const hid=edit?`<div class="tray"><b>Gráficos ocultos${HID.length?' ('+HID.length+')':''}:</b>${HID.length?HID.map(id=>`<button class="chip" data-act="restore" data-id="${id}">+ ${REG[id].t.split(':')[0]}</button>`).join(''):'<span class="mut" style="margin:0">ninguno</span>'}<span style="flex:1"></span><button class="btn p sm" data-act="add">+ Agregar gráfico</button></div>`:'';
+ const tst=toast?`<div class="toast" role="status">${toast.msg} <button class="link" data-act="undo" style="color:#fff">Deshacer</button></div>`:'';
+ return `<div class="ph"><h2>Matías Fuentes</h2><div class="views"><span>Ciclo</span><span class="on">Resumen</span></div></div>${bar}${kp}${hid}${grid}${drawerHtml()}${tst}`}
 function app(){
  const names=['Sentadilla con barra','Prensa de piernas','Press de banca','Remo con barra'];
  const rows=st==='few'?[]:names.map(n=>EX[n]);
@@ -158,7 +232,7 @@ function app(){
  const title=st==='none'||st==='few'?'':`<h3 style="font-size:1.05rem;margin:6px 2px">Cómo van tus ejercicios</h3>`;
  const muscles=st==='ok'?`<details class="mcard"><summary>Qué músculos trabajas</summary><p style="margin:6px 0 0;font-size:.86rem;color:${INK2}">Aquí van el mapa del cuerpo y el apilado por grupo, en tamaño compacto.</p></details>`:'';
  return `<div class="row"><div><div style="text-align:center;font-size:.82rem;font-weight:700;color:${INK2};margin-bottom:6px">Resumen</div><div class="phone"><div class="scr"><div class="pt"><i class="ring"></i>Resumen</div>${head}${title}${cards}${muscles}</div><div class="isl"><span><svg><use href="#i-cal"/></svg></span><span><svg><use href="#i-bar"/></svg></span><span class="on"><svg><use href="#i-chart"/></svg></span><span><svg><use href="#i-chat"/></svg></span></div></div></div></div>`}
-const NOTES={coach:'Ficha del coach: el detalle para decidir. Pasa el cursor por un gráfico para ver cada sesión; elige un ejercicio para ver su peso y sus repeticiones planificadas contra las reales. Cada gráfico tiene su tabla.',app:'App del atleta: una sola pregunta, ¿cómo cambiaron mi peso y mis repeticiones en los ejercicios que repito? Solo aparecen ejercicios que se repiten más de una vez.'};
+const NOTES={coach:'Ficha del coach como una pizarra de gráficos: toca «Organizar» para arrastrar los gráficos, cambiar su tamaño, quitarlos o agregar otros. En «Agregar gráfico» → «Crear gráfico» ves cómo el coach armará los suyos (solo aparecen combinaciones que los datos permiten).',app:'App del atleta: una sola pregunta, ¿cómo cambiaron mi peso y mis repeticiones en los ejercicios que repito? Solo aparecen ejercicios que se repiten más de una vez.'};
 function render(){
  [...document.getElementById('g-v').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===v));
  [...document.getElementById('g-s').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===st));
@@ -183,6 +257,36 @@ function bind(){
 document.getElementById('g-v').addEventListener('click',e=>{const b=e.target.closest('button');if(b){v=b.dataset.k;render()}});
 document.getElementById('g-s').addEventListener('click',e=>{const b=e.target.closest('button');if(b){st=b.dataset.k;render()}});
 document.getElementById('g-w').addEventListener('click',e=>{const b=e.target.closest('button');if(b){w=b.dataset.k;render()}});
+
+(function(){const st=document.getElementById('stage');
+ st.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(!t)return;const a=t.dataset.act,id=t.dataset.id,k=t.dataset.k;
+  const mv=(from,to)=>{const i=LAY.findIndex(x=>x.id===from);const [it]=LAY.splice(i,1);LAY.splice(to,0,it)};
+  if(a==='edit'){edit=true;render()}
+  else if(a==='done'){edit=false;drawer=null;render()}
+  else if(a==='up'){const i=LAY.findIndex(x=>x.id===id);change(`Moviste «${REG[id].t.split(':')[0]}» una posición antes.`,()=>mv(id,i-1))}
+  else if(a==='down'){const i=LAY.findIndex(x=>x.id===id);change(`Moviste «${REG[id].t.split(':')[0]}» una posición después.`,()=>mv(id,i+1))}
+  else if(a==='half'||a==='full'){change(`Cambiaste el tamaño de «${REG[id].t.split(':')[0]}».`,()=>{LAY.find(x=>x.id===id).s=a})}
+  else if(a==='hide'){change(`Quitaste «${REG[id].t.split(':')[0]}».`,()=>{LAY=LAY.filter(x=>x.id!==id);HID.push(id)})}
+  else if(a==='restore'||a==='addgal'){change(`Agregaste «${REG[id].t.split(':')[0]}».`,()=>{HID=HID.filter(x=>x!==id);LAY.push({id,s:id==='plan'?'full':'half'})})}
+  else if(a==='reset'){change('Volviste a la disposición original.',()=>{LAY=DEFAULT();HID=[]})}
+  else if(a==='undo'){const p=JSON.parse(toast.snap);LAY=p.LAY;HID=p.HID;toast=null;render()}
+  else if(a==='add'){drawer='gal';render()}
+  else if(a==='dclose'){drawer=null;render()}
+  else if(a==='dtab'){drawer=t.dataset.t;render()}
+  else if(a==='bm'){bld.m=k;const M=MED[k],b0=Object.keys(M.by)[0];bld.by=b0;bld.form=M.by[b0][0];render()}
+  else if(a==='bb'){bld.by=k;bld.form=MED[bld.m].by[k][0];render()}
+  else if(a==='bf'){bld.form=k;render()}
+  else if(a==='bx'){bld.ex=k;render()}
+  else if(a==='create'){const nm=(document.getElementById('gname').value.trim())||autoName(bld);const cfg={...bld},cid='c'+(++nCustom);
+   REG[cid]={t:nm,b:()=>preview(cfg),tb:()=>'<p style="margin:0;font-size:.84rem">Tabla con los mismos valores del gráfico.</p>'};
+   change(`Agregaste «${nm}».`,()=>{LAY.push({id:cid,s:'half'});drawer=null;bld.name=''})}
+ });
+ st.addEventListener('dragstart',e=>{const c=e.target.closest('.card.editing');if(!c)return;dragId=c.dataset.id;c.classList.add('drag');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',dragId)});
+ st.addEventListener('dragend',()=>{dragId=null;st.querySelectorAll('.card').forEach(c=>c.classList.remove('drag','over'))});
+ st.addEventListener('dragover',e=>{const c=e.target.closest('.card.editing');if(!c||!dragId)return;e.preventDefault();st.querySelectorAll('.card.over').forEach(x=>x.classList.remove('over'));if(c.dataset.id!==dragId)c.classList.add('over')});
+ st.addEventListener('drop',e=>{const c=e.target.closest('.card.editing');if(!c||!dragId||c.dataset.id===dragId)return;e.preventDefault();const from=dragId,to=LAY.findIndex(x=>x.id===c.dataset.id);
+  change(`Moviste «${REG[from].t.split(':')[0]}».`,()=>{const i=LAY.findIndex(x=>x.id===from);const [it]=LAY.splice(i,1);LAY.splice(to,0,it)})});
+})();
 window.addEventListener('resize',render);render();
 </script>
 </body>

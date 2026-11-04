@@ -9,7 +9,7 @@ updated: 2026-11-04
 
 # Resumen del atleta: progreso, constancia, esfuerzo y peso planificado contra el real (CYC-236)
 
-> Dos lecturas del mismo dato. **La ficha del coach en la web** lleva el detalle, más cercano a las ciencias del deporte. **La app del atleta** se simplifica a una sola pregunta: cómo han cambiado el peso y las repeticiones de los ejercicios que repite. Absorbe a CYC-119 («Resumen móvil final»). **Contrastado con `origin/main` a61e89f.** Estado: propuesto, pendiente de aprobación de la usuaria. Maqueta interactiva en [`propuestas.html`](propuestas.html).
+> **Actualización 2026-11-04:** la ficha del coach funciona como una **pizarra de gráficos** (el coach los mueve, los redimensiona y los oculta) y queda preparada para que en el futuro **cree sus propios gráficos** con los datos disponibles. Dos lecturas del mismo dato. **La ficha del coach en la web** lleva el detalle, más cercano a las ciencias del deporte. **La app del atleta** se simplifica a una sola pregunta: cómo han cambiado el peso y las repeticiones de los ejercicios que repite. Absorbe a CYC-119 («Resumen móvil final»). **Contrastado con `origin/main` a61e89f.** Estado: propuesto, pendiente de aprobación de la usuaria. Maqueta interactiva en [`propuestas.html`](propuestas.html).
 
 ## Decisiones de la usuaria (2026-11-04)
 
@@ -72,6 +72,61 @@ Vista **Resumen** de la ficha, con el mismo selector Ciclo / Resumen de hoy.
 - **Escritorio (≥ 1100 px):** cifras en una fila de 5; los cuatro gráficos en **cuadrícula de 2 × 2** y el de peso, **ancho completo**, con pesos y repeticiones lado a lado.
 - **Tablet y móvil web:** una columna; cifras en dos por fila; pesos y repeticiones apilados.
 
+## La ficha del coach como pizarra de gráficos
+
+La disposición de los gráficos es del coach. Funciona con el mismo lenguaje de la **pizarra de ciclos** (autoguardado, «Guardado» y «Deshacer»).
+
+### Modo «Organizar»
+
+- Un botón **Organizar** junto al filtro de periodo abre el modo de edición; **Listo** lo cierra. Fuera de ese modo, los gráficos se leen normalmente y no se arrastran por accidente.
+- En el modo de edición cada gráfico muestra una **miniatura** (con borde discontinuo, sin interacciones) y una barra con:
+  - **Asa de arrastre (⠿)**: se arrastra la tarjeta a otra posición; el destino se marca con un borde azul.
+  - **↑ Antes / ↓ Después**: la misma acción **con botones**, para teclado, lector de pantalla y celular.
+  - **Mitad / Completo**: ocupa media fila o la fila entera.
+  - **Quitar**: lo oculta (no lo borra); pasa a la bandeja «Gráficos ocultos».
+- **Bandeja «Gráficos ocultos»:** los gráficos quitados vuelven con un toque. Junto a ella, **+ Agregar gráfico**.
+- **Restablecer disposición:** vuelve al orden original.
+- **Cada cambio se guarda solo** («✓ Guardado») y muestra un aviso con **Deshacer** durante 7 segundos (por ejemplo «Moviste «Constancia» una posición antes.»).
+- Las cinco cifras de arriba y el filtro de periodo **no se mueven** (son el encabezado de la pizarra).
+- **Alcance de la disposición:** es **del coach** y vale para **todos sus atletas** (no se reorganiza atleta por atleta). Se guarda en el servidor para que la vea igual desde cualquier equipo.
+- **Teclado y lector de pantalla:** el asa y los botones tienen nombre («Mover «Constancia»»); cada cambio se anuncia en una región `aria-live` («Moviste «Constancia» a la posición 1 de 5»). Esc cierra el modo.
+- **Tablet y móvil web:** una columna, sin arrastre: **↑ Antes / ↓ Después** y **Quitar**. El tamaño «Mitad / Completo» no aplica.
+
+### Cada gráfico es una definición
+
+Para que la pizarra acepte gráficos propios sin rediseñarse, cada tarjeta es una **definición**, no un componente fijo:
+
+| Campo | Qué guarda |
+|---|---|
+| `id`, `titulo` | Identificador y nombre que ve el coach. |
+| `medida` | Qué se mide: carga (kg), series, esfuerzo (0 a 10), duración (min), sesiones por estado, peso planificado y cargado… |
+| `agrupar` | Por semana o por sesión (más adelante, por ejercicio o por grupo muscular). |
+| `forma` | Columnas, línea, columnas apiladas o dos líneas (plan y real). |
+| `filtros` | Ejercicio, periodo, estado de sesión. |
+| `tamano`, `posicion` | Mitad o completo, y el orden en la pizarra. |
+| `origen` | `sistema` (los cinco de siempre, que se pueden ocultar pero no editar) o `coach`. |
+
+Los cinco gráficos de hoy son definiciones del sistema. La disposición guardada es la lista ordenada de esas definiciones.
+
+### Agregar gráfico: galería y constructor
+
+**Agregar gráfico** abre un cajón a la derecha con dos pestañas:
+
+1. **Galería:** los gráficos del sistema y los ya creados. Muestra «En la pizarra» o **Agregar**.
+2. **Crear gráfico** (en la maqueta ya funciona; es el diseño de la **fase siguiente**): un constructor guiado de tres pasos con **vista previa en vivo**:
+   - **¿Qué quieres medir?** (una medida, con su unidad).
+   - **¿Cómo lo agrupas?** Solo se habilitan las agrupaciones que esa medida admite («Duración de la sesión solo se puede agrupar por sesión»).
+   - **Forma:** se sugiere la mejor y solo se habilitan las que los datos permiten; las demás quedan deshabilitadas.
+   - Nombre (con uno sugerido) y **Agregar a la pizarra**.
+
+**Reglas para que «si los datos lo permiten» sea real:**
+
+- **Una medida por gráfico.** Kilos, repeticiones y esfuerzo tienen unidades distintas y **no comparten eje** (nunca dos ejes en un gráfico). Para cruzarlas se agrega otro gráfico al lado.
+- La **forma depende de la medida y de la agrupación**: tendencia por sesión o semana = línea; magnitud por semana = columnas; partes de un total = columnas apiladas; plan contra real = dos líneas.
+- **Sin datos suficientes** (una sola sesión, ejercicio sin peso planificado): el gráfico se agrega igual y muestra su estado vacío explicativo, no desaparece.
+- **Colores por función**, no a elección: lo real es el azul de marca, lo planificado es gris discontinuo, el naranja solo para omitidas. El coach no elige colores, así que no se rompe la validación de color.
+- **Catálogo de datos** (lo que la API ya permite hoy): carga (kg), series, repeticiones planificadas y reales, peso planificado y cargado, RIR planificado y reportado, esfuerzo de la sesión (0 a 10), duración (min), estado de la sesión y dolor reportado; agrupables por semana, sesión, ejercicio y grupo muscular. Ampliar el catálogo es agregar un campo, no rediseñar.
+
 ## App del atleta
 
 Pantalla **Resumen** (pestaña de la isla), sin etiquetas grises bajo los títulos.
@@ -123,6 +178,7 @@ Pantalla **Resumen** (pestaña de la isla), sin etiquetas grises bajo los títul
 - **Web (coach):** se puede construir con lo que existe: `AthleteSummary` + `CycleProgress` (objetivo contra series reales, y `srpe`). Falta agrupar **por ejercicio a través de las sesiones** y calcular el promedio de las series; se puede hacer en el cliente o con un campo nuevo en el resumen. Reutilizar `components/charts.tsx` (columnas) y sumar una `LineChart` en SVG.
 - **API (para la app):** un servicio del atleta con el historial por ejercicio, por ejemplo `GET /me/exercise-progress`: para cada ejercicio con ≥ 2 sesiones, una lista de sesiones con fecha, peso planificado, peso real promedio, repeticiones planificadas y reales. **Confirmar con Desarrollo general.**
 - **App:** nueva sección «Cómo van tus ejercicios» (tarjetas con línea mínima, `react-native-svg` ya instalado), detalle por ejercicio y `SummaryScreen` con el apilado compacto y plegable.
+- **Pizarra del coach (web):** guardar la disposición del coach, por ejemplo `GET/PUT /coach/summary-layout` con la lista ordenada de definiciones (`id`, `tamano`, `visible` y, para los propios, `medida`, `agrupar`, `forma`, `filtros`). La primera versión puede traer solo los cinco del sistema y la reordenación; el constructor entra después sin cambiar el modelo. Arrastrar con la API de arrastre del navegador y botones **↑ Antes / ↓ Después** para teclado; autoguardado y **Deshacer** como en la pizarra de ciclos (`SaveIndicator`, `UndoToast`).
 - Definiciones para pruebas: peso real = promedio de las series de la sesión; diferencia = real − plan; desvío de RIR = RIR planificado − RIR reportado; constancia = hechas ÷ (hechas + omitidas) de las sesiones ya pasadas.
 
 ## Fuera de alcance
@@ -133,6 +189,7 @@ Pantalla **Resumen** (pestaña de la isla), sin etiquetas grises bajo los títul
 
 ## Preguntas para la usuaria
 
+0. **Pizarra:** ¿la disposición es del coach para todos sus atletas (recomendado) o se guarda por atleta? ¿La primera entrega incluye solo mover, redimensionar y ocultar, y el constructor queda para después?
 1. ¿El **peso real de una sesión** es el **promedio de sus series** (el detalle por serie queda en el tooltip)? La alternativa es la serie más pesada.
 2. ¿El gráfico de peso arranca con el ejercicio **que más se desvió** del plan, o con el primero de la lista?
 3. En la app: ¿el mapa muscular y el apilado quedan **plegados** bajo «Qué músculos trabajas», o prefieres quitarlos?
