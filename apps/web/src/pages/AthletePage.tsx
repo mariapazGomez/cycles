@@ -43,6 +43,16 @@ export function AthletePage() {
   usePageBackground();
   usePageWide();
 
+  // ?nuevo=ciclo (lo usa «Crear ciclo» de la lista de atletas) abre una vez el
+  // diálogo «Nuevo ciclo» y se quita de la dirección.
+  useEffect(() => {
+    if (params.get("nuevo") !== "ciclo") return;
+    setShowNewCycle(true);
+    const next = new URLSearchParams(params);
+    next.delete("nuevo");
+    setParams(next, { replace: true });
+  }, [params, setParams]);
+
   const athletesQuery = useQuery({ queryKey: ["athletes"], queryFn: athletesApi.listAthletes });
   const cyclesQuery = useQuery({ queryKey: ["cycles"], queryFn: cyclesApi.listCycles });
   useEffect(() => {

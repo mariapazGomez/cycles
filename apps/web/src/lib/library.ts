@@ -53,6 +53,12 @@ export function libraryPath(filter: LibraryFilter = "all", create?: "ciclo" | "p
   return query ? `/biblioteca?${query}` : "/biblioteca";
 }
 
+// «Crear ciclo» de un atleta sin plan: lleva a su ficha y abre ahí el diálogo
+// «Nuevo ciclo», con el atleta ya fijado (CYC-234). No pasa por la Biblioteca.
+export function newCyclePath(athleteId: string): string {
+  return `/athletes/${athleteId}?nuevo=ciclo`;
+}
+
 export const CYCLE_STATUS_LABEL: Record<CycleStatus, string> = {
   active: "Activo",
   completed: "Completado",

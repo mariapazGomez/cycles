@@ -121,6 +121,8 @@ jobs:
         run: npm ci
       - name: Revisar tipos y compilar
         run: npm run build --workspace apps/web
+      - name: Pruebas de la web
+        run: npm test --workspace apps/web
 
   mobile:
     name: App móvil (tipos y pruebas)
