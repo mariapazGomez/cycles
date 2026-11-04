@@ -23,6 +23,15 @@ export function loginWithApple(data: { idToken: string; nonce: string }) {
   });
 }
 
+// Inicio de sesión con Google: el token de identidad y el nonce con que se pidió.
+export function loginWithGoogle(data: { idToken: string; nonce: string }) {
+  return apiRequest<AuthTokens>('/auth/google/token', {
+    method: 'POST',
+    auth: false,
+    body: data,
+  });
+}
+
 export function logout(refreshToken: string) {
   return apiRequest<void>('/auth/logout', {
     method: 'POST',

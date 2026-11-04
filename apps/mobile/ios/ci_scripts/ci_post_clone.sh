@@ -28,6 +28,12 @@ npm ci --workspace apps/mobile --workspace packages/shared --include-workspace-r
 # no heredan el PATH de este script: se les indica dónde está Node.
 echo "export NODE_BINARY=$(command -v node)" > "$IOS/.xcode.env.local"
 
+echo "== Inicio de sesión con Google"
+# Escribe el ID de cliente de iOS (variable GOOGLE_IOS_CLIENT_ID de Xcode Cloud) en
+# la configuración de la app y registra su esquema de URL en Info.plist. Sin la
+# variable, el botón de Google queda oculto. Nunca imprime el valor.
+node "$REPO/apps/mobile/scripts/write-google-config.js"
+
 echo "== CocoaPods"
 # CocoaPods se cae con "Unicode Normalization not appropriate for ASCII-8BIT" si
 # la terminal no declara UTF-8, y en Xcode Cloud LANG puede venir vacío.

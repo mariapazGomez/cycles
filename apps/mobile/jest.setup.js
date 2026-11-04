@@ -29,6 +29,8 @@ jest.mock('@react-native-async-storage/async-storage', () => {
   return { __esModule: true, default: storage };
 });
 
+jest.mock('react-native-app-auth', () => ({ authorize: jest.fn() }));
+
 jest.mock('react-native-keychain', () => {
   let saved = null;
   return {
