@@ -105,25 +105,32 @@ Total de imágenes de la landing: ≤ 1,6 MB en escritorio y ≤ 0,9 MB en celul
 
 El resto del copy (tú, «ciclo» y «ciclos», #3080fc / #1f2228) ya es coherente.
 
-## Cómo se capturan (para cuando se apruebe)
+## Cómo se capturan (jueves 5 de noviembre, decidido por la usuaria)
 
-Sigue `docs/MANUAL-DEMOS.md` al pie de la letra:
+Sigue `docs/MANUAL-DEMOS.md`. El guion [`capturar-landing.mjs`](capturar-landing.mjs) hace las 11 capturas (más las dos opcionales) y guarda un PNG maestro y un JPG de cada una en `capturas-landing-out/` (carpeta local, no se versiona).
 
-1. **Un jueves o viernes antes de las 18:30** (la semana 4 queda «real»): jueves 5 o viernes 6 de noviembre.
-2. Regenerar la demo ese mismo día (`cycles_demo`) y confirmar «Demo lista: 1 coach, 8 atletas, 8 planes».
-3. API de la demo en el puerto 3000 **sin** claves de Resend ni Slack, y web sin `VITE_POSTHOG_KEY`. Esto exige **apagar tu API de desarrollo** mientras dure la captura.
-4. Ventana de 1440 × 900 y de 390 × 844, modo claro, sin extensiones; zona horaria America/Santiago.
-5. Capturar con un script de Playwright (como `grabar-telefono.mjs`) que inicie sesión con las cuentas demo y deje los archivos listos; la contraseña la lee del archivo fuera del repo y **nunca** sale en pantalla ni en los archivos.
-6. Revisar a ojo las 8 + 3 imágenes (que no salga nada real: correo, `.env`, gestor de contraseñas).
+**Lo que hay que preparar el jueves 5, antes de las 18:30 (hora de Chile):**
 
-Esta captura toca tu entorno (apagar la API de desarrollo), por eso **espera tu visto bueno**.
+1. **Regenerar la demo ese mismo día** (`cycles_demo`) y confirmar «Demo lista: 1 coach, 8 atletas, 8 planes».
+2. **Apagar tu API de desarrollo** (solo ese proceso, sin `pkill`) y levantar la API de la demo en el puerto 3000 **sin** claves de Resend ni Slack.
+3. Levantar la web en `http://localhost:5173` **sin** `VITE_POSTHOG_KEY`.
+4. Correr el guion (la contraseña llega por variable de entorno, no se imprime ni se guarda y las pantallas de inicio de sesión no se capturan):
+
+```bash
+DEMO_PASSWORD="$(cat ~/.cycles-secretos/demo/DEMO_PASSWORD)" node docs/diseno/landing-vistas/capturar-landing.mjs
+```
+
+5. Revisar a ojo las capturas (que no salga nada real: correo, `.env`, gestor de contraseñas) y avisar para pasarlas a desarrollo.
+6. Al terminar, apagar la API de la demo y volver a levantar la de desarrollo.
+
+El guion solo corre contra `localhost`, avisa si no es jueves o viernes antes de las 18:30, usa la zona America/Santiago sin importar la del equipo, y si una captura falla sigue con las demás y lista cuáles revisar. Los PNG son el original; los JPG y WebP finales los genera el desarrollo (por ejemplo con `sharp`) con los pesos de la tabla.
 
 ## Calendario propuesto
 
 | Día | Qué |
 |---|---|
 | Mar 3 – mié 4 | Aprobación de este diseño |
-| Jue 5 o vie 6 | Captura con la demo recién regenerada (y las maquetas del teléfono en desarrollo) |
+| **Jue 5** | Captura con la demo recién regenerada (antes de las 18:30) |
 | Sáb 7 – lun 9 | Desarrollo: imágenes nuevas, maquetas del teléfono, textos |
 | Mar 10 | Despliegue y prueba en iPhone/Safari y Android (CYC-32) |
 | Mié 11 | Entrega (vence CYC-188) |
@@ -137,7 +144,7 @@ La carpeta `content/` (proyecto de video, ~150 MB con `node_modules`, videos y g
 1. ¿La isla de las maquetas del teléfono muestra **los cuatro íconos** (incluido el Asistente, que hoy es una demo) como en la app? Se recomienda sí, sin hablar del Asistente en el texto.
 2. ¿Agregamos **Ejercicios** y **Biblioteca** a la landing (por ejemplo, como cuarta pestaña del carrusel) o solo se capturan para el onboarding y las redes?
 3. ¿Hacemos el **clip de la pizarra** (fase 2) o lo dejamos para después?
-4. ¿Capturamos el **jueves 5** o el **viernes 6**, apagando tu API de desarrollo durante la sesión?
+4. ~~¿Jueves o viernes?~~ **Cerrada: jueves 5 de noviembre** (apagando tu API de desarrollo durante la sesión).
 5. ¿Pongo «Datos de ejemplo» bajo cada captura?
 
 ## Para desarrollo (tras la aprobación)
