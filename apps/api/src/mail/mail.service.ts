@@ -40,7 +40,7 @@ export class MailService {
 
   async sendVerificationEmail(to: string, token: string): Promise<void> {
     const url = this.link("/verify-email", token);
-    await this.deliver(to, verificationEmail(url), `[DEV] Verificación de email para ${to}: ${url}`);
+    await this.deliver(to, verificationEmail(url, this.canReply), `[DEV] Verificación de email para ${to}: ${url}`);
   }
 
   async sendPasswordResetEmail(to: string, token: string): Promise<void> {
@@ -50,12 +50,17 @@ export class MailService {
 
   async sendAthleteInvitationEmail(to: string, token: string, coachName: string): Promise<void> {
     const url = this.link("/accept-invitation", token);
-    await this.deliver(to, athleteInvitationEmail(url, coachName), `[DEV] Invitación de ${coachName} para ${to}: ${url}`);
+    await this.deliver(to, athleteInvitationEmail(url, coachName, this.canReply), `[DEV] Invitación de ${coachName} para ${to}: ${url}`);
   }
 
   async sendAndroidAccessEmail(to: string): Promise<void> {
     const url = this.config.get<string>("FRONTEND_URL") ?? "";
     await this.deliver(to, androidAccessEmail(url), `[DEV] Acceso web para Android enviado a ${to}`);
+  }
+
+  // Los correos dicen que se puede responder solo si hay un Reply-To configurado.
+  private get canReply(): boolean {
+    return Boolean(this.config.get<string>("MAIL_REPLY_TO"));
   }
 
   private link(path: string, token: string): string {
