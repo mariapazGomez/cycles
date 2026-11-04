@@ -24,6 +24,11 @@ echo "== Dependencias de npm (solo la app móvil y el paquete compartido)"
 cd "$REPO"
 npm ci --workspace apps/mobile --workspace packages/shared --include-workspace-root --no-audit --no-fund
 
+echo "== Clave de Sentry (reporte de caídas)"
+# SENTRY_DSN es una variable de entorno del flujo de Xcode Cloud. Sin ella la
+# app compila con el reporte apagado.
+node "$REPO/apps/mobile/scripts/write-sentry-config.js"
+
 # Las fases de compilación (empaquetar el JavaScript y el validador de subidas)
 # no heredan el PATH de este script: se les indica dónde está Node.
 echo "export NODE_BINARY=$(command -v node)" > "$IOS/.xcode.env.local"

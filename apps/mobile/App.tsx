@@ -9,6 +9,7 @@ import { AuthProvider } from './src/store/AuthContext';
 import { RestTimerProvider } from './src/store/RestTimerContext';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { warmUpApi } from './src/services/httpClient';
+import { AppErrorBoundary } from './src/components/AppErrorBoundary';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -20,11 +21,13 @@ function App() {
   return (
     <SafeAreaProvider>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AuthProvider>
-        <RestTimerProvider>
-          <RootNavigator />
-        </RestTimerProvider>
-      </AuthProvider>
+      <AppErrorBoundary>
+        <AuthProvider>
+          <RestTimerProvider>
+            <RootNavigator />
+          </RestTimerProvider>
+        </AuthProvider>
+      </AppErrorBoundary>
     </SafeAreaProvider>
   );
 }

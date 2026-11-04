@@ -83,3 +83,9 @@ jest.mock('react-native-notify-kit', () => ({
   AlarmType: { SET_ALARM_CLOCK: 4 },
   TriggerType: { TIMESTAMP: 0 },
 }));
+
+// Sentry es nativo: en las pruebas no se envía nada.
+jest.mock('@sentry/react-native', () => ({
+  init: jest.fn(),
+  captureException: jest.fn(),
+}));
