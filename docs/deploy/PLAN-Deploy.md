@@ -262,6 +262,8 @@ Leyendo `SUPABASE_DATABASE_URL` del `.env` sin mostrarla en pantalla:
 
 ### 2.5 Respaldos durante el piloto
 
+> **Actualización 2026-11-04 (CYC-43):** el respaldo ya es automático y cifrado (semanal y antes de cada migración, con aviso a Slack). Todo lo de abajo describe el respaldo manual, que queda como plan B. Ver [`RESPALDOS.md`](RESPALDOS.md).
+
 - **Cada lunes por la mañana** (decisión del 2026-10-10) y antes de cada migración nueva: un `pg_dump` de la base de Supabase a un archivo local, guardado fuera del repo (por ejemplo, en una carpeta privada de Google Drive). Contiene datos de personas: nunca en el repo, que es público, ni en un chat.
 - **Script de un solo comando** (hecho el 2026-10-06): `bash apps/api/scripts/respaldo-supabase.sh`. Lee `SUPABASE_DATABASE_URL` de `~/.cycles-secretos/produccion.env`, o de `apps/api/.env` si no está ahí (nunca la imprime), respalda solo el esquema `public` (sin los esquemas internos de Supabase) en formato comprimido y guarda el archivo en `~/Respaldos-Cycles` con permisos solo para ti. Si el respaldo falla, no deja un archivo a medias.
 - **Necesita `pg_dump` 17 o más nuevo** (Supabase usa Postgres 17; un `pg_dump` más viejo se niega a funcionar). En el Mac de la fundadora, macOS 14 ya no tiene soporte de Homebrew y `brew` no logró descargarlo, así que se compiló solo el cliente desde la fuente oficial (`postgresql-17.11`, suma sha256 contrastada con la de Homebrew) en `~/.local/pg17`; el script lo busca primero ahí.
