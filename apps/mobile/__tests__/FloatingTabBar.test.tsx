@@ -72,3 +72,10 @@ test('el spinner se monta y desmonta sin errores', () => {
   });
   ReactTestRenderer.act(() => tree.unmount());
 });
+
+test('el área táctil de cada pestaña llena su hueco, para que el ícono quede centrado en el resaltado (CYC-229)', () => {
+  const { tree } = renderBar(1);
+  const pressables = tree.root.findAll(n => n.props.accessibilityRole === 'button' && typeof n.props.onPressIn === 'function');
+  expect(pressables.length).toBe(4);
+  pressables.forEach(p => expect(StyleSheetFlatten(p.props.style)).toMatchObject({ flex: 1 }));
+});
