@@ -4,7 +4,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useTour } from "../../hooks/useTour";
 import { TOUR_STEP_COUNT, type TourStepN } from "../../lib/tour";
-import { pickMark, stepPath, type Mark, type MarkContext } from "../../lib/tourMarks";
+import { track } from "../../lib/analytics";
+import * as tourApi from "../../services/tourApi";
+import { ATHLETE_MARKS, ATHLETE_STEP_COUNT, athleteMark, pickMark, stepPath, type Mark, type MarkContext } from "../../lib/tourMarks";
 import { TourIntro } from "./TourIntro";
 
 const MOBILE = 640;
@@ -143,6 +145,8 @@ interface MarkViewProps {
   tick: number;
   canSkip: boolean;
   saving: boolean;
+  // Cuántos pasos tiene la guía que se está mostrando (6 la de la coach, 3 la del atleta).
+  total?: number;
   onNext: () => void;
   onSkip: () => void;
   onBack: (() => void) | null;
@@ -150,7 +154,7 @@ interface MarkViewProps {
   onPause: () => void;
 }
 
-function MarkView({ mark, ctx, el, tick, canSkip, saving, onNext, onSkip, onBack, onExit, onPause }: MarkViewProps) {
+function MarkView({ mark, ctx, el, tick, canSkip, saving, total = TOUR_STEP_COUNT, onNext, onSkip, onBack, onExit, onPause }: MarkViewProps) {
   const rect = useRect(el, tick);
   const balloonRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(120);
@@ -226,7 +230,7 @@ function MarkView({ mark, ctx, el, tick, canSkip, saving, onNext, onSkip, onBack
         style={{ left: placement.left, top: placement.top, width: placement.width, ["--arrow" as string]: `${placement.arrow}px` }}
       >
         <p className="tourl-meta">
-          {mark.level ? `${mark.level} · ` : ""}Paso {mark.step} de {TOUR_STEP_COUNT}
+          {mark.level ? `${mark.level} · ` : ""}Paso {mark.step} de {total}
         </p>
         <p className="tourl-text">{text}</p>
         <div className="tourl-actions">
@@ -251,7 +255,7 @@ function MarkView({ mark, ctx, el, tick, canSkip, saving, onNext, onSkip, onBack
         </div>
       </div>
       <div id={liveId} className="tour-sr" aria-live="polite">
-        Paso {mark.step} de {TOUR_STEP_COUNT}. {text}
+        Paso {mark.step} de {total}. {text}
       </div>
     </>
   );
@@ -278,8 +282,87 @@ function Chip({ children, action, onAction, onExit, saving }: { children: React.
 // diseño de la app y no cambia el aspecto de las pantallas.
 export function TourLayer() {
   const { user } = useAuth();
+  if (user?.role === "athlete") return <AthleteLayer />;
   if (user?.role !== "coach") return null;
   return <CoachLayer />;
+}
+
+// Guía del atleta en la web (CYC-233): tres marcas sobre el menú, con el mismo
+// globo que la de la coach. Corre mientras `tourStatus` sea «pending»; «Salir
+// de la guía» y «Entendido» lo guardan en la cuenta, y «Cómo usar Cycles» lo
+// vuelve a poner en «pending».
+function AthleteLayer() {
+  const { user, refreshCurrentUser } = useAuth();
+  const { pathname } = useLocation();
+  const tick = useDomTick();
+  const active = user?.tourStatus === "pending";
+  const [step, setStep] = useState(1);
+  const [paused, setPaused] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // Al reabrir la guía empieza de nuevo.
+  useEffect(() => {
+    if (!active) {
+      setStep(1);
+      setPaused(false);
+    }
+  }, [active]);
+
+  async function finish(status: "skipped" | "completed") {
+    setSaving(true);
+    try {
+      track(status === "completed" ? "tour_completed" : "tour_skipped", { role: "athlete", step });
+      await tourApi.setTourStatus(status);
+      await refreshCurrentUser();
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (!active) return null;
+  const ctx = buildContext(pathname, { athleteId: null, athleteName: null, pendingName: null, summarySeen: false });
+  const exit = () => void finish("skipped");
+
+  if (paused) {
+    return createPortal(
+      <div className="tourl-root">
+        <Chip action="Seguir" onAction={() => setPaused(false)} onExit={exit} saving={saving}>
+          Guía en pausa · Paso {step} de {ATHLETE_STEP_COUNT}
+        </Chip>
+      </div>,
+      document.body,
+    );
+  }
+
+  const mark = athleteMark(step);
+  const el = mark ? query(mark.selector(ctx)) : null;
+  // Si el elemento no está a la vista, la guía no se rompe: el paso se muestra como ficha.
+  const body =
+    mark && el ? (
+      <MarkView
+        mark={mark}
+        ctx={ctx}
+        el={el}
+        tick={tick}
+        canSkip={false}
+        saving={saving}
+        total={ATHLETE_STEP_COUNT}
+        onNext={() => {
+          if (mark.closing) void finish("completed");
+          else setStep((n) => Math.min(n + 1, ATHLETE_MARKS.length));
+        }}
+        onSkip={() => undefined}
+        onBack={step > 1 ? () => setStep((n) => n - 1) : null}
+        onExit={exit}
+        onPause={() => setPaused(true)}
+      />
+    ) : mark ? (
+      <Chip action={mark.closing ? "Entendido" : "Siguiente"} onAction={() => (mark.closing ? void finish("completed") : setStep((n) => n + 1))} onExit={exit} saving={saving}>
+        Paso {step} de {ATHLETE_STEP_COUNT} · {mark.text(ctx)}
+      </Chip>
+    ) : null;
+
+  return createPortal(<div className="tourl-root">{body}</div>, document.body);
 }
 
 function CoachLayer() {
