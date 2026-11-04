@@ -36,3 +36,23 @@ export async function requestAppleCredential(): Promise<AppleCredential> {
     throw err;
   }
 }
+
+// Pide a Apple un código de un solo uso para revocar la autorización de la cuenta
+// al eliminarla (regla 5.1.1(v)). No se guarda: el API lo canjea de inmediato.
+export async function requestAppleAuthorizationCode(): Promise<string> {
+  try {
+    const response = await appleAuth.performRequest({
+      requestedOperation: appleAuth.Operation.LOGIN,
+      requestedScopes: [],
+    });
+    if (!response.authorizationCode) {
+      throw new Error('Apple no entregó la confirmación. Vuelve a intentarlo.');
+    }
+    return response.authorizationCode;
+  } catch (err) {
+    if ((err as { code?: string }).code === appleAuth.Error.CANCELED) {
+      throw new AppleSignInCancelled();
+    }
+    throw err;
+  }
+}

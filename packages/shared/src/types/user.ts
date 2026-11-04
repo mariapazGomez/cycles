@@ -15,6 +15,8 @@ export interface User {
   authProvider: AuthProvider;
   // Solo atletas: false mientras ningún coach lo haya vinculado (se registró solo).
   hasActiveCoach?: boolean;
+  // true si la cuenta tiene Apple vinculado: al eliminarla, la app pide confirmar con Apple.
+  hasAppleIdentity?: boolean;
   weightUnit: WeightUnit;
   // Qué teléfono eligió al registrarse (solo atletas que se registraron solos); null si no lo dijo.
   phonePlatform?: "ios" | "android" | null;
