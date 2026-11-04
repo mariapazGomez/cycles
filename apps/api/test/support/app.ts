@@ -55,7 +55,11 @@ export interface TestApp {
   close: () => Promise<void>;
 }
 
+import type { TestingModuleBuilder } from "@nestjs/testing";
+
 export interface StartOptions {
+  // Para reemplazar proveedores (por ejemplo, las claves de Cloudflare Access).
+  configure?: (builder: TestingModuleBuilder) => TestingModuleBuilder;
   // Usa la misma lógica de IP real que producción (header `True-Client-IP`, S-13)
   // en vez de una IP distinta por pedido. Para probar el límite de intentos.
   realClientIp?: boolean;
@@ -70,7 +74,8 @@ export async function startApp(options: StartOptions = {}): Promise<TestApp> {
   const { corsOptions } = await import("../../src/common/config/env.validation");
   const { PrismaService: Prisma } = await import("../../src/prisma/prisma.service");
 
-  const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+  const builder = Test.createTestingModule({ imports: [AppModule] });
+  const moduleRef = await (options.configure ? options.configure(builder) : builder).compile();
   const app = moduleRef.createNestApplication();
   if (options.realClientIp) {
     // Igual que main.ts: confiar solo en True-Client-IP, no en X-Forwarded-For.

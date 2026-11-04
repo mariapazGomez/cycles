@@ -38,6 +38,7 @@ Solo eventos explícitos, con conteos y categorías. **Nunca** datos de salud ni
 | `cycle_created` | El coach crea un ciclo | `type`, `inMacrocycle` |
 | `routine_assigned` | El coach asigna una rutina | `weeks` (a cuántas semanas) |
 | `session_closed` | El atleta termina u omite una sesión en la web | `outcome` (`completed` o `skipped`) |
+| `tour_completed` / `tour_skipped` | La coach termina o salta la guía de primer uso | `step` (paso en que quedó) |
 
 **Identidad:** el ID interno de la cuenta (un UUID) y `role`. Al cerrar sesión se reinicia.
 
@@ -55,6 +56,10 @@ Solo eventos explícitos, con conteos y categorías. **Nunca** datos de salud ni
 ## Cómo apagarlo
 
 Borra `VITE_POSTHOG_KEY` en Vercel y redespliega: la web deja de enviar todo. Para borrar lo ya enviado, elimina el proyecto o las personas desde PostHog.
+
+## Lectura desde el portal del equipo (CYC-193)
+
+La pestaña **Uso** del portal consulta PostHog **desde el servidor de la API**, nunca desde el navegador. Necesita una clave **personal** de solo lectura (no la `phc_` de la web) y el ID del proyecto, cargados solo en Render: `POSTHOG_PERSONAL_API_KEY` y `POSTHOG_PROJECT_ID` (opcional `POSTHOG_API_HOST`, UE por defecto). En PostHog: *Account settings → Personal API keys → Create* con el alcance **Query: Read** y acotada al proyecto Cycles. Las cuentas demo se excluyen de la consulta y el nombre de cada persona se cruza en la base, no en PostHog. Sin las variables, la pestaña dice «no conectado». Ver [`PORTAL-ADMIN.md`](PORTAL-ADMIN.md).
 
 ## Límites conocidos
 

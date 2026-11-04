@@ -82,6 +82,23 @@ export function validateEnv(config: Record<string, unknown>): Record<string, unk
     errors.push(`Las variables de TestFlight van todas juntas; faltan: ${appleKeys.filter((k) => !value(k)).join(", ")}.`);
   }
 
+  // Portal del equipo (CYC-193): la API valida el token de Cloudflare Access. Las dos
+  // juntas o ninguna; sin ellas todas las rutas /admin/* responden 401.
+  const accessKeys = ["CF_ACCESS_TEAM_DOMAIN", "CF_ACCESS_AUD"];
+  const accessSet = accessKeys.filter((key) => value(key));
+  if (accessSet.length > 0 && accessSet.length < accessKeys.length) {
+    errors.push(`Las variables de Cloudflare Access van juntas; faltan: ${accessKeys.filter((k) => !value(k)).join(", ")}.`);
+  }
+  if (value("CF_ACCESS_TEAM_DOMAIN") && !/^[a-z0-9-]+(\.[a-z0-9-]+)*\.cloudflareaccess\.com$/i.test(value("CF_ACCESS_TEAM_DOMAIN"))) {
+    errors.push("CF_ACCESS_TEAM_DOMAIN debe ser el dominio del equipo, por ejemplo equipo.cloudflareaccess.com (sin https://).");
+  }
+  // Lectura de PostHog para la pestaña Uso: opcional; clave y proyecto van juntos.
+  const posthogKeys = ["POSTHOG_PERSONAL_API_KEY", "POSTHOG_PROJECT_ID"];
+  const posthogSet = posthogKeys.filter((key) => value(key));
+  if (posthogSet.length > 0 && posthogSet.length < posthogKeys.length) {
+    errors.push(`Las variables de lectura de PostHog van juntas; faltan: ${posthogKeys.filter((k) => !value(k)).join(", ")}.`);
+  }
+
   if (errors.length > 0) {
     throw new Error(`Configuración inválida:\n- ${errors.join("\n- ")}`);
   }

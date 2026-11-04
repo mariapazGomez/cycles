@@ -103,6 +103,9 @@ model User {
   // Qué teléfono usa el atleta que se registró solo (CYC-194). Null si no lo dijo.
   phonePlatform      PhonePlatform?
   tourStatus         TourStatus     @default(pending)
+  // Último ingreso (contraseña, Google o Apple), para el portal del equipo (CYC-193).
+  // Nulo hasta el próximo ingreso de cuentas anteriores.
+  lastLoginAt        DateTime?
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
 
@@ -565,4 +568,41 @@ model PolicyAcceptance {
 
   @@unique([userId, version])
   @@index([userId])
+}
+
+// Portal del equipo (CYC-193). Ver docs/diseno/panel-admin.
+enum EmailMode {
+  receive
+  send
+  both
+}
+
+// Directorio de correos de Cycles: para qué sirve cada dirección. Se edita desde el portal.
+model EmailAddress {
+  id        String    @id @default(uuid())
+  address   String    @unique
+  purpose   String
+  mode      EmailMode
+  service   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+// Quién del equipo consultó datos de personas en el portal, y cuándo (privacidad y GDPR).
+// `email` es el del token de Cloudflare Access; `detail` nunca lleva datos de personas.
+model AdminAccessLog {
+  id        String   @id @default(uuid())
+  email     String
+  view      String
+  detail    String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+// Valores que el equipo edita a mano en el portal (por ejemplo, la versión de la app iOS).
+model AdminSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
 }

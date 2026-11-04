@@ -313,7 +313,7 @@ export class AuthService {
       data: { revokedAt: new Date() },
     });
 
-    return this.issueTokenPair(user);
+    return this.issueTokenPair(user, { isLogin: false });
   }
 
   async logout(rawRefreshToken: string): Promise<void> {
@@ -431,7 +431,7 @@ export class AuthService {
 
   // Público: también lo usa AthletesService para loguear automáticamente
   // al atleta al aceptar una invitación.
-  async issueTokenPair(user: User): Promise<AuthTokens> {
+  async issueTokenPair(user: User, options: { isLogin?: boolean } = {}): Promise<AuthTokens> {
     const accessToken = this.jwt.sign(
       { sub: user.id, email: user.email, role: user.role },
       { secret: this.config.get<string>("JWT_ACCESS_SECRET"), expiresIn: ACCESS_TOKEN_TTL },
@@ -455,6 +455,11 @@ export class AuthService {
         expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
       },
     });
+
+    // Último ingreso, para el portal del equipo. Renovar la sesión no cuenta.
+    if (options.isLogin !== false) {
+      await this.prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
+    }
 
     return { accessToken, refreshToken };
   }
