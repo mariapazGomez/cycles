@@ -98,6 +98,7 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
                 accessibilityRole="button"
                 accessibilityLabel={item.label}
                 accessibilityState={{ selected: focused }}
+                containerStyle={styles.itemPress}
                 style={styles.itemPress}>
                 <Icon name={item.icon} size={22} color={focused ? colors.blue : colors.inkSecondary} />
               </PressableScale>
