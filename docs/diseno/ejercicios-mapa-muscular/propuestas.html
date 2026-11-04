@@ -42,7 +42,7 @@ h1,h2,h3{font-family:var(--font-display);margin:0}
 .chip em{font-style:normal;font-size:.74rem;font-weight:700;color:var(--ink2)}
 .chip[aria-pressed=true]{background:var(--ink);color:#fff}.chip[aria-pressed=true] em{color:#c8ced8}
 .chip[disabled]{opacity:.45;cursor:not-allowed}
-.lay{display:grid;grid-template-columns:330px minmax(0,1fr);gap:20px;align-items:start}
+.lay{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:20px;align-items:start}
 .w-t .lay,.w-m .lay{display:block}
 .card{background:var(--bg);border-radius:var(--radius-lg);box-shadow:var(--e1);padding:14px}
 .map{position:sticky;top:12px}
@@ -132,12 +132,12 @@ function body(){
  const tabs=`<div class="tabs" role="tablist"><button class="tab" role="tab" data-t="mine" aria-selected="${tab==='mine'}">Míos <em>${mine}</em></button><button class="tab" role="tab" data-t="catalog" aria-selected="${tab==='catalog'}">Catálogo <em>${DATA.length}</em></button></div>`;
  const head=`<div class="ph"><h2>Ejercicios</h2><button class="btn p">Nuevo ejercicio</button></div>`;
  if(st==='err')return head+`<div class="banner" role="alert">No se pudieron cargar los ejercicios. <button class="btn sm">Reintentar</button></div>`;
- if(st==='load')return head+tabs+`<div class="lay"><aside class="card map"><h3>Zona del cuerpo</h3><div class="figs">${['front','back'].map(v=>`<div class="fig"><div class="canvas"><img src="${IMG[v]}" alt="" style="opacity:.6"></div><small>${v==='front'?'Frente':'Espalda'}</small></div>`).join('')}</div></aside><div>${[1,2,3,4].map(()=>'<div class="card" style="margin-bottom:8px"><div class="sk" style="width:40%"></div><div class="sk" style="width:60%"></div></div>').join('')}</div></div>`;
+ if(st==='load')return head+tabs+`<div class="lay"><div>${[1,2,3,4].map(()=>'<div class="card" style="margin-bottom:8px"><div class="sk" style="width:40%"></div><div class="sk" style="width:60%"></div></div>').join('')}</div><aside class="card map"><h3>Zona del cuerpo</h3><div class="figs">${['front','back'].map(v=>`<div class="fig"><div class="canvas"><img src="${IMG[v]}" alt="" style="opacity:.6"></div><small>${v==='front'?'Frente':'Espalda'}</small></div>`).join('')}</div></aside></div>`;
  const n=visible().length;
  const mapBtn=`<button class="btn mapbtn" id="mapbtn" aria-expanded="${mapOpen}">Mapa del cuerpo${sel.size?` · ${sel.size}`:''}</button>`;
  const tool=`<div class="tool"><div class="search">Buscar por nombre${q?': '+q:''}</div></div>`;
  const main=`<div><div class="count" role="status" aria-live="polite">${n} ${n===1?'ejercicio':'ejercicios'}${sel.size?' en '+[...sel].map(g=>LABEL[g]).join(' o '):''}</div>${list()}</div>`;
- return head+tabs+chips(c)+mapBtn+(w==='d'?`<div class="lay">${mapCard(c)}${main}</div>`:`${mapCard(c)}${main}`)}
+ return head+tabs+chips(c)+mapBtn+(w==='d'?`<div class="lay">${main}${mapCard(c)}</div>`:`${mapCard(c)}${main}`)}
 function render(){
  [...document.getElementById('g-w').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===w));
  [...document.getElementById('g-s').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===st));

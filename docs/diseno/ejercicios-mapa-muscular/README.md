@@ -9,7 +9,7 @@ updated: 2026-11-04
 
 # Ejercicios: filtrar con el mapa muscular (CYC-230)
 
-> La pestaña Ejercicios de la web incorpora el mismo mapa del cuerpo que ya usa la app móvil, pero como **filtro**: tocas una zona y la lista muestra solo los ejercicios que la trabajan. Bloquea CYC-231 (desarrollo web). **Contrastado con `origin/main` d3586ac.** Estado: propuesto, pendiente de aprobación de la usuaria. Maqueta interactiva en [`propuestas.html`](propuestas.html) (usa el cuerpo y las zonas reales de la app; se abre desde el disco dentro del repositorio).
+> **Actualización 2026-11-04:** el panel del mapa va a la **derecha** de la lista (decisión de la usuaria). La pestaña Ejercicios de la web incorpora el mismo mapa del cuerpo que ya usa la app móvil, pero como **filtro**: tocas una zona y la lista muestra solo los ejercicios que la trabajan. Bloquea CYC-231 (desarrollo web). **Contrastado con `origin/main` d3586ac.** Estado: propuesto, pendiente de aprobación de la usuaria. Maqueta interactiva en [`propuestas.html`](propuestas.html) (usa el cuerpo y las zonas reales de la app; se abre desde el disco dentro del repositorio).
 
 ## Verificado contra origin/main d3586ac
 
@@ -31,11 +31,11 @@ El mapa es un **atajo visual**, no un reemplazo. Los botones de grupo de siempre
 
 | Ancho | Posición |
 |---|---|
-| Escritorio (≥ 1100 px) | **Panel lateral izquierdo de 330 px**, fijo al desplazarse, con las dos figuras una al lado de la otra. La lista queda a la derecha. La página pasa de 880 a **1120 px** de ancho máximo. |
+| Escritorio (≥ 1100 px) | **Panel lateral derecho de 330 px**, fijo al desplazarse, con las dos figuras una al lado de la otra. La lista queda a la izquierda, junto a los botones de grupo, y el mapa filtra desde el costado. La página pasa de 880 a **1120 px** de ancho máximo. |
 | Tablet (641–1099 px) | **Franja sobre la lista**, abierta por defecto, con las dos figuras de 130 px. |
 | Móvil web (≤ 640 px) | **Plegado** tras el botón «Mapa del cuerpo» (con el número de zonas elegidas, por ejemplo «Mapa del cuerpo · 2»). Al abrirlo, las dos figuras ocupan el ancho y la lista sigue debajo. |
 
-Orden vertical: título y **Nuevo ejercicio** → pestañas Míos / Catálogo → botones de grupo → (mapa) → contador de resultados → lista. El buscador por nombre se queda donde está.
+Orden vertical: título y **Nuevo ejercicio** → pestañas Míos / Catálogo → botones de grupo → contador de resultados → lista (y el mapa a la derecha en escritorio, o entre los botones y el contador en tablet y móvil). El buscador por nombre se queda donde está.
 
 ### Cómo se elige
 
