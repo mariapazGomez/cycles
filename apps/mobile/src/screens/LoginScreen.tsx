@@ -10,6 +10,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  Pressable,
   TouchableOpacity,
   useWindowDimensions,
   View,
@@ -29,6 +30,7 @@ import { useReduceMotion } from '../hooks/useReduceMotion';
 import { colors } from '../theme/colors';
 import { PRIVACY_URL, REGISTER_URL, TERMS_URL } from '../config/legal';
 import { AppleSignInCancelled, isAppleSignInAvailable, requestAppleCredential } from '../services/appleSignIn';
+import { GoogleG } from '../components/login/GoogleG';
 import { GoogleSignInCancelled, isGoogleSignInAvailable, requestGoogleCredential } from '../services/googleSignIn';
 
 // Si el login tarda más que esto, se avisa que el servidor está despertando.
@@ -285,14 +287,17 @@ export function LoginScreen() {
                 )}
                 {isGoogleSignInAvailable && (
                   <Animated.View style={[styles.googleWrap, { height: metrics.controlHeight }, submitting && styles.dimmed, reveal(1)]}>
-                    <TouchableOpacity
-                      style={styles.googleButton}
+                    <Pressable
+                      style={({ pressed }) => [styles.googleButton, pressed && styles.googlePressed]}
                       onPress={handleGoogle}
                       disabled={submitting}
                       accessibilityRole="button"
                       accessibilityLabel="Continuar con Google">
-                      <Text style={styles.googleText}>Continuar con Google</Text>
-                    </TouchableOpacity>
+                      <GoogleG size={metrics.controlHeight >= 53 ? 24 : metrics.controlHeight >= 49 ? 22 : 20} />
+                      <Text style={styles.googleText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85} maxFontSizeMultiplier={1.15}>
+                        Continuar con Google
+                      </Text>
+                    </Pressable>
                   </Animated.View>
                 )}
                 <Animated.View style={[styles.orRow, reveal(2)]}>
@@ -418,9 +423,11 @@ const styles = StyleSheet.create({
   registerLinkText: { color: colors.blue, fontSize: 15, fontWeight: '700' },
   appleWrap: { borderRadius: 999, overflow: 'hidden', backgroundColor: colors.ink },
   appleButton: { width: '100%', height: '100%' },
-  googleWrap: { borderRadius: 999, overflow: 'hidden', borderWidth: 1, borderColor: colors.controlBorder, backgroundColor: colors.bg, marginTop: 8 },
-  googleButton: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  googleText: { color: colors.ink, fontSize: 17, fontWeight: '600' },
+  // Pautas de marca de Google (CYC-232): relleno blanco, borde #747775 de 1 px, texto #1F1F1F.
+  googleWrap: { borderRadius: 999, overflow: 'hidden', borderWidth: 1, borderColor: '#747775', backgroundColor: '#FFFFFF', marginTop: 8 },
+  googleButton: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, paddingHorizontal: 20 },
+  googlePressed: { backgroundColor: 'rgba(31,31,31,0.08)' },
+  googleText: { color: '#1F1F1F', fontSize: 17, fontWeight: '500', flexShrink: 1 },
   sheen: { position: 'absolute', top: 0, bottom: 0, width: 70, backgroundColor: 'rgba(255,255,255,0.28)' },
   dimmed: { opacity: 0.6 },
   orRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 12 },
