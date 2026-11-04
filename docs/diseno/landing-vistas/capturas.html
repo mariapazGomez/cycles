@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Capturas de la landing Cycles</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&display=swap">
+<style>
+/* Concepto: hoja de contacto. Cada captura actual (desactualizada) al lado de la ficha de la nueva: pantalla, cuenta demo, estado, tamaño y dónde va en la landing. Las imágenes actuales se cargan desde apps/web/src/assets/landing, así que esta hoja se abre desde el disco dentro del repositorio. Solo modo claro. */
+:root{--font-display:"Bricolage Grotesque","Inter",system-ui,sans-serif;--font-body:"Inter",system-ui,sans-serif;
+ --brand:#3080fc;--blue:#1a66dd;--blue-100:#eaf2ff;--bg:#fff;--ink:#1f2228;--ink2:#5c6068;--gray:#f6f7f9;--line:#dfe2e7;--page:#f3f5f8;
+ --ok-bg:#e9f5ec;--ok-ink:#1e6b32;--warn-bg:#fff1e3;--warn-ink:#9a4a00;--pain-bg:#fdecec;--pain-ink:#a3282c;
+ --radius-sm:6px;--radius-md:8px;--radius-lg:10px;--radius-pill:999px;--e1:0 0 0 1px rgba(31,34,40,.06),0 1px 2px rgba(31,34,40,.06),0 3px 8px -2px rgba(31,34,40,.08);color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5}
+h1,h2,h3{font-family:var(--font-display);margin:0}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.top{max-width:1240px;margin:0 auto;padding:20px 16px 0}.top h1{font-size:1.4rem;margin-bottom:6px}
+.sum{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}
+.tag{display:inline-block;border-radius:var(--radius-pill);padding:1px 10px;font-size:.76rem;font-weight:700}
+.t-old{background:var(--pain-bg);color:var(--pain-ink)}.t-new{background:var(--blue-100);color:var(--blue)}.t-ok{background:var(--ok-bg);color:var(--ok-ink)}.t-opt{background:var(--warn-bg);color:var(--warn-ink)}
+.seg{display:inline-flex;gap:3px;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);padding:3px;margin-top:12px;flex-wrap:wrap}
+.seg button{border:0;background:none;padding:6px 12px;min-height:34px;border-radius:var(--radius-sm);font:600 .84rem var(--font-body);color:var(--ink2);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--ink);color:#fff}
+main{max-width:1240px;margin:0 auto;padding:16px}
+.grp{margin:22px 0 8px}.grp h2{font-size:1.2rem}
+.card{background:var(--bg);border-radius:var(--radius-lg);box-shadow:var(--e1);padding:14px;margin-bottom:14px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.pair{display:grid;grid-template-columns:1fr;gap:6px}
+.cap{font-size:.78rem;font-weight:700;color:var(--ink2);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.old img{width:100%;display:block;border:1px solid var(--line);border-radius:var(--radius-sm);filter:grayscale(.15)}
+.old.m{max-width:200px}
+.noold{display:flex;align-items:center;justify-content:center;border:1px dashed var(--line);border-radius:var(--radius-sm);min-height:140px;color:var(--ink2);font-size:.86rem;background:var(--gray)}
+.new .frame{border:2px dashed var(--brand);border-radius:var(--radius-sm);background:var(--blue-100);display:flex;align-items:center;justify-content:center;color:var(--blue);font-weight:700;text-align:center;padding:8px;font-size:.86rem}
+.new.m .frame{max-width:200px}
+dl{margin:10px 0 0;font-size:.86rem;display:grid;grid-template-columns:auto 1fr;gap:3px 12px}dt{font-weight:700;color:var(--ink2)}dd{margin:0}
+.meta h3{font-size:1.05rem;margin-bottom:4px}
+.why{margin:6px 0 0;padding:6px 10px;border-radius:var(--radius-sm);background:var(--pain-bg);color:var(--pain-ink);font-size:.84rem}
+.isl{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px}
+.isl>div{flex:1;min-width:260px}
+.pill-island{display:inline-flex;background:#fff;border-radius:999px;box-shadow:0 8px 24px -8px rgba(0,0,0,.25);padding:5px;margin:8px 0}
+.pill-island span{min-width:44px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:999px;color:var(--ink2);font-size:.78rem;font-weight:600;padding:0 10px}
+.pill-island .on{background:var(--blue-100);color:var(--blue)}
+.pill-island.n span{width:56px;padding:0}.pill-island.n svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.map{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.map span{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);padding:6px 10px;font-size:.82rem;font-weight:600}
+@media (max-width:820px){.card{grid-template-columns:1fr}}
+.hide{display:none}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+ <symbol id="cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></symbol>
+ <symbol id="bar" viewBox="0 0 24 24"><path d="M3 12h18M6 8v8M18 8v8M3 10v4M21 10v4"/></symbol>
+ <symbol id="chart" viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></symbol>
+ <symbol id="chat" viewBox="0 0 24 24"><path d="M5 5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8l-5 4v-4H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></symbol>
+</svg>
+<div class="top">
+  <h1>Capturas de la landing con la app actual <span class="tag t-new">CYC-188 · origin/main c879ab4</span></h1>
+  <div class="sum"><span class="tag t-old">9 imágenes actuales: todas desactualizadas</span><span class="tag t-new">9 capturas por rehacer</span><span class="tag t-opt">2 nuevas opcionales</span><span class="tag t-ok">Anillo y cadena: vigentes</span></div>
+  <div class="seg" role="group" aria-label="Filtrar"><button aria-pressed="true" data-f="all">Todas</button><button aria-pressed="false" data-f="web">Escritorio</button><button aria-pressed="false" data-f="mob">Celular web</button><button aria-pressed="false" data-f="app">App del atleta</button></div>
+  <div class="map" aria-label="Dónde va cada captura"><span>Portada: W1 · W2 · W3 + maqueta Hoy</span><span>«Tu atleta lo registra»: 3 maquetas del teléfono</span><span>«Todos tus atletas»: W4 · W5 (M1 · M2)</span><span>«Una sesión que no se pudo hacer»: W6 (M3)</span></div>
+</div>
+<main id="main"></main>
+<script>
+const A='../../../apps/web/src/assets/landing/';
+const S=[
+ {g:'web',id:'W1',t:'Inicio nuevo del coach',old:'coach-inicio.jpg',why:'Menú «Ciclos / Rutinas» e Inicio anterior (tarjeta oscura y lista).',st:'Rehacer',ru:'/ (Inicio)',ac:'coach.demo (Camila Reyes)',es:'Semana 4 con hoy resaltado y un día con 2–3 sesiones; chip «Necesitan atención» con contador.',tm:'1440 × 900 @2x',sec:'Portada · pestaña «Inicio»',nw:'coach-inicio.webp / .jpg'},
+ {g:'web',id:'W2',t:'Pizarra del ciclo',old:'coach-planes.jpg',why:'Ficha de ciclo anterior (lista de semanas); hoy es la pizarra.',st:'Rehacer',ru:'/athletes/:id (Ciclo)',ac:'Matías Fuentes',es:'«Fuerza base» en curso, semana 4 en la pizarra con sesiones hechas y la de hoy.',tm:'1440 × 900 @2x',sec:'Portada · pestaña «Ciclo»',nw:'coach-ciclo.webp / .jpg'},
+ {g:'web',id:'W3',t:'Editor de rutina',old:'coach-rutinas.jpg',why:'Menú anterior; sin notas del coach por ejercicio.',st:'Rehacer',ru:'/biblioteca → Piernas',ac:'coach.demo',es:'Rutina «Piernas» con series, reps, carga, descanso y RIR, una nota del coach y «Carga de la sesión».',tm:'1440 × 900 @2x',sec:'Portada · pestaña «Rutinas»',nw:'coach-rutinas.webp / .jpg'},
+ {g:'web',id:'W4',t:'Necesitan atención',old:'atencion.jpg',why:'Inicio anterior; el nuevo Inicio muestra la semana de todos.',st:'Rehacer',ru:'/ (Inicio)',ac:'coach.demo',es:'Aviso de Javiera Muñoz abierto: «Dolor reportado» y sus acciones.',tm:'1440 × 900 @2x',sec:'«Todos tus atletas, en un solo lugar»',nw:'atencion.webp / .jpg'},
+ {g:'web',id:'W5',t:'Resumen de un atleta',old:'resumen.jpg',why:'Menú anterior; revisar que el Resumen no cambió.',st:'Rehacer',ru:'/athletes/:id (Resumen)',ac:'Matías Fuentes',es:'Carga semanal y adherencia de las semanas 1 a 4.',tm:'1440 × 900 @2x',sec:'«Todos tus atletas, en un solo lugar»',nw:'resumen.webp / .jpg'},
+ {g:'web',id:'W6',t:'Sesiones omitidas, con su nota',old:'plan.jpg',why:'Lista de semanas anterior; ahora son tarjetas en la pizarra.',st:'Rehacer',ru:'/athletes/:id (Ciclo)',ac:'Diego Paredes',es:'Semana 4 con dos «Omitida» y sus notas («Viaje de trabajo», «Salí tarde…»).',tm:'1440 × 900 @2x',sec:'«Una sesión que no se pudo hacer también cuenta»',nw:'plan.webp / .jpg'},
+ {g:'web',id:'W7',t:'Ejercicios',old:null,st:'Nueva (opcional)',ru:'/ejercicios',ac:'coach.demo',es:'Pestaña «Míos» con filtros de grupo muscular y «Nuevo ejercicio».',tm:'1440 × 900 @2x',sec:'Onboarding (CYC-170) y redes',nw:'ejercicios.webp / .jpg'},
+ {g:'web',id:'W8',t:'Biblioteca',old:null,st:'Nueva (opcional)',ru:'/biblioteca',ac:'coach.demo',es:'Rutinas y ciclos en una lista, con el menú «Crear» abierto.',tm:'1440 × 900 @2x',sec:'Onboarding (CYC-170) y redes',nw:'biblioteca.webp / .jpg'},
+ {g:'mob',id:'M1',t:'Inicio móvil con avisos',old:'m-atencion.jpg',why:'Menú y Inicio anteriores.',st:'Rehacer',ru:'/ (Inicio) en 390 px',ac:'coach.demo',es:'Misma vista que W4 en ancho de celular.',tm:'390 × 844 @2x',sec:'«Todos tus atletas…» (≤ 820 px)',nw:'m-atencion.webp / .jpg',m:1},
+ {g:'mob',id:'M2',t:'Resumen móvil',old:'m-resumen.jpg',why:'Menú anterior.',st:'Rehacer',ru:'/athletes/:id (Resumen) en 390 px',ac:'Matías Fuentes',es:'Misma vista que W5 en ancho de celular.',tm:'390 × 844 @2x',sec:'«Todos tus atletas…» (≤ 820 px)',nw:'m-resumen.webp / .jpg',m:1},
+ {g:'mob',id:'M3',t:'Pizarra móvil con omitidas',old:'m-plan.jpg',why:'Lista de semanas anterior.',st:'Rehacer',ru:'/athletes/:id (Ciclo) en 390 px',ac:'Diego Paredes',es:'Misma vista que W6 en ancho de celular.',tm:'390 × 844 @2x',sec:'«Una sesión que no se pudo hacer…» (≤ 820 px)',nw:'m-plan.webp / .jpg',m:1}
+];
+const main=document.getElementById('main');
+function card(s){
+ const old=s.old?`<div class="old ${s.m?'m':''}"><div class="cap"><span class="tag t-old">Hoy · desactualizada</span></div><img src="${A+s.old}" alt="Captura actual: ${s.t}" loading="lazy"></div>`:`<div class="noold">No existe hoy</div>`;
+ const ratio=s.m?'390 / 844':'1440 / 900';
+ return `<article class="card" data-g="${s.g}"><div class="pair">${old}${s.why?`<p class="why">${s.why}</p>`:''}</div>
+ <div class="new ${s.m?'m':''}"><div class="cap"><span class="tag ${s.st.startsWith('Nueva')?'t-opt':'t-new'}">${s.st}</span><b>${s.id}</b></div>
+ <div class="frame" style="aspect-ratio:${ratio}">${s.nw}<br>${s.tm}</div>
+ <div class="meta"><h3>${s.t}</h3><dl><dt>Pantalla</dt><dd>${s.ru}</dd><dt>Cuenta demo</dt><dd>${s.ac}</dd><dt>Estado</dt><dd>${s.es}</dd><dt>Va en</dt><dd>${s.sec}</dd></dl></div></div></article>`}
+const groups=[['web','Escritorio · 1440 × 900'],['mob','Celular, versión web del coach · 390 × 844']];
+main.innerHTML=groups.map(g=>`<section data-sec="${g[0]}"><div class="grp"><h2>${g[1]}</h2></div>${S.filter(s=>s.g===g[0]).map(card).join('')}</section>`).join('')+`
+<section data-sec="app"><div class="grp"><h2>App del atleta · maquetas HTML animadas</h2></div>
+ <article class="card" style="grid-template-columns:1fr"><div><h3>A1 · La isla: de tres pestañas con etiqueta a cuatro íconos</h3>
+ <div class="isl"><div><div class="cap"><span class="tag t-old">Hoy en la maqueta</span></div><div class="pill-island"><span>▦</span><span class="on">⌂ Inicio</span><span>▥</span></div><p style="margin:0;font-size:.86rem">Tres pestañas; la activa lleva texto.</p></div>
+ <div><div class="cap"><span class="tag t-new">Como la app real</span></div><div class="pill-island n"><span><svg><use href="#cal"/></svg></span><span class="on"><svg><use href="#bar"/></svg></span><span><svg><use href="#chart"/></svg></span><span><svg><use href="#chat"/></svg></span></div><p style="margin:0;font-size:.86rem">Calendario, Inicio, Resumen y Asistente; solo íconos, tamaño fijo y resaltado que se desliza.</p></div></div></div></article>
+ <article class="card" style="grid-template-columns:1fr"><div class="meta"><h3>Otros cambios en las maquetas</h3><dl><dt>A2</dt><dd>Isotipo de 22 px junto al título de cada pestaña; medidas compactas (tarjeta oscura: relleno 14, número 34, nombre 22).</dd><dt>A3</dt><dd>Maqueta «Serie»: línea «Nota de tu coach» (por ejemplo, «Baja lento y cuida el hombro»).</dd><dt>A4</dt><dd>Barra de estado limpia: 9:41 y batería llena (hoy dice 18:40).</dd><dt>A5</dt><dd>Opcional: maqueta estática de la Live Activity del descanso en la pantalla de bloqueo.</dd></dl></div></article>
+</section>`;
+document.querySelector('.seg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+ document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+ document.querySelectorAll('[data-sec]').forEach(s=>s.classList.toggle('hide',b.dataset.f!=='all'&&s.dataset.sec!==b.dataset.f))});
+</script>
+</body>
+</html>
