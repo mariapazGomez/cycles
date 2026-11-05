@@ -86,23 +86,30 @@ export function buildStarLayout(points: StarPoint[], width: number, height: numb
   };
 }
 
-const kg = (n: number) => `${Math.abs(n).toLocaleString("es", { maximumFractionDigits: 1 })} kg`;
+export type StarUnit = "kg" | "reps";
+
+const amount = (n: number, unit: StarUnit) => {
+  const value = Math.abs(n).toLocaleString("es", { maximumFractionDigits: 1 });
+  return unit === "kg" ? `${value} kg` : `${value} ${Math.abs(n) === 1 ? "repetición" : "repeticiones"}`;
+};
+const shortAmount = (n: number, unit: StarUnit) => `${Math.abs(n).toLocaleString("es", { maximumFractionDigits: 1 })} ${unit === "kg" ? "kg" : "rep"}`;
 
 // Frase bajo el gráfico: «Cargó 2,5 kg menos que el plan en la última sesión.»
-export function lastSessionPhrase(points: StarPoint[]): string {
+export function lastSessionPhrase(points: StarPoint[], unit: StarUnit = "kg"): string {
   const last = [...points].reverse().find((p) => p.planned !== null && p.actual !== null);
-  if (!last) return "Todavía no hay una sesión con peso planificado y cargado.";
+  if (!last) return unit === "kg" ? "Todavía no hay una sesión con peso planificado y cargado." : "Todavía no hay una sesión con repeticiones planificadas y hechas.";
   const diff = (last.actual as number) - (last.planned as number);
-  if (Math.abs(diff) < 0.05) return "Cargó lo mismo que el plan en la última sesión.";
-  return `Cargó ${kg(diff)} ${diff < 0 ? "menos" : "más"} que el plan en la última sesión.`;
+  const verb = unit === "kg" ? "Cargó" : "Hizo";
+  if (Math.abs(diff) < 0.05) return `${verb} lo mismo que el plan en la última sesión.`;
+  return `${verb} ${amount(diff, unit)} ${diff < 0 ? "menos" : "más"} que el plan en la última sesión.`;
 }
 
 // Etiqueta corta de la diferencia («−2,5 kg», «+2,5 kg», «= plan»).
-export function lastDeltaLabel(points: StarPoint[]): { text: string; tone: "below" | "above" | "equal" } {
+export function lastDeltaLabel(points: StarPoint[], unit: StarUnit = "kg"): { text: string; tone: "below" | "above" | "equal" } {
   const last = [...points].reverse().find((p) => p.planned !== null && p.actual !== null);
   if (!last) return { text: "Sin datos", tone: "equal" };
   const diff = (last.actual as number) - (last.planned as number);
   if (Math.abs(diff) < 0.05) return { text: "= plan", tone: "equal" };
   const sign = diff < 0 ? "−" : "+";
-  return { text: `${sign}${kg(diff)}`, tone: diff < 0 ? "below" : "above" };
+  return { text: `${sign}${shortAmount(diff, unit)}`, tone: diff < 0 ? "below" : "above" };
 }

@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { MIN_WIDTH, buildStarLayout, lastDeltaLabel, lastSessionPhrase, type StarPoint } from "../lib/starChart";
+import { useElementWidth } from "../hooks/useElementWidth";
+import { MIN_WIDTH, buildStarLayout, lastDeltaLabel, lastSessionPhrase, type StarPoint, type StarUnit } from "../lib/starChart";
 
 // Gráfico estrella del Resumen (spike CYC-243): tarjeta oscura con el peso
 // planificado (gris, discontinuo, marcas huecas) contra el cargado (azul,
@@ -13,29 +13,14 @@ const GRID = "rgba(255, 255, 255, 0.1)";
 const TEXT = "#aab0bb";
 const FONT = 12;
 
-function useWidth(): [React.RefObject<HTMLDivElement>, number] {
-  const ref = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(0);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const measure = () => setWidth(Math.round(el.getBoundingClientRect().width));
-    measure();
-    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
-    observer?.observe(el);
-    return () => observer?.disconnect();
-  }, []);
-  return [ref, width];
-}
-
-export function StarChart({ title, points }: { title: string; points: StarPoint[] }) {
-  const [ref, width] = useWidth();
+export function StarChart({ title, points, unit = "kg" }: { title: string; points: StarPoint[]; unit?: StarUnit }) {
+  const [ref, width] = useElementWidth<HTMLElement>();
   const height = width > 0 && width < 420 ? 200 : 240;
   // El gráfico mide lo que cabe dentro del relleno de la tarjeta (16 px por lado):
   // así se dibuja a escala 1 a 1 y el texto no se achica.
   const layout = buildStarLayout(points, (width || 512) - 32, height);
-  const delta = lastDeltaLabel(points);
-  const phrase = lastSessionPhrase(points);
+  const delta = lastDeltaLabel(points, unit);
+  const phrase = lastSessionPhrase(points, unit);
   const description = `${title}. ${phrase}`;
 
   return (
@@ -60,7 +45,7 @@ export function StarChart({ title, points }: { title: string; points: StarPoint[
         <path d={layout.actualPath} fill="none" stroke={REAL} strokeWidth={2} strokeLinejoin="round" />
         {layout.points.map((p, i) => (
           <g key={i}>
-            <title>{`${points[i].label} · ${points[i].date}: plan ${p.planned ?? "—"} kg, cargado ${p.actual ?? "—"} kg`}</title>
+            <title>{`${points[i].label} · ${points[i].date}: plan ${p.planned ?? "—"} ${unit === "kg" ? "kg" : "rep"}, ${unit === "kg" ? "cargado" : "hecho"} ${p.actual ?? "—"} ${unit === "kg" ? "kg" : "rep"}`}</title>
             {p.plannedY !== null && <circle cx={p.x} cy={p.plannedY} r={4} fill={INK} stroke={PLAN} strokeWidth={2} />}
             {p.actualY !== null && <circle cx={p.x} cy={p.actualY} r={4.5} fill={REAL} stroke={INK} strokeWidth={1.5} />}
             <text x={p.x} y={layout.height - 10} fill={TEXT} fontSize={FONT} textAnchor="middle">
@@ -80,7 +65,7 @@ export function StarChart({ title, points }: { title: string; points: StarPoint[
           <span aria-hidden="true" style={{ color: REAL }}>
             ━ ●
           </span>{" "}
-          Cargado por el atleta
+          {unit === "kg" ? "Cargado por el atleta" : "Hecho por el atleta"}
         </li>
       </ul>
       <p style={{ margin: "8px 0 0", fontSize: 14 }}>{phrase}</p>
