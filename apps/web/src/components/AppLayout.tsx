@@ -14,7 +14,7 @@ export function AppLayout() {
   const { pathname } = useLocation();
 
   return (
-    <div className="app-shell">
+    <div className={user?.role === "coach" ? "app-shell app-shell-coach" : "app-shell"}>
       <header className="app-header">
         <div className="app-header-left">
           <img className="app-logo" src={logo} alt="Cycles" height={26} />

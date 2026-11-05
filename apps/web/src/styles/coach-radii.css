@@ -1,0 +1,42 @@
+/* Escala de radios en la web del coach (CYC-208, diseño CYC-206: docs/diseno/inicio-coach).
+   Las clases que comparten el coach, el atleta y el inicio de sesión no se tocan:
+   aquí se ajustan solo dentro del shell del coach (.app-shell-coach). Se importa al
+   final para ganar la cascada. Botones, chips y campos: radio md (8); tarjetas y
+   paneles: lg (10); diálogos: xl (12); etiquetas pequeñas: píldora. */
+
+/* Botones */
+.app-shell-coach .button-primary,
+.app-shell-coach .button-secondary,
+.app-shell-coach .button-ghost,
+.app-shell-coach .cy-strip-cta,
+.app-shell-coach .pc-add,
+.app-shell-coach .pc-chip,
+.app-shell-coach .notif-retry {
+  border-radius: var(--radius-md);
+}
+
+/* Tarjetas, paneles y listas vacías */
+.app-shell-coach .card,
+.app-shell-coach .empty-state,
+.app-shell-coach .empty-state-card,
+.app-shell-coach .chart-card,
+.app-shell-coach .stats,
+.app-shell-coach .plan-alert,
+.app-shell-coach .ex-note,
+.app-shell-coach .cy-strip,
+.app-shell-coach .pc-week,
+.app-shell-coach .notif-panel {
+  border-radius: var(--radius-lg);
+}
+
+/* Celdas y tarjetas pequeñas dentro de una tarjeta */
+.app-shell-coach .pc-cell,
+.app-shell-coach .pc-weeklabel,
+.app-shell-coach .pc-day-today {
+  border-radius: var(--radius-sm);
+}
+
+/* Marcas internas */
+.app-shell-coach .legend i {
+  border-radius: var(--radius-xs);
+}

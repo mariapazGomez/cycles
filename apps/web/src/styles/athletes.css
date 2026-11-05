@@ -15,7 +15,7 @@
 .at-invite {
   margin-bottom: 16px;
   padding: 18px 20px;
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   background: var(--color-bg);
   box-shadow: var(--shadow-e3);
   animation: cy-rise 220ms ease-out both;
@@ -80,7 +80,7 @@
   height: 36px;
   padding: 0 14px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--radius-md);
   background: var(--color-bg);
   box-shadow: var(--shadow-e1);
   font: 500 0.88rem Inter, system-ui, sans-serif;
@@ -108,7 +108,7 @@
 
 .at-none {
   padding: 32px;
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   background: var(--color-bg);
   box-shadow: var(--shadow-e1);
   color: var(--color-ink-secondary);
@@ -130,7 +130,7 @@
   flex-direction: column;
   gap: 12px;
   padding: 16px 20px;
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   background: var(--color-bg);
   box-shadow: var(--shadow-e1);
   transition: box-shadow 150ms ease, transform 150ms ease;
@@ -240,7 +240,7 @@
   align-items: center;
   gap: 6px;
   padding: 6px 0;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
 }
 
 .at-day-today {
@@ -299,7 +299,7 @@
 .at-bar {
   height: 8px;
   overflow: hidden;
-  border-radius: 999px;
+  border-radius: var(--radius-xs);
   background: var(--color-gray-light);
   box-shadow: inset 0 1px 2px rgba(31, 34, 40, 0.1);
 }
@@ -307,7 +307,7 @@
 .at-bar i {
   display: block;
   height: 100%;
-  border-radius: 999px;
+  border-radius: var(--radius-xs);
   background: var(--color-ok-ink);
 }
 
