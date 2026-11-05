@@ -1,7 +1,6 @@
 import { fetchExerciseProgress } from '../src/services/planApi';
 import { apiRequest } from '../src/services/httpClient';
 import { summarizeExercises } from '../src/utils/exerciseProgress';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { exerciseProgressFixture } = require('../../../packages/shared/src/fixtures/exerciseProgress');
 
 jest.mock('../src/services/httpClient', () => ({ apiRequest: jest.fn() }));
