@@ -37,13 +37,16 @@ export class IdentityTokenVerifier {
 
   // Audiencias aceptadas por proveedor. Apple: el identificador del paquete de la
   // app (público, no es un secreto; APPLE_CLIENT_ID solo lo reemplaza). Google: el
-  // ID de cliente de iOS y, si el SDK se configura con él, el web.
+  // ID de cliente de iOS, el de Android y, si el SDK se configura con él, el web.
   private audiences(provider: SocialProvider): string[] {
     if (provider === "apple") {
       return [this.config.get<string>("APPLE_CLIENT_ID")?.trim() || APPLE_BUNDLE_ID];
     }
-    return ["GOOGLE_IOS_CLIENT_ID", "GOOGLE_CLIENT_ID"]
-      .map((key) => this.config.get<string>(key)?.trim() ?? "")
+    // GOOGLE_ANDROID_CLIENT_ID admite varios IDs separados por coma: Android firma con
+    // llaves distintas (depuración, subida, Play) y Google da un ID por huella SHA-1.
+    return ["GOOGLE_IOS_CLIENT_ID", "GOOGLE_ANDROID_CLIENT_ID", "GOOGLE_CLIENT_ID"]
+      .flatMap((key) => (this.config.get<string>(key) ?? "").split(","))
+      .map((id) => id.trim())
       .filter(Boolean);
   }
 
