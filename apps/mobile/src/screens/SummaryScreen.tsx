@@ -4,6 +4,7 @@ import type { TrainingCycle, TrainingSession } from '@cycles/shared';
 import { RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BodyMap } from '../components/BodyMap';
+import { SpikeChartDemo } from '../components/charts/SpikeChartDemo';
 import { ChainBackground } from '../components/ChainBackground';
 import { useTabBarClearance } from '../components/FloatingTabBar';
 import { MuscleStackChart } from '../components/MuscleStackChart';
@@ -142,6 +143,8 @@ export function SummaryScreen() {
       contentContainerStyle={[styles.content, { paddingTop: insets.top + 8, paddingBottom: clearance }]}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
       <ScreenHeader title="Resumen" right={<ProfileAvatar />} />
+      {/* SPIKE CYC-244: solo en esta rama, no se mezcla. */}
+      <SpikeChartDemo />
 
       {error && <Text style={styles.error}>{error}</Text>}
 
