@@ -94,6 +94,10 @@ jobs:
 
   apk-telefono:
     if: github.event_name == 'workflow_dispatch'
+    env:
+      # ID de cliente de Google para la llave de depuración con que se firma este APK
+      # (huella SHA-1 distinta a la de Google Play). Sin él, no aparece el botón de Google.
+      GOOGLE_ANDROID_CLIENT_ID: ${{ secrets.GOOGLE_ANDROID_DEBUG_CLIENT_ID }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -119,6 +123,9 @@ jobs:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: node apps/mobile/scripts/write-sentry-config.js
 
+      - name: Dejar el ID de cliente de Google (botón «Continuar con Google»)
+        run: node apps/mobile/scripts/write-google-config.js
+
       - name: Compilar el APK para teléfono
         working-directory: apps/mobile/android
         run: ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a
@@ -138,6 +145,9 @@ jobs:
       CYCLES_UPLOAD_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
       CYCLES_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
       CYCLES_UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      # ID de cliente de Google para la llave con que Google Play firma la app (Play App
+      # Signing). Sin él, no aparece el botón de Google.
+      GOOGLE_ANDROID_CLIENT_ID: ${{ secrets.GOOGLE_ANDROID_CLIENT_ID }}
     steps:
       - name: Comprobar que están los secretos de firma
         run: |
@@ -172,6 +182,9 @@ jobs:
         env:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: node apps/mobile/scripts/write-sentry-config.js
+
+      - name: Dejar el ID de cliente de Google (botón «Continuar con Google»)
+        run: node apps/mobile/scripts/write-google-config.js
 
       - name: Dejar la llave en un archivo temporal
         run: |

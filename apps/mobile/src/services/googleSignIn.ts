@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 import { authorize } from 'react-native-app-auth';
-import { GOOGLE_IOS_CLIENT_ID } from '../config/google';
+import { GOOGLE_ANDROID_CLIENT_ID, GOOGLE_IOS_CLIENT_ID } from '../config/google';
 
 export interface GoogleCredential {
   idToken: string;
@@ -15,9 +15,22 @@ export class GoogleSignInCancelled extends Error {
   }
 }
 
-// Solo en iOS y solo si la compilación trae el ID de cliente (ver scripts/write-google-config.js).
-export const isGoogleSignInAvailable =
-  Platform.OS === 'ios' && GOOGLE_IOS_CLIENT_ID !== '';
+// El ID de cliente de la plataforma; vacío si la compilación no lo trae (ver scripts/write-google-config.js).
+const CLIENT_ID =
+  Platform.OS === 'ios'
+    ? GOOGLE_IOS_CLIENT_ID
+    : Platform.OS === 'android'
+      ? GOOGLE_ANDROID_CLIENT_ID
+      : '';
+
+export const isGoogleSignInAvailable = CLIENT_ID !== '';
+
+// Esquema de URL inverso del ID de cliente: por ahí Google devuelve a la persona a la app.
+// iOS lo registra en Info.plist y Android en el manifiesto (build.gradle).
+const REDIRECT_URL = `com.googleusercontent.apps.${CLIENT_ID.replace(
+  '.apps.googleusercontent.com',
+  '',
+)}:/oauth2redirect${Platform.OS === 'ios' ? '/google' : ''}`;
 
 // El nonce liga el token a esta petición; el API lo compara con el que trae el token.
 // Hermes no siempre expone crypto.getRandomValues: sin él se usa Math.random, que
@@ -48,7 +61,7 @@ function isCancel(err: unknown): boolean {
   );
 }
 
-// Abre la ventana segura del sistema (ASWebAuthenticationSession) con Google y
+// Abre la ventana segura del sistema (ASWebAuthenticationSession en iOS, Chrome Custom Tabs en Android) con Google y
 // devuelve el token de identidad. Flujo de código con PKCE; el redireccionamiento
 // vuelve por el esquema inverso del ID de cliente, registrado en Info.plist al compilar.
 export async function requestGoogleCredential(): Promise<GoogleCredential> {
@@ -56,11 +69,8 @@ export async function requestGoogleCredential(): Promise<GoogleCredential> {
   try {
     const result = await authorize({
       issuer: 'https://accounts.google.com',
-      clientId: GOOGLE_IOS_CLIENT_ID,
-      redirectUrl: `com.googleusercontent.apps.${GOOGLE_IOS_CLIENT_ID.replace(
-        '.apps.googleusercontent.com',
-        '',
-      )}:/oauth2redirect/google`,
+      clientId: CLIENT_ID,
+      redirectUrl: REDIRECT_URL,
       scopes: ['openid', 'email', 'profile'],
       additionalParameters: { nonce },
       usePKCE: true,

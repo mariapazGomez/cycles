@@ -81,6 +81,12 @@ def cyclesVersionCode = (project.findProperty("CYCLES_VERSION_CODE") ?: "1").toS
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+// Esquema de URL con el que Google devuelve a la app (ver googleSignIn.ts).
+def googleAndroidClientId = (System.getenv("GOOGLE_ANDROID_CLIENT_ID") ?: "").trim()
+def googleRedirectScheme = googleAndroidClientId
+    ? "com.googleusercontent.apps." + googleAndroidClientId.replace(".apps.googleusercontent.com", "")
+    : "app.getcycles.mobile"
+
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -94,9 +100,11 @@ android {
         // El flujo de GitHub pasa -PCYCLES_VERSION_CODE; en local queda en 1.
         versionCode cyclesVersionCode
         versionName "1.0.0"
-        // react-native-app-auth (Google en iOS) exige este valor al fusionar el
-        // manifiesto. Android no usa ese inicio de sesión: es un valor sin efecto.
-        manifestPlaceholders = [appAuthRedirectScheme: "app.getcycles.mobile"]
+        // react-native-app-auth recibe aquí la vuelta de Google: el esquema es el ID
+        // de cliente de Android invertido (com.googleusercontent.apps.<número>-<código>).
+        // Sin GOOGLE_ANDROID_CLIENT_ID el botón de Google no aparece y el valor no se usa,
+        // pero el manifiesto exige que exista.
+        manifestPlaceholders = [appAuthRedirectScheme: googleRedirectScheme]
     }
     // Llave de subida a Google Play. Los datos llegan por variables de entorno
     // (secretos de GitHub); nada de esto vive en el repositorio. Ver

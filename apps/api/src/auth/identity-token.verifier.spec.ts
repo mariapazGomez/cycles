@@ -6,12 +6,13 @@ import { IdentityTokenVerifier, SocialProvider } from "./identity-token.verifier
 const NONCE = "nonce-aleatorio-de-prueba-1234";
 const APPLE_AUD = "app.getcycles.mobile";
 const GOOGLE_AUD = "ios-client.apps.googleusercontent.com";
+const GOOGLE_ANDROID_AUD = "android-client.apps.googleusercontent.com";
 
 class TestVerifier extends IdentityTokenVerifier {
   constructor(private readonly publicKey: KeyLike) {
     super({
       get: (key: string) =>
-        ({ APPLE_CLIENT_ID: APPLE_AUD, GOOGLE_IOS_CLIENT_ID: GOOGLE_AUD })[key],
+        ({ APPLE_CLIENT_ID: APPLE_AUD, GOOGLE_IOS_CLIENT_ID: GOOGLE_AUD, GOOGLE_ANDROID_CLIENT_ID: GOOGLE_ANDROID_AUD })[key],
     } as never);
   }
   protected keyFor() {
@@ -69,6 +70,38 @@ describe("IdentityTokenVerifier", () => {
     const ctx = await setup();
     const token = await build(ctx);
     await expect(ctx.verifier.verify(provider, token, NONCE)).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
+  it("GOOGLE_ANDROID_CLIENT_ID acepta varios IDs separados por coma", async () => {
+    const { publicKey, privateKey } = await generateKeyPair("RS256");
+    class Multi extends IdentityTokenVerifier {
+      constructor() {
+        super({ get: (key: string) => (key === "GOOGLE_ANDROID_CLIENT_ID" ? "uno.apps.googleusercontent.com, dos.apps.googleusercontent.com" : undefined) } as never);
+      }
+      protected keyFor() {
+        return publicKey;
+      }
+    }
+    const verifier = new Multi();
+    for (const aud of ["uno.apps.googleusercontent.com", "dos.apps.googleusercontent.com"]) {
+      const token = await new SignJWT({ sub: "m", nonce: NONCE })
+        .setProtectedHeader({ alg: "RS256" })
+        .setIssuer("https://accounts.google.com")
+        .setAudience(aud)
+        .setExpirationTime("5m")
+        .sign(privateKey);
+      await expect(verifier.verify("google", token, NONCE)).resolves.toMatchObject({ subject: "m" });
+    }
+  });
+
+  it("acepta un token de Google cuya audiencia es el ID de cliente de Android", async () => {
+    const { verifier, sign } = await setup();
+    const token = await sign(
+      { sub: "g-android", email: "a@example.com", email_verified: true, nonce: NONCE },
+      { iss: "https://accounts.google.com", aud: GOOGLE_ANDROID_AUD },
+    );
+    const result = await verifier.verify("google", token, NONCE);
+    expect(result.subject).toBe("g-android");
   });
 
   it("rechaza un token firmado con otra clave", async () => {
