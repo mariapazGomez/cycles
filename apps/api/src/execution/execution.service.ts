@@ -12,6 +12,7 @@ import { CURRENT_FEEDBACK, CURRENT_LOG, parseDay, planWeekAt, startOfUtcDay } fr
 import { LogSetDto } from "./dto/log-set.dto";
 import { SessionFeedbackDto } from "./dto/session-feedback.dto";
 import { ScheduleSessionDto } from "./dto/schedule-session.dto";
+import { buildExerciseProgress, type RawSessionExercise } from "./exercise-progress";
 import { TodayQueryDto } from "./dto/today-query.dto";
 
 // Registro de ejecución del atleta. ExerciseLog y SessionFeedback son
@@ -329,6 +330,50 @@ export class ExecutionService {
       }
     }
     return { cycleId, days };
+  }
+
+  // Historial por ejercicio del propio atleta (CYC-239): cada ejercicio hecho en
+  // al menos dos sesiones, con lo planificado y lo cargado por sesión. Solo sus
+  // ciclos (el id sale del token); no pide relación activa, porque el atleta
+  // conserva su historial aunque su coach ya no lo lleve. No incluye la nota del
+  // coach (puede mencionar salud, R7).
+  async exerciseProgress(athleteId: string) {
+    const sessions = await this.prisma.trainingSession.findMany({
+      where: { cycle: { athleteId, isTemplate: false }, status: { not: "skipped" }, deletedAt: null },
+      select: {
+        id: true,
+        weekNumber: true,
+        sessionExercises: {
+          select: {
+            exerciseId: true,
+            targetSets: true,
+            targetReps: true,
+            targetWeight: true,
+            targetRir: true,
+            exercise: { select: { name: true, muscleGroup: true } },
+            logs: {
+              where: { ...CURRENT_LOG, athleteId },
+              select: { setNumber: true, actualReps: true, actualWeight: true, rir: true, loggedAt: true },
+            },
+          },
+        },
+      },
+    });
+    const rows: RawSessionExercise[] = sessions.flatMap((session) =>
+      session.sessionExercises.map((item) => ({
+        sessionId: session.id,
+        weekNumber: session.weekNumber,
+        exerciseId: item.exerciseId,
+        exerciseName: item.exercise.name,
+        muscleGroup: item.exercise.muscleGroup,
+        targetSets: item.targetSets,
+        targetReps: item.targetReps,
+        targetWeight: item.targetWeight,
+        targetRir: item.targetRir,
+        logs: item.logs,
+      })),
+    );
+    return { exercises: buildExerciseProgress(rows) };
   }
 
   // Devuelve una sesión cerrada (hecha o no hecha) a pendiente, como si no se
