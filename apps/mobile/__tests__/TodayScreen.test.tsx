@@ -2,6 +2,7 @@ import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import { TodayScreen } from '../src/screens/TodayScreen';
 import { fetchToday } from '../src/services/executionApi';
+import { fetchCycles } from '../src/services/planApi';
 import { ApiError } from '../src/services/httpClient';
 
 jest.mock('@react-navigation/native', () => {
@@ -13,6 +14,7 @@ jest.mock('react-native-safe-area-context', () => ({
 }));
 jest.mock('../src/services/tokenStore', () => ({ tokenStore: { getAccessToken: jest.fn(), getRefreshToken: jest.fn() } }));
 jest.mock('../src/services/executionApi', () => ({ fetchToday: jest.fn(), startSession: jest.fn() }));
+jest.mock('../src/services/planApi', () => ({ fetchCycles: jest.fn() }));
 jest.mock('../src/store/RestTimerContext', () => ({
   DEFAULT_REST_SECONDS: 90,
   useRestTimer: () => ({ routineStarted: false, setRoutineStarted: jest.fn(), autoRest: true, setAutoRest: jest.fn() }),
@@ -23,6 +25,7 @@ let mockUser: { email: string; hasActiveCoach?: boolean } = { email: 'v@example.
 jest.mock('../src/store/AuthContext', () => ({ useAuth: () => ({ user: mockUser }) }));
 
 const fetchTodayMock = fetchToday as jest.Mock;
+const fetchCyclesMock = fetchCycles as jest.Mock;
 
 const session = (id: string, name: string, slot: number) => ({
   id, cycleId: 'c1', name, weekNumber: 1, slotNumber: slot, status: 'pending', startedAt: null, sessionExercises: [],
@@ -96,8 +99,34 @@ test('si se registró sola y ningún coach la vinculó, pide que su coach la inv
   expect(texts(tree).some(t => t.includes('v@example.com'))).toBe(true);
 });
 
-test('con coach y sin sesión pendiente, mantiene el mensaje de siempre', async () => {
+test('con coach y sin ningún ciclo, dice que su coach está preparando el ciclo (CYC-245)', async () => {
   fetchTodayMock.mockResolvedValue(null);
+  fetchCyclesMock.mockResolvedValue([]);
   const tree = await mount();
-  expect(texts(tree)).toContain('No tienes una sesión pendiente');
+  expect(texts(tree)).toContain('Tu coach está preparando tu ciclo');
+  expect(texts(tree)).toContain('Cuando te asigne tu primera sesión, la verás aquí.');
+  expect(fetchCyclesMock).toHaveBeenCalledTimes(1);
+});
+
+test('con ciclo y sin sesión pendiente, dice «Hoy no tienes sesión» y «Descansa.»', async () => {
+  fetchTodayMock.mockResolvedValue(null);
+  fetchCyclesMock.mockResolvedValue([{ id: 'c1' }]);
+  const tree = await mount();
+  expect(texts(tree)).toContain('Hoy no tienes sesión');
+  expect(texts(tree)).toContain('Descansa.');
+  expect(texts(tree)).not.toContain('Tu coach está preparando tu ciclo');
+});
+
+test('si no se pueden leer los ciclos, cae en «Hoy no tienes sesión» sin romper la pantalla', async () => {
+  fetchTodayMock.mockResolvedValue(null);
+  fetchCyclesMock.mockRejectedValue(new Error('sin red'));
+  const tree = await mount();
+  expect(texts(tree)).toContain('Hoy no tienes sesión');
+});
+
+test('sin coach no se consultan los ciclos', async () => {
+  mockUser = { email: 'v@example.com', hasActiveCoach: false };
+  fetchTodayMock.mockResolvedValue(null);
+  await mount();
+  expect(fetchCyclesMock).not.toHaveBeenCalled();
 });

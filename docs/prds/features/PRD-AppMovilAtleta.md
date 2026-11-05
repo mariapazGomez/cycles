@@ -30,6 +30,7 @@ Lo que la primera iteración pedía (login, «Hoy», registro serie por serie co
 
 - **Login** del atleta con `POST /auth/login`. La app es solo para atletas: una cuenta de coach recibe el aviso de entrar por la web. Registro y creación de cuentas **no** existen en la app: el atleta activa su cuenta con la invitación (web).
 - **Hoy:** la sesión pendiente del ciclo activo (`GET /me/today`), con campana de avisos y avatar.
+  - **Estados vacíos (CYC-245), mismos textos que la web:** sin coach, «Falta tu coach»; con coach y ningún ciclo (`GET /cycles` vacío), «Tu coach está preparando tu ciclo» / «Cuando te asigne tu primera sesión, la verás aquí.»; con ciclo y sin sesión pendiente, «Hoy no tienes sesión» / «Descansa.». Si no se pueden leer los ciclos, se muestra «Hoy no tienes sesión».
 - **Calendario:** el plan del atleta por semanas, con el detalle de cada sesión y el cambio de fecha (`PATCH /sessions/:id/schedule`).
 - **Registro por serie** (`ExerciseLog`, con RIR en la última serie), **temporizador de descanso** que guarda cuándo termina (`restTimerStorage`) y sigue exacto al volver de segundo plano, y **cierre de sesión** (esfuerzo, duración, dolor y nota).
 - **Resumen:** reparto del trabajo por grupo muscular del ciclo, por semana y por día, con mapa muscular (`GET /me/summary`).

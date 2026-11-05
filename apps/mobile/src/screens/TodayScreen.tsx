@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import type { TodaySession } from '@cycles/shared';
 import { fetchToday, startSession } from '../services/executionApi';
+import { fetchCycles } from '../services/planApi';
 import { ApiError } from '../services/httpClient';
 import { toLocalDay } from '../utils/planCalendar';
 import { RestBar } from '../components/RestTimer';
@@ -70,6 +71,32 @@ export function TodayScreen({ navigation }: Props) {
       setError('No pudimos cargar tu entrenamiento. Desliza para reintentar.');
     }
   }, [selectedId]);
+
+  // Sin sesión pendiente hay dos casos: la atleta aún no tiene ningún ciclo (su
+  // coach lo está preparando) o tiene ciclo y hoy toca descansar. Igual que en la web.
+  const [noCycle, setNoCycle] = useState(false);
+  const noSession = data === null;
+  useEffect(() => {
+    if (!noSession || withoutCoach) {
+      setNoCycle(false);
+      return;
+    }
+    let cancelled = false;
+    fetchCycles()
+      .then(cycles => {
+        if (!cancelled) {
+          setNoCycle(cycles.length === 0);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setNoCycle(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [noSession, withoutCoach]);
 
   const sessionStarted = data?.session.startedAt != null;
   useEffect(() => {
@@ -168,11 +195,15 @@ export function TodayScreen({ navigation }: Props) {
         <View ref={emptyRef} collapsable={false} style={[styles.card, styles.emptyCard]}>
           <ChainBackground />
           <View style={styles.emptyBox}>
-            <Text style={styles.emptyTitle}>{withoutCoach ? 'Falta tu coach' : 'No tienes una sesión pendiente'}</Text>
+            <Text style={styles.emptyTitle}>
+              {withoutCoach ? 'Falta tu coach' : noCycle ? 'Tu coach está preparando tu ciclo' : 'Hoy no tienes sesión'}
+            </Text>
             <Text style={styles.emptyText}>
               {withoutCoach
                 ? `Pídele que te invite a Cycles con el correo ${user?.email}. Cuando aceptes la invitación, tus entrenamientos aparecerán aquí.`
-                : 'Cuando tu coach te asigne una, la verás aquí.'}
+                : noCycle
+                  ? 'Cuando te asigne tu primera sesión, la verás aquí.'
+                  : 'Descansa.'}
             </Text>
           </View>
         </View>
