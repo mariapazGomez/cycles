@@ -1,5 +1,6 @@
 const path = require('path');
 const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+const { buildSingletons } = require('./metroSingletons');
 
 /**
  * Metro configuration
@@ -10,21 +11,12 @@ const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
 const projectRoot = __dirname;
 const workspaceRoot = path.resolve(projectRoot, '../..');
 
-function escapeRegExp(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-// apps/web usa React 18 y queda hoisteado a la raíz del monorepo. Con
-// nodeModulesPaths apuntando también ahí, algunos paquetes (ej.
-// @react-navigation/core) terminaban resolviendo esa copia en vez de los
-// 19.x de apps/mobile, dando dos instancias de React en paralelo (React
-// Navigation fallaba con "useContext of null" / "Invalid hook call").
-// extraNodeModules no alcanza para forzar esto: solo actúa como último
-// recurso cuando la resolución normal falla, y "react" sí se resuelve
-// normalmente (a la copia equivocada). Hay que bloquear directamente esa
-// ruta para que Metro caiga en la copia local.
-const rootReactPath = escapeRegExp(path.resolve(workspaceRoot, 'node_modules/react'));
-const rootReactDomPath = escapeRegExp(path.resolve(workspaceRoot, 'node_modules/react-dom'));
+// Una sola copia de react / react-dom (CYC-102). Ver metroSingletons.js.
+const { blockList, resolveRequest } = buildSingletons({
+  projectRoot,
+  workspaceRoot,
+  candidateRoots: [path.resolve(workspaceRoot, 'apps/web')],
+});
 
 const config = {
   watchFolders: [workspaceRoot],
@@ -33,10 +25,8 @@ const config = {
       path.resolve(projectRoot, 'node_modules'),
       path.resolve(workspaceRoot, 'node_modules'),
     ],
-    blockList: [
-      new RegExp(`^${rootReactPath}/.*`),
-      new RegExp(`^${rootReactDomPath}/.*`),
-    ],
+    blockList,
+    resolveRequest,
   },
 };
 
