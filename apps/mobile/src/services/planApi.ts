@@ -9,6 +9,11 @@ import type {
 import { apiRequest } from './httpClient';
 import type { MuscleDay } from '../utils/muscleSummary';
 
+// Todos los ciclos de la atleta, de cualquier estado (para distinguir «aún no tiene ciclo» de «hoy descansa»).
+export function fetchCycles() {
+  return apiRequest<TrainingCycle[]>('/cycles');
+}
+
 export function fetchActiveCycles() {
   return apiRequest<TrainingCycle[]>('/cycles?status=active');
 }
