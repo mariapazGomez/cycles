@@ -4,16 +4,16 @@ level: feature
 parent: "[[PRD-General]]"
 status: ready
 phase: "Fase 3.5 — Piloto"
-version: 1.0
+version: 1.1
 created: 2026-10-06
-updated: 2026-11-04
+updated: 2026-11-05
 tags: [prd, feature/onboarding]
 related: ["[[PRD-Autenticacion]]", "[[PRD-InvitacionAtletas]]", "[[PRD-AppMovilAtleta]]", "[[voz-y-tono]]", "[[tour-primer-uso]]", "[[PRD-EjecucionYSeguimiento]]"]
 ---
 
 # PRD — Onboarding
 
-> Hijo de [[PRD-General]]. **Versión 1.0, `status: ready` (2026-11-04):** lo diseñado se aprobó y casi todo está construido. Este documento dice **cómo debe ser** la primera vez de cada rol y **en qué estado está cada pieza** en `origin/main` (c879ab4 y posteriores). Para el recorrido paso a paso con las pantallas de hoy, ver `docs/ONBOARDING.md` y `docs/MANUAL-COACH.md`; el diseño detallado está en [`docs/diseno/tour-primer-uso`](../diseno/tour-primer-uso/README.md).
+> Hijo de [[PRD-General]]. **Versión 1.1, `status: ready` (2026-11-05; ready desde la 1.0 del 2026-11-04):** lo diseñado se aprobó y casi todo está construido. Este documento dice **cómo debe ser** la primera vez de cada rol y **en qué estado está cada pieza** en `origin/main` (c879ab4 y posteriores). Para el recorrido paso a paso con las pantallas de hoy, ver `docs/ONBOARDING.md` y `docs/MANUAL-COACH.md`; el diseño detallado está en [`docs/diseno/tour-primer-uso`](../diseno/tour-primer-uso/README.md).
 
 ## 0. Cómo usar este documento
 
@@ -51,7 +51,7 @@ Brechas observadas al inicio (v0.1) y cómo quedan:
 | B1 | Tras verificar el email, la coach cae en una pantalla sin guía de siguiente paso | Coach | **Resuelta** [hecho]: la guía arranca sola en el primer ingreso (CYC-191, CYC-214). |
 | B2 | El orden correcto vivía solo en un documento | Coach | **Resuelta** [hecho]: el orden está en la guía y en la tarjeta «Así se arma un ciclo». |
 | B3 | La atleta no veía nada hasta que el plan se activaba | Coach y atleta | **Resuelta** [hecho]: un ciclo nace activo y, al asignar la primera sesión, la coach ve «Tu atleta ya puede entrenar» (§5.4). |
-| B4 | Un atleta sin plan ve *Hoy* vacío | Atleta | **Resuelta en la web** [hecho]: «Falta tu coach» y «Tu coach está preparando tu ciclo». En la app: ver §6. |
+| B4 | Un atleta sin plan ve *Hoy* vacío | Atleta | **Resuelta** [hecho]: «Falta tu coach» y «Tu coach está preparando tu ciclo», en la web y en la app (CYC-245). |
 | B5 | La invitación se acepta en la web pero la atleta entrena en la app | Atleta | **Resuelta** [hecho]: pantalla de traspaso con iPhone (TestFlight) y Android (CYC-194, CYC-191). |
 | B6 | La primera visita tras 15 min sin uso tarda ~50 s | Todos | **Vigente**: ya se avisa en pantalla; no es parte del onboarding. |
 | B7 | No hay forma de saber en qué paso va cada persona | Equipo | **Parcial** [hecho]: el portal del equipo (CYC-193) muestra Usuarios y Uso; el embudo por persona queda [diferido]. |
@@ -144,7 +144,7 @@ El registro público está cerrado en el piloto: se entra con el **enlace privad
 | A6 | **Tour de la app** | [hecho, CYC-192]: tres marcas sobre la interfaz real (§11.2). |
 | A7 | **Pista de la primera serie** y **cierre de la primera sesión** | [hecho, CYC-192]: una sola vez cada una («Primera sesión guardada. Tu coach ya puede verla.»). |
 
-**Tour del atleta en la web [decidido; PR #188 abierto, CYC-233]:** el mismo mecanismo de marcas, con **tres marcas sobre el menú** (Hoy, Calendario, Mis ciclos) y los textos de la tarjeta anterior; reemplaza a `AthleteTourCard` y a la lista fija de `GuidePanel`. `tourStatus` lo comparten web y app: terminar en una no repite en la otra.
+**Tour del atleta en la web [decidido; hecho, CYC-233, PR #188 mezclado el 2026-11-05]:** el mismo mecanismo de marcas, con **tres marcas sobre el menú** (Hoy, Calendario, Mis ciclos) y los textos de la tarjeta anterior; reemplaza a `AthleteTourCard` y a la lista fija de `GuidePanel`. `tourStatus` lo comparten web y app: terminar en una no repite en la otra.
 
 **Riesgos del traspaso:** la atleta acepta y nunca instala; instala pero olvida con qué correo entra; la web que ve tras aceptar parece «la app» y no vuelve. A3 cierra las tres (correo visible, pasos claros, y el aviso de que entrena desde la app).
 
@@ -182,8 +182,8 @@ Se conservó lo que ya existía y se diseñó lo que faltaba (CYC-75 coach, CYC-
 | Ejercicios, Míos vacío | Coach | «Todavía no creaste ejercicios» | [hecho] |
 | Crear ciclo, sin atletas activos | Coach | «Falta que tu atleta acepte» | [hecho] |
 | Hoy, sin coach | Atleta (web y app) | «Falta tu coach» | [hecho] |
-| Hoy, con coach y sin ciclo | Atleta (web) | «Tu coach está preparando tu ciclo» | [hecho en web]; **[pendiente en la app]**: hoy dice «No tienes una sesión pendiente» para ese caso |
-| Hoy, con ciclo y sin sesión pendiente | Atleta (web) | «Hoy no tienes sesión» / «Descansa.» | [hecho en web]; **[pendiente en la app]** |
+| Hoy, con coach y sin ciclo | Atleta (web y app) | «Tu coach está preparando tu ciclo» | [hecho] en la web y en la app (CYC-245, PR #191) |
+| Hoy, con ciclo y sin sesión pendiente | Atleta (web y app) | «Hoy no tienes sesión» / «Descansa.» | [hecho] en la web y en la app (CYC-245, PR #191) |
 | Mis ciclos | Atleta (web) | «Aún no tienes ciclos» | [hecho] |
 | Calendario y Resumen | Atleta (app) | «Aún no tienes un ciclo activo» | [hecho] |
 
@@ -209,7 +209,7 @@ Todo lo diseñado está aprobado y documentado en `docs/diseno/`:
 - [x] Estados vacíos de coach y atleta (CYC-75, CYC-76).
 - [x] Tour móvil (M1–M5), pista de la primera serie y cierre de la primera sesión.
 - [x] Guía del atleta en la web (tres marcas sobre el menú).
-- [ ] Ajuste de los textos vacíos de **Hoy** en la app (ver §6; pendiente de desarrollo, no de diseño).
+- [x] Textos vacíos de **Hoy** en la app, iguales a los de la web (CYC-245).
 
 Referencias: `docs/brand/identidad-visual.md`, `docs/brand/especificaciones-diseno.md`, escala de radios 6/8/10 (CYC-206), isla de cuatro íconos.
 
@@ -250,8 +250,8 @@ Embudo: `registro → atleta_invitada → atleta_activa → ciclo_creado → rut
 | Arreglo del bucle: «Crear ciclo» de un atleta sin plan abre «Nuevo ciclo» con el atleta fijado | CYC-234 (PR #185) | [hecho] |
 | Isla de pestañas con la guía | CYC-229 | [hecho] |
 | Tour en la app móvil | CYC-192 | [hecho] |
-| Guía del atleta en la web como marcas sobre el menú | CYC-233 (PR #188) | **[pendiente]**: PR abierto; falta revisión de la usuaria en web móvil y escritorio |
-| Textos vacíos de **Hoy** en la app (§6) | CYC-76 (móvil) | **[pendiente]** |
+| Guía del atleta en la web como marcas sobre el menú | CYC-233 (PR #188) | [hecho] mezclado el 2026-11-05 |
+| Textos vacíos de **Hoy** en la app (§6) | CYC-245 (PR #191) | [hecho] mezclado el 2026-11-05 |
 | Portal del equipo (Usuarios y Uso) | CYC-193 | [hecho] |
 
 ### 11.1 API de la guía de primer uso (CYC-191, 2026-11-03)
@@ -280,15 +280,13 @@ Diseño v3.1 «Tour móvil», ajustes M1–M5. Solo atletas, sobre la interfaz r
 - **Anclas** `data-tour` en los elementos señalados (menú, botones, formularios); si la persona está en otra pantalla o el elemento no está, la guía muestra el chip **Volver al paso N** en lugar de romperse.
 - **Eventos:** `tour_completed` y `tour_skipped` con el paso.
 
-### 11.4 Guía del atleta en la web (CYC-233, PR #188) [pendiente de revisión]
+### 11.4 Guía del atleta en la web (CYC-233, PR #188) [hecho]
 
-Reemplaza `AthleteTourCard` por tres marcas sobre el menú (Hoy, Calendario, Mis ciclos) con el mismo mecanismo y el mismo `tourStatus`. Aceptación: funciona con y sin ciclo asignado; «Entendido» marca `completed`, «Salir de la guía» marca `skipped`; **Cómo usar Cycles** vuelve a ponerla en `pending`; verificada por la usuaria en web móvil y escritorio.
+Reemplaza `AthleteTourCard` por tres marcas sobre el menú (Hoy, Calendario, Mis ciclos) con el mismo mecanismo y el mismo `tourStatus`. Criterios: funciona con y sin ciclo asignado; «Entendido» marca `completed`, «Salir de la guía» marca `skipped`; **Cómo usar Cycles** vuelve a ponerla en `pending`.
 
-### 11.5 Pendientes para el desarrollo
+### 11.5 Pendientes
 
-1. **Textos vacíos de Hoy en la app** (§6): «Tu coach está preparando tu ciclo» y «Hoy no tienes sesión» (CYC-76, móvil).
-2. **Mezclar y verificar CYC-233.**
-3. **Diferidos** (no bloquean `ready`): embudo por coach en el portal del equipo, correos de bienvenida y recordatorio, enlace universal de la app.
+Nada bloquea `ready`. Quedan **diferidos**: el embudo por coach en el portal del equipo, los correos de bienvenida y recordatorio, y el enlace universal de la app.
 
 ## 12. Historial de versiones
 
@@ -299,3 +297,4 @@ Reemplaza `AthleteTourCard` por tres marcas sobre el menú (Hoy, Calendario, Mis
 | 0.3 | 2026-10-06 | Decidido: la atleta usa la app iOS y el plan se activa al asignar su primera sesión. Asistente de la coach pasa a 4 pasos (sin paso de activar). Recorrido de la atleta rehecho como traspaso web → app (A1–A7). Nueva §5.4. Preguntas 2b–2d |
 | 0.4 | 2026-11-03 | Plan de ejecución: API de la guía (§11.1, CYC-191) y tour móvil (§11.2, CYC-192) |
 | **1.0** | 2026-11-04 | **`status: ready`.** Guía como capa de marcas sobre la interfaz real con orden de arriba hacia abajo (v3.1, CYC-213), tarjeta «Así se arma un ciclo», tour móvil (M1–M5), guía del atleta en la web (CYC-233), traspaso con iPhone y Android, registro con dos roles, un ciclo nace activo (§5.4 reemplazada), estados vacíos con su estado real, portal del equipo, preguntas cerradas o diferidas y estado por pieza (§11.0). Se retiran el asistente W1–W4 y la tarjeta «Sigue donde quedaste» |
+| 1.1 | 2026-11-05 | Pasan a [hecho] la guía del atleta en la web (CYC-233, PR #188) y los textos vacíos de Hoy en la app (CYC-245, PR #191); §11.5 queda sin pendientes, solo diferidos |

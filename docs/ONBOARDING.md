@@ -1,6 +1,6 @@
 # Onboarding de Cycles
 
-> **Nota (2026-11-04):** este documento cuenta el recorrido de la primera versión del piloto y está **parcialmente desactualizado**: ya no hay que «activar» el plan (un ciclo nace activo), lo que antes eran «planes» hoy son «ciclos» y la web tiene una **guía de primer uso** sobre la interfaz real. Para la coach, la guía vigente es `docs/MANUAL-COACH.md`; el diseño y el estado de cada pieza están en `docs/onboarding/PRD-Onboarding.md` (v1.0).
+> **Nota (2026-11-04):** este documento cuenta el recorrido de la primera versión del piloto y está **parcialmente desactualizado**: ya no hay que «activar» el plan (un ciclo nace activo), lo que antes eran «planes» hoy son «ciclos» y la web tiene una **guía de primer uso** sobre la interfaz real. Para la coach, la guía vigente es `docs/MANUAL-COACH.md`; el diseño y el estado de cada pieza están en `docs/onboarding/PRD-Onboarding.md` (v1.1).
 
 Cómo empieza a usar Cycles una persona nueva, paso a paso, tal como funciona hoy la app en `https://app.getcycles.app`. Hay dos caminos: el del **coach**, que se registra solo, y el del **atleta**, que entra por invitación de su coach o se registra solo y espera a que su coach lo invite con el mismo correo.
 
