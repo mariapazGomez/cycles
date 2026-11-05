@@ -217,18 +217,18 @@ La maqueta tiene el botón **Estilo de los gráficos** para comparar «Con perso
 
 La causa de que los gráficos anteriores se vieran planos **no era la falta de una librería**: era el diseño (marcas mínimas, sin identidad). Cambiar a Recharts o Nivo habría dado un aspecto distinto pero igual de genérico.
 
-## Tipografía de las cifras en la app (depende de CYC-246)
+## Tipografía de las cifras en la app (decidido en CYC-246: fuente del sistema)
 
-La maqueta y la web usan **Bricolage Grotesque** para las cifras. **La app móvil no la empaqueta**: usa la fuente del sistema en todas sus pantallas (hallazgo del spike CYC-244). Hay dos caminos; la decisión es de la usuaria (CYC-246).
+La maqueta y la web usan **Bricolage Grotesque** para las cifras. **La app móvil no la empaqueta**: usa la fuente del sistema en todas sus pantallas (hallazgo del spike CYC-244). Había dos caminos. **Decisión de la usuaria (2026-11-05): se mantiene la fuente del sistema en la app** (opción B); Bricolage queda solo en la web.
 
-| | **A. Empaquetar Bricolage en la app** | **B. Mantener la fuente del sistema (recomendada por ahora)** |
+| | **A. Empaquetar Bricolage en la app** | **B. Mantener la fuente del sistema (decidida)** |
 |---|---|---|
 | Qué cambia | Se suma una fuente (basta un peso, el 700) y su configuración nativa; la hace App móvil. | Nada se instala. Lo ajusta el diseño (abajo). |
 | Coherencia | Solo las cifras del Resumen quedarían en Bricolage, mientras el resto de la app (títulos, botones, tarjetas) sigue en la del sistema: **sería la única pantalla distinta**, salvo que se adopte la fuente en toda la app. | Todas las pantallas de la app se ven igual. |
 | Personalidad | Máxima en las cifras. | Viene de **las perlas, el anillo y las tarjetas oscuras**, no de la tipografía. |
 | Peso y riesgo | Algo más de build y una pasada nativa. | Ninguno. |
 
-**Si se mantiene la fuente del sistema (opción B), la app usa:**
+**La app usa (opción B, vigente):**
 
 - **Cifras grandes** («4 de 6», «11 de 18», «60 → 70 kg»): **peso 800**, `letterSpacing −0,4`, **dígitos de ancho fijo** (`fontVariant: ['tabular-nums']`) para que las columnas no bailen entre sesiones. Mismos tamaños de hoy (24 px las cifras de las tarjetas; 22 px el título de cada ejercicio).
 - **Títulos** de pestaña y de tarjeta: peso 800, igual que el resto de la app.
