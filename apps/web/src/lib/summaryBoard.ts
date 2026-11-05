@@ -1,4 +1,4 @@
-import type { SessionStatus, TrainingCycle } from "@cycles/shared";
+import type { ChartDefinition, ChartSize, SessionStatus, TrainingCycle } from "@cycles/shared";
 import type { AthleteSummary, CycleProgress } from "../services/trackingApi";
 import { currentCycle } from "./cycleSections";
 import type { StarPoint } from "./starChart";
@@ -259,15 +259,9 @@ export function rirBars(sessions: BoardSession[]): RirBar[] {
 
 // ── Disposición ─────────────────────────────────────────────────────────────
 
-export type ChartSize = "mitad" | "completo";
-
-export interface ChartDef {
-  id: string;
-  origen: "sistema" | "coach";
-  tamano: ChartSize;
-  visible: boolean;
-  titulo?: string;
-}
+// La definición de un gráfico es la de la API (@cycles/shared).
+export type { ChartSize };
+export type ChartDef = ChartDefinition;
 
 export const SYSTEM_TITLES: Record<string, string> = {
   "plan-real": "Peso planificado contra el cargado",
