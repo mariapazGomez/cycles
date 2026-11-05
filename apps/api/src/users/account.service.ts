@@ -128,6 +128,8 @@ export class AccountService {
   private async anonymizeCoach(tx: Prisma.TransactionClient, coachId: string): Promise<void> {
     await tx.coachAthlete.updateMany({ where: { coachId }, data: { status: "inactive" } });
     await tx.athleteInvitationToken.deleteMany({ where: { coachAthlete: { coachId } } });
+    // La fila del coach se queda anonimizada, así que su pizarra no se borra sola.
+    await tx.coachSummaryLayout.deleteMany({ where: { coachId } });
 
     // Los planes de los atletas copiados de sus plantillas pierden ese vínculo.
     await tx.trainingCycle.updateMany({ where: { template: { coachId } }, data: { templateId: null } });
@@ -199,7 +201,7 @@ export class AccountService {
       return { exportedAt, profile: user, plans, setLogs: logs, sessionFeedback: feedback };
     }
 
-    const [routines, exercises, plans] = await Promise.all([
+    const [routines, exercises, plans, summaryLayout] = await Promise.all([
       this.prisma.routine.findMany({ where: { coachId: userId }, include: { routineExercises: true } }),
       this.prisma.exercise.findMany({ where: { createdBy: userId } }),
       // Solo la estructura de los planes: lo que los atletas registraron es de ellos.
@@ -207,7 +209,8 @@ export class AccountService {
         where: { coachId: userId },
         include: { sessions: { include: { sessionExercises: true } } },
       }),
+      this.prisma.coachSummaryLayout.findUnique({ where: { coachId: userId }, select: { charts: true, updatedAt: true } }),
     ]);
-    return { exportedAt, profile: user, routines, exercises, plans };
+    return { exportedAt, profile: user, routines, exercises, plans, summaryLayout };
   }
 }

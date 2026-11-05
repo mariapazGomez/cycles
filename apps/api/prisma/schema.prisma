@@ -126,6 +126,7 @@ model User {
   notifications           Notification[]
   policyAcceptances       PolicyAcceptance[]
   betaInvite              BetaInvite?
+  summaryLayout           CoachSummaryLayout?
 }
 
 // Invitación al grupo externo «Piloto» de TestFlight (CYC-194). El correo es el del
@@ -605,4 +606,15 @@ model AdminSetting {
   key       String   @id
   value     String
   updatedAt DateTime @updatedAt
+}
+
+// Disposición de la pizarra de gráficos del Resumen del atleta (CYC-238): una por
+// coach, vale para todos sus atletas. `charts` es la lista ordenada de definiciones
+// de gráfico (ver src/tracking/summary-layout.ts); la API la valida antes de guardar.
+model CoachSummaryLayout {
+  coachId   String   @id
+  charts    Json
+  updatedAt DateTime @updatedAt
+
+  coach User @relation(fields: [coachId], references: [id], onDelete: Cascade)
 }

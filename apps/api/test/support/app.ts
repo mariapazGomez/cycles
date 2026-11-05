@@ -51,7 +51,7 @@ export interface TestApp {
   prisma: PrismaService;
   // Un pedido con una IP distinta cada vez, para que el límite de intentos no
   // se mezcle con lo que se prueba (el límite tiene sus propias pruebas).
-  http: (method: "get" | "post" | "patch" | "delete" | "options", path: string, token?: string) => request.Test;
+  http: (method: "get" | "post" | "put" | "patch" | "delete" | "options", path: string, token?: string) => request.Test;
   close: () => Promise<void>;
 }
 
