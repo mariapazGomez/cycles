@@ -14,6 +14,32 @@ export function fetchCycles() {
   return apiRequest<TrainingCycle[]>('/cycles');
 }
 
+// Historial por ejercicio (GET /me/exercise-progress, CYC-239): solo ejercicios hechos
+// en dos sesiones o más, las más recientes al final.
+export interface ProgressSession {
+  sessionId: string;
+  weekNumber: number;
+  date: string;
+  plannedSets: number;
+  plannedReps: number;
+  plannedWeight: number | null;
+  plannedRir: number | null;
+  actualWeight: number | null;
+  actualReps: number;
+  series: Array<{ setNumber: number; weight: number | null; reps: number; rir: number | null }>;
+}
+
+export interface ExerciseProgress {
+  exerciseId: string;
+  name: string;
+  muscleGroup: string | null;
+  sessions: ProgressSession[];
+}
+
+export function fetchExerciseProgress() {
+  return apiRequest<ExerciseProgress[]>('/me/exercise-progress');
+}
+
 export function fetchActiveCycles() {
   return apiRequest<TrainingCycle[]>('/cycles?status=active');
 }
