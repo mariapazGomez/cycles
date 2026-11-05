@@ -1,5 +1,7 @@
 import type {
   Exercise,
+  ExerciseProgress,
+  ExerciseProgressResponse,
   ExerciseLog,
   SessionExercise,
   SessionFeedback,
@@ -14,32 +16,14 @@ export function fetchCycles() {
   return apiRequest<TrainingCycle[]>('/cycles');
 }
 
-// Historial por ejercicio (GET /me/exercise-progress, CYC-239): solo ejercicios hechos
-// en dos sesiones o más, las más recientes al final.
-export interface ProgressSession {
-  sessionId: string;
-  weekNumber: number;
-  date: string;
-  plannedSets: number;
-  plannedReps: number;
-  plannedWeight: number | null;
-  plannedRir: number | null;
-  actualWeight: number | null;
-  actualReps: number;
-  series: Array<{ setNumber: number; weight: number | null; reps: number; rir: number | null }>;
-}
-
-export interface ExerciseProgress {
-  exerciseId: string;
-  name: string;
-  muscleGroup: string | null;
-  sessions: ProgressSession[];
-}
+// Historial por ejercicio (GET /me/exercise-progress, CYC-239): los tipos son los mismos que
+// produce la API (@cycles/shared), así que un cambio de forma rompe la compilación.
+export type { ExerciseProgress, ExerciseProgressResponse, ProgressSession } from '@cycles/shared';
 
 // La API responde `{ exercises: [...] }` (no una lista suelta). Se acepta también la lista,
 // y cualquier otra forma se trata como «sin ejercicios» para no tumbar la pantalla.
 export async function fetchExerciseProgress(): Promise<ExerciseProgress[]> {
-  const body = await apiRequest<{ exercises?: ExerciseProgress[] } | ExerciseProgress[]>('/me/exercise-progress');
+  const body = await apiRequest<Partial<ExerciseProgressResponse> | ExerciseProgress[]>('/me/exercise-progress');
   const list = Array.isArray(body) ? body : body?.exercises;
   return Array.isArray(list) ? list : [];
 }
