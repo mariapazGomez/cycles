@@ -36,8 +36,12 @@ export interface ExerciseProgress {
   sessions: ProgressSession[];
 }
 
-export function fetchExerciseProgress() {
-  return apiRequest<ExerciseProgress[]>('/me/exercise-progress');
+// La API responde `{ exercises: [...] }` (no una lista suelta). Se acepta también la lista,
+// y cualquier otra forma se trata como «sin ejercicios» para no tumbar la pantalla.
+export async function fetchExerciseProgress(): Promise<ExerciseProgress[]> {
+  const body = await apiRequest<{ exercises?: ExerciseProgress[] } | ExerciseProgress[]>('/me/exercise-progress');
+  const list = Array.isArray(body) ? body : body?.exercises;
+  return Array.isArray(list) ? list : [];
 }
 
 export function fetchActiveCycles() {
