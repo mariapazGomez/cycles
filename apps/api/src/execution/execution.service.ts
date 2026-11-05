@@ -12,7 +12,7 @@ import { CURRENT_FEEDBACK, CURRENT_LOG, parseDay, planWeekAt, startOfUtcDay } fr
 import { LogSetDto } from "./dto/log-set.dto";
 import { SessionFeedbackDto } from "./dto/session-feedback.dto";
 import { ScheduleSessionDto } from "./dto/schedule-session.dto";
-import { buildExerciseProgress, type RawSessionExercise } from "./exercise-progress";
+import { buildExerciseProgress, type ExerciseProgressResponse, type RawSessionExercise } from "./exercise-progress";
 import { TodayQueryDto } from "./dto/today-query.dto";
 
 // Registro de ejecución del atleta. ExerciseLog y SessionFeedback son
@@ -337,7 +337,7 @@ export class ExecutionService {
   // ciclos (el id sale del token); no pide relación activa, porque el atleta
   // conserva su historial aunque su coach ya no lo lleve. No incluye la nota del
   // coach (puede mencionar salud, R7).
-  async exerciseProgress(athleteId: string) {
+  async exerciseProgress(athleteId: string): Promise<ExerciseProgressResponse> {
     const sessions = await this.prisma.trainingSession.findMany({
       where: { cycle: { athleteId, isTemplate: false }, status: { not: "skipped" }, deletedAt: null },
       select: {
