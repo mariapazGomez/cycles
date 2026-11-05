@@ -138,6 +138,8 @@ const rows: Row[] = [
 
   // Seguimiento (coach)
   { method: "get", path: () => "/coach/attention", cases: [noSession(), wrongRoleCoachOnly()] },
+  // Historial por ejercicio del atleta (CYC-239): solo atleta, y siempre el suyo.
+  { method: "get", path: () => "/me/exercise-progress", cases: [noSession(), wrongRoleAthleteOnly()] },
   { method: "get", path: (c) => `/athletes/${c.userId.athleteA}/summary`, cases: [noSession(), wrongRoleCoachOnly(), ["coachB", 403, "atleta de otro coach"]] },
   { method: "get", path: (c) => `/athletes/${c.userId.athleteC}/summary`, cases: [["coachA", 403, "relación terminada"]] },
   ...coachResource("get", (c) => `/cycles/${c.cycleA}/progress`, (c) => `/cycles/${c.cycleC}/progress`),

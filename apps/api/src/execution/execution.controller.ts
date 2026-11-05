@@ -30,6 +30,13 @@ export class ExecutionController {
     return this.executionService.muscleSummary(user.id, query.cycleId);
   }
 
+  // Historial por ejercicio (cada uno hecho en 2 sesiones o más) para el Resumen
+  // del atleta (CYC-239).
+  @Get("me/exercise-progress")
+  exerciseProgress(@CurrentUser() user: AuthenticatedUser) {
+    return this.executionService.exerciseProgress(user.id);
+  }
+
   // El coach define cuántas sesiones por semana; el atleta elige el día de cada una.
   @Patch("sessions/:id/schedule")
   schedule(
