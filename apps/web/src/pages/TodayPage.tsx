@@ -9,7 +9,6 @@ import { formatKg } from "../lib/format";
 import { track } from "../lib/analytics";
 import { useAuth } from "../hooks/useAuth";
 import * as cyclesApi from "../services/cyclesApi";
-import { AthleteTourCard } from "../components/tour/AthleteTourCard";
 
 // Inicio del atleta: la próxima sesión pendiente de su plan activo.
 export function TodayPage() {
@@ -43,7 +42,6 @@ export function TodayPage() {
   if (user?.hasActiveCoach === false) {
     return (
       <div className="log-shell">
-        <AthleteTourCard />
         <EmptyState title="Falta tu coach">
           Pídele a tu coach que te invite a Cycles con el correo {user.email}. Cuando aceptes la invitación, tus
           entrenamientos aparecerán aquí.
@@ -61,7 +59,6 @@ export function TodayPage() {
     const noCycle = cyclesQuery.isSuccess && cyclesQuery.data.length === 0;
     return (
       <div className="log-shell">
-        <AthleteTourCard />
         {noCycle ? (
           <EmptyState title="Tu coach está preparando tu ciclo">Cuando te asigne tu primera sesión, la verás aquí.</EmptyState>
         ) : (
@@ -82,7 +79,6 @@ export function TodayPage() {
 
   return (
     <div className="log-shell">
-      <AthleteTourCard />
       <div className="stack" style={{ gap: 10 }}>
         <h1 className="page-title">Te toca {session.name}</h1>
         <div className="row">

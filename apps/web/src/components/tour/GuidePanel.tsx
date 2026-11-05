@@ -1,17 +1,14 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { useTour } from "../../hooks/useTour";
-import { useAuth } from "../../hooks/useAuth";
 import { TourDialog } from "./TourDialog";
 import { CycleDiagram } from "./TourIntro";
 
 const MANUAL = "https://github.com/mariapazGomez/cycles/blob/main/docs/MANUAL-COACH.md";
 
-// «Cómo usar Cycles», desde el menú de usuario. La coach ve sus cuatro pasos
-// con su estado; la atleta, las tres explicaciones de su app.
+// «Cómo usar Cycles» de la coach, desde el menú de usuario: sus pasos con su
+// estado. La atleta no tiene panel: reabre la guía por marcas (CYC-233).
 export function GuidePanel({ onClose }: { onClose: () => void }) {
-  const { user } = useAuth();
-  return user?.role === "coach" ? <CoachGuide onClose={onClose} /> : <AthleteGuide onClose={onClose} />;
+  return <CoachGuide onClose={onClose} />;
 }
 
 function CoachGuide({ onClose }: { onClose: () => void }) {
@@ -63,38 +60,5 @@ function CoachGuide({ onClose }: { onClose: () => void }) {
         </button>
       </div>
     </TourDialog>
-  );
-}
-
-function AthleteGuide({ onClose }: { onClose: () => void }) {
-  return (
-    <TourDialog title="Cómo usar Cycles" onClose={onClose}>
-      <AthleteSteps />
-      <div className="tour-dialog-actions">
-        <Link className="button-primary" to="/" onClick={onClose} data-autofocus>
-          Ir a Hoy
-        </Link>
-        <button type="button" className="tour-link" onClick={onClose}>
-          Cerrar
-        </button>
-      </div>
-    </TourDialog>
-  );
-}
-
-// Las tres explicaciones del atleta: las mismas de la app, escritas para la web.
-export function AthleteSteps() {
-  return (
-    <ul className="tour-athlete-list">
-      <li>
-        <b>Hoy:</b> aquí está tu sesión de hoy. Toca <b>Empezar sesión</b> cuando vayas a entrenar.
-      </li>
-      <li>
-        <b>Calendario:</b> ves tu semana y todo tu ciclo.
-      </li>
-      <li>
-        <b>Mis ciclos:</b> los ciclos que tu coach te asignó, con tu avance.
-      </li>
-    </ul>
   );
 }

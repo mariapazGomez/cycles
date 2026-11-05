@@ -224,6 +224,45 @@ export const MARKS: Mark[] = [
   },
 ];
 
+// Guía del atleta en la web (CYC-233): tres marcas sobre el menú, con el mismo
+// globo que la de la coach. El menú existe con o sin ciclo asignado, así que
+// siempre hay dónde apuntar. Textos: los mismos que explicaba la tarjeta de Hoy.
+export const ATHLETE_STEP_COUNT = 3;
+
+export const ATHLETE_MARKS: Mark[] = [
+  {
+    id: "a1",
+    step: 1,
+    during: [1],
+    selector: () => tour("athlete-today"),
+    text: () => "Aquí está tu sesión de hoy. Toca Empezar sesión cuando vayas a entrenar.",
+    when: () => true,
+    manual: true,
+  },
+  {
+    id: "a2",
+    step: 2,
+    during: [2],
+    selector: () => tour("athlete-calendar"),
+    text: () => "Ves tu semana y todo tu ciclo.",
+    when: () => true,
+    manual: true,
+  },
+  {
+    id: "a3",
+    step: 3,
+    during: [3],
+    selector: () => tour("athlete-cycles"),
+    text: () => "Los ciclos que tu coach te asignó, con tu avance.",
+    when: () => true,
+    closing: true,
+  },
+];
+
+export function athleteMark(step: number): Mark | null {
+  return ATHLETE_MARKS.find((m) => m.step === step) ?? null;
+}
+
 export function pickMark(current: TourStepN, ctx: MarkContext): Mark | null {
   return MARKS.find((m) => m.during.includes(current) && m.when(ctx)) ?? null;
 }
