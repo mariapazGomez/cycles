@@ -76,6 +76,20 @@ Vista **Resumen** de la ficha, con el mismo selector Ciclo / Resumen de hoy.
 
 La disposición de los gráficos es del coach. Funciona con el mismo lenguaje de la **pizarra de ciclos** (autoguardado, «Guardado» y «Deshacer»).
 
+### Orden por defecto
+
+Lo que el coach ve la primera vez, y a lo que vuelve **Restablecer disposición**:
+
+| # | Gráfico | Tamaño | Por qué |
+|---|---|---|---|
+| 1 | **Peso planificado contra el cargado** | Completo (tarjeta oscura) | Es la pregunta que motivó este rediseño y el gráfico más rico: el coach decide con él cuánto subir o bajar. Va primero y a todo el ancho para que la tarjeta oscura abra la página, justo bajo las cifras. |
+| 2 | Progreso del ciclo | Mitad | Cómo avanza la carga semana a semana. |
+| 3 | Constancia | Mitad | Hechas, omitidas y pendientes, junto al progreso. |
+| 4 | Esfuerzo de cada sesión | Mitad | |
+| 5 | Cuánto costó cada ejercicio (RIR) | Mitad | Complementa el esfuerzo y el peso: queda junto al gráfico 4. |
+
+Los cuatro de tamaño mitad forman una cuadrícula de 2 × 2 bajo el gráfico estrella. *(Decisión de diseño del 2026-11-05 a propuesta de Desarrollo general; antes el gráfico de peso iba al final.)*
+
 ### Modo «Organizar»
 
 - Un botón **Organizar** junto al filtro de periodo abre el modo de edición; **Listo** lo cierra. Fuera de ese modo, los gráficos se leen normalmente y no se arrastran por accidente.
@@ -167,7 +181,7 @@ La maqueta tiene el botón **Estilo de los gráficos** para comparar «Con perso
 |---|---|---|
 | **Marcador** | Punto plano | **Perla**: círculo con borde blanco de 2,5 px y un halo del mismo color al 16 %; la última, más grande (7 px). |
 | **Rejilla** | Línea continua | **Puntos redondos** (`stroke-dasharray="0 7"` con extremos redondos): la cadena, en gris `#cfd5de`. |
-| **Cifras** | Inter pequeña | **Bricolage Grotesque 700**, de 15 a 19 px, para el valor que importa (la última sesión, el total de la semana, el desvío de RIR). |
+| **Cifras** | Inter pequeña | **Bricolage Grotesque 700** (en la web; en la app, ver «Tipografía de las cifras en la app»), de 15 a 19 px, para el valor que importa (la última sesión, el total de la semana, el desvío de RIR). |
 | **Constancia** | Columnas apiladas | **Una perla por sesión** (azul = hecha, naranja = omitida, aro gris = pendiente) y la fracción «3/3» sobre cada semana. Se cuenta con la vista, sin eje. |
 | **Desvío de RIR** | Barras | **Paletas**: línea de 3 px con una perla al extremo y la cifra con signo. |
 | **Columnas** | Barra plana | Barra con **perla hueca en la punta**; la semana en curso en azul claro con «en curso». |
@@ -202,6 +216,27 @@ La maqueta tiene el botón **Estilo de los gráficos** para comparar «Con perso
 5. **Antes de comprometer:** hacer un **spike de un día** que dibuje el gráfico estrella con `d3-shape` en la web y en la app, y medir el peso final y la fluidez en un iPhone.
 
 La causa de que los gráficos anteriores se vieran planos **no era la falta de una librería**: era el diseño (marcas mínimas, sin identidad). Cambiar a Recharts o Nivo habría dado un aspecto distinto pero igual de genérico.
+
+## Tipografía de las cifras en la app (depende de CYC-246)
+
+La maqueta y la web usan **Bricolage Grotesque** para las cifras. **La app móvil no la empaqueta**: usa la fuente del sistema en todas sus pantallas (hallazgo del spike CYC-244). Hay dos caminos; la decisión es de la usuaria (CYC-246).
+
+| | **A. Empaquetar Bricolage en la app** | **B. Mantener la fuente del sistema (recomendada por ahora)** |
+|---|---|---|
+| Qué cambia | Se suma una fuente (basta un peso, el 700) y su configuración nativa; la hace App móvil. | Nada se instala. Lo ajusta el diseño (abajo). |
+| Coherencia | Solo las cifras del Resumen quedarían en Bricolage, mientras el resto de la app (títulos, botones, tarjetas) sigue en la del sistema: **sería la única pantalla distinta**, salvo que se adopte la fuente en toda la app. | Todas las pantallas de la app se ven igual. |
+| Personalidad | Máxima en las cifras. | Viene de **las perlas, el anillo y las tarjetas oscuras**, no de la tipografía. |
+| Peso y riesgo | Algo más de build y una pasada nativa. | Ninguno. |
+
+**Si se mantiene la fuente del sistema (opción B), la app usa:**
+
+- **Cifras grandes** («4 de 6», «11 de 18», «60 → 70 kg»): **peso 800**, `letterSpacing −0,4`, **dígitos de ancho fijo** (`fontVariant: ['tabular-nums']`) para que las columnas no bailen entre sesiones. Mismos tamaños de hoy (24 px las cifras de las tarjetas; 22 px el título de cada ejercicio).
+- **Títulos** de pestaña y de tarjeta: peso 800, igual que el resto de la app.
+- **Etiquetas pequeñas** (11 a 12 px): peso 600, sin cambios.
+- **Cifras sobre las líneas pequeñas** (el último valor): peso 800, 14 px.
+- El resto del lenguaje (**perlas, anillo del ciclo, rejilla de puntos, tarjeta oscura**) no cambia: es geometría, no tipografía.
+
+La maqueta de la app (pestaña **App del atleta**) ya está dibujada con la fuente del sistema para reflejar lo que hay hoy. La **web del coach** mantiene Bricolage, porque la web sí la tiene.
 
 ## Criterios de gráficos (guía `dataviz`)
 
