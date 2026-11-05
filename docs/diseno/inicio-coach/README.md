@@ -77,6 +77,15 @@ Reglas:
 3. No se cambian colores, tipografía ni sombras.
 4. Móvil usa los mismos nombres y valores. Hoy usa 22, 18, 14, 12 y 999; se alinea en una tarea posterior.
 
+### Aplicación en el resto de la web del coach (CYC-208)
+
+La escala se extendió a **Atletas, Biblioteca, Ejercicios, la ficha del atleta, el tablero de ciclos, las rutinas** y los botones, **solo en la web del coach**: el atleta y el inicio de sesión quedan como estaban (decisión de la usuaria, 2026-11-05).
+
+- **Archivos solo del coach** (`athletes.css`, `library.css`, `exercises.css`, `plan.css`, `board.css`, `routines.css`): cada radio pasa a su token (`--radius-*`), sin valores sueltos. Botones, chips, campos y pestañas, `md` (8); tarjetas, paneles y listas, `lg` (10); diálogos, `xl` (12); celdas y tarjetas dentro de una tarjeta, `sm` (6); marcas internas y barras, `xs` (4); la píldora queda solo en contadores y etiquetas.
+- **Clases compartidas** con el atleta y el login (`.button-primary`, `.button-secondary`, `.button-ghost`, `.card`, `.empty-state*`, `.chart-card`, `.stats`, `.plan-alert`, `.ex-note`, `.cy-strip`, `.pc-*`, `.notif-*`): se ajustan en `styles/coach-radii.css`, que se importa al final y solo actúa dentro de `.app-shell-coach` (la clase que `AppLayout` pone al shell del coach). No se cambia su definición original.
+- **Fuera de este cambio:** la guía de primer uso (`tour.css`, la usa también el atleta), el atleta y el login, y la app móvil.
+- **Para quien agregue un componente nuevo en el coach:** usar `var(--radius-*)`; un botón nunca es cápsula.
+
 ## Qué se muestra en cada elemento
 
 - **Banner «sesiones hoy»** (`.cy-strip`): igual contenido, radio 10; **Invitar atleta** pasa a radio 8.

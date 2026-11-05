@@ -187,7 +187,7 @@
   gap: 4px;
   margin: 8px 0 16px;
   padding: 4px;
-  border-radius: 999px;
+  border-radius: var(--radius-md);
   background: var(--color-bg);
   box-shadow: var(--shadow-e1);
 }
@@ -196,7 +196,7 @@
   min-height: 36px;
   padding: 0 18px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--color-ink-secondary);
   font: 600 0.9rem Inter, system-ui, sans-serif;
@@ -226,7 +226,7 @@
   max-width: 280px;
   padding: 0 12px;
   border: 1px solid var(--color-control-border);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: var(--color-bg);
   font: 600 0.95rem Inter, system-ui, sans-serif;
 }

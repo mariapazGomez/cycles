@@ -16,7 +16,7 @@
   align-items: center;
   gap: 12px 16px;
   padding: 12px 16px;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   background: var(--color-bg);
   box-shadow: var(--shadow-e1);
   transition: box-shadow 150ms ease, transform 150ms ease;
@@ -82,7 +82,7 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
 }
 
 .lb-icon svg {
@@ -103,7 +103,7 @@
 .lb-icon-sm {
   width: 28px;
   height: 28px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 .lb-icon-sm svg {
@@ -128,7 +128,7 @@
   z-index: 10;
   min-width: 200px;
   padding: 6px;
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   background: var(--color-bg);
   box-shadow: var(--shadow-e3);
 }
@@ -140,7 +140,7 @@
   width: 100%;
   padding: 8px 10px;
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: none;
   font: 600 0.9rem Inter, system-ui, sans-serif;
   color: var(--color-ink);
@@ -155,7 +155,7 @@
 
 .lb-form {
   padding: 20px;
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   background: var(--color-bg);
   box-shadow: var(--shadow-e1);
 }
@@ -173,7 +173,7 @@
   min-height: 40px;
   padding: 0 10px;
   border: 1.5px solid var(--color-control-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: var(--color-bg);
   color: var(--color-ink);
   font: 400 0.9rem Inter, system-ui, sans-serif;

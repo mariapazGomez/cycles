@@ -19,7 +19,7 @@
   gap: 12px 16px;
   padding: 16px 20px;
   border: 1px solid var(--color-blue-200);
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   background: var(--color-blue-50);
 }
 
@@ -47,7 +47,7 @@
 .rt-chip {
   display: inline-block;
   padding: 3px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-md);
   background: var(--color-blue-200);
   color: var(--color-blue-700);
   font-size: 0.74rem;
@@ -58,7 +58,7 @@
   height: 34px;
   padding: 0 12px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--radius-md);
   background: transparent;
   font: 600 0.86rem Inter, system-ui, sans-serif;
   color: var(--color-ink-secondary);
@@ -131,7 +131,7 @@
   box-sizing: border-box;
   padding: 0 12px;
   border: 1px solid var(--color-control-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: var(--color-bg);
   color: var(--color-ink);
   font: 400 0.95rem Inter, system-ui, sans-serif;
@@ -226,7 +226,7 @@
   gap: 14px;
   padding: 16px 20px;
   border: 1px solid var(--color-blue-200);
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   background: var(--color-blue-50);
 }
 
@@ -261,7 +261,7 @@
   align-items: center;
   justify-content: space-between;
   border: 1px solid var(--color-control-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: var(--color-bg);
 }
 
@@ -303,7 +303,7 @@
 .rt-warn {
   margin: 0;
   padding: 8px 12px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: var(--color-warn-bg);
   color: var(--color-warn-ink);
   font-size: 0.82rem;
@@ -316,7 +316,7 @@
   gap: 12px;
   padding: 16px 20px;
   border: 1px dashed var(--color-control-border);
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   background: var(--color-bg);
 }
 
@@ -327,7 +327,7 @@
   padding: 0;
   list-style: none;
   border: 1px solid var(--color-gray-border);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   overflow: hidden;
 }
 
@@ -369,7 +369,7 @@
   gap: 16px;
   padding: 20px;
   border: 1px solid var(--color-blue-200);
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   background: var(--color-blue-50);
 }
 
@@ -387,7 +387,7 @@
 
 .rt-kpi {
   padding: 12px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   background: var(--color-blue-100);
 }
 
@@ -445,7 +445,7 @@
 
 .rt-track {
   height: 8px;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   background: var(--color-blue-200);
   overflow: hidden;
 }
@@ -453,7 +453,7 @@
 .rt-track i {
   display: block;
   height: 100%;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
 }
 
 .rt-hint {
