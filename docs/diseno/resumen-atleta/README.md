@@ -285,6 +285,14 @@ La maqueta de la app (pestaña **App del atleta**) ya está dibujada con la fuen
 - Texto de los gráficos de al menos 12 px a 390, 800 y 1280 px de ancho (medido en el navegador).
 - El filtro de periodo no se guarda en el servidor.
 
+**PR B, modo «Organizar»** (misma fase):
+
+- Botón **Organizar / Listo** junto al filtro de periodo. En el modo, cada gráfico es una miniatura con borde discontinuo y una barra con el asa de arrastre (⠿, solo escritorio), **↑ Antes / ↓ Después**, **Mitad / Completo** (solo escritorio) y **Quitar**.
+- **Gráficos ocultos:** quitar no borra; el gráfico pasa a la bandeja y vuelve con **Mostrar** al final de los visibles. **Restablecer disposición** vuelve al orden por defecto.
+- **Autoguardado:** cada cambio hace un `PUT /coach/summary-layout` con la lista completa; «Guardando… / Guardado / No se guardó» (con Reintentar) y un aviso con **Deshacer** durante 7 s (reutiliza `SaveIndicator` y `UndoToast` de la pizarra de ciclos). Mover salta a los ocultos, que conservan su lugar.
+- Lógica pura en `lib/summaryBoard.ts` (`moveChart`, `moveChartBefore`, `resizeChart`, `hideChart`, `showChart`, `resetLayout`), con pruebas.
+- **No incluye** «+ Agregar gráfico» ni el constructor (CYC-242).
+
 ## Fuera de alcance
 
 - Fuerza estimada (1RM) por ejercicio: se conserva la de la tabla actual; no entra en estos gráficos.

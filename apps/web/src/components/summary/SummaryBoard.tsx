@@ -1,16 +1,19 @@
-import { useMemo, useState } from "react";
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as trackingApi from "../../services/trackingApi";
 import * as cyclesApi from "../../services/cyclesApi";
 import * as layoutApi from "../../services/summaryLayoutApi";
+import type { BoardToast, SaveStatus } from "../../hooks/useBoardActions";
+import { SaveIndicator } from "../board/SaveIndicator";
+import { UndoToast } from "../board/UndoToast";
 import { toLocalDay } from "../../lib/calendar";
 import { currentCycle } from "../../lib/cycleSections";
 import { formatInteger, formatNumber, formatShortDate } from "../../lib/format";
 import { lastSessionPhrase } from "../../lib/starChart";
 import {
-  DEFAULT_LAYOUT, PERIOD_LABEL, boardSessions, boardStats, boardWeeks, chartTitle, chooseCycles, defaultExercise,
+  DEFAULT_LAYOUT, PERIOD_LABEL, SYSTEM_TITLES, hiddenCharts, hideChart, moveChart, moveChartBefore, resetLayout, resizeChart, showChart, boardSessions, boardStats, boardWeeks, chartTitle, chooseCycles, defaultExercise,
   effortPoints, exerciseOptions, repsPoints, rirBars, visibleCharts, weightMode, weightPoints,
-  type BoardSession, type ChartDef, type CycleEntry, type Period,
+  type BoardSession, type ChartDef, type ChartSize, type CycleEntry, type LayoutChange, type Period,
 } from "../../lib/summaryBoard";
 import { AdherenceChart, AdherenceLegend, WeeklyLoadChart } from "../charts";
 import { StarChart } from "../StarChart";
@@ -103,6 +106,30 @@ export function SummaryBoard({ athleteId }: { athleteId: string }) {
   });
   const cyclesQuery = useQuery({ queryKey: ["cycles"], queryFn: cyclesApi.listCycles });
   const layoutQuery = useQuery({ queryKey: ["coach", "summary-layout"], queryFn: layoutApi.getSummaryLayout });
+  const queryClient = useQueryClient();
+
+  // Modo «Organizar»: cada cambio se guarda solo y se puede deshacer durante 7 s.
+  const [editing, setEditing] = useState(false);
+  const [local, setLocal] = useState<ChartDef[] | null>(null);
+  const [status, setStatus] = useState<SaveStatus>("idle");
+  const [toast, setToast] = useState<BoardToast | null>(null);
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
+  const timers = useRef<{ toast?: number; saved?: number }>({});
+  useEffect(() => () => {
+    window.clearTimeout(timers.current.toast);
+    window.clearTimeout(timers.current.saved);
+  }, []);
+  const saveLayout = useMutation({
+    mutationFn: layoutApi.saveSummaryLayout,
+    onSuccess: (saved) => {
+      queryClient.setQueryData(["coach", "summary-layout"], saved);
+      setStatus("saved");
+      window.clearTimeout(timers.current.saved);
+      timers.current.saved = window.setTimeout(() => setStatus("idle"), 2500);
+    },
+    onError: () => setStatus("error"),
+  });
 
   const own = useMemo(() => (cyclesQuery.data ?? []).filter((c) => c.athleteId === athleteId), [cyclesQuery.data, athleteId]);
   const chosen = useMemo(() => chooseCycles(own, period, today), [own, period, today]);
@@ -120,13 +147,96 @@ export function SummaryBoard({ athleteId }: { athleteId: string }) {
   const sessions = useMemo(() => boardSessions(entries, period, today), [entries, period, today]);
   const stats = boardStats(sessions);
   const weeks = boardWeeks(summaryQuery.data?.weeks ?? [], period, period === "cycle" ? chosen[0] ?? null : current);
-  const layout = visibleCharts(layoutQuery.data?.charts ?? DEFAULT_LAYOUT);
+  const layoutDefs = local ?? layoutQuery.data?.charts ?? DEFAULT_LAYOUT;
+  const layout = visibleCharts(layoutDefs);
+  const hidden = hiddenCharts(layoutDefs);
+
+  function persist(next: ChartDef[]) {
+    setLocal(next);
+    setStatus("saving");
+    saveLayout.mutate(next);
+  }
+  function apply(change: LayoutChange | null) {
+    if (!change) return;
+    const before = layoutDefs;
+    persist(change.layout);
+    setToast({ message: change.message, undo: () => persist(before) });
+    window.clearTimeout(timers.current.toast);
+    timers.current.toast = window.setTimeout(() => setToast(null), 7000);
+  }
 
   const weeksTotal = current ? Math.ceil((Date.parse(current.endDate.slice(0, 10)) - Date.parse(current.startDate.slice(0, 10))) / 86_400_000 / 7 + 1 / 7) : null;
   const currentWeek = current ? Math.max(1, Math.min(weeksTotal ?? 1, Math.floor((Date.parse(today) - Date.parse(current.startDate.slice(0, 10))) / 86_400_000 / 7) + 1)) : null;
   const registered = weeks.reduce((n, w) => n + w.completed + w.skipped, 0);
   const assigned = weeks.reduce((n, w) => n + w.assigned, 0);
   const noData = !loading && !failed && sessions.every((s) => s.status === "pending");
+
+  function renderEditing(def: ChartDef, index: number) {
+    const title = chartTitle(def);
+    const full = def.tamano === "completo";
+    return (
+      <section
+        key={def.id}
+        className={`sb-card sb-edit${full ? " sb-full" : ""}${overId === def.id && dragId !== def.id ? " sb-drop" : ""}`}
+        aria-label={title}
+        data-chart={def.id}
+        onDragOver={(e) => {
+          if (!dragId) return;
+          e.preventDefault();
+          setOverId(def.id);
+        }}
+        onDragLeave={() => setOverId((cur) => (cur === def.id ? null : cur))}
+        onDrop={(e) => {
+          e.preventDefault();
+          if (dragId) apply(moveChartBefore(layoutDefs, dragId, def.id));
+          setDragId(null);
+          setOverId(null);
+        }}
+      >
+        <div className="sb-edit-bar">
+          <span
+            className="sb-handle"
+            draggable
+            aria-hidden="true"
+            title="Arrastra para mover"
+            onDragStart={(e) => {
+              e.dataTransfer.effectAllowed = "move";
+              e.dataTransfer.setData("text/plain", def.id);
+              setDragId(def.id);
+            }}
+            onDragEnd={() => {
+              setDragId(null);
+              setOverId(null);
+            }}
+          >
+            ⠿
+          </span>
+          <strong className="sb-edit-title">{title}</strong>
+          <div className="sb-edit-actions">
+            <button type="button" className="cb-chip" aria-label={`Mover «${title}» antes`} disabled={index === 0} onClick={() => apply(moveChart(layoutDefs, def.id, "before"))}>
+              ↑ Antes
+            </button>
+            <button type="button" className="cb-chip" aria-label={`Mover «${title}» después`} disabled={index === layout.length - 1} onClick={() => apply(moveChart(layoutDefs, def.id, "after"))}>
+              ↓ Después
+            </button>
+            <span className="sb-size" role="group" aria-label={`Tamaño de «${title}»`}>
+              {(["mitad", "completo"] as ChartSize[]).map((size) => (
+                <button key={size} type="button" className="cb-chip" aria-pressed={def.tamano === size} onClick={() => apply(resizeChart(layoutDefs, def.id, size))}>
+                  {size === "mitad" ? "Mitad" : "Completo"}
+                </button>
+              ))}
+            </span>
+            <button type="button" className="cb-chip" aria-label={`Quitar «${title}»`} onClick={() => apply(hideChart(layoutDefs, def.id))}>
+              Quitar
+            </button>
+          </div>
+        </div>
+        <div className="sb-mini" aria-hidden="true">
+          {full ? "Fila entera" : "Media fila"}
+        </div>
+      </section>
+    );
+  }
 
   function render(def: ChartDef) {
     const needsProgress = def.id === "plan-real" || def.id === "esfuerzo" || def.id === "costo-ejercicio";
@@ -228,12 +338,30 @@ export function SummaryBoard({ athleteId }: { athleteId: string }) {
 
   return (
     <div className="stack" style={{ gap: 16 }}>
-      <div className="sb-period" role="group" aria-label="Periodo">
-        {PERIODS.map((p) => (
-          <button key={p} type="button" className="cb-chip" aria-pressed={p === period} onClick={() => setPeriod(p)}>
-            {PERIOD_LABEL[p]}
+      <div className="sb-toolbar">
+        <div className="sb-period" role="group" aria-label="Periodo">
+          {PERIODS.map((p) => (
+            <button key={p} type="button" className="cb-chip" aria-pressed={p === period} onClick={() => setPeriod(p)}>
+              {PERIOD_LABEL[p]}
+            </button>
+          ))}
+        </div>
+        <div className="sb-organize">
+          {editing && <SaveIndicator status={status} />}
+          {editing && status === "error" && (
+            <button type="button" className="tour-link" onClick={() => persist(layoutDefs)}>
+              Reintentar
+            </button>
+          )}
+          {editing && (
+            <button type="button" className="cb-chip" onClick={() => apply(resetLayout(layoutDefs))}>
+              Restablecer disposición
+            </button>
+          )}
+          <button type="button" className={editing ? "cb-chip sb-done" : "cb-chip"} aria-pressed={editing} onClick={() => setEditing((v) => !v)}>
+            {editing ? "Listo" : "Organizar"}
           </button>
-        ))}
+        </div>
       </div>
 
       <dl className="sb-stats">
@@ -248,13 +376,35 @@ export function SummaryBoard({ athleteId }: { athleteId: string }) {
         <Stat label="Peso real contra el plan" value={loading || stats.weightDelta === null ? "—" : `${signed(Math.round(stats.weightDelta * 10) / 10)} kg`} />
       </dl>
 
-      {noData ? (
+      {editing ? (
+        <>
+          <div className="sb-board">{layout.map(renderEditing)}</div>
+          <section className="sb-tray" aria-label="Gráficos ocultos">
+            <h2 className="section-title">Gráficos ocultos</h2>
+            {hidden.length === 0 ? (
+              <p className="sb-note">No hay gráficos ocultos.</p>
+            ) : (
+              <ul>
+                {hidden.map((c) => (
+                  <li key={c.id}>
+                    <span>{SYSTEM_TITLES[c.id]}</span>
+                    <button type="button" className="cb-chip" aria-label={`Mostrar «${SYSTEM_TITLES[c.id]}»`} onClick={() => apply(showChart(layoutDefs, c.id))}>
+                      Mostrar
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </>
+      ) : noData ? (
         <div className="sb-card">
           <p className="sb-empty">Aún no hay registros que resumir. Cuando el atleta complete su primera sesión, aquí verás su progreso.</p>
         </div>
       ) : (
         <div className="sb-board">{layout.map(render)}</div>
       )}
+      <UndoToast toast={toast} onDismiss={() => setToast(null)} />
     </div>
   );
 }

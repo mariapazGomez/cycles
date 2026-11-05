@@ -295,3 +295,85 @@ export const DEFAULT_LAYOUT: ChartDef[] = [
 export function visibleCharts(layout: ChartDef[]): ChartDef[] {
   return layout.filter((c) => c.visible && (c.origen === "sistema" ? c.id in SYSTEM_TITLES : false));
 }
+
+// ── Modo «Organizar» (CYC-240, parte B) ─────────────────────────────────────
+// Operaciones puras sobre la disposición; devuelven una lista nueva y el aviso que
+// se muestra con «Deshacer». La posición de un gráfico es su lugar en la lista;
+// los ocultos conservan el suyo, y mover es intercambiar con el vecino a la vista.
+
+export interface LayoutChange {
+  layout: ChartDef[];
+  message: string;
+}
+
+const isShown = (c: ChartDef) => c.visible && c.id in SYSTEM_TITLES;
+
+// Mueve un gráfico una posición «antes» o «después» entre los que están a la vista.
+export function moveChart(layout: ChartDef[], id: string, direction: "before" | "after"): LayoutChange | null {
+  const index = layout.findIndex((c) => c.id === id);
+  if (index < 0) return null;
+  const step = direction === "before" ? -1 : 1;
+  let target = index + step;
+  while (target >= 0 && target < layout.length && !isShown(layout[target])) target += step;
+  if (target < 0 || target >= layout.length) return null;
+  const next = [...layout];
+  [next[index], next[target]] = [next[target], next[index]];
+  const shown = next.filter(isShown);
+  const position = shown.findIndex((c) => c.id === id) + 1;
+  return {
+    layout: next,
+    message: `Moviste «${chartTitle(layout[index])}» ${direction === "before" ? "una posición antes" : "una posición después"} (ahora ${position} de ${shown.length}).`,
+  };
+}
+
+// Arrastrar: el gráfico pasa al lugar de otro (queda justo antes de él).
+export function moveChartBefore(layout: ChartDef[], id: string, targetId: string): LayoutChange | null {
+  if (id === targetId) return null;
+  const from = layout.findIndex((c) => c.id === id);
+  const to = layout.findIndex((c) => c.id === targetId);
+  if (from < 0 || to < 0) return null;
+  const next = layout.filter((c) => c.id !== id);
+  const at = next.findIndex((c) => c.id === targetId);
+  next.splice(at, 0, layout[from]);
+  const position = next.filter(isShown).findIndex((c) => c.id === id) + 1;
+  return { layout: next, message: `Moviste «${chartTitle(layout[from])}» a la posición ${position} de ${next.filter(isShown).length}.` };
+}
+
+export function resizeChart(layout: ChartDef[], id: string, size: ChartSize): LayoutChange | null {
+  const chart = layout.find((c) => c.id === id);
+  if (!chart || chart.tamano === size) return null;
+  return {
+    layout: layout.map((c) => (c.id === id ? { ...c, tamano: size } : c)),
+    message: `«${chartTitle(chart)}» ahora ocupa ${size === "completo" ? "la fila entera" : "media fila"}.`,
+  };
+}
+
+export function hideChart(layout: ChartDef[], id: string): LayoutChange | null {
+  const chart = layout.find((c) => c.id === id);
+  if (!chart || !chart.visible) return null;
+  return { layout: layout.map((c) => (c.id === id ? { ...c, visible: false } : c)), message: `Quitaste «${chartTitle(chart)}». Está en «Gráficos ocultos».` };
+}
+
+// Un gráfico oculto vuelve al final de los que están a la vista.
+export function showChart(layout: ChartDef[], id: string): LayoutChange | null {
+  const chart = layout.find((c) => c.id === id);
+  if (!chart || chart.visible) return null;
+  const rest = layout.filter((c) => c.id !== id);
+  let lastShown = -1;
+  rest.forEach((c, i) => {
+    if (isShown(c)) lastShown = i;
+  });
+  const next = [...rest];
+  next.splice(lastShown + 1, 0, { ...chart, visible: true });
+  return { layout: next, message: `Volviste a mostrar «${chartTitle(chart)}».` };
+}
+
+export function resetLayout(layout: ChartDef[]): LayoutChange | null {
+  const same = layout.length === DEFAULT_LAYOUT.length && layout.every((c, i) => c.id === DEFAULT_LAYOUT[i].id && c.tamano === DEFAULT_LAYOUT[i].tamano && c.visible === DEFAULT_LAYOUT[i].visible);
+  if (same) return null;
+  return { layout: DEFAULT_LAYOUT.map((c) => ({ ...c })), message: "Restableciste la disposición." };
+}
+
+export function hiddenCharts(layout: ChartDef[]): ChartDef[] {
+  return layout.filter((c) => !c.visible && c.origen === "sistema" && c.id in SYSTEM_TITLES);
+}
