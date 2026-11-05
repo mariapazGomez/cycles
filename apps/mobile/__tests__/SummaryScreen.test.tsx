@@ -3,7 +3,7 @@ import ReactTestRenderer from 'react-test-renderer';
 import { SummaryScreen } from '../src/screens/SummaryScreen';
 import { fetchActiveCycles, fetchCycleSessions, fetchExerciseProgress, fetchMuscleSummary } from '../src/services/planApi';
 import { BodyMap } from '../src/components/BodyMap';
-import { MuscleStackChart } from '../src/components/MuscleStackChart';
+import { MuscleStackChart, STACK_CHART_HEIGHT } from '../src/components/MuscleStackChart';
 import { barsByDay } from '../src/utils/muscleSummary';
 
 jest.mock('@react-navigation/native', () => {
@@ -228,4 +228,25 @@ test('los músculos arrancan plegados y se abren con un toque', async () => {
   expect(texts(tree)).not.toContain('Foco del ciclo');
   await openMuscles(tree);
   expect(texts(tree)).toContain('Foco del ciclo');
+});
+
+test('el apilado por músculo es compacto y su texto mide 11 px o más (CYC-248)', () => {
+  const bars = barsByDay(
+    [
+      trained('a', 1, '2026-10-05T15:00:00.000Z', { legs: 3 }, {}),
+      trained('b', 1, '2026-10-07T15:00:00.000Z', { back: 4 }, {}),
+    ],
+    'sets',
+  );
+  let tree!: ReactTestRenderer.ReactTestRenderer;
+  ReactTestRenderer.act(() => {
+    tree = ReactTestRenderer.create(<MuscleStackChart bars={bars} selected={1} onSelect={jest.fn()} width={300} />);
+  });
+  expect(STACK_CHART_HEIGHT).toBeLessThanOrEqual(140);
+  const sizes = tree.root.findAll(n => n.props.fontSize !== undefined).map(n => Number(n.props.fontSize));
+  expect(sizes.length).toBeGreaterThan(2);
+  sizes.forEach(size => expect(size).toBeGreaterThanOrEqual(11));
+  // Las etiquetas del eje X caben dentro del alto del gráfico.
+  const ys = tree.root.findAll(n => n.props.fontSize !== undefined && n.props.y !== undefined).map(n => Number(n.props.y));
+  ys.forEach(y => expect(y).toBeLessThanOrEqual(STACK_CHART_HEIGHT));
 });

@@ -12,10 +12,14 @@ interface Props {
   width?: number;
 }
 
-const HEIGHT = 196;
-const LEFT = 40;
+// Compacto (CYC-248): el gráfico ya no domina la pantalla. Todo el texto a 11 px o más.
+export const STACK_CHART_HEIGHT = 136;
+const LEFT = 42;
 const TOP = 8;
-const BOTTOM = 160;
+const BOTTOM = 96;
+const FONT = 11;
+const LABEL_1 = BOTTOM + 16;
+const LABEL_2 = BOTTOM + 29;
 
 const fmt = (n: number) => Math.round(n).toLocaleString('es');
 
@@ -35,14 +39,14 @@ export function MuscleStackChart({ bars, selected, onSelect, width }: Props) {
   const lines = Math.round(max / step);
 
   return (
-    <Svg width={w} height={HEIGHT} accessibilityLabel="Barras apiladas con la carga por grupo muscular">
+    <Svg width={w} height={STACK_CHART_HEIGHT} accessibilityLabel="Barras apiladas con la carga por grupo muscular">
       {Array.from({ length: lines + 1 }, (_, i) => {
         const value = step * i;
         const y = BOTTOM - plotH * (value / max);
         return (
           <G key={i}>
             <Line x1={LEFT} x2={right} y1={y} y2={y} stroke={i === 0 ? '#c9ced6' : '#eef0f3'} strokeWidth={1} />
-            <SvgText x={LEFT - 6} y={y + 3.5} fontSize={10} fill={colors.inkSecondary} textAnchor="end">
+            <SvgText x={LEFT - 6} y={y + 3.5} fontSize={FONT} fill={colors.inkSecondary} textAnchor="end">
               {fmt(value)}
             </SvgText>
           </G>
@@ -74,8 +78,8 @@ export function MuscleStackChart({ bars, selected, onSelect, width }: Props) {
             <Rect x={LEFT + slot * index} y={TOP} width={slot} height={plotH + 2} fill="transparent" />
             <SvgText
               x={x + barW / 2}
-              y={176}
-              fontSize={10}
+              y={LABEL_1}
+              fontSize={FONT}
               textAnchor="middle"
               fill={isSelected ? colors.ink : colors.inkSecondary}
               fontWeight={isSelected ? '700' : '400'}>
@@ -84,8 +88,8 @@ export function MuscleStackChart({ bars, selected, onSelect, width }: Props) {
             {bar.line2 !== '' && (
               <SvgText
                 x={x + barW / 2}
-                y={188}
-                fontSize={10}
+                y={LABEL_2}
+                fontSize={FONT}
                 textAnchor="middle"
                 fill={isSelected ? colors.ink : colors.inkSecondary}
                 fontWeight={isSelected ? '700' : '400'}>
