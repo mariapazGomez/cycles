@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 import { RolesGuard } from "../common/guards/roles.guard";
 import { Roles } from "../common/decorators/roles.decorator";
 import { CurrentUser, AuthenticatedUser } from "../common/decorators/current-user.decorator";
 import { TrackingService } from "./tracking.service";
+import { SummaryLayoutService } from "./summary-layout.service";
+import { SaveSummaryLayoutDto } from "./dto/summary-layout.dto";
 import { CreateLoadAdjustmentDto } from "./dto/create-load-adjustment.dto";
 import { SummaryQueryDto } from "./dto/summary.query.dto";
 
@@ -12,7 +14,22 @@ import { SummaryQueryDto } from "./dto/summary.query.dto";
 @Roles("coach")
 @Controller()
 export class TrackingController {
-  constructor(private readonly trackingService: TrackingService) {}
+  constructor(
+    private readonly trackingService: TrackingService,
+    private readonly summaryLayout: SummaryLayoutService,
+  ) {}
+
+  // Disposición de la pizarra de gráficos del Resumen (CYC-238): una por coach,
+  // vale para todos sus atletas. Siempre la del coach de la sesión.
+  @Get("coach/summary-layout")
+  getSummaryLayout(@CurrentUser() user: AuthenticatedUser) {
+    return this.summaryLayout.get(user.id);
+  }
+
+  @Put("coach/summary-layout")
+  saveSummaryLayout(@CurrentUser() user: AuthenticatedUser, @Body() dto: SaveSummaryLayoutDto) {
+    return this.summaryLayout.save(user.id, dto.charts);
+  }
 
   @Get("coach/attention")
   attention(@CurrentUser() user: AuthenticatedUser) {

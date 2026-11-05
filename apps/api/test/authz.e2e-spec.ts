@@ -11,7 +11,7 @@ import { seedScenario, type Scenario, type Who } from "./support/seed";
 // Los casos negativos no modifican nada; las pruebas «positivas» confirman que el
 // arnés funciona y que cada persona ve solo lo suyo.
 
-type Method = "get" | "post" | "patch" | "delete";
+type Method = "get" | "post" | "put" | "patch" | "delete";
 type Actor = Who | "none";
 const DENIED = [403, 404]; // no revela si existe: ambos protegen el dato
 
@@ -138,6 +138,9 @@ const rows: Row[] = [
 
   // Seguimiento (coach)
   { method: "get", path: () => "/coach/attention", cases: [noSession(), wrongRoleCoachOnly()] },
+  // Pizarra del Resumen (CYC-238): solo coach, y siempre la suya.
+  { method: "get", path: () => "/coach/summary-layout", cases: [noSession(), wrongRoleCoachOnly()] },
+  { method: "put", path: () => "/coach/summary-layout", body: () => ({ charts: [] }), cases: [noSession(), wrongRoleCoachOnly()] },
   { method: "get", path: (c) => `/athletes/${c.userId.athleteA}/summary`, cases: [noSession(), wrongRoleCoachOnly(), ["coachB", 403, "atleta de otro coach"]] },
   { method: "get", path: (c) => `/athletes/${c.userId.athleteC}/summary`, cases: [["coachA", 403, "relación terminada"]] },
   ...coachResource("get", (c) => `/cycles/${c.cycleA}/progress`, (c) => `/cycles/${c.cycleC}/progress`),
