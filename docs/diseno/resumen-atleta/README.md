@@ -286,6 +286,14 @@ La maqueta de la app (pestaña **App del atleta**) ya está dibujada con la fuen
 - El filtro de periodo no se guarda en el servidor.
 - **Contrato API ↔ web:** los tipos de `GET /athletes/:id/summary`, `GET /cycles/:id/progress` y `GET/PUT /coach/summary-layout` viven en `packages/shared/src/types/summary.ts`; la API tipa lo que devuelve con ellos y la web los usa tal cual. `packages/shared/src/fixtures/resumen.ts` trae un ejemplo de cada respuesta, y la prueba e2e `contrato-resumen` comprueba que la respuesta real de la API tiene su misma forma (claves, listas y tipos). Las pruebas de la web usan esos ejemplos.
 
+**PR B, modo «Organizar»** (misma fase):
+
+- Botón **Organizar / Listo** junto al filtro de periodo. En el modo, cada gráfico es una miniatura con borde discontinuo y una barra con el asa de arrastre (⠿, solo escritorio), **↑ Antes / ↓ Después**, **Mitad / Completo** (solo escritorio) y **Quitar**.
+- **Gráficos ocultos:** quitar no borra; el gráfico pasa a la bandeja y vuelve con **Mostrar** al final de los visibles. **Restablecer disposición** vuelve al orden por defecto.
+- **Autoguardado:** cada cambio hace un `PUT /coach/summary-layout` con la lista completa; «Guardando… / Guardado / No se guardó» (con Reintentar) y un aviso con **Deshacer** durante 7 s (reutiliza `SaveIndicator` y `UndoToast` de la pizarra de ciclos). Mover salta a los ocultos, que conservan su lugar.
+- Lógica pura en `lib/summaryBoard.ts` (`moveChart`, `moveChartBefore`, `resizeChart`, `hideChart`, `showChart`, `resetLayout`), con pruebas.
+- **No incluye** «+ Agregar gráfico» ni el constructor (CYC-242).
+
 ## Fuera de alcance
 
 - Fuerza estimada (1RM) por ejercicio: se conserva la de la tabla actual; no entra en estos gráficos.
