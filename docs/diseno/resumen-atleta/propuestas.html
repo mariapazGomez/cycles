@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Resumen del atleta Cycles</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&display=swap">
+<style>
+/* Concepto: el mismo dato, dos lecturas. En la ficha del coach, el detalle para decidir (progreso, constancia, esfuerzo y peso planificado contra el real). En la app del atleta, una sola pregunta: ¿cómo cambiaron mis pesos y mis repeticiones en los ejercicios que repito? Un tono (#3080fc) para lo real, gris para lo planificado, naranja solo para omitidas. Datos de ejemplo (cuenta demo). Solo modo claro. */
+:root{--font-display:"Bricolage Grotesque","Inter",system-ui,sans-serif;--font-body:"Inter",system-ui,sans-serif;
+ --brand:#3080fc;--blue:#1a66dd;--blue-100:#eaf2ff;--blue-light:#9fc3fd;--bg:#fff;--ink:#1f2228;--ink2:#5c6068;--mid:#8a8f98;--gray:#f6f7f9;--line:#dfe2e7;--grid:#eceef1;--page:#f3f5f8;--warn:#e08a2e;--warn-ink:#9a4a00;--warn-bg:#fff1e3;--ok-ink:#1e6b32;--pain-bg:#fdecec;--pain-ink:#a3282c;
+ --radius-xs:4px;--radius-sm:6px;--radius-md:8px;--radius-lg:10px;--radius-pill:999px;--e1:0 0 0 1px rgba(31,34,40,.06),0 1px 2px rgba(31,34,40,.06),0 3px 8px -2px rgba(31,34,40,.08);color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5}
+button{font:inherit;color:inherit;cursor:pointer}h1,h2,h3,h4{font-family:var(--font-display);margin:0}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.ctl{max-width:1240px;margin:0 auto;padding:16px 16px 0;display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center}.ctl h1{font-size:1.3rem;width:100%}
+.grp{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.grp>span{font-size:.78rem;font-weight:700;color:var(--ink2)}
+.seg{display:flex;flex-wrap:wrap;gap:3px;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md);padding:3px}
+.seg button{border:0;background:none;padding:6px 12px;min-height:34px;border-radius:var(--radius-sm);font:600 .84rem var(--font-body);color:var(--ink2)}.seg button[aria-pressed=true]{background:var(--ink);color:#fff}
+.note{max-width:1240px;margin:10px auto 0;padding:0 16px;font-size:.86rem;color:var(--ink2)}
+.stage{padding:14px 16px 40px}
+.win{margin:0 auto;background:var(--page);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;transform-origin:top left}
+.hdr{display:flex;align-items:center;gap:22px;padding:10px 22px;background:var(--bg);border-bottom:1px solid var(--line)}
+.logo{font-family:var(--font-display);font-weight:700;font-size:1.15rem}.nav{display:flex;gap:16px;flex:1;overflow:hidden}.nav a{font-size:.9rem;font-weight:600;color:var(--ink2);padding:6px 3px;border-bottom:2px solid transparent}.nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.av{width:34px;height:34px;border-radius:50%;background:var(--ink);color:#fff;font-size:.78rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.pg{padding:20px 28px 36px;max-width:1280px;margin:0 auto}.w-m .pg{padding:14px}
+.ph{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px}.ph h2{font-size:1.9rem}.w-m .ph h2{font-size:1.5rem}
+.views{display:inline-flex;border:1px solid var(--line);border-radius:var(--radius-md);overflow:hidden;background:#fff}.views span{padding:6px 14px;font-weight:600;font-size:.85rem;color:var(--ink2)}.views .on{background:var(--ink);color:#fff}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 14px}
+.chip{border:0;border-radius:var(--radius-md);background:var(--bg);box-shadow:var(--e1);padding:6px 12px;min-height:36px;font:700 .82rem var(--font-body);color:var(--ink2)}.chip[aria-pressed=true]{background:var(--ink);color:#fff}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:14px}
+.kpi{background:var(--bg);border-radius:var(--radius-lg);box-shadow:var(--e1);padding:12px 16px}.kpi b{display:block;font-family:var(--font-display);font-size:1.7rem;line-height:1.15}.kpi span{font-size:.82rem;color:var(--ink2)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.w-t .grid,.w-m .grid{grid-template-columns:1fr}
+.card{background:var(--bg);border-radius:var(--radius-lg);box-shadow:var(--e1);padding:14px 16px;position:relative;min-width:0}
+.card.wide{grid-column:1/-1}
+.card h3{font-size:1.05rem;margin-bottom:2px}
+.card .top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.link{border:0;background:none;color:var(--blue);font-weight:700;font-size:.82rem;text-decoration:underline;min-height:32px}
+.leg{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;color:var(--ink2);margin:2px 0 4px}.leg i{display:inline-block;width:18px;height:0;border-top:2px solid;vertical-align:middle;margin-right:6px}.leg i.sq{width:10px;height:10px;border:0;border-radius:2px;background:currentColor}
+svg text{font-family:var(--font-body)}
+.tip{position:fixed;z-index:50;background:var(--ink);color:#fff;border-radius:var(--radius-sm);padding:8px 10px;font-size:.78rem;pointer-events:none;max-width:240px;display:none;line-height:1.4}
+table.t{width:100%;border-collapse:collapse;font-size:.84rem}table.t th,table.t td{padding:6px 8px;border-top:1px solid var(--line);text-align:left}table.t th{font-size:.74rem;color:var(--ink2);border-top:0}
+.delta{display:inline-block;border-radius:var(--radius-pill);padding:1px 10px;font-size:.78rem;font-weight:700;background:var(--gray)}
+.delta.up{background:var(--blue-100);color:var(--ink)}.delta.dn{background:var(--warn-bg);color:var(--warn-ink)}
+.empty{padding:22px 10px;text-align:center;color:var(--ink2)}.empty h3{color:var(--ink);font-size:1.05rem;margin-bottom:4px}
+.sk{height:14px;border-radius:4px;background:linear-gradient(90deg,#eceef2,#f6f7f9,#eceef2);margin:8px 0}
+/* teléfono */
+.row{display:flex;justify-content:center;gap:24px;flex-wrap:wrap}
+.phone{width:340px;background:#f3f5f8;border:1px solid var(--line);border-radius:30px;overflow:hidden;position:relative;height:900px}
+.scr{padding:46px 14px 100px;height:100%;overflow:hidden}
+.pt{display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-weight:700;font-size:1.5rem;margin-bottom:10px}
+.ring{width:22px;height:22px;border-radius:50%;border:4px solid var(--brand);border-right-color:transparent;display:inline-block}
+.mcard{background:#fff;border-radius:14px;padding:12px;margin-bottom:8px}
+.mcard h4{font-size:1rem;margin-bottom:6px}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mini small{display:block;font-size:.72rem;font-weight:700;color:var(--ink2)}
+.mini b{font-size:.95rem}
+.isl{position:absolute;left:50%;transform:translateX(-50%);bottom:18px;background:#fff;border-radius:999px;box-shadow:0 8px 24px -8px rgba(0,0,0,.25);display:flex;padding:5px}
+.isl span{width:60px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:999px;color:var(--ink2)}.isl span.on{background:var(--blue-100);color:var(--blue)}.isl svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+details.mcard summary{font-weight:700;min-height:40px;display:flex;align-items:center;cursor:pointer}
+.mut{font-size:.78rem;font-weight:700;color:var(--ink2);margin:0 0 2px}
+.grid.editing{outline:2px dashed var(--line);outline-offset:6px;border-radius:10px}
+.card.editing{cursor:grab;box-shadow:0 0 0 1px var(--blue-light)}.card.editing.over{box-shadow:0 0 0 2px var(--brand)}.card.editing.drag{opacity:.45}
+.card.editing .ghost{pointer-events:none;opacity:.9;max-height:150px;overflow:hidden}.card.editing .ghost svg{width:auto;max-width:100%;max-height:140px;display:block;margin:0 auto}
+.handle{border:0;background:var(--gray);border-radius:var(--radius-sm);width:34px;height:34px;font-size:1.1rem;font-weight:700;color:var(--ink2);cursor:grab}
+.card .top{justify-content:flex-start}.card .top h3{flex:1}
+.edbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:2px 0 8px}
+.btn{border:1px solid var(--mid);background:var(--bg);border-radius:var(--radius-md);padding:8px 16px;min-height:40px;font-weight:600;font-size:.9rem}.btn.p{background:var(--blue);border-color:var(--blue);color:#fff}.btn.sm{padding:4px 12px;min-height:34px}.btn[disabled]{opacity:.45}
+.saved{font-size:.82rem;font-weight:700;color:var(--ok-ink)}
+.tray{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--bg);border:1px dashed var(--line);border-radius:var(--radius-lg);padding:8px 12px;margin-bottom:12px;font-size:.88rem}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:var(--radius-md);padding:10px 16px;z-index:60;font-size:.9rem;display:flex;gap:12px;align-items:center}
+.win{position:relative}
+.drw{position:absolute;top:0;right:0;bottom:0;width:400px;max-width:100%;background:var(--bg);border-left:1px solid var(--line);box-shadow:0 8px 24px -8px rgba(0,0,0,.18);padding:18px;z-index:20;overflow:auto}
+.drw .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.drw h3{font-size:1.2rem}
+.stp{margin:14px 0}.stp label{display:block;font-size:.82rem;font-weight:700;margin-bottom:6px}.opts{display:flex;flex-wrap:wrap;gap:6px}
+.chip em{font-style:normal;font-size:.72rem;opacity:.7}.chip[disabled]{opacity:.4;cursor:not-allowed}
+.why{font-size:.8rem;color:var(--ink2);margin:6px 0 0}
+.pv{border:1px solid var(--line);border-radius:var(--radius-md);padding:6px}
+.gl{list-style:none;margin:10px 0;padding:0;display:flex;flex-direction:column;gap:8px}.gi{display:flex;justify-content:space-between;gap:10px;align-items:center;border:1px solid var(--line);border-radius:var(--radius-md);padding:8px 12px}.gi small{display:block;color:var(--ink2);font-size:.78rem}
+.inp{border:1px solid var(--mid);border-radius:var(--radius-md);padding:8px 12px;min-height:40px;width:100%;font:inherit}
+.leg i.dot{display:inline-block;width:10px;height:10px;border-radius:50%;border:0;background:currentColor;margin-right:6px;vertical-align:middle}.leg i.dot.ring{background:transparent;border:2.5px solid currentColor}
+.leg span{color:var(--ink2)}
+.card.dark{background:#1f2228;color:#f3f5f8;box-shadow:none}.card.dark h3{color:#fff}.card.dark .link{color:#9fc3fd}.card.dark .mut{color:#bfc4cc}.card.dark .leg span{color:#bfc4cc}.card.dark .delta{background:#2b3038;color:#f3f5f8}.card.dark .delta.dn{background:#3b2a17;color:#ffcb94}.card.dark .delta.up{background:#142b4f;color:#cfe0fd}
+.card.dark .chip{background:#2b3038;color:#e6ebf5;box-shadow:inset 0 0 0 1px #4a5160}.card.dark .chip[aria-pressed=true]{background:#fff;color:#1f2228;box-shadow:none}
+.card.dark .t th{color:#bfc4cc}.card.dark .t td{border-color:#3a3f48}.card.dark .insight{background:#2b3038;color:#f3f5f8}
+.insight{display:flex;gap:10px;align-items:center;background:var(--blue-100);border-radius:var(--radius-md);padding:8px 12px;margin:10px 0 0;font-size:.9rem;font-weight:600;color:var(--ink)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></symbol><symbol id="i-bar" viewBox="0 0 24 24"><path d="M3 12h18M6 8v8M18 8v8M3 10v4M21 10v4"/></symbol><symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></symbol><symbol id="i-chat" viewBox="0 0 24 24"><path d="M5 5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8l-5 4v-4H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></symbol></svg>
+<div class="ctl">
+  <h1>Resumen del atleta <span class="chip" style="min-height:0;padding:2px 10px;font-size:.74rem">origin/main a61e89f</span></h1>
+  <div class="grp"><span>Pantalla</span><div class="seg" id="g-v"><button data-k="coach" aria-pressed="true">Ficha del coach (web)</button><button data-k="app" aria-pressed="false">App del atleta</button></div></div>
+  <div class="grp"><span>Estado</span><div class="seg" id="g-s"><button data-k="ok" aria-pressed="true">Normal</button><button data-k="few" aria-pressed="false">Poco historial</button><button data-k="load" aria-pressed="false">Cargando</button><button data-k="none" aria-pressed="false">Sin datos</button></div></div>
+  <div class="grp"><span>Estilo de los gráficos</span><div class="seg" id="g-y"><button data-k="brand" aria-pressed="true">Con personalidad</button><button data-k="plain" aria-pressed="false">Actual (plano)</button></div></div>
+  <div class="grp" id="g-wrap"><span>Ancho</span><div class="seg" id="g-w"><button data-k="d" aria-pressed="true">Escritorio 1280</button><button data-k="t" aria-pressed="false">Tablet 820</button><button data-k="m" aria-pressed="false">Móvil 390</button></div></div>
+</div>
+<p class="note" id="note"></p>
+<div class="stage"><div id="stage"></div></div>
+<div class="tip" id="tip"></div>
+<script>
+const BLUE='#3080fc',LIGHT='#9fc3fd',MID='#8a8f98',INK='#1f2228',INK2='#5c6068',WARN='#e08a2e',GRID='#eceef1',PEND='#dfe2e7';
+const WEEKS=[{w:1,done:3,skip:0,pend:0,load:1100},{w:2,done:3,skip:0,pend:0,load:1250},{w:3,done:3,skip:0,pend:0,load:1350},{w:4,done:2,skip:0,pend:1,load:920,cur:1},{w:5,done:0,skip:0,pend:3,load:null,fut:1},{w:6,done:0,skip:0,pend:3,load:null,fut:1}];
+const SRPE=[6,7,8,6,7,8,7,8,8,8,9,null];
+const EX={'Sentadilla con barra':{pw:[60,65,70,72.5],aw:[60,65,67.5,70],pr:[6,6,6,6],ar:[6,6,5.3,5],rir:2,sets:[[60,6,3],[65,6,2],[70,6,5,5,4],[70,5,5,5]]},
+ 'Prensa de piernas':{pw:[100,110,120,120],aw:[100,110,120,125],pr:[10,10,10,10],ar:[10,10,10,9.3],rir:.5},
+ 'Peso muerto':{pw:[80,85,90,95],aw:[80,85,90,95],pr:[5,5,5,5],ar:[5,5,5,5],rir:0},
+ 'Press de banca':{pw:[50,52.5,55,57.5],aw:[50,55,57.5,60],pr:[8,8,8,8],ar:[8,8,8,8],rir:-1},
+ 'Remo con barra':{pw:[50,52.5,55,57.5],aw:[50,52.5,60,62.5],pr:[8,8,8,8],ar:[8,8,8,8],rir:-2.5},
+ 'Dominadas':{pw:[null,null,null,null],aw:[null,null,null,null],pr:[6,6,7,7],ar:[6,6,7,6],rir:0}};
+let v='coach',st='ok',w='d',ex='Sentadilla con barra',tab={},sty='brand';
+const CW=()=>w==='m'?330:w==='t'?700:520;
+const f1=n=>n==null?'—':String(Math.round(n*10)/10).replace('.',',');
+function lineP(o){ // o:{id,w,h,labels,series:[{name,vals,color,dash,fill,label}],min,max,step,unit}
+ const m={l:34,r:o.rlab?58:14,t:10,b:24},W=o.w,H=o.h,iw=W-m.l-m.r,ih=H-m.t-m.b,n=o.labels.length;
+ const X=i=>m.l+(n===1?iw/2:iw*i/(n-1)),Y=v=>m.t+ih-(v-o.min)/(o.max-o.min)*ih;
+ let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${o.aria}">`;
+ for(let g=o.min;g<=o.max+.001;g+=o.step)s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(g)}" y2="${Y(g)}" stroke="${GRID}"/><text x="${m.l-6}" y="${Y(g)+4}" text-anchor="end" font-size="10.5" fill="${INK2}">${f1(g)}</text>`;
+ o.labels.forEach((l,i)=>s+=`<text x="${X(i)}" y="${H-6}" text-anchor="middle" font-size="10.5" fill="${INK2}">${l}</text>`);
+ o.series.forEach(se=>{let d='',pen=false;se.vals.forEach((val,i)=>{if(val==null){pen=false;return}d+=(pen?'L':'M')+X(i)+','+Y(val);pen=true});
+  s+=`<path d="${d}" fill="none" stroke="${se.color}" stroke-width="2" ${se.dash?'stroke-dasharray="5 4"':''} stroke-linejoin="round" stroke-linecap="round"/>`;
+  se.vals.forEach((val,i)=>{if(val!=null)s+=`<circle cx="${X(i)}" cy="${Y(val)}" r="${se.dash?3.5:4}" fill="${se.dash?'#fff':se.color}" stroke="${se.dash?se.color:'#fff'}" stroke-width="${se.dash?2:2}"/>`});
+  if(se.label){const li=[...se.vals].map((x,i)=>x!=null?i:-1).filter(i=>i>=0).pop();if(li!=null&&li>=0)s+=`<text x="${X(li)+9}" y="${Y(se.vals[li])+4}" font-size="11.5" font-weight="700" fill="${INK}">${se.label}</text>`}});
+ o.labels.forEach((l,i)=>s+=`<rect class="hit" data-c="${o.id}" data-i="${i}" x="${X(i)-iw/n/2}" y="${m.t}" width="${iw/n}" height="${ih}" fill="transparent"/>`);
+ return s+'</svg>'}
+function spark(vals,color,h=44,unit=''){const W=140,m=8,n=vals.length,mn=Math.min(...vals),mx=Math.max(...vals),rg=(mx-mn)||1;
+ const X=i=>m+(W-2*m)*i/(n-1),Y=x=>h-8-(x-mn)/rg*(h-18);
+ let d=vals.map((x,i)=>(i?'L':'M')+X(i)+','+Y(x)).join('');
+ return `<svg viewBox="0 0 ${W} ${h}" width="100%" aria-hidden="true"><path d="${d}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>${vals.map((x,i)=>(i===n-1?`<circle cx="${X(i)}" cy="${Y(x)}" r="9" fill="${color}" opacity=".16"/>`:'')+`<circle cx="${X(i)}" cy="${Y(x)}" r="${i===n-1?5.5:3.5}" fill="${i===n-1?color:'#fff'}" stroke="${i===n-1?'#fff':color}" stroke-width="2.5"/>`).join('')}</svg>`}
+function colsP(){ // progreso del ciclo
+ const W=CW(),H=190,m={l:40,r:10,t:14,b:26},iw=W-m.l-m.r,ih=H-m.t-m.b,max=1500,bw=26;
+ let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Carga semanal del ciclo en kilos, semanas 1 a 6">`;
+ [0,500,1000,1500].forEach(g=>{const y=m.t+ih-g/max*ih;s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${y}" y2="${y}" stroke="${GRID}"/><text x="${m.l-6}" y="${y+4}" text-anchor="end" font-size="10.5" fill="${INK2}">${g}</text>`});
+ WEEKS.forEach((k,i)=>{const cx=m.l+iw*(i+.5)/6,x=cx-bw/2;s+=`<text x="${cx}" y="${H-8}" text-anchor="middle" font-size="10.5" fill="${INK2}">Sem ${k.w}</text>`;
+  if(k.load==null){s+=`<rect x="${x}" y="${m.t+ih-3}" width="${bw}" height="3" fill="${PEND}" rx="1.5"/>`;return}
+  const h=k.load/max*ih,y=m.t+ih-h,r=4;
+  s+=`<path d="M${x},${m.t+ih}V${y+r}Q${x},${y} ${x+r},${y}H${x+bw-r}Q${x+bw},${y} ${x+bw},${y+r}V${m.t+ih}Z" fill="${k.cur?LIGHT:BLUE}"/>`;
+  s+=`<text x="${cx}" y="${y-5}" text-anchor="middle" font-size="11.5" font-weight="700" fill="${INK}">${k.load}${k.cur?' · en curso':''}</text>`});
+ return s+'</svg>'}
+function stackP(){ // constancia
+ const W=CW(),H=190,m={l:30,r:10,t:14,b:26},iw=W-m.l-m.r,ih=H-m.t-m.b,bw=26,max=3;
+ let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Sesiones hechas, omitidas y pendientes por semana">`;
+ [0,1,2,3].forEach(g=>{const y=m.t+ih-g/max*ih;s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${y}" y2="${y}" stroke="${GRID}"/><text x="${m.l-6}" y="${y+4}" text-anchor="end" font-size="10.5" fill="${INK2}">${g}</text>`});
+ WEEKS.forEach((k,i)=>{const cx=m.l+iw*(i+.5)/6,x=cx-bw/2;let base=m.t+ih;s+=`<text x="${cx}" y="${H-8}" text-anchor="middle" font-size="10.5" fill="${INK2}">Sem ${k.w}</text>`;
+  [['done',BLUE],['skip',WARN],['pend',PEND]].forEach(([key,c])=>{const n=k[key];if(!n)return;const h=n/max*ih-2;base-=h+2;s+=`<rect x="${x}" y="${base+2}" width="${bw}" height="${h}" rx="3" fill="${c}"/>`;if(key!=='pend'||!k.fut)s+=`<text x="${cx}" y="${base+2+h/2+4}" text-anchor="middle" font-size="11" font-weight="700" fill="${key==='done'?'#fff':INK}">${n}</text>`})});
+ return s+'</svg>'}
+function rirP(){ // desvío de RIR por ejercicio (diverging)
+ const names=Object.keys(EX),W=520,rowH=30,H=names.length*rowH+30,mid=300,scale=34;
+ let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Diferencia entre el RIR planificado y el reportado por ejercicio">`;
+ s+=`<line x1="${mid}" x2="${mid}" y1="6" y2="${H-24}" stroke="${MID}"/>`;
+ s+=`<text x="${mid+6}" y="${H-6}" font-size="10.5" fill="${INK2}">Más duro de lo planificado →</text><text x="${mid-6}" y="${H-6}" text-anchor="end" font-size="10.5" fill="${INK2}">← Más fácil</text>`;
+ names.forEach((n,i)=>{const d=EX[n].rir,y=8+i*rowH,len=Math.abs(d)*scale,x=d>=0?mid:mid-len,c=d>=1?WARN:d<=-1?BLUE:MID;
+  s+=`<text x="0" y="${y+14}" font-size="12" fill="${INK}">${n}</text>`;
+  if(Math.abs(d)<.05){s+=`<circle cx="${mid}" cy="${y+10}" r="3.5" fill="${MID}"/>`}else s+=`<rect x="${x}" y="${y+4}" width="${len}" height="12" rx="3" fill="${c}"/>`;
+  s+=`<text x="${d>=0?mid+len+6:mid-len-6}" y="${y+14}" text-anchor="${d>=0?'start':'end'}" font-size="11.5" font-weight="700" fill="${INK}">${d>0?'+':''}${f1(d)}</text>`});
+ return s+'</svg>'}
+function card(id,title,body,tbl,extra=''){const t=tab[id];return `<section class="card ${extra}"><div class="top"><h3>${title}</h3><button class="link" data-tab="${id}">${t?'Ver gráfico':'Ver como tabla'}</button></div>${t?tbl:body}</section>`}
+
+// ===== Estilo con personalidad de marca: perlas de la cadena, anillo del ciclo, cifras en Bricolage =====
+const DISPLAY="'Bricolage Grotesque',Inter,system-ui,sans-serif",BEADGRID='#cfd5de';
+function legStack(){return sty==='brand'?`<span><i class="dot" style="color:${BLUE}"></i>Hecha</span><span><i class="dot" style="color:${WARN}"></i>Omitida</span><span><i class="dot ring" style="color:${MID}"></i>Pendiente</span>`:`<span style="color:${BLUE}"><i class="sq"></i>Hechas</span><span style="color:${WARN}"><i class="sq"></i>Omitidas</span><span style="color:${PEND}"><i class="sq"></i>Pendientes</span>`}
+const dotted=(x1,x2,y,c)=>`<line x1="${x1}" x2="${x2}" y1="${y}" y2="${y}" stroke="${c||BEADGRID}" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="0 7"/>`;
+const bead=(cx,cy,r,fill,o={})=>`${o.halo===false?'':`<circle cx="${cx}" cy="${cy}" r="${r+4}" fill="${fill}" opacity=".16"/>`}<circle cx="${cx}" cy="${cy}" r="${r}" fill="${o.hollow?(o.bg||'#fff'):fill}" stroke="${o.hollow?fill:(o.bg||'#fff')}" stroke-width="${o.hollow?2.5:2.5}"/>`;
+function L(o){return sty==='brand'?lineB(o):lineP(o)}
+function lineB(o){const dk=o.dark,ink=dk?'#f3f5f8':INK,sub=dk?'#bfc4cc':INK2,grid=dk?'#4a5160':BEADGRID,bg=dk?'#1f2228':'#fff',planC=dk?'#bfc4cc':MID;
+ const m={l:36,r:30,t:o.dark?34:30,b:26},W=o.w,H=o.h,iw=W-m.l-m.r,ih=H-m.t-m.b,n=o.labels.length;
+ const X=i=>m.l+(n===1?iw/2:iw*i/(n-1)),Y=v=>m.t+ih-(v-o.min)/(o.max-o.min)*ih;
+ let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${o.aria}">`;
+ for(let g=o.min;g<=o.max+.001;g+=o.step)s+=dotted(m.l,W-m.r,Y(g),grid)+`<text x="${m.l-8}" y="${Y(g)+4}" text-anchor="end" font-size="11" fill="${sub}">${f1(g)}</text>`;
+ o.labels.forEach((l,i)=>s+=`<text x="${X(i)}" y="${H-6}" text-anchor="middle" font-size="11" fill="${sub}">${l}</text>`);
+ const sr=o.series,P=sr.find(x=>x.dash),R=sr.find(x=>!x.dash);
+ if(P&&R){let run=[];for(let i=0;i<n;i++)if(P.vals[i]!=null&&R.vals[i]!=null)run.push(i);
+  if(run.length>1){const top=run.map((i,k)=>(k?'L':'M')+X(i)+','+Y(P.vals[i])).join(''),bot=[...run].reverse().map(i=>'L'+X(i)+','+Y(R.vals[i])).join('');s+=`<path d="${top}${bot}Z" fill="${dk?'rgba(48,128,252,.20)':'#eaf2ff'}"/>`}}
+ sr.forEach(se=>{let d='',pen=false;se.vals.forEach((val,i)=>{if(val==null){pen=false;return}d+=(pen?'L':'M')+X(i)+','+Y(val);pen=true});
+  const c=se.dash?planC:BLUE;
+  s+=`<path d="${d}" fill="none" stroke="${c}" stroke-width="2.5" ${se.dash?'stroke-dasharray="1 7"':''} stroke-linejoin="round" stroke-linecap="round"/>`;
+  const idx=se.vals.map((x,i)=>x!=null?i:-1).filter(i=>i>=0),li=idx[idx.length-1];
+  idx.forEach(i=>{s+=se.dash?bead(X(i),Y(se.vals[i]),4,c,{hollow:1,halo:false,bg}):(i===li?bead(X(i),Y(se.vals[i]),7,c,{bg}):bead(X(i),Y(se.vals[i]),4.5,c,{halo:false,bg}))});
+  if(se.label&&!se.dash&&li!=null){const val=se.vals[li],pl=P&&P.vals[li]!=null?P.vals[li]:null,below=pl!=null&&val<pl;s+=`<text x="${X(li)}" y="${below?Y(val)+30:Y(val)-16}" text-anchor="middle" font-family="${DISPLAY}" font-size="19" font-weight="700" fill="${ink}">${f1(val)}<tspan font-size="12" font-weight="600" fill="${sub}"> ${o.unit||''}</tspan></text>`}
+  if(se.dash&&se.label&&li!=null)s+=`<text x="${X(li)}" y="${Y(se.vals[li])-14}" text-anchor="middle" font-size="11.5" font-weight="600" fill="${sub}">${se.label}</text>`});
+ o.labels.forEach((l,i)=>s+=`<rect class="hit" data-c="${o.id}" data-i="${i}" x="${X(i)-iw/n/2}" y="${m.t}" width="${iw/n}" height="${ih}" fill="transparent"/>`);
+ return s+'</svg>'}
+function colsX(lab,vals,o={}){const W=CW(),H=190,m={l:40,r:10,t:30,b:26},iw=W-m.l-m.r,ih=H-m.t-m.b,mx=Math.max(...vals.filter(x=>x!=null)),unit=mx>200?500:10,top=Math.ceil(mx/unit)*unit,n=lab.length,bw=Math.min(26,iw/n*.62),br=sty==='brand';
+ let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${o.aria||'Gráfico de columnas'}">`;
+ for(let i=0;i<=3;i++){const g=top*i/3,y=m.t+ih-g/top*ih;s+=(br?dotted(m.l,W-m.r,y):`<line x1="${m.l}" x2="${W-m.r}" y1="${y}" y2="${y}" stroke="${GRID}"/>`)+`<text x="${m.l-8}" y="${y+4}" text-anchor="end" font-size="11" fill="${INK2}">${Math.round(g)}</text>`}
+ vals.forEach((v,i)=>{const cx=m.l+iw*(i+.5)/n,x=cx-bw/2,cur=o.cur===i;s+=`<text x="${cx}" y="${H-7}" text-anchor="middle" font-size="11" fill="${INK2}">${lab[i]}</text>`;
+  if(v==null){s+=br?bead(cx,m.t+ih-5,4.5,MID,{hollow:1,halo:false}):`<rect x="${x}" y="${m.t+ih-3}" width="${bw}" height="3" fill="${PEND}" rx="1.5"/>`;return}
+  const h=v/top*ih,y=m.t+ih-h,r=br?7:4,c=cur?LIGHT:BLUE;
+  s+=`<path d="M${x},${m.t+ih}V${y+r}Q${x},${y} ${x+r},${y}H${x+bw-r}Q${x+bw},${y} ${x+bw},${y+r}V${m.t+ih}Z" fill="${c}"/>`;
+  if(br)s+=bead(cx,y,5,cur?LIGHT:BLUE,{hollow:1,bg:'#fff',halo:false});
+  if(n<=6)s+=`<text x="${cx}" y="${y-(br?14:6)}" text-anchor="middle" ${br?`font-family="${DISPLAY}" font-size="16"`:'font-size="11.5"'} font-weight="700" fill="${INK}">${v}${cur&&br?'':''}</text>`;
+  if(cur)s+=`<text x="${cx}" y="${y-(br?30:20)}" text-anchor="middle" font-size="10.5" font-weight="600" fill="${INK2}">en curso</text>`});
+ return s+'</svg>'}
+function cols(){return colsX(WEEKS.map(k=>'Sem '+k.w),WEEKS.map(k=>k.load),{cur:3,aria:'Carga semanal del ciclo en kilos, semanas 1 a 6'})}
+function colsG(lab,vals,unit){return colsX(lab,vals,{aria:`${unit} por ${lab.length>6?'sesión':'semana'}`})}
+function stack(){if(sty!=='brand')return stackP();
+ const W=CW(),H=170,m={l:12,r:12,t:12,b:26},iw=W-m.l-m.r,n=WEEKS.length,rr=Math.min(9,iw/n*.3),gap=rr*2+9,base=H-m.b-12;
+ let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Sesiones por semana: hechas, omitidas y pendientes, una perla por sesión">`;
+ s+=dotted(m.l,W-m.r,H-m.b+2,BEADGRID);
+ WEEKS.forEach((k,i)=>{const cx=m.l+iw*(i+.5)/n;s+=`<text x="${cx}" y="${H-7}" text-anchor="middle" font-size="11" fill="${INK2}">Sem ${k.w}</text>`;let j=0;
+  const put=(c,count,hollow)=>{for(let q=0;q<count;q++){s+=bead(cx,base-j*gap,rr,c,{hollow,halo:!hollow&&c!==MID});j++}};
+  put(BLUE,k.done,0);put(WARN,k.skip,0);put(MID,k.pend,1);
+  if(!k.fut)s+=`<text x="${cx}" y="${base-j*gap+rr-2}" text-anchor="middle" font-family="${DISPLAY}" font-size="15" font-weight="700" fill="${INK}">${k.done}/${k.done+k.skip+k.pend}</text>`});
+ return s+'</svg>'}
+function rirBars(){const names=Object.keys(EX),W=CW(),narrow=W<420,br=sty==='brand',rowH=narrow?46:32,H=names.length*rowH+34,mid=narrow?W/2:Math.round(W*.58),scale=Math.min(34,(Math.min(mid,W-mid)-46)/2.6);
+ let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Diferencia entre el RIR planificado y el reportado por ejercicio">`;
+ s+=br?dotted(mid,mid,6,'#fff')+`<line x1="${mid}" x2="${mid}" y1="6" y2="${H-26}" stroke="${BEADGRID}" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="0 7"/>`:`<line x1="${mid}" x2="${mid}" y1="6" y2="${H-24}" stroke="${MID}"/>`;
+ s+=`<text x="${mid+8}" y="${H-6}" font-size="11" fill="${INK2}">Más duro →</text><text x="${mid-8}" y="${H-6}" text-anchor="end" font-size="11" fill="${INK2}">← Más fácil</text>`;
+ names.forEach((n,i)=>{const d=EX[n].rir,y=8+i*rowH,len=Math.abs(d)*scale,c=d>=1?WARN:d<=-1?BLUE:MID,cy=narrow?y+30:y+rowH/2-4;
+  s+=narrow?`<text x="0" y="${y+12}" font-size="12.5" fill="${INK}">${n}</text>`:`<text x="0" y="${cy+4}" font-size="12.5" fill="${INK}">${n}</text>`;
+  const x2=d>=0?mid+len:mid-len;
+  if(Math.abs(d)<.05)s+=bead(mid,cy,6,MID,{halo:false});
+  else if(br)s+=`<line x1="${mid}" x2="${x2}" y1="${cy}" y2="${cy}" stroke="${c}" stroke-width="3" stroke-linecap="round"/>`+bead(x2,cy,8,c);
+  else s+=`<rect x="${Math.min(mid,x2)}" y="${cy-6}" width="${len}" height="12" rx="3" fill="${c}"/>`;
+  s+=`<text x="${d>=0?x2+(br?16:8):x2-(br?16:8)}" y="${cy+5}" text-anchor="${d>=0?'start':'end'}" ${br?`font-family="${DISPLAY}" font-size="15"`:'font-size="11.5"'} font-weight="700" fill="${INK}">${d>0?'+':''}${f1(d)}</text>`});
+ return s+'</svg>'}
+function ring(done,total,curIdx){const r=24,c=32,sw=8,gap=8;let s=`<svg viewBox="0 0 64 64" width="56" height="56" role="img" aria-label="Semana ${done} de ${total}">`;
+ for(let i=0;i<total;i++){const a0=(-90+i*360/total+gap/2)*Math.PI/180,a1=(-90+(i+1)*360/total-gap/2)*Math.PI/180;
+  const col=i<curIdx?BLUE:i===curIdx?LIGHT:PEND;s+=`<path d="M${c+r*Math.cos(a0)},${c+r*Math.sin(a0)} A${r},${r} 0 0 1 ${c+r*Math.cos(a1)},${c+r*Math.sin(a1)}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-linecap="round"/>`}
+ return s+'</svg>'}
+
+// ===== Pizarra de gráficos del coach =====
+const tblP=()=>`<table class="t"><tr><th>Semana</th><th>Carga (kg)</th></tr>${WEEKS.map(k=>`<tr><td>${k.w}${k.cur?' (en curso)':''}</td><td>${k.load??'—'}</td></tr>`).join('')}</table>`;
+const tblC=()=>`<table class="t"><tr><th>Semana</th><th>Hechas</th><th>Omitidas</th><th>Pendientes</th></tr>${WEEKS.map(k=>`<tr><td>${k.w}</td><td>${k.done}</td><td>${k.skip}</td><td>${k.pend}</td></tr>`).join('')}</table>`;
+const tblS=()=>`<table class="t"><tr><th>Sesión</th><th>Esfuerzo</th></tr>${SRPE.map((x,i)=>`<tr><td>${i+1}</td><td>${x==null?'Pendiente':x}</td></tr>`).join('')}</table>`;
+const tblQ=()=>'<p style="margin:0;font-size:.84rem">'+Object.keys(EX).map(n=>n+' '+(EX[n].rir>0?'+':'')+f1(EX[n].rir)).join(' · ')+'</p>';
+function planBody(){
+ const names=Object.keys(EX),e=EX[ex],lab=['Sem 1','Sem 2','Sem 3','Sem 4'],dW=e.aw[3]!=null&&e.pw[3]!=null?e.aw[3]-e.pw[3]:null;
+ const wc=e.pw[0]==null?`<div class="empty"><h3>Sin peso planificado</h3>Este ejercicio es de peso corporal. Mira las repeticiones.</div>`:L({id:'w',w:CW(),h:210,labels:lab,min:Math.floor(Math.min(...e.pw,...e.aw)/5)*5-5,max:Math.ceil(Math.max(...e.pw,...e.aw)/5)*5+5,step:5,rlab:1,aria:`Peso planificado y cargado en ${ex}, por semana`,series:[{vals:e.pw,color:MID,dash:1,label:'Plan'},{vals:e.aw,color:BLUE,label:'Cargado'}],unit:'kg',dark:sty==='brand'});
+ const rc=L({id:'r',w:CW(),h:130,labels:lab,min:0,max:Math.max(...e.pr,...e.ar)+2,step:Math.max(...e.pr,...e.ar)>7?4:2,rlab:1,aria:`Repeticiones planificadas y reales en ${ex}`,series:[{vals:e.pr,color:MID,dash:1,label:'Plan'},{vals:e.ar,color:BLUE,label:'Real'}],unit:'reps',dark:sty==='brand'});
+ return `<div class="filters" role="group" aria-label="Ejercicio">${names.map(n=>`<button class="chip" data-ex="${n}" aria-pressed="${n===ex}">${n}</button>`).join('')}</div><div class="leg"><span><i style="color:${MID};border-top-style:dashed"></i>Planificado</span><span><i style="color:${BLUE}"></i>Cargado por el atleta</span>${dW!=null?`<span class="delta ${dW>0?'up':dW<0?'dn':''}">Última sesión: ${dW>0?'+':''}${f1(dW)} kg</span>`:''}</div><div style="display:grid;grid-template-columns:${w==='d'?'1.2fr 1fr':'1fr'};gap:14px"><div><div class="mut">Peso (kg)</div>${wc}</div><div><div class="mut">Repeticiones</div>${rc}</div></div>${dW!=null&&sty==='brand'?`<p class="insight">${bead(9,9,5,BLUE,{halo:false}).replace('<circle','<svg width=18 height=18 style="flex:none"><circle')+'</svg>'}<span>${dW<0?`Cargó ${f1(Math.abs(dW))} kg menos que el plan en la última sesión.`:dW>0?`Cargó ${f1(dW)} kg más que el plan en la última sesión.`:'Cargó justo lo planificado en la última sesión.'}</span></p>`:''}`}
+function planTbl(){const e=EX[ex],lab=['Sem 1','Sem 2','Sem 3','Sem 4'];return `<div class="filters">${Object.keys(EX).map(n=>`<button class="chip" data-ex="${n}" aria-pressed="${n===ex}">${n}</button>`).join('')}</div><table class="t"><tr><th>Sesión</th><th>Peso plan</th><th>Peso real</th><th>Dif.</th><th>Reps plan</th><th>Reps real</th></tr>${lab.map((l,i)=>`<tr><td>${l}</td><td>${f1(e.pw[i])}</td><td>${f1(e.aw[i])}</td><td>${e.pw[i]==null?'—':(e.aw[i]-e.pw[i]>0?'+':'')+f1(e.aw[i]-e.pw[i])}</td><td>${e.pr[i]}</td><td>${f1(e.ar[i])}</td></tr>`).join('')}</table>`}
+// Datos disponibles para los gráficos propios (medida → cómo se puede agrupar → qué formas admite)
+const MED={
+ carga:{n:'Carga',u:'kg',by:{sem:['col','line']},d:{sem:[1100,1250,1350,920]}},
+ series:{n:'Series',u:'series',by:{sem:['col','line']},d:{sem:[38,41,44,29]}},
+ esfuerzo:{n:'Esfuerzo de la sesión',u:'0 a 10',by:{ses:['line','col']},d:{ses:SRPE}},
+ duracion:{n:'Duración de la sesión',u:'min',by:{ses:['line','col']},d:{ses:[62,64,66,60,63,65,64,66,68,67,70,null]}},
+ estado:{n:'Sesiones por estado',u:'sesiones',by:{sem:['stack']},d:{}},
+ peso:{n:'Peso planificado y cargado',u:'kg',by:{sem:['line2']},d:{},ex:1}};
+const BY={sem:'Semana',ses:'Sesión'},FORM={col:'Columnas',line:'Línea',stack:'Columnas apiladas',line2:'Dos líneas (plan y real)'};
+function colsGP(lab,vals,unit){const W=CW(),H=190,m={l:40,r:10,t:14,b:26},iw=W-m.l-m.r,ih=H-m.t-m.b,mx=Math.max(...vals.filter(x=>x!=null)),top=Math.ceil(mx/ (mx>200?500:10))*(mx>200?500:10),bw=Math.min(26,iw/lab.length*.6);
+ let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${unit} por ${lab.length>6?'sesión':'semana'}">`;
+ for(let i=0;i<=3;i++){const g=top*i/3,y=m.t+ih-g/top*ih;s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${y}" y2="${y}" stroke="${GRID}"/><text x="${m.l-6}" y="${y+4}" text-anchor="end" font-size="10.5" fill="${INK2}">${Math.round(g)}</text>`}
+ vals.forEach((v,i)=>{const cx=m.l+iw*(i+.5)/lab.length,x=cx-bw/2;s+=`<text x="${cx}" y="${H-8}" text-anchor="middle" font-size="10.5" fill="${INK2}">${lab[i]}</text>`;if(v==null)return;const h=v/top*ih,y=m.t+ih-h,r=Math.min(4,h/2);s+=`<path d="M${x},${m.t+ih}V${y+r}Q${x},${y} ${x+r},${y}H${x+bw-r}Q${x+bw},${y} ${x+bw},${y+r}V${m.t+ih}Z" fill="${BLUE}"/>`;if(lab.length<=6)s+=`<text x="${cx}" y="${y-5}" text-anchor="middle" font-size="11.5" font-weight="700" fill="${INK}">${v}</text>`});return s+'</svg>'}
+function preview(b){const M=MED[b.m],by=b.by;
+ if(b.m==='estado')return `<div class="leg">${legStack()}</div>`+stack();
+ if(b.m==='peso'){const e=EX[b.ex||'Sentadilla con barra'];return `<div class="mut">${b.ex||'Sentadilla con barra'} · kg</div>`+L({id:'pv',w:CW(),h:180,labels:['Sem 1','Sem 2','Sem 3','Sem 4'],min:55,max:75,step:5,rlab:1,aria:'Peso planificado y cargado',series:[{vals:e.pw,color:MID,dash:1,label:'Plan'},{vals:e.aw,color:BLUE,label:'Cargado'}],unit:'kg',dark:sty==='brand'})}
+ const vals=M.d[by],lab=by==='sem'?['Sem 1','Sem 2','Sem 3','Sem 4']:vals.map((x,i)=>String(i+1));
+ if(b.form==='col')return colsG(lab,vals,M.u);
+ const mx=Math.max(...vals.filter(x=>x!=null)),top=M.u==='0 a 10'?10:Math.ceil(mx/10)*10,st=M.u==='0 a 10'?2:top/4;
+ return L({id:'pv',w:CW(),h:180,labels:lab,min:0,max:top,step:st,rlab:0,aria:M.n,series:[{vals,color:BLUE}]})}
+const REG={
+ prog:{t:'Progreso del ciclo: carga por semana',b:()=>cols(),tb:tblP},
+ cons:{t:'Constancia: hechas, omitidas y pendientes',b:()=>`<div class="leg">${legStack()}</div>${stack()}`,tb:tblC},
+ esf:{t:'Esfuerzo de cada sesión (0 a 10)',b:()=>L({id:'s',w:CW(),h:190,labels:['1','2','3','4','5','6','7','8','9','10','11','12'],min:0,max:10,step:2,rlab:0,aria:'Esfuerzo de cada sesión de 0 a 10',series:[{vals:SRPE,color:BLUE,label:1}],unit:'de 10'}),tb:tblS},
+ rir:{t:'Cuánto costó cada ejercicio (RIR real contra el planificado)',b:()=>rirBars(),tb:tblQ},
+ plan:{t:'Peso planificado contra el cargado',b:planBody,tb:planTbl}};
+let LAY=[{id:'prog',s:'half'},{id:'cons',s:'half'},{id:'esf',s:'half'},{id:'rir',s:'half'},{id:'plan',s:'full'}],HID=[],edit=false,drawer=null,bld={m:'carga',by:'sem',form:'col',name:'',ex:'Sentadilla con barra'},toast=null,nCustom=0,dragId=null;
+const DEFAULT=()=>[{id:'prog',s:'half'},{id:'cons',s:'half'},{id:'esf',s:'half'},{id:'rir',s:'half'},{id:'plan',s:'full'}];
+function autoName(b){return b.by==='ses'?MED[b.m].n:`${MED[b.m].n} por semana`}
+function snap(){return JSON.stringify({LAY,HID})}
+function undoable(msg){toast={msg,snap:snapBefore};clearTimeout(window.__tt);window.__tt=setTimeout(()=>{toast=null;render()},7000)}
+let snapBefore=null;
+function change(msg,fn){snapBefore=snap();fn();undoable(msg);render()}
+function widgetCard(it,i){
+ const d=REG[it.id],t=tab[it.id],full=it.s==='full',dk=sty==='brand'&&it.id==='plan'&&!edit;
+ const head=edit?`<div class="top"><button class="handle" aria-label="Mover «${d.t}»" title="Arrastra para mover" data-act="noop">⠿</button><h3>${d.t}</h3></div><div class="edbar"><button class="btn sm" data-act="up" data-id="${it.id}" ${i===0?'disabled':''}>↑ Antes</button><button class="btn sm" data-act="down" data-id="${it.id}" ${i===LAY.length-1?'disabled':''}>↓ Después</button><div class="seg" role="group" aria-label="Tamaño"><button data-act="half" data-id="${it.id}" aria-pressed="${!full}">Mitad</button><button data-act="full" data-id="${it.id}" aria-pressed="${full}">Completo</button></div><button class="btn sm" data-act="hide" data-id="${it.id}">Quitar</button></div>`
+  :`<div class="top"><h3>${d.t}</h3><button class="link" data-tab="${it.id}">${t?'Ver gráfico':'Ver como tabla'}</button></div>`;
+ return `<section class="card${full?' wide':''}${edit?' editing':''}${dk?' dark':''}" data-id="${it.id}" ${edit?'draggable="true"':''}>${head}${edit?`<div class="ghost">${d.b()}</div>`:(t?d.tb():d.b())}</section>`}
+function drawerHtml(){
+ if(!drawer)return '';
+ const inLay=new Set(LAY.map(x=>x.id)),all=Object.keys(REG);
+ const gal=all.map(id=>`<li class="gi"><div><b>${REG[id].t}</b><small>${inLay.has(id)?'En la pizarra':'Disponible'}</small></div>${inLay.has(id)?'<span class="delta">En la pizarra</span>':`<button class="btn sm" data-act="addgal" data-id="${id}">Agregar</button>`}</li>`).join('');
+ const M=MED[bld.m],bys=Object.keys(M.by),forms=M.by[bld.by]||[];
+ const tabs=`<div class="seg" role="tablist"><button role="tab" data-act="dtab" data-t="gal" aria-selected="${drawer==='gal'}" aria-pressed="${drawer==='gal'}">Galería</button><button role="tab" data-act="dtab" data-t="new" aria-selected="${drawer==='new'}" aria-pressed="${drawer==='new'}">Crear gráfico</button></div>`;
+ const builder=`<div class="stp"><label>1. ¿Qué quieres medir?</label><div class="opts">${Object.keys(MED).map(k=>`<button class="chip" data-act="bm" data-k="${k}" aria-pressed="${bld.m===k}">${MED[k].n} <em>${MED[k].u}</em></button>`).join('')}</div></div>
+ <div class="stp"><label>2. ¿Cómo lo agrupas?</label><div class="opts">${Object.keys(BY).map(k=>`<button class="chip" data-act="bb" data-k="${k}" aria-pressed="${bld.by===k}" ${bys.includes(k)?'':'disabled'}>${BY[k]}</button>`).join('')}</div>${bys.length<2?`<p class="why">${M.n} solo se puede agrupar por ${BY[bys[0]].toLowerCase()}.</p>`:''}</div>
+ <div class="stp"><label>3. Forma</label><div class="opts">${Object.keys(FORM).map(k=>`<button class="chip" data-act="bf" data-k="${k}" aria-pressed="${bld.form===k}" ${forms.includes(k)?'':'disabled'}>${FORM[k]}${forms[0]===k?' · sugerida':''}</button>`).join('')}</div><p class="why">Una medida por gráfico: kg, repeticiones y esfuerzo tienen unidades distintas y no comparten eje. Para cruzarlas, agrega otro gráfico.</p></div>
+ ${M.ex?`<div class="stp"><label>Ejercicio</label><div class="opts">${Object.keys(EX).filter(n=>EX[n].pw[0]!=null).map(n=>`<button class="chip" data-act="bx" data-k="${n}" aria-pressed="${bld.ex===n}">${n}</button>`).join('')}</div></div>`:''}
+ <div class="stp"><label>Vista previa</label><div class="pv">${preview(bld)}</div></div>
+ <div class="stp"><label for="gname">Nombre</label><input id="gname" class="inp" value="${bld.name}" placeholder="${autoName(bld)}"></div>
+ <button class="btn p" data-act="create">Agregar a la pizarra</button>`;
+ return `<aside class="drw" role="dialog" aria-label="Agregar gráfico"><div class="top"><h3>Agregar gráfico</h3><button class="link" data-act="dclose">Cerrar</button></div>${tabs}${drawer==='gal'?`<ul class="gl">${gal}</ul><p class="why">Los gráficos ocultos vuelven desde aquí con su configuración.</p>`:builder}</aside>`}
+function coach(){
+ const kp=`<div class="kpis"><div class="kpi">${sty==='brand'?`<div style="display:flex;gap:12px;align-items:center">${ring(4,6,3)}<div><b>4 de 6</b><span>Semana del ciclo</span></div></div>`:`<b>4 de 6</b><span>Semana del ciclo</span>`}</div><div class="kpi"><b>11 de 18</b><span>Sesiones hechas</span></div><div class="kpi"><b>100 %</b><span>Constancia (11 de 11 pasadas)</span></div><div class="kpi"><b>7,4 de 10</b><span>Esfuerzo promedio</span></div><div class="kpi"><b>+2 kg</b><span>Peso real contra el plan</span></div></div>`;
+ const bar=`<div class="filters"><div class="seg" role="group" aria-label="Periodo"><button aria-pressed="true">Ciclo actual</button><button aria-pressed="false">Últimas 4 semanas</button><button aria-pressed="false">Todo el historial</button></div><span style="flex:1"></span>${edit?`<span class="saved" role="status">✓ Guardado</span><button class="btn sm" data-act="reset">Restablecer disposición</button><button class="btn p sm" data-act="done">Listo</button>`:`<button class="btn" data-act="edit">Organizar</button>`}</div>`;
+ const grid=`<div class="grid${edit?' editing':''}" id="pizarra">${LAY.map(widgetCard).join('')}</div>`;
+ const hid=edit?`<div class="tray"><b>Gráficos ocultos${HID.length?' ('+HID.length+')':''}:</b>${HID.length?HID.map(id=>`<button class="chip" data-act="restore" data-id="${id}">+ ${REG[id].t.split(':')[0]}</button>`).join(''):'<span class="mut" style="margin:0">ninguno</span>'}<span style="flex:1"></span><button class="btn p sm" data-act="add">+ Agregar gráfico</button></div>`:'';
+ const tst=toast?`<div class="toast" role="status">${toast.msg} <button class="link" data-act="undo" style="color:#fff">Deshacer</button></div>`:'';
+ return `<div class="ph"><h2>Matías Fuentes</h2><div class="views"><span>Ciclo</span><span class="on">Resumen</span></div></div>${bar}${kp}${hid}${grid}${drawerHtml()}${tst}`}
+function app(){
+ const names=['Sentadilla con barra','Prensa de piernas','Press de banca','Remo con barra'];
+ const rows=st==='few'?[]:names.map(n=>EX[n]);
+ let cards='';
+ if(st==='load')cards=[1,2,3].map(()=>'<div class="mcard"><div class="sk" style="width:55%"></div><div class="sk"></div></div>').join('');
+ else if(st==='none')cards=`<div class="mcard empty"><h3>Aquí verás tu avance</h3>Se llena con tus primeras sesiones.</div>`;
+ else if(st==='few')cards=`<div class="mcard empty"><h3>Cuando repitas un ejercicio, lo verás aquí</h3>Verás cómo cambian tu peso y tus repeticiones de una sesión a otra.</div>`;
+ else cards=rows.map((e,i)=>{const n=names[i],dw=e.aw[3]-e.aw[0],dr=e.ar[3]-e.ar[0];
+  const tr=x=>x>0?`▲ +${f1(x)}`:x<0?`▼ ${f1(x)}`:'= igual';
+  return `<div class="mcard"><h4>${n}</h4><div class="mini"><div><small>Peso</small><b>${f1(e.aw[0])} → ${f1(e.aw[3])} kg</b>${spark(e.aw,BLUE)}<small>${tr(dw)} kg</small></div><div><small>Repeticiones</small><b>${f1(e.ar[0])} → ${f1(e.ar[3])}</b>${spark(e.ar,INK)}<small>${tr(dr)}</small></div></div></div>`}).join('');
+ const head=st==='none'?'':`<div class="mini" style="margin-bottom:8px"><div class="mcard" style="margin:0"><small style="font-size:.72rem;font-weight:700;color:${INK2}">Semana</small><div style="font-family:var(--font-display);font-size:1.5rem;font-weight:700">4 de 6</div></div><div class="mcard" style="margin:0"><small style="font-size:.72rem;font-weight:700;color:${INK2}">Sesiones</small><div style="font-family:var(--font-display);font-size:1.5rem;font-weight:700">11 de 18</div></div></div>`;
+ const title=st==='none'||st==='few'?'':`<h3 style="font-size:1.05rem;margin:6px 2px">Cómo van tus ejercicios</h3>`;
+ const muscles=st==='ok'?`<details class="mcard"><summary>Qué músculos trabajas</summary><p style="margin:6px 0 0;font-size:.86rem;color:${INK2}">Aquí van el mapa del cuerpo y el apilado por grupo, en tamaño compacto.</p></details>`:'';
+ return `<div class="row"><div><div style="text-align:center;font-size:.82rem;font-weight:700;color:${INK2};margin-bottom:6px">Resumen</div><div class="phone"><div class="scr"><div class="pt"><i class="ring"></i>Resumen</div>${head}${title}${cards}${muscles}</div><div class="isl"><span><svg><use href="#i-cal"/></svg></span><span><svg><use href="#i-bar"/></svg></span><span class="on"><svg><use href="#i-chart"/></svg></span><span><svg><use href="#i-chat"/></svg></span></div></div></div></div>`}
+const NOTES={coach:'Estilo con personalidad de marca (cambia a «Actual» para comparar): perlas de la cadena, anillo del ciclo y cifras en Bricolage. Ficha del coach como una pizarra de gráficos: toca «Organizar» para arrastrar los gráficos, cambiar su tamaño, quitarlos o agregar otros. En «Agregar gráfico» → «Crear gráfico» ves cómo el coach armará los suyos (solo aparecen combinaciones que los datos permiten).',app:'App del atleta: una sola pregunta, ¿cómo cambiaron mi peso y mis repeticiones en los ejercicios que repito? Solo aparecen ejercicios que se repiten más de una vez.'};
+function render(){
+ [...document.getElementById('g-v').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===v));
+ [...document.getElementById('g-s').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===st));
+ [...document.getElementById('g-w').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===w));
+ document.getElementById('g-wrap').style.display=v==='coach'?'flex':'none';document.getElementById('note').textContent=NOTES[v];
+ const stage=document.getElementById('stage');
+ if(v==='app'){stage.innerHTML=app();return}
+ const width=w==='d'?1280:w==='t'?820:390,avail=Math.max(320,document.documentElement.clientWidth-32),z=Math.min(1,avail/width);
+ let inner;
+ if(st==='load')inner=`<div class="ph"><h2>Matías Fuentes</h2></div><div class="kpis">${[1,2,3,4,5].map(()=>'<div class="kpi"><div class="sk"></div></div>').join('')}</div><div class="grid">${[1,2,3,4].map(()=>'<div class="card"><div class="sk" style="width:50%"></div><div class="sk" style="height:120px"></div></div>').join('')}</div>`;
+ else if(st==='none')inner=`<div class="ph"><h2>Matías Fuentes</h2><div class="views"><span>Ciclo</span><span class="on">Resumen</span></div></div><div class="card empty"><h3>Aún no hay registros que resumir</h3>Cuando Matías complete su primera sesión, aquí verás su progreso, su constancia y cómo se compara lo que cargó con lo planificado.</div>`;
+ else if(st==='few'){inner=coach();}
+ else inner=coach();
+ stage.innerHTML=`<div style="width:${width*z}px;margin:0 auto"><div class="win ${w==='m'?'w-m':w==='t'?'w-t':''}" style="width:${width}px;zoom:${z}"><div class="hdr"><span class="logo">Cycles</span><nav class="nav"><a>Inicio</a><a class="on">Atletas</a><a>Biblioteca</a><a>Ejercicios</a></nav><span class="av">LG</span></div><div class="pg">${inner}</div></div></div>`;
+ bind()}
+const DATAT={w:()=>{const e=EX[ex];return['Sem 1','Sem 2','Sem 3','Sem 4'].map((l,i)=>`${l}: plan ${f1(e.pw[i])} kg, cargado ${f1(e.aw[i])} kg`)},r:()=>{const e=EX[ex];return['Sem 1','Sem 2','Sem 3','Sem 4'].map((l,i)=>`${l}: plan ${e.pr[i]} reps, real ${f1(e.ar[i])}`)},s:()=>SRPE.map((x,i)=>`Sesión ${i+1}: ${x==null?'pendiente':'esfuerzo '+x}`)};
+function bind(){
+ const s=document.getElementById('stage'),tip=document.getElementById('tip');
+ s.querySelectorAll('[data-ex]').forEach(b=>b.onclick=()=>{ex=b.dataset.ex;render()});
+ s.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab[b.dataset.tab]=!tab[b.dataset.tab];render()});
+ s.querySelectorAll('.hit').forEach(r=>{r.addEventListener('mousemove',e=>{const t=DATAT[r.dataset.c];if(!t)return;tip.textContent=t()[+r.dataset.i];tip.style.display='block';tip.style.left=e.clientX+14+'px';tip.style.top=e.clientY+14+'px'});r.addEventListener('mouseleave',()=>tip.style.display='none')})}
+document.getElementById('g-v').addEventListener('click',e=>{const b=e.target.closest('button');if(b){v=b.dataset.k;render()}});
+document.getElementById('g-s').addEventListener('click',e=>{const b=e.target.closest('button');if(b){st=b.dataset.k;render()}});
+document.getElementById('g-y').addEventListener('click',e=>{const b=e.target.closest('button');if(b){sty=b.dataset.k;[...document.getElementById('g-y').children].forEach(x=>x.setAttribute('aria-pressed',x===b));render()}});
+document.getElementById('g-w').addEventListener('click',e=>{const b=e.target.closest('button');if(b){w=b.dataset.k;render()}});
+
+(function(){const st=document.getElementById('stage');
+ st.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(!t)return;const a=t.dataset.act,id=t.dataset.id,k=t.dataset.k;
+  const mv=(from,to)=>{const i=LAY.findIndex(x=>x.id===from);const [it]=LAY.splice(i,1);LAY.splice(to,0,it)};
+  if(a==='edit'){edit=true;render()}
+  else if(a==='done'){edit=false;drawer=null;render()}
+  else if(a==='up'){const i=LAY.findIndex(x=>x.id===id);change(`Moviste «${REG[id].t.split(':')[0]}» una posición antes.`,()=>mv(id,i-1))}
+  else if(a==='down'){const i=LAY.findIndex(x=>x.id===id);change(`Moviste «${REG[id].t.split(':')[0]}» una posición después.`,()=>mv(id,i+1))}
+  else if(a==='half'||a==='full'){change(`Cambiaste el tamaño de «${REG[id].t.split(':')[0]}».`,()=>{LAY.find(x=>x.id===id).s=a})}
+  else if(a==='hide'){change(`Quitaste «${REG[id].t.split(':')[0]}».`,()=>{LAY=LAY.filter(x=>x.id!==id);HID.push(id)})}
+  else if(a==='restore'||a==='addgal'){change(`Agregaste «${REG[id].t.split(':')[0]}».`,()=>{HID=HID.filter(x=>x!==id);LAY.push({id,s:id==='plan'?'full':'half'})})}
+  else if(a==='reset'){change('Volviste a la disposición original.',()=>{LAY=DEFAULT();HID=[]})}
+  else if(a==='undo'){const p=JSON.parse(toast.snap);LAY=p.LAY;HID=p.HID;toast=null;render()}
+  else if(a==='add'){drawer='gal';render()}
+  else if(a==='dclose'){drawer=null;render()}
+  else if(a==='dtab'){drawer=t.dataset.t;render()}
+  else if(a==='bm'){bld.m=k;const M=MED[k],b0=Object.keys(M.by)[0];bld.by=b0;bld.form=M.by[b0][0];render()}
+  else if(a==='bb'){bld.by=k;bld.form=MED[bld.m].by[k][0];render()}
+  else if(a==='bf'){bld.form=k;render()}
+  else if(a==='bx'){bld.ex=k;render()}
+  else if(a==='create'){const nm=(document.getElementById('gname').value.trim())||autoName(bld);const cfg={...bld},cid='c'+(++nCustom);
+   REG[cid]={t:nm,b:()=>preview(cfg),tb:()=>'<p style="margin:0;font-size:.84rem">Tabla con los mismos valores del gráfico.</p>'};
+   change(`Agregaste «${nm}».`,()=>{LAY.push({id:cid,s:'half'});drawer=null;bld.name=''})}
+ });
+ st.addEventListener('dragstart',e=>{const c=e.target.closest('.card.editing');if(!c)return;dragId=c.dataset.id;c.classList.add('drag');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',dragId)});
+ st.addEventListener('dragend',()=>{dragId=null;st.querySelectorAll('.card').forEach(c=>c.classList.remove('drag','over'))});
+ st.addEventListener('dragover',e=>{const c=e.target.closest('.card.editing');if(!c||!dragId)return;e.preventDefault();st.querySelectorAll('.card.over').forEach(x=>x.classList.remove('over'));if(c.dataset.id!==dragId)c.classList.add('over')});
+ st.addEventListener('drop',e=>{const c=e.target.closest('.card.editing');if(!c||!dragId||c.dataset.id===dragId)return;e.preventDefault();const from=dragId,to=LAY.findIndex(x=>x.id===c.dataset.id);
+  change(`Moviste «${REG[from].t.split(':')[0]}».`,()=>{const i=LAY.findIndex(x=>x.id===from);const [it]=LAY.splice(i,1);LAY.splice(to,0,it)})});
+})();
+window.addEventListener('resize',render);render();
+</script>
+</body>
+</html>
