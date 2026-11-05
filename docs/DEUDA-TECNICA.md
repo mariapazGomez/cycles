@@ -37,9 +37,8 @@ Ya pasó más de una vez: los tipos de `ExerciseLog`/`SessionFeedback` quedaron 
 
 ## App móvil
 
-### 7. El fix de Metro para evitar React duplicado es frágil
-`apps/mobile/metro.config.js` usa `resolver.blockList` con rutas hardcodeadas para bloquear la copia de React de la raíz del monorepo (usada por `apps/web`, en una versión distinta a la de mobile). Si `apps/web` actualiza su versión de React, o si otra dependencia nativa duplica otro paquete, el problema puede reaparecer de otra forma y no va a estar cubierto por este blockList puntual.
-**Impacto:** medio — es un workaround necesario hoy, pero quebradizo ante cambios de versiones.
+### ~~7. El fix de Metro para evitar React duplicado es frágil~~ **Resuelto** (2026-11-04, CYC-102)
+`apps/mobile/metro.config.js` ya no depende de rutas fijas. `apps/mobile/metroSingletons.js` aplica dos defensas que no importan qué versión de React quedó hoisteada: `resolveRequest` resuelve todo `react` y `react-dom` (y subrutas) como si lo pidiera `apps/mobile`, y `blockList` bloquea cualquier otra copia conocida (raíz y `apps/web`, por ruta real y con ambos separadores). La copia que conserva es la de mobile; si la versión instalada no coincide con la de `package.json`, Metro falla al arrancar con un mensaje que manda a correr `npm ci`. Cubierto por `__tests__/metroSingletons.test.ts`. Verificado con un bundle de iOS en Release: una sola copia de React (19.2.3), sin la 18.3.1 de la web. **Queda:** el mismo riesgo existe para otros paquetes que se dupliquen; se agregan a `PACKAGES` si aparecen.
 
 ### ~~8. Tokens de sesión en AsyncStorage plano~~ **Resuelto** (2026-10-02, verificado 2026-11-01)
 `apps/mobile/src/services/tokenStore.ts` usa `react-native-keychain` (Keychain de iOS, Keystore de Android), migra la sesión antigua y descarta el Keychain heredado de una instalación anterior. Ver `docs/SEGURIDAD.md`, hallazgo S-09. Falta confirmarlo en un dispositivo con TestFlight.
