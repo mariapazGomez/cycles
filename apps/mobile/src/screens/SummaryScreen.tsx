@@ -12,7 +12,9 @@ import { ShareBar } from '../components/ShareBar';
 import { ShareList } from '../components/ShareList';
 import { Spinner } from '../components/Spinner';
 import { ScreenHeader } from '../components/ScreenHeader';
-import { fetchActiveCycles, fetchCycleSessions, fetchMuscleSummary } from '../services/planApi';
+import { fetchActiveCycles, fetchCycleSessions, fetchExerciseProgress, fetchMuscleSummary, type ExerciseProgress } from '../services/planApi';
+import { ExerciseProgressCard } from '../components/ExerciseProgressCard';
+import { summarizeExercises } from '../utils/exerciseProgress';
 import { colors, noLoadFill } from '../theme/colors';
 import { cardShadow } from '../theme/elevation';
 import {
@@ -78,6 +80,10 @@ export function SummaryScreen() {
   const [mapGroup, setMapGroup] = useState<GroupKey>('legs');
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Historial por ejercicio: undefined = cargando, null = no se pudo leer.
+  const [progress, setProgress] = useState<ExerciseProgress[] | null | undefined>(undefined);
+  const [openExercise, setOpenExercise] = useState<string | null>(null);
+  const [musclesOpen, setMusclesOpen] = useState(false);
 
   const load = useCallback(async () => {
     setError(null);
@@ -91,6 +97,8 @@ export function SummaryScreen() {
         }),
       );
       setPlans(loaded);
+      // Aparte: si falla el historial, el resto del Resumen se ve igual.
+      fetchExerciseProgress().then(setProgress, () => setProgress(null));
     } catch {
       setError('No pudimos cargar tu resumen. Desliza para reintentar.');
     }
@@ -115,6 +123,7 @@ export function SummaryScreen() {
   const bar = bars[selected];
   const mapTotals = useMemo(() => totalsByGroup(days, metric, mapWeek), [days, metric, mapWeek]);
   const allTotals = useMemo(() => totalsByGroup(days, metric), [days, metric]);
+  const exercises = useMemo(() => (progress ? summarizeExercises(progress) : []), [progress]);
   const weeksWithData = useMemo(() => [...new Set(days.map(d => d.weekNumber))].sort((a, b) => a - b), [days]);
 
   if (plans === undefined && !error) {
@@ -209,6 +218,41 @@ export function SummaryScreen() {
             </View>
           ) : (
             <>
+              <Text style={styles.sectionTitle}>Cómo van tus ejercicios</Text>
+              {progress === undefined && (
+                <>
+                  {[0, 1, 2].map(i => (
+                    <View key={i} style={[styles.card, styles.skeleton]} />
+                  ))}
+                </>
+              )}
+              {progress === null && <Text style={styles.error}>No pudimos cargar tus ejercicios. Desliza para reintentar.</Text>}
+              {progress && exercises.length === 0 && (
+                <View style={styles.card}>
+                  <Text style={styles.cardTitle}>Cuando repitas un ejercicio, lo verás aquí</Text>
+                  <Text style={styles.emptyText}>Verás cómo cambian tu peso y tus repeticiones de una sesión a otra.</Text>
+                </View>
+              )}
+              {exercises.map(summary => (
+                <ExerciseProgressCard
+                  key={summary.id}
+                  summary={summary}
+                  expanded={openExercise === summary.id}
+                  onToggle={() => setOpenExercise(openExercise === summary.id ? null : summary.id)}
+                />
+              ))}
+
+              <TouchableOpacity
+                style={styles.sectionToggle}
+                onPress={() => setMusclesOpen(open => !open)}
+                accessibilityRole="button"
+                accessibilityLabel="Qué músculos trabajas"
+                accessibilityState={{ expanded: musclesOpen }}>
+                <Text style={styles.sectionTitleInline}>Qué músculos trabajas</Text>
+                <Text style={styles.sectionChevron}>{musclesOpen ? '▲' : '▼'}</Text>
+              </TouchableOpacity>
+              {musclesOpen && (
+                <>
               <Toggle
                 options={[
                   { value: 'sets' as Metric, label: 'Series' },
@@ -305,6 +349,8 @@ export function SummaryScreen() {
                 <ShareBar values={allTotals} />
                 <ShareList values={allTotals} unit={UNIT[metric]} />
               </View>
+                </>
+              )}
             </>
           )}
         </>
@@ -360,6 +406,11 @@ const styles = StyleSheet.create({
   scaleText: { fontSize: 11, color: colors.inkSecondary },
   scaleNote: { marginLeft: 'auto' },
   scaleSwatch: { width: 22, height: 10, borderRadius: 3 },
+  sectionTitle: { fontSize: 18, fontWeight: '800', color: colors.ink, marginTop: 14, marginBottom: 8 },
+  sectionToggle: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 44, marginTop: 8, marginBottom: 4, paddingHorizontal: 4 },
+  sectionTitleInline: { fontSize: 18, fontWeight: '800', color: colors.ink },
+  sectionChevron: { fontSize: 12, color: colors.inkSecondary },
+  skeleton: { height: 120, backgroundColor: colors.grayBorder, opacity: 0.5 },
   emptyCard: { height: 360, overflow: 'hidden', justifyContent: 'flex-end', padding: 20 },
   emptyBox: { backgroundColor: colors.bg, borderRadius: 14, borderWidth: 1, borderColor: colors.grayBorder, padding: 16 },
   emptyTitle: { fontSize: 21, fontWeight: '800', color: colors.ink, marginBottom: 6 },
