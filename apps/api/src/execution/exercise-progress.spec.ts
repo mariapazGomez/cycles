@@ -1,3 +1,4 @@
+import { exerciseProgressFixture } from "../../../../packages/shared/src/fixtures/exerciseProgress";
 import { buildExerciseProgress, MAX_SESSIONS_PER_EXERCISE, type RawSessionExercise } from "./exercise-progress";
 
 const day = (n: number) => new Date(Date.UTC(2026, 9, n));
@@ -72,5 +73,23 @@ describe("buildExerciseProgress", () => {
     const sessions = buildExerciseProgress(rows)[0].sessions;
     expect(sessions).toHaveLength(MAX_SESSIONS_PER_EXERCISE);
     expect(sessions[sessions.length - 1].sessionId).toBe(`s${MAX_SESSIONS_PER_EXERCISE + 4}`);
+  });
+});
+
+describe("contrato con la app móvil (CYC-249)", () => {
+  const log = (setNumber: number, actualWeight: number, actualReps: number, rir: number | null, loggedAt: string) => ({
+    setNumber, actualWeight, actualReps, rir, loggedAt: new Date(loggedAt),
+  });
+  const row = (sessionId: string, weekNumber: number, targetWeight: number, logs: RawSessionExercise["logs"]): RawSessionExercise => ({
+    sessionId, weekNumber, exerciseId: "ex-sentadilla", exerciseName: "Sentadilla", muscleGroup: "legs",
+    targetSets: 3, targetReps: 6, targetWeight, targetRir: 2, logs,
+  });
+
+  it("lo que produce el código real coincide con el fixture que usa la app, envuelto en { exercises }", () => {
+    const exercises = buildExerciseProgress([
+      row("ses-1", 1, 60, [log(1, 60, 6, null, "2026-10-01T10:00:00.000Z"), log(2, 60, 6, 2, "2026-10-01T10:05:00.000Z")]),
+      row("ses-2", 2, 65, [log(1, 65, 6, null, "2026-10-08T10:00:00.000Z"), log(2, 65, 5, 1, "2026-10-08T10:05:00.000Z")]),
+    ]);
+    expect({ exercises }).toEqual(exerciseProgressFixture);
   });
 });

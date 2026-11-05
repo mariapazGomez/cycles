@@ -3,39 +3,13 @@
 // con lo planificado y lo que de verdad se cargó. Funciones puras: la consulta
 // vive en ExecutionService.
 
+// La forma de la respuesta vive en @cycles/shared, compartida con la app móvil (CYC-249).
+import type { ExerciseProgress, ProgressSession } from "@cycles/shared";
+export type { ExerciseProgress, ExerciseProgressResponse, ProgressSession, ProgressSet } from "@cycles/shared";
+
 export const MIN_SESSIONS = 2;
 // Tope de sesiones que se devuelven por ejercicio (las más recientes).
 export const MAX_SESSIONS_PER_EXERCISE = 52;
-
-export interface ProgressSet {
-  setNumber: number;
-  weight: number | null;
-  reps: number;
-  rir: number | null;
-}
-
-export interface ProgressSession {
-  sessionId: string;
-  weekNumber: number;
-  // Fecha de la primera serie registrada.
-  date: string;
-  plannedSets: number;
-  plannedReps: number;
-  plannedWeight: number | null;
-  plannedRir: number | null;
-  // Promedio de las series con peso (null si todas fueron con peso corporal).
-  actualWeight: number | null;
-  // Promedio de repeticiones de todas las series.
-  actualReps: number;
-  series: ProgressSet[];
-}
-
-export interface ExerciseProgress {
-  exerciseId: string;
-  name: string;
-  muscleGroup: string | null;
-  sessions: ProgressSession[];
-}
 
 // Lo que la consulta entrega por cada ejercicio de una sesión (solo series vigentes).
 export interface RawSessionExercise {
