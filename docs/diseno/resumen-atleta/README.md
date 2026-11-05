@@ -284,6 +284,7 @@ La maqueta de la app (pestaña **App del atleta**) ya está dibujada con la fuen
 - Estados: cargando (esqueletos), error por gráfico con Reintentar, sin datos, poco historial, peso corporal y sin plan de peso.
 - Texto de los gráficos de al menos 12 px a 390, 800 y 1280 px de ancho (medido en el navegador).
 - El filtro de periodo no se guarda en el servidor.
+- **Contrato API ↔ web:** los tipos de `GET /athletes/:id/summary`, `GET /cycles/:id/progress` y `GET/PUT /coach/summary-layout` viven en `packages/shared/src/types/summary.ts`; la API tipa lo que devuelve con ellos y la web los usa tal cual. `packages/shared/src/fixtures/resumen.ts` trae un ejemplo de cada respuesta, y la prueba e2e `contrato-resumen` comprueba que la respuesta real de la API tiene su misma forma (claves, listas y tipos). Las pruebas de la web usan esos ejemplos.
 
 ## Fuera de alcance
 

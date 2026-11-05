@@ -126,3 +126,39 @@ describe("disposición", () => {
     expect(visibleCharts([...layout] as never).map((c) => c.id)).toEqual(["constancia", "plan-real"]);
   });
 });
+
+// Con la forma REAL de la API (el ejemplo de @cycles/shared que la prueba e2e de la API
+// comprueba contra las respuestas verdaderas), no con datos inventados.
+import { athleteSummaryFixture, cycleProgressFixture, summaryLayoutFixture } from "../../../packages/shared/src/fixtures/resumen";
+
+describe("la pizarra con el contrato real de la API", () => {
+  const fixtureCycle = cycle("cycle-1", "2026-10-05", "2026-11-15");
+  const real: CycleEntry[] = [{ cycle: fixtureCycle, progress: cycleProgressFixture }];
+
+  it("lee las sesiones, el esfuerzo y las cifras del progreso real", () => {
+    const sessions = boardSessions(real, "all", "2026-10-25");
+    expect(sessions.map((s) => s.id)).toEqual(["s-1", "s-2"]);
+    expect(sessions[0].srpe).toBe(7);
+    expect(sessions[1].srpe).toBeNull();
+    expect(boardStats(sessions)).toMatchObject({ sessionsDone: 1, sessionsTotal: 2, avgEffort: 7, weightDelta: 0 });
+    expect(effortPoints(sessions).map((p) => p.value)).toEqual([7]);
+  });
+
+  it("arma el gráfico de peso y el desvío de RIR con los campos reales", () => {
+    const sessions = boardSessions(real, "all", "2026-10-25");
+    const options = exerciseOptions(sessions);
+    expect(options).toEqual([{ id: "ex-sq", name: "Sentadilla con barra", lastDelta: 0, sessions: 1 }]);
+    expect(weightPoints(sessions, "ex-sq").map((p) => [p.planned, p.actual])).toEqual([[80, 80]]);
+    expect(repsPoints(sessions, "ex-sq").map((p) => p.actual)).toEqual([7.5]);
+    expect(rirBars(sessions)).toEqual([{ id: "ex-sq", name: "Sentadilla con barra", deviation: 1, tone: "harder" }]);
+  });
+
+  it("filtra las semanas del resumen real por periodo", () => {
+    expect(boardWeeks(athleteSummaryFixture.weeks, "four", null)).toHaveLength(2);
+    expect(boardWeeks(athleteSummaryFixture.weeks, "cycle", fixtureCycle)).toHaveLength(2);
+  });
+
+  it("muestra la disposición guardada y respeta lo oculto", () => {
+    expect(visibleCharts(summaryLayoutFixture.charts).map((c) => c.id)).toEqual(["plan-real", "progreso-ciclo", "esfuerzo", "costo-ejercicio"]);
+  });
+});

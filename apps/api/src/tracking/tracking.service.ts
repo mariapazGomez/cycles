@@ -1,5 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
+import type { AthleteSummary, CycleProgress } from "@cycles/shared";
 import { PrismaService } from "../prisma/prisma.service";
 import { athleteIdOf } from "../common/access";
 import {
@@ -190,7 +191,7 @@ export class TrackingService {
     return items.sort((a, b) => KIND_ORDER.indexOf(a.kind) - KIND_ORDER.indexOf(b.kind));
   }
 
-  async athleteSummary(coachId: string, athleteId: string, weeks = 6) {
+  async athleteSummary(coachId: string, athleteId: string, weeks = 6): Promise<AthleteSummary> {
     const relation = await this.assertActiveRelation(coachId, athleteId);
     const now = new Date();
     const firstWeek = addDays(calendarWeekStart(now), -(weeks - 1) * 7);
@@ -279,7 +280,7 @@ export class TrackingService {
     };
   }
 
-  async cycleProgress(coachId: string, cycleId: string) {
+  async cycleProgress(coachId: string, cycleId: string): Promise<CycleProgress> {
     const cycle = await this.prisma.trainingCycle.findUnique({
       where: { id: cycleId },
       include: CYCLE_WITH_EXECUTION,
@@ -309,7 +310,7 @@ export class TrackingService {
             pain: fb.pain,
             painNotes: fb.painNotes,
             notes: fb.notes,
-            submittedAt: fb.submittedAt,
+            submittedAt: fb.submittedAt.toISOString(),
           },
           exercises: session.sessionExercises.map((se) => ({
             sessionExerciseId: se.id,
