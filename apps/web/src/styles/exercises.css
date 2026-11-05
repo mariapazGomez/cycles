@@ -126,3 +126,53 @@
 .ex-more > summary { cursor: pointer; font-weight: 600; font-size: 0.9rem; color: var(--color-blue); min-height: 32px; }
 .ex-more > summary:focus-visible { outline: 2px solid var(--color-blue); outline-offset: 2px; }
 .ex-more-body { display: flex; flex-direction: column; gap: 18px; padding-top: 12px; }
+
+/* Filtro con el mapa del cuerpo (CYC-231, diseño CYC-230) */
+.ex-page-map { max-width: 1120px; }
+.ex-layout { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.ex-area-list { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.ex-count { margin: 0; font-size: 0.92rem; font-weight: 600; }
+.ex-sub h3 { margin: 8px 0 0; font-size: 0.9rem; font-weight: 700; }
+.ex-sub { list-style: none; }
+.ex-empty-filter { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 16px; border-radius: 10px; background: var(--color-bg); box-shadow: var(--shadow-e1); }
+.ex-empty-filter p { margin: 0; }
+.cb-chip:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+.pill-match { box-shadow: inset 0 0 0 2px var(--color-blue); color: var(--color-ink); background: var(--color-blue-tint); }
+
+.ex-map { padding: 14px; border-radius: 10px; background: var(--color-bg); box-shadow: var(--shadow-e1); }
+.exmap-toggle { display: none; }
+.exmap-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.exmap-head h2 { margin: 0; font-size: 1rem; font-weight: 700; }
+.exmap-figures { display: flex; justify-content: space-around; gap: 8px; margin-top: 8px; }
+.exmap-figure { width: 46%; max-width: 130px; }
+.exmap-canvas { position: relative; width: 100%; aspect-ratio: 400 / 810; overflow: hidden; }
+.exmap-canvas img, .exmap-canvas svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.exmap-zone { cursor: pointer; }
+.exmap-zone-off { cursor: default; }
+.exmap-caption { margin: 2px 0 0; text-align: center; font-size: 0.78rem; color: var(--color-ink-secondary); }
+.exmap-loading { width: 100%; aspect-ratio: 2 * 400 / 810; max-width: 280px; margin: 8px auto 0; border-radius: 8px; background: var(--color-gray-light); }
+.exmap-hint { margin: 10px 0 0; font-size: 0.88rem; color: var(--color-ink-secondary); text-align: center; }
+.exmap-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
+.exmap-tag { min-height: 36px; padding: 4px 12px; border: 0; border-radius: 8px; background: var(--color-blue-tint); color: var(--color-ink); font: 700 0.82rem Inter, system-ui, sans-serif; cursor: pointer; }
+.exmap-tag:focus-visible { outline: 2px solid var(--color-blue); outline-offset: 2px; }
+
+/* Escritorio: lista a la izquierda y panel fijo a la derecha */
+@media (min-width: 1100px) {
+  .ex-layout { display: grid; grid-template-columns: minmax(0, 1fr) 330px; column-gap: 24px; row-gap: 16px; align-items: start; }
+  .ex-area-toolbar { grid-column: 1; grid-row: 1; }
+  .ex-area-list { grid-column: 1; grid-row: 2; }
+  .ex-map { grid-column: 2; grid-row: 1 / span 2; position: sticky; top: 16px; }
+  .exmap-figures { gap: 12px; }
+  .exmap-figure { max-width: 150px; }
+}
+
+/* Móvil: el mapa va plegado tras un botón */
+@media (max-width: 640px) {
+  .ex-map { padding: 0; background: transparent; box-shadow: none; }
+  .exmap-toggle { display: inline-flex; }
+  .exmap-body { display: none; margin-top: 8px; padding: 14px; border-radius: 10px; background: var(--color-bg); box-shadow: var(--shadow-e1); }
+  .ex-map-open .exmap-body { display: block; }
+  .exmap-head h2 { display: none; }
+  .exmap-head { justify-content: flex-end; }
+  .exmap-figure { max-width: 150px; }
+}

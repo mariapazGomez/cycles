@@ -88,19 +88,75 @@ export function validateForm(form: ExerciseForm): FormErrors {
 
 export type ExerciseTab = "mine" | "catalog";
 
-// Filtra por pestaña (propios o catálogo), grupo y nombre. Los propios se
-// ordenan alfabéticamente; el resto conserva el orden del servidor.
+// Los siete grupos que tienen zona en el mapa del cuerpo; cardio y otro solo
+// se eligen con los botones (CYC-231).
+export const MAP_GROUPS: MuscleGroup[] = ["chest", "back", "legs", "glutes", "shoulders", "arms", "core"];
+
+// Grupos elegidos en la dirección (?zonas=chest,core): solo los válidos, sin repetir.
+export function parseZones(param: string | null): MuscleGroup[] {
+  if (!param) return [];
+  const seen = new Set<MuscleGroup>();
+  for (const part of param.split(",")) {
+    if ((GROUP_OPTIONS as string[]).includes(part)) seen.add(part as MuscleGroup);
+  }
+  return GROUP_OPTIONS.filter((g) => seen.has(g));
+}
+
+export function toggleGroup(current: MuscleGroup[], group: MuscleGroup): MuscleGroup[] {
+  return current.includes(group) ? current.filter((g) => g !== group) : [...current, group];
+}
+
+// «Pecho o Core»
+export function groupsLabel(groups: MuscleGroup[]): string {
+  return groups.map((g) => MUSCLE_GROUP_LABEL[g]).join(" o ");
+}
+
+function inTab(e: Exercise, coachId: string | undefined, tab: ExerciseTab): boolean {
+  return tab === "mine" ? e.createdBy === coachId : !e.createdBy;
+}
+
+function matchesName(e: Exercise, search: string): boolean {
+  const needle = normalizeText(search);
+  return !needle || normalizeText(e.name).includes(needle);
+}
+
+// Filtra por pestaña (propios o catálogo), grupos y nombre. Con grupos elegidos
+// basta con que el ejercicio trabaje alguno (como principal o secundario). Salen
+// primero los que lo trabajan como principal; dentro de cada bloque, alfabético.
 export function visibleExercises(
   exercises: Exercise[],
   coachId: string | undefined,
   tab: ExerciseTab,
-  group: MuscleGroup | "all",
+  groups: MuscleGroup[],
   search: string,
 ): Exercise[] {
-  const needle = normalizeText(search);
-  return exercises
-    .filter((e) => (tab === "mine" ? e.createdBy === coachId : !e.createdBy))
-    .filter((e) => group === "all" || exerciseGroups(e).includes(group))
-    .filter((e) => !needle || normalizeText(e.name).includes(needle))
-    .sort((a, b) => a.name.localeCompare(b.name, "es"));
+  const byName = (a: Exercise, b: Exercise) => a.name.localeCompare(b.name, "es");
+  const found = exercises
+    .filter((e) => inTab(e, coachId, tab))
+    .filter((e) => groups.length === 0 || exerciseGroups(e).some((g) => groups.includes(g)))
+    .filter((e) => matchesName(e, search));
+  if (groups.length === 0) return found.sort(byName);
+  const primary = found.filter((e) => groups.includes(e.muscleGroup ?? "other")).sort(byName);
+  const rest = found.filter((e) => !groups.includes(e.muscleGroup ?? "other")).sort(byName);
+  return [...primary, ...rest];
+}
+
+// ¿Este ejercicio aparece solo porque lo trabaja como secundario?
+export function onlySecondary(exercise: Exercise, groups: MuscleGroup[]): boolean {
+  return groups.length > 0 && !groups.includes(exercise.muscleGroup ?? "other");
+}
+
+// Cuántos ejercicios de la pestaña y la búsqueda actuales trabaja cada grupo.
+export function groupCounts(
+  exercises: Exercise[],
+  coachId: string | undefined,
+  tab: ExerciseTab,
+  search: string,
+): Record<MuscleGroup, number> {
+  const counts = Object.fromEntries(GROUP_OPTIONS.map((g) => [g, 0])) as Record<MuscleGroup, number>;
+  for (const e of exercises) {
+    if (!inTab(e, coachId, tab) || !matchesName(e, search)) continue;
+    for (const g of new Set(exerciseGroups(e))) counts[g] += 1;
+  }
+  return counts;
 }

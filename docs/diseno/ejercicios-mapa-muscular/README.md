@@ -96,6 +96,17 @@ La selección va en la dirección de la página (`?zonas=chest,core`): al recarg
 - **Nuevos:** componente `BodyFilter` (dos figuras y la lógica de selección), estado de selección múltiple en `ExercisesPage` (`Set` de grupos), `visibleExercises` con una lista de grupos y el orden «principal primero», contadores por grupo en `lib/exercises.ts`, y el parámetro `?zonas=`.
 - **Sin cambios:** formulario de crear y editar, filas de la lista, pestañas, buscador y la regla de que Míos vacío no muestra filtros.
 
+## Implementación (CYC-231)
+
+Construido en la web con las opciones recomendadas del diseño: criterio «cualquiera de las zonas» con los principales primero, botones de grupo de selección múltiple junto al mapa, página de 1120 px y zonas sin ejercicios desactivadas.
+
+- `apps/web/src/components/BodyFilter.tsx`: las dos figuras con las zonas; se carga de forma diferida (`lazy`) y reserva su alto. Va con `aria-hidden` y sin tabulación.
+- `apps/web/src/assets/body/`: `front.webp` y `back.webp` (≈ 16 KB cada una, en vez de ≈ 115 KB en PNG) y una copia de `bodyZones.ts` de la app móvil. **Si cambian las zonas en la app, hay que cambiarlas también aquí.**
+- `apps/web/src/lib/exercises.ts`: `visibleExercises` recibe una lista de grupos y ordena principales primero; `groupCounts`, `parseZones` (`?zonas=`), `toggleGroup`, `groupsLabel`, `onlySecondary`.
+- `apps/web/src/pages/ExercisesPage.tsx`: estado en la dirección (`?zonas=chest,core`, con `replace` para no llenar el historial), contador con `aria-live`, etiquetas con ×, «Limpiar», encabezado «También trabajan esta zona» y la tarjeta de cero resultados.
+- Pruebas: `apps/web/__tests__/mapaMuscular.test.ts`.
+- Pendiente de la usuaria: probarlo en escritorio, tablet y móvil web.
+
 ## Fuera de alcance
 
 - Usar el mapa para **elegir** el grupo al crear un ejercicio (podría ser una mejora del formulario más adelante).
