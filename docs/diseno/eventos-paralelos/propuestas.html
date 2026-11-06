@@ -189,6 +189,19 @@ svg.i{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-l
 .mb{width:10px;height:10px;border-radius:50%;background:var(--ink)}.mb.p{background:#fff;box-shadow:inset 0 0 0 2px var(--blue)}
 .mp{font-size:.68rem;font-weight:800;color:var(--ink2);line-height:14px}
 .mleg{display:flex;gap:12px;font-size:.72rem;font-weight:700;color:var(--ink2);margin:6px 2px 0;align-items:center}.mleg span{display:inline-flex;gap:5px;align-items:center}
+
+/* ===== v2 web compacta ===== */
+.pg{padding:12px 20px 18px}.pg h2{font-size:1.35rem;display:inline}
+.tb{margin:6px 0 8px;gap:12px}.sw{min-height:30px;font-size:.8rem}.lg{font-size:.75rem;gap:10px}
+.wkrow{grid-template-columns:48px repeat(7,minmax(0,1fr));gap:4px;margin-bottom:4px}.wl{font-size:.75rem;padding-top:6px}
+.dc{min-height:72px;padding:5px;gap:4px;border-radius:10px}.dc .dn{font-size:.72rem}
+.wses{padding:4px 7px;font-size:.78rem;border-radius:8px}.wses small{margin-top:1px;font-size:.72rem;gap:4px}
+.lay{padding-top:4px;gap:3px}.wev{min-height:22px;padding:1px 5px 1px 2px;font-size:.72rem;gap:4px;border-radius:6px}.wev .tile{width:18px;height:18px;border-radius:5px}
+.clashbar{padding:5px 10px;font-size:.78rem;border-radius:10px;margin:0 0 4px}.clashbar button{min-height:26px}
+.wc{padding:8px 12px;margin-top:8px;border-radius:10px}.wc h3{font-size:.95rem;margin-bottom:2px}
+.li{padding:5px 0;gap:8px;font-size:.8rem}.li .tile{width:24px;height:24px;border-radius:7px}.li b{display:inline;font-size:.84rem;margin-right:6px}.li small{font-size:.76rem}.li .nx{font-size:.76rem;white-space:nowrap}
+.li .pearls{display:inline-flex;flex-direction:row;gap:5px;vertical-align:middle}
+.pop{padding:9px 12px;font-size:.78rem}
 </style>
 </head>
 <body>
@@ -223,7 +236,7 @@ svg.i{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-l
 
 <section id="coach">
   <h2>4 Lo que ve el coach</h2>
-  <p>En la pizarra del ciclo, la capa del atleta va debajo de las sesiones, separada por una línea punteada, en chips pequeños de solo lectura (sin menú ni arrastre). Se puede apagar con el interruptor. El choque de carga se avisa con ámbar y texto.</p>
+  <p>Versión compacta (v2): celdas de 72 px de alto, chips de 22 px, fichas de una línea. En la pizarra del ciclo, la capa del atleta va debajo de las sesiones, separada por una línea punteada, en chips pequeños de solo lectura (sin menú ni arrastre). Se puede apagar con el interruptor. El choque de carga se avisa con ámbar y texto.</p>
   <div class="wrapw" id="wrapWeb"><div class="win" id="winWeb"></div></div>
   <div class="row" style="margin-top:16px">
     <div><p class="cap">Detalle del aviso (al tocar «Ver detalle»)</p><div class="pop" id="pop"></div></div>
@@ -372,9 +385,9 @@ const web=`<div class="hdr"><span class="logo">Cycles</span><nav><a>Inicio</a><a
 <div class="wkrow">${wk2}</div>
 <div class="wkrow">${wk3}<div class="wl"></div><div class="clashbar">${ic('warn',18)}<span class="m">Choque de carga: piernas pesadas el viernes y partido de liga el sábado, intensidad alta.</span><button type="button">Ver detalle</button></div></div>
 <div class="wc"><h3>Fuera del plan<span class="ro">${ic('lock',14)}Lo agrega Camila; tú solo lo ves</span></h3>
-<div class="li">${tile('training')}<div><b>Voleibol</b><small>Lunes y martes, 19:00 a 20:30, hasta el 20 dic</small></div><div class="nx">Próxima: mar 10 nov<br>${pearls(3).replace('pearls','pearls" style="align-items:flex-end')}</div></div>
-<div class="li">${tile('match')}<div><b>Partido de liga</b><small>Sábado y domingo, 10:00, hasta el 20 dic</small></div><div class="nx">Próxima: sáb 14 nov</div></div>
-<div class="li">${tile('rest')}<div><b>Caminata</b><small>Martes 10 nov, 7:30, 45 min</small></div><div class="nx">Una vez</div></div></div></div>`;
+<div class="li">${tile('training')}<div><b>Voleibol</b><small>Lun y mar, 19:00, hasta el 20 dic. Intensidad alta</small></div><div class="nx">Próxima: mar 10 nov</div></div>
+<div class="li">${tile('match')}<div><b>Partido de liga</b><small>Sáb y dom, 10:00, hasta el 20 dic. Intensidad alta</small></div><div class="nx">Próxima: sáb 14 nov</div></div>
+<div class="li">${tile('rest')}<div><b>Caminata</b><small>Mar 10 nov, 7:30. Intensidad suave</small></div><div class="nx">Una vez</div></div></div></div>`;
 document.getElementById('winWeb').innerHTML=web;
 document.getElementById('pop').innerHTML=`<h4>${ic('warn',18,'style="color:var(--warn)"')}Choque de carga</h4><p><b>Viernes 13:</b> Piernas pesadas, 24 series, la tercera parte más alta del ciclo.</p><p><b>Sábado 14:</b> Partido de liga, intensidad alta, 10:00.</p><p>Considera mover la sesión del viernes al jueves, o bajar su volumen. Esto es un aviso; no cambia nada.</p>`;
 document.getElementById('sw').onclick=function(){const on=!this.classList.contains('on');this.classList.toggle('on',on);this.setAttribute('aria-checked',on);document.querySelectorAll('[data-layer]').forEach(e=>e.style.display=on?'':'none')};

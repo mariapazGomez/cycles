@@ -10,6 +10,10 @@ updated: 2026-11-06
 
 > **Contrastado con `origin/main` 9ad48ec.** Estado: propuesto, pendiente de aprobación de la usuaria. Maqueta en [`propuestas.html`](propuestas.html) (se abre desde el disco). Desbloquea CYC-251 (API, ya en curso), CYC-252 (app móvil) y CYC-253 (web del coach).
 
+## v2 (2026-11-06): más compacto y con vista de mes
+
+La usuaria aprobó el flujo y pidió un diseño visual más compacto. Cambios: tarjetas de una línea (tile 22 px), márgenes de 4 a 6 px, hero del ciclo en una línea, hojas y formularios más bajos (texto ≥ 11 px, controles ≥ 32 px); **vista de mes completa** con el ícono de cada tipo en cada día, un punto por sesión del coach (oscuro = hecha, aro azul = pendiente), «+N» cuando no caben, detalle del día bajo la cuadrícula, flechas de mes y «Ir a hoy». Barra de dos controles: **Semana | Mes** y, en semana, **Ciclo | Fechas**. La web del coach también es compacta: celdas de 72 px, chips de 22 px y «Fuera del plan» en filas de una línea. Tarjeta de desarrollo de la vista de mes: CYC-254.
+
 ## Qué es
 
 El atleta agrega por su cuenta lo que hace fuera del plan: «lunes y martes entreno voleibol», «sábado y domingo tengo partidos de liga». No dependen del coach, pero el coach los ve para planear. Nombre en la interfaz: **actividades** (en la ficha del coach, sección **Fuera del plan**).
