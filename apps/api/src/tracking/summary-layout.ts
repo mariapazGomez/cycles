@@ -1,4 +1,7 @@
 import { BadRequestException } from "@nestjs/common";
+import type { ChartDefinition, ChartFilters } from "@cycles/shared";
+
+export type { ChartDefinition, ChartFilters };
 
 // Disposición de la pizarra de gráficos del Resumen del atleta (CYC-238, diseño
 // docs/diseno/resumen-atleta). Cada gráfico es una definición; la disposición
@@ -32,24 +35,6 @@ export const SESSION_STATES = ["hecha", "omitida", "pendiente"] as const;
 export const MAX_CHARTS = 30;
 const MAX_TITLE = 80;
 const ID_PATTERN = /^[a-z0-9][a-z0-9-]{0,62}$/;
-
-export interface ChartFilters {
-  ejercicioId?: string;
-  periodoSemanas?: number;
-  estadoSesion?: (typeof SESSION_STATES)[number];
-}
-
-export interface ChartDefinition {
-  id: string;
-  origen: (typeof ORIGINS)[number];
-  tamano: (typeof SIZES)[number];
-  visible: boolean;
-  titulo?: string;
-  medida?: (typeof MEASURES)[number];
-  agrupar?: (typeof GROUPINGS)[number];
-  forma?: (typeof SHAPES)[number];
-  filtros?: ChartFilters;
-}
 
 // Lo que ve un coach que todavía no guardó nada: los cinco del sistema, el de plan
 // contra real a todo lo ancho y primero (es el protagonista del diseño).

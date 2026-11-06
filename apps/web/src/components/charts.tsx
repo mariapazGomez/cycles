@@ -1,3 +1,4 @@
+import { useElementWidth } from "../hooks/useElementWidth";
 import { formatInteger, formatShortDate } from "../lib/format";
 
 // Gráficos del resumen del atleta. SVG a mano, sin librería: son pocos y
@@ -30,8 +31,11 @@ interface Week {
   load: number;
 }
 
+// Se dibuja al ancho real del contenedor (mínimo 280 px): así el texto conserva
+// su tamaño y no baja de 11 px en el celular (CYC-240).
 export function WeeklyLoadChart({ weeks }: { weeks: Week[] }) {
-  const W = 440;
+  const [ref, measured] = useElementWidth<HTMLDivElement>();
+  const W = Math.max(measured || 440, 280);
   const H = 220;
   const left = 48;
   const bottom = 28;
@@ -43,7 +47,8 @@ export function WeeklyLoadChart({ weeks }: { weeks: Week[] }) {
   const y = (v: number) => top + plotH - (v / max) * plotH;
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Carga semanal de las últimas semanas">
+    <div ref={ref} style={{ width: "100%" }}>
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Carga semanal de las últimas semanas">
       {ticks.map((t) => (
         <g key={t}>
           <line x1={left} x2={W} y1={y(t)} y2={y(t)} stroke={GRID} strokeWidth={1} />
@@ -76,11 +81,13 @@ export function WeeklyLoadChart({ weeks }: { weeks: Week[] }) {
         );
       })}
     </svg>
+    </div>
   );
 }
 
 export function AdherenceChart({ weeks }: { weeks: Week[] }) {
-  const W = 440;
+  const [ref, measured] = useElementWidth<HTMLDivElement>();
+  const W = Math.max(measured || 440, 280);
   const H = 220;
   const left = 32;
   const bottom = 28;
@@ -92,7 +99,8 @@ export function AdherenceChart({ weeks }: { weeks: Week[] }) {
   const ticks = Array.from({ length: max + 1 }, (_, i) => i).filter((t) => max <= 6 || t % 2 === 0);
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Sesiones por semana: completadas, omitidas y pendientes">
+    <div ref={ref} style={{ width: "100%" }}>
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Sesiones por semana: completadas, omitidas y pendientes">
       {ticks.map((t) => (
         <g key={t}>
           <line x1={left} x2={W} y1={top + plotH - t * unit} y2={top + plotH - t * unit} stroke={GRID} strokeWidth={1} />
@@ -129,6 +137,7 @@ export function AdherenceChart({ weeks }: { weeks: Week[] }) {
         );
       })}
     </svg>
+    </div>
   );
 }
 

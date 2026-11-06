@@ -1,9 +1,13 @@
-import { useState } from "react";
+import { Suspense, lazy, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import * as trackingApi from "../services/trackingApi";
 import { ApiError } from "../services/httpClient";
 import { AttentionList, useDismissedAlerts } from "../components/AttentionList";
-import { AdherenceChart, AdherenceLegend, Sparkline, WeeklyLoadChart } from "../components/charts";
+import { Sparkline } from "../components/charts";
+import { Skeleton } from "../components/Skeleton";
+
+// La pizarra (con d3) se carga solo al abrir el Resumen, para no pesar en el resto de la web.
+const SummaryBoard = lazy(() => import("../components/summary/SummaryBoard").then((m) => ({ default: m.SummaryBoard })));
 import { LoadingScreen } from "../components/LoadingScreen";
 import { formatKg, formatNumber, formatRir } from "../lib/format";
 
@@ -40,8 +44,6 @@ export function AthleteSummaryView({ athleteId }: { athleteId: string }) {
   const alerts = (attentionQuery.data ?? []).filter(
     (item) => item.athlete.id === athleteId && !isDismissed(item),
   );
-  const registered = summary.weeks.reduce((n, w) => n + w.completed + w.skipped, 0);
-  const assigned = summary.weeks.reduce((n, w) => n + w.assigned, 0);
 
   return (
     <div className="stack">
@@ -56,22 +58,9 @@ export function AthleteSummaryView({ athleteId }: { athleteId: string }) {
         </section>
       )}
 
-      <div className="chart-grid">
-        <section className="chart-card">
-          <h2 className="section-title">Carga semanal</h2>
-          <WeeklyLoadChart weeks={summary.weeks} />
-        </section>
-        <section className="chart-card">
-          <div className="card-header" style={{ padding: 0 }}>
-            <h2 className="section-title">Adherencia</h2>
-            <strong>
-              {registered} de {assigned} registradas
-            </strong>
-          </div>
-          <AdherenceLegend />
-          <AdherenceChart weeks={summary.weeks} />
-        </section>
-      </div>
+      <Suspense fallback={<Skeleton height={240} />}>
+        <SummaryBoard athleteId={athleteId} />
+      </Suspense>
 
       <section className="stack" style={{ gap: 12 }}>
         <h2 className="section-title">Ejercicios</h2>

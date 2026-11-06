@@ -21,6 +21,7 @@ import "./styles/athletes.css";
 import "./styles/library.css";
 import "./styles/exercises.css";
 import "./styles/account.css";
+import "./styles/summary.css";
 import "./styles/coach-radii.css";
 import { initAnalytics } from "./lib/analytics";
 import "./styles/landing.css";

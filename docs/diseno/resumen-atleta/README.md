@@ -273,6 +273,19 @@ La maqueta de la app (pestaña **App del atleta**) ya está dibujada con la fuen
 - **Pizarra del coach (web):** guardar la disposición del coach, por ejemplo `GET/PUT /coach/summary-layout` con la lista ordenada de definiciones (`id`, `tamano`, `visible` y, para los propios, `medida`, `agrupar`, `forma`, `filtros`). La primera versión puede traer solo los cinco del sistema y la reordenación; el constructor entra después sin cambiar el modelo. Arrastrar con la API de arrastre del navegador y botones **↑ Antes / ↓ Después** para teclado; autoguardado y **Deshacer** como en la pizarra de ciclos (`SaveIndicator`, `UndoToast`).
 - Definiciones para pruebas: peso real = promedio de las series de la sesión; diferencia = real − plan; desvío de RIR = RIR planificado − RIR reportado; constancia = hechas ÷ (hechas + omitidas) de las sesiones ya pasadas.
 
+## Implementación fase 1 en la web (CYC-240)
+
+**PR A, la pizarra en lectura** (la fase de «Organizar» es el PR B):
+
+- `components/summary/SummaryBoard.tsx` reemplaza los dos gráficos de la ficha: cinco cifras, filtro de periodo (Ciclo actual por defecto, Últimas 4 semanas, Todo el historial) y los cinco gráficos del sistema en el orden guardado con `GET /coach/summary-layout` (si falla, el orden por defecto). Se carga con `lazy` al abrir el Resumen.
+- Gráficos: peso planificado contra el cargado (el `StarChart` del spike, con fila de ejercicios y la línea de repeticiones al lado), Progreso del ciclo y Constancia (los de siempre, ahora dibujados al ancho real), Esfuerzo (línea con huecos) y Cuánto costó cada ejercicio (barras desde el cero, en HTML). Cada uno con «Ver como tabla».
+- `lib/summaryBoard.ts`: la lógica pura (ciclos y sesiones por periodo, series, cifras, orden). «Todo el historial» junta como máximo los **últimos 5 ciclos**.
+- Datos: `AthleteSummary` (26 semanas, filtradas en el cliente) y `/cycles/:id/progress` de los ciclos elegidos. Las fechas de las sesiones son aproximadas (inicio del ciclo + semanas); el progreso no trae la fecha real de cada sesión.
+- Estados: cargando (esqueletos), error por gráfico con Reintentar, sin datos, poco historial, peso corporal y sin plan de peso.
+- Texto de los gráficos de al menos 12 px a 390, 800 y 1280 px de ancho (medido en el navegador).
+- El filtro de periodo no se guarda en el servidor.
+- **Contrato API ↔ web:** los tipos de `GET /athletes/:id/summary`, `GET /cycles/:id/progress` y `GET/PUT /coach/summary-layout` viven en `packages/shared/src/types/summary.ts`; la API tipa lo que devuelve con ellos y la web los usa tal cual. `packages/shared/src/fixtures/resumen.ts` trae un ejemplo de cada respuesta, y la prueba e2e `contrato-resumen` comprueba que la respuesta real de la API tiene su misma forma (claves, listas y tipos). Las pruebas de la web usan esos ejemplos.
+
 ## Fuera de alcance
 
 - Fuerza estimada (1RM) por ejercicio: se conserva la de la tabla actual; no entra en estos gráficos.
