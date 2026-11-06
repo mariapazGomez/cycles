@@ -25,7 +25,8 @@ test('valida nombre, fecha, hora y duración', () => {
   expect(validateForm(base({ startTime: '25:00' })).startTime).toBeDefined();
   expect(validateForm(base({ startTime: '19:00' })).startTime).toBeUndefined();
   expect(validateForm(base({ durationMin: '0' })).durationMin).toBeDefined();
-  expect(validateForm(base({ durationMin: '1441' })).durationMin).toBeDefined();
+  expect(validateForm(base({ durationMin: '601' })).durationMin).toContain('600');
+  expect(validateForm(base({ durationMin: '600' })).durationMin).toBeUndefined();
   expect(validateForm(base({ durationMin: '90' })).durationMin).toBeUndefined();
 });
 
@@ -75,4 +76,8 @@ test('repeatSummary cuenta cada día entre el inicio y la fecha final', () => {
   expect(repeatSummary(base({ repeats: true, repeatDays: [0], until: '' }))).toBe('Se repite todas las semanas, sin fecha final.');
   expect(repeatSummary(base({ repeats: false }))).toBe('');
   expect(repeatSummary(base({ repeats: true, repeatDays: [] }))).toBe('');
+});
+
+test('las notas se recortan a 500 letras (regla de la API)', () => {
+  expect(buildCreateInput(base({ notes: 'n'.repeat(900) })).notes).toHaveLength(500);
 });

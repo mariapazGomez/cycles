@@ -133,7 +133,7 @@ export function EventForm({ initial, editing, saving, error, onSubmit, onDelete,
       </View>
 
       <Text style={styles.label}>Notas (opcional)</Text>
-      <TextInput style={styles.input} value={form.notes} onChangeText={value => set('notes', value)} accessibilityLabel="Notas" multiline maxLength={300} />
+      <TextInput style={styles.input} value={form.notes} onChangeText={value => set('notes', value)} accessibilityLabel="Notas" multiline maxLength={500} />
 
       {(!editing || !editing.isSeries || scope === 'series') && (
         <>

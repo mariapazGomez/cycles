@@ -30,6 +30,28 @@ export interface AthleteEventOccurrence {
   repeat: EventRepeat | null;
 }
 
+// La serie completa (POST y PATCH la devuelven): la misma forma sin los datos de una
+// ocurrencia concreta. `date` es el día de inicio de la serie.
+export interface AthleteEventSeries {
+  id: string;
+  type: EventType;
+  title: string;
+  date: string;
+  startTime: string | null;
+  durationMin: number | null;
+  allDay: boolean;
+  intensity: EventIntensity | null;
+  notes: string | null;
+  repeat: EventRepeat | null;
+}
+
+// Reglas acordadas con la API (CYC-251): título 1–60, notas hasta 500, duración 1–600 min,
+// rango de consulta de 92 días como máximo, allDay ⇒ sin hora ni duración.
+export const EVENT_TITLE_MAX = 60;
+export const EVENT_NOTES_MAX = 500;
+export const EVENT_DURATION_MAX = 600;
+export const EVENT_RANGE_MAX_DAYS = 92;
+
 export interface AthleteEventsResponse {
   events: AthleteEventOccurrence[];
 }
@@ -46,7 +68,8 @@ export interface CreateAthleteEventInput {
   repeat?: EventRepeat | null;
 }
 
-// Editar: «solo este día» (occurrence, con la fecha de esa ocurrencia) o «toda la serie».
+// Editar: «solo este día» (occurrence, con la fecha de esa ocurrencia en `occurrenceDate`,
+// obligatoria en ese caso) o «toda la serie».
 export interface UpdateAthleteEventInput extends Partial<CreateAthleteEventInput> {
   scope: EventScope;
   occurrenceDate?: string;

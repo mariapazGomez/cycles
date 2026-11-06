@@ -27,7 +27,9 @@ export interface EventFormState {
 export type FormErrors = Partial<Record<'title' | 'date' | 'startTime' | 'durationMin' | 'repeatDays' | 'until', string>>;
 
 export const TITLE_MAX = 60;
-export const NOTES_MAX = 300;
+// Mismas reglas que la API (CYC-251).
+export const NOTES_MAX = 500;
+export const DURATION_MAX = 600;
 
 export function emptyForm(date: string, type: EventType = 'training'): EventFormState {
   return {
@@ -74,8 +76,8 @@ export function validateForm(form: EventFormState): FormErrors {
   }
   if (!form.allDay && form.durationMin) {
     const minutes = Number(form.durationMin);
-    if (!Number.isInteger(minutes) || minutes < 1 || minutes > 1440) {
-      errors.durationMin = 'La duración va de 1 a 1440 minutos.';
+    if (!Number.isInteger(minutes) || minutes < 1 || minutes > DURATION_MAX) {
+      errors.durationMin = `La duración va de 1 a ${DURATION_MAX} minutos.`;
     }
   }
   if (form.repeats) {

@@ -1,5 +1,6 @@
 import type {
   AthleteEventOccurrence,
+  AthleteEventSeries,
   AthleteEventsResponse,
   CreateAthleteEventInput,
   EventScope,
@@ -7,7 +8,7 @@ import type {
 } from '@cycles/shared';
 import { apiRequest } from './httpClient';
 
-export type { AthleteEventOccurrence, CreateAthleteEventInput, EventScope, UpdateAthleteEventInput };
+export type { AthleteEventOccurrence, AthleteEventSeries, CreateAthleteEventInput, EventScope, UpdateAthleteEventInput };
 
 // Actividades paralelas del atleta (CYC-252): /me/events. La API responde `{ events: [...] }`
 // con la repetición ya expandida por rango. Se acepta también una lista suelta y cualquier
@@ -21,11 +22,11 @@ export async function fetchEvents(from: string, to: string): Promise<AthleteEven
 }
 
 export function createEvent(input: CreateAthleteEventInput) {
-  return apiRequest<unknown>('/me/events', { method: 'POST', body: input });
+  return apiRequest<AthleteEventSeries>('/me/events', { method: 'POST', body: input });
 }
 
 export function updateEvent(seriesId: string, input: UpdateAthleteEventInput) {
-  return apiRequest<unknown>(`/me/events/${seriesId}`, { method: 'PATCH', body: input });
+  return apiRequest<AthleteEventSeries>(`/me/events/${seriesId}`, { method: 'PATCH', body: input });
 }
 
 export function deleteEvent(seriesId: string, scope: EventScope, occurrenceDate?: string) {

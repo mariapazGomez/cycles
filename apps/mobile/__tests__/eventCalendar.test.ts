@@ -57,6 +57,14 @@ test('monthRange cubre el mes completo con sus días de relleno', () => {
   expect(monthRange(2026, 11)).toEqual({ from: '2026-10-26', to: '2026-12-06' });
 });
 
+test('el rango de un mes cabe en el máximo que acepta la API (92 días)', () => {
+  for (let month = 1; month <= 12; month++) {
+    const { from, to } = monthRange(2026, month);
+    const days = (Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86400000 + 1;
+    expect(days).toBeLessThanOrEqual(92);
+  }
+});
+
 test('shiftMonth cruza el año hacia los dos lados', () => {
   expect(shiftMonth(2026, 12, 1)).toEqual({ year: 2027, month: 1 });
   expect(shiftMonth(2026, 1, -1)).toEqual({ year: 2025, month: 12 });
