@@ -114,13 +114,14 @@ function body(form: EventFormState): CreateAthleteEventInput {
 
 export const buildCreateInput = (form: EventFormState): CreateAthleteEventInput => body(form);
 
-// Editar «solo este día» manda la fecha de la ocurrencia y no toca la repetición;
-// «toda la serie» manda todo, repetición incluida.
+// Editar «solo este día» manda la fecha de la ocurrencia (`occurrenceDate`) y NO manda `date`
+// ni la repetición: la API rechaza (400) mover una ocurrencia en la v1; se borra y se crea otra.
+// «Toda la serie» manda todo (`date` es el día de inicio de la serie), sin `occurrenceDate`.
 export function buildUpdateInput(form: EventFormState, scope: EventScope, occurrenceDate: string): UpdateAthleteEventInput {
-  const { repeat, ...rest } = body(form);
+  const { repeat, date, ...rest } = body(form);
   return scope === 'occurrence'
     ? { ...rest, scope, occurrenceDate }
-    : { ...rest, repeat, scope };
+    : { ...rest, date, repeat, scope };
 }
 
 const PLURAL = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábados', 'domingos'];

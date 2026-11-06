@@ -68,8 +68,10 @@ export interface CreateAthleteEventInput {
   repeat?: EventRepeat | null;
 }
 
-// Editar: «solo este día» (occurrence, con la fecha de esa ocurrencia en `occurrenceDate`,
-// obligatoria en ese caso) o «toda la serie».
+// Editar: «solo este día» (occurrence) o «toda la serie» (series). Con occurrence,
+// `occurrenceDate` es obligatoria y `date` NO se manda (la API v1 no deja mover una
+// ocurrencia: 400); con series, `occurrenceDate` no se manda y `date` cambia el día de
+// inicio de la serie (debe caer en uno de sus días si repite).
 export interface UpdateAthleteEventInput extends Partial<CreateAthleteEventInput> {
   scope: EventScope;
   occurrenceDate?: string;

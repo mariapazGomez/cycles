@@ -78,6 +78,8 @@ export function EventForm({ initial, editing, saving, error, onSubmit, onDelete,
     set('repeatDays', form.repeatDays.includes(day) ? form.repeatDays.filter(d => d !== day) : [...form.repeatDays, day]);
   const summary = repeatSummary(form);
   const wholeSeriesOnly = Boolean(editing?.isSeries) && scope === 'occurrence';
+  // La API no deja mover una ocurrencia en la v1 (CYC-251): con «solo este día» la fecha no cambia.
+  const dateLocked = wholeSeriesOnly;
 
   return (
     <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
@@ -102,7 +104,15 @@ export function EventForm({ initial, editing, saving, error, onSubmit, onDelete,
       {errors.title && <Text style={styles.error}>{errors.title}</Text>}
 
       <Text style={styles.label}>Fecha (AAAA-MM-DD)</Text>
-      <TextInput style={styles.input} value={form.date} onChangeText={value => set('date', value)} accessibilityLabel="Fecha" autoCapitalize="none" />
+      <TextInput
+        style={[styles.input, dateLocked && styles.locked]}
+        value={form.date}
+        onChangeText={value => set('date', value)}
+        editable={!dateLocked}
+        accessibilityLabel="Fecha"
+        autoCapitalize="none"
+      />
+      {dateLocked && <Text style={styles.hint}>Para mover un día, elimínalo y crea otro.</Text>}
       {errors.date && <Text style={styles.error}>{errors.date}</Text>}
 
       <View style={styles.switchRow}>
@@ -201,6 +211,7 @@ const styles = StyleSheet.create({
   primary: { minHeight: 48, borderRadius: 999, backgroundColor: '#3080fc', alignItems: 'center', justifyContent: 'center', marginTop: 12 },
   primaryText: { color: '#ffffff', fontSize: 16, fontWeight: '700' },
   disabled: { opacity: 0.6 },
+  locked: { backgroundColor: '#f1f3f6', color: '#5c6068' },
   danger: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   dangerText: { color: '#b3261e', fontSize: 15, fontWeight: '600' },
   secondary: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },

@@ -58,10 +58,12 @@ test('editar una serie ofrece «Solo este día» (predeterminado) y «Toda la se
   act(() => byLabel(tree, 'Guardar').props.onPress());
   expect(onSubmit.mock.calls[0][0]).toMatchObject({ kind: 'update', scope: 'occurrence', input: { occurrenceDate: '2026-11-09' } });
   expect(texts(tree)).toContain('Eliminar solo este día');
+  expect(byLabel(tree, 'Fecha').props.editable).toBe(false);
   act(() => byLabel(tree, 'Eliminar').props.onPress());
   expect(onDelete).toHaveBeenCalledWith('occurrence');
   act(() => byLabel(tree, 'Toda la serie').props.onPress());
   expect(texts(tree)).toContain('Eliminar toda la serie');
+  expect(byLabel(tree, 'Fecha').props.editable).toBe(true);
   act(() => byLabel(tree, 'Guardar').props.onPress());
   expect(onSubmit.mock.calls[1][0]).toMatchObject({ kind: 'update', scope: 'series', input: { repeat: { days: [0, 1] } } });
 });

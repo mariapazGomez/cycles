@@ -58,13 +58,14 @@ test('buildCreateInput arma la petición con la repetición ordenada y sin espac
   expect(buildCreateInput(base({ notes: '' })).notes).toBeNull();
 });
 
-test('editar «solo este día» manda la fecha de la ocurrencia y no la repetición; «toda la serie» sí', () => {
+test('editar «solo este día» manda occurrenceDate y no date ni repetición; «toda la serie» manda date y repetición pero no occurrenceDate', () => {
   const form = base({ repeats: true, repeatDays: [0], until: '2026-12-14' });
   const one = buildUpdateInput(form, 'occurrence', '2026-11-09');
   expect(one).toMatchObject({ scope: 'occurrence', occurrenceDate: '2026-11-09' });
   expect(one).not.toHaveProperty('repeat');
+  expect(one).not.toHaveProperty('date');
   const all = buildUpdateInput(form, 'series', '2026-11-09');
-  expect(all).toMatchObject({ scope: 'series', repeat: { days: [0], until: '2026-12-14' } });
+  expect(all).toMatchObject({ scope: 'series', date: '2026-11-02', repeat: { days: [0], until: '2026-12-14' } });
   expect(all).not.toHaveProperty('occurrenceDate');
 });
 
