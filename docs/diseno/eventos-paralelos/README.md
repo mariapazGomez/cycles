@@ -14,6 +14,10 @@ updated: 2026-11-06
 
 La usuaria aprobó el flujo y pidió un diseño visual más compacto. Cambios: tarjetas de una línea (tile 22 px), márgenes de 4 a 6 px, hero del ciclo en una línea, hojas y formularios más bajos (texto ≥ 11 px, controles ≥ 32 px); **vista de mes completa** con el ícono de cada tipo en cada día, un punto por sesión del coach (oscuro = hecha, aro azul = pendiente), «+N» cuando no caben, detalle del día bajo la cuadrícula, flechas de mes y «Ir a hoy». Barra de dos controles: **Semana | Mes** y, en semana, **Ciclo | Fechas**. La web del coach también es compacta: celdas de 72 px, chips de 22 px y «Fuera del plan» en filas de una línea. Tarjeta de desarrollo de la vista de mes: CYC-254.
 
+## v3 (2026-11-06): íconos de pictograma con color
+
+La usuaria dijo que los íconos de trazo se veían planos y sin la personalidad de la marca, y entregó una referencia: pictogramas rellenos dentro de círculos de color. Cambios: **perlas de color** (círculo con anillo, el motivo de la marca) con **pictograma relleno blanco**, un ícono por deporte (voleibol, fútbol, básquetbol, correr, ciclismo, natación, pesas, yoga, otro) y por tipo (partido o competencia, descanso activo, viaje, lesión, otro); el **color según la familia** (naranja deporte, verde fuerza, azul descanso, oscuro competencia, rojo lesión, gris otros); **tarjetas con tinte** del color de su familia en lugar de borde punteado gris; chips de deporte con su ícono en el alta. Los glifos son de Phosphor Icons, peso «fill» (licencia MIT); para la app se pueden usar los mismos SVG o el paquete oficial para React Native. Los íconos de interfaz (más, repetir, candado) siguen siendo de trazo.
+
 ## Qué es
 
 El atleta agrega por su cuenta lo que hace fuera del plan: «lunes y martes entreno voleibol», «sábado y domingo tengo partidos de liga». No dependen del coach, pero el coach los ve para planear. Nombre en la interfaz: **actividades** (en la ficha del coach, sección **Fuera del plan**).
