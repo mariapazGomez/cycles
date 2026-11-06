@@ -156,7 +156,7 @@ svg.i{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-l
 <body>
 <div class="top">
   <h1>Actividades paralelas del atleta (CYC-237)</h1>
-  <div class="nav"><a href="#tarjetas">1 Tarjetas e íconos</a><a href="#semana">2 Calendario semanal</a><a href="#alta">3 Alta, edición y borrado</a><a href="#coach">4 Lo que ve el coach</a><a href="#vacios">5 Estados vacíos y sin coach</a></div>
+  <div class="nav"><a href="#tarjetas">1 Tarjetas e íconos</a><a href="#semana">2 Calendario semanal</a><a href="#alta">3 Alta, edición y borrado</a><a href="#coach">4 Lo que ve el coach</a><a href="#vacios">5 Estados vacíos y sin coach</a><a href="#fechas">6 Por fechas y pestaña Hoy</a></div>
 </div>
 
 <section id="tarjetas">
@@ -197,6 +197,12 @@ svg.i{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-l
   <p>Con ciclo y sin actividades; sin coach todavía (puede agregar, solo lo ve él); error al cargar las actividades (las sesiones siguen visibles); y la ficha del coach cuando el atleta no ha agregado nada.</p>
   <div class="row" id="rowVacios"></div>
   <div class="wrapw" style="margin-top:18px"><div class="win" id="winEmp" style="width:760px"></div></div>
+</section>
+<section id="fechas">
+  <h2>6 Calendario por fechas y pestaña Hoy</h2>
+  <p>Las actividades no dependen del ciclo ni del coach. El calendario gana un modo por <b>semana calendario</b> (fechas reales); el modo ciclo sigue como hoy. Sin ciclo, solo existe el modo fechas.</p>
+  <div class="row" id="rowFechas"></div>
+  <div class="note">1: con ciclo, el interruptor «Ciclo | Fechas» (solo aparece con ciclo activo) y las flechas navegan por fechas, también antes y después del ciclo. 2: semana anterior al ciclo, solo actividades y la etiqueta «Fuera del ciclo». 3: sin ciclo ni coach, con actividades. 4: pestaña Hoy con la fila «Hoy también».</div>
 </section>
 <script>
 const P={
@@ -312,6 +318,15 @@ const emp2=phone(header()+`<div class="ban">${ic('lock',20)}<div>Aún no tienes 
 const emp3=phone(header()+hero('Semana 3 de 6')+`<div class="card"><div class="wk"><b class="on">S3</b></div>${strip([['bd done'],['bd done'],['bd pend'],[],['bd pend'],[],[]])}</div><div class="ban err">${ic('warn',20)}<div>No se pudieron cargar tus actividades. Tus sesiones sí están al día.<br><span class="btn">Reintentar</span></div></div>`+day('Mié 11',1)+sess(2,'Torso B','next','Pendiente')+day('Vie 13')+sess(3,'Piernas pesadas','','Pendiente'),{});
 document.getElementById('rowVacios').innerHTML=[['Con ciclo, sin actividades',emp1],['Sin coach todavía',emp2],['Error al cargar actividades',emp3]].map(([c,h])=>`<div class="col"><p class="cap">${c}</p>${h}</div>`).join('');
 document.getElementById('winEmp').innerHTML=`<div class="pg"><div class="wc" style="margin-top:0"><h3>Fuera del plan<span class="ro">${ic('lock',14)}Solo lectura</span></h3><div class="wemp"><b>Camila aún no agregó actividades por su cuenta.</b>Cuando agregue un partido o un entrenamiento, aparecerá aquí y en la pizarra.</div></div></div>`;
+
+// 6
+const seg=(m)=>`<div class="wk" style="margin-bottom:10px"><b class="${m?'':'on'}">Ciclo</b><b class="${m?'on':''}">Fechas</b></div>`;
+const nav=(r,tag)=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><button class="hbtn" style="background:var(--gray);color:var(--ink)" aria-label="Semana anterior">${ic('back',18)}</button><div style="flex:1;text-align:center"><strong style="font-size:1rem">${r}</strong>${tag?`<div><span class="pill" style="margin-top:2px">${tag}</span></div>`:''}</div><button class="hbtn" style="background:var(--gray);color:var(--ink)" aria-label="Semana siguiente">${ic('chev',18)}</button></div><div style="text-align:center;margin-bottom:4px"><span class="link" style="color:var(--blue);font-weight:800;font-size:.82rem;text-decoration:underline">Ir a hoy</span></div>`;
+const f1=phone(header()+hero('Semana 3 de 6')+`<div class="card">${seg(1)}${nav('9 al 15 de noviembre')}${strip(wkM)}</div>`+day('Lun 9')+sess(1,'Tren inferior A','done','Hecha')+evA('training','Voleibol','19:00, 90 min',3,{past:1,rep:1})+day('Mar 10')+evA('training','Voleibol','19:00, 90 min',3,{past:1,rep:1})+day('Mié 11',1)+sess(2,'Torso B','next','Pendiente')+evA('other','Cumpleaños de Ana','Todo el día',0));
+const f2=phone(header()+`<div class="card">${seg(1)}${nav('26 oct al 1 de noviembre','Fuera del ciclo')}${strip([[],['ev'],[],['ev'],[],['ev'],[]]).replace(/>9</g,'>26<').replace(/>10</g,'>27<').replace(/>11</g,'>28<').replace(/>12</g,'>29<').replace(/>13</g,'>30<').replace(/>14</g,'>31<').replace(/>15</g,'>1<').replace('n today','n')}</div>`+day('Mar 27')+evA('training','Voleibol','19:00, 90 min',3,{past:1,rep:1})+day('Jue 29')+evA('training','Voleibol','19:00, 90 min',3,{past:1,rep:1})+day('Sáb 31')+evA('match','Partido de liga','10:00, 2 h',3,{past:1,rep:1})+`<div class="emp" style="margin-top:12px">Tu ciclo Fuerza base empieza el lunes 2 de noviembre.</div>`);
+const f3=emp2.replace('Esta semana','9 al 15 nov');
+const f4=phone(`<div class="pt"><span style="color:var(--brand)">◯</span>Hoy<span class="sp"></span><span class="avt">CR</span></div><div class="card hero"><small>Miércoles 11 de noviembre</small><h4 style="font-size:1.3rem;margin:2px 0 8px">Torso B</h4><div class="cta" style="min-height:44px">Empezar sesión</div></div><div class="evrow" style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px dashed var(--dash);border-radius:12px;font-size:.88rem;font-weight:700;background:rgba(255,255,255,.55)">${tile('training',1)}<span>Hoy también: voleibol, 19:00</span><span style="margin-left:auto;color:var(--blue);display:flex">${ic('chev',16)}</span></div><p style="font-size:.78rem;color:var(--ink2);font-weight:600;margin:10px 2px 0">Con dos o más: «Hoy también: voleibol y 1 más». Toca la fila para abrir el calendario en ese día. Sin actividades, la fila no aparece.</p>`);
+document.getElementById('rowFechas').innerHTML=[['1 Modo fechas con ciclo',f1],['2 Semana antes del ciclo',f2],['3 Sin ciclo ni coach',f3],['4 Pestaña Hoy',f4]].map(([c,h])=>`<div class="col"><p class="cap">${c}</p>${h}</div>`).join('');
 
 // escala de la ventana web
 function fit(){document.querySelectorAll('.wrapw').forEach(w=>{const win=w.firstElementChild;const k=Math.min(1,(w.clientWidth)/win.offsetWidth);win.style.zoom=k;});}

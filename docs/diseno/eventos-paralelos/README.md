@@ -67,6 +67,14 @@ Estados: **hoy** (encabezado «Hoy» en azul), **pasado** (se atenúa, sin check
 - **Error:** aviso rojo «No se pudieron cargar tus actividades. Tus sesiones sí están al día.» con **Reintentar**; el error de actividades nunca esconde las sesiones.
 - **Coach sin actividades:** «Camila aún no agregó actividades por su cuenta.».
 
+## 6. Calendario por fechas y pestaña Hoy (supuestos de App móvil, recomendados)
+
+- **Modo por semana calendario.** Las actividades son independientes del ciclo y del coach: se ven y se agregan también sin ciclo activo y sin coach. El Calendario suma un modo por **fechas reales**; el modo ciclo (S1, S2…) sigue como hoy. Con ciclo activo aparece el interruptor **Ciclo | Fechas** (flechas de semana anterior y siguiente, y «Ir a hoy»). Sin ciclo solo existe el modo fechas, sin hero ni interruptor.
+- **Semanas antes y después del ciclo:** mismo calendario con las actividades y la etiqueta «Fuera del ciclo»; sin sesiones del coach. Antes del inicio, una tarjeta avisa cuándo empieza el ciclo.
+- **Sin ciclo y sin coach:** en la maqueta (pantalla 3 de la sección 6 y la de «sin coach» de la sección 5) se agrega y se ve todo; el aviso de que solo lo ve el atleta se mantiene.
+- **Pestaña Hoy:** fila discreta con borde punteado bajo la sesión: «Hoy también: voleibol, 19:00»; con varias, «voleibol y 1 más». Al tocarla abre el calendario en ese día. Sin actividades hoy, no aparece.
+- **Sin hora = día local del atleta** (`toLocalDay`), sin zona horaria; se muestra «Todo el día» y se ordena antes que las que tienen hora.
+
 ## Privacidad (para CYC-251)
 
 - Solo el atleta crea, edita y borra las suyas. El coach, **solo lectura** y solo con relación **activa** (R5); si la relación termina, el coach deja de verlas y el atleta las conserva.
