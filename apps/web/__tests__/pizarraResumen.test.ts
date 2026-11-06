@@ -4,6 +4,8 @@ import {
   MAX_CYCLES, boardSessions, boardStats, boardWeeks, chooseCycles, defaultExercise, effortPoints, exerciseOptions,
   repsPoints, rirBars, visibleCharts, weightMode, weightPoints, type CycleEntry,
 } from "../src/lib/summaryBoard";
+import { DEFAULT_LAYOUT, hiddenCharts, hideChart, moveChart, moveChartBefore, resetLayout, resizeChart, showChart, type ChartDef } from "../src/lib/summaryBoard";
+import { athleteSummaryFixture, cycleProgressFixture, summaryLayoutFixture } from "../../../packages/shared/src/fixtures/resumen";
 
 // CYC-240: lógica de la pizarra de gráficos del Resumen del atleta.
 const cycle = (id: string, start: string, end: string, over: Partial<TrainingCycle> = {}) =>
@@ -127,9 +129,68 @@ describe("disposición", () => {
   });
 });
 
+
+describe("modo Organizar", () => {
+  const ids = (l: ChartDef[]) => l.map((c) => c.id);
+  const base = DEFAULT_LAYOUT.map((c) => ({ ...c }));
+
+  it("mover antes o después intercambia con el vecino y avisa la posición", () => {
+    const r = moveChart(base, "constancia", "before")!;
+    expect(ids(r.layout)).toEqual(["plan-real", "constancia", "progreso-ciclo", "esfuerzo", "costo-ejercicio"]);
+    expect(r.message).toBe("Moviste «Constancia» una posición antes (ahora 2 de 5).");
+    expect(moveChart(base, "plan-real", "before")).toBeNull();
+    expect(moveChart(base, "costo-ejercicio", "after")).toBeNull();
+    expect(moveChart(base, "no-existe", "after")).toBeNull();
+  });
+
+  it("al mover se salta a los ocultos, que conservan su lugar", () => {
+    const hidden = hideChart(base, "progreso-ciclo")!.layout;
+    const r = moveChart(hidden, "constancia", "before")!;
+    expect(ids(r.layout)).toEqual(["constancia", "progreso-ciclo", "plan-real", "esfuerzo", "costo-ejercicio"]);
+    expect(r.layout.find((c) => c.id === "progreso-ciclo")!.visible).toBe(false);
+  });
+
+  it("arrastrar deja el gráfico justo antes del destino", () => {
+    const r = moveChartBefore(base, "costo-ejercicio", "progreso-ciclo")!;
+    expect(ids(r.layout)).toEqual(["plan-real", "costo-ejercicio", "progreso-ciclo", "constancia", "esfuerzo"]);
+    expect(moveChartBefore(base, "constancia", "constancia")).toBeNull();
+  });
+
+  it("cambia el tamaño y no hace nada si ya lo tiene", () => {
+    const r = resizeChart(base, "esfuerzo", "completo")!;
+    expect(r.layout.find((c) => c.id === "esfuerzo")!.tamano).toBe("completo");
+    expect(resizeChart(base, "esfuerzo", "mitad")).toBeNull();
+  });
+
+  it("quitar oculta (no borra) y mostrar lo devuelve al final de los visibles", () => {
+    const hidden = hideChart(base, "constancia")!;
+    expect(hidden.layout).toHaveLength(5);
+    expect(hiddenCharts(hidden.layout).map((c) => c.id)).toEqual(["constancia"]);
+    expect(hideChart(hidden.layout, "constancia")).toBeNull();
+    const shown = showChart(hidden.layout, "constancia")!;
+    expect(ids(shown.layout)).toEqual(["plan-real", "progreso-ciclo", "esfuerzo", "costo-ejercicio", "constancia"]);
+    expect(shown.layout.every((c) => c.visible)).toBe(true);
+  });
+
+  it("restablecer vuelve al orden original y no avisa si ya estaba así", () => {
+    const moved = moveChart(hideChart(base, "esfuerzo")!.layout, "constancia", "before")!.layout;
+    const r = resetLayout(moved)!;
+    expect(ids(r.layout)).toEqual(ids(DEFAULT_LAYOUT));
+    expect(r.layout.every((c) => c.visible)).toBe(true);
+    expect(resetLayout(base)).toBeNull();
+  });
+
+  it("no modifica la lista original", () => {
+    const copy = JSON.stringify(base);
+    moveChart(base, "constancia", "before");
+    hideChart(base, "esfuerzo");
+    resizeChart(base, "esfuerzo", "completo");
+    expect(JSON.stringify(base)).toBe(copy);
+  });
+});
+
 // Con la forma REAL de la API (el ejemplo de @cycles/shared que la prueba e2e de la API
 // comprueba contra las respuestas verdaderas), no con datos inventados.
-import { athleteSummaryFixture, cycleProgressFixture, summaryLayoutFixture } from "../../../packages/shared/src/fixtures/resumen";
 
 describe("la pizarra con el contrato real de la API", () => {
   const fixtureCycle = cycle("cycle-1", "2026-10-05", "2026-11-15");
