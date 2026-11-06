@@ -50,7 +50,7 @@ test('buildCreateInput arma la petición con la repetición ordenada y sin espac
     base({ title: '  Voleibol ', startTime: '19:00', durationMin: '90', repeats: true, repeatDays: [1, 0], until: '2026-12-14', notes: '  Cancha 2 ' }),
   );
   expect(input).toEqual({
-    type: 'training', title: 'Voleibol', date: '2026-11-02', allDay: false, startTime: '19:00', durationMin: 90,
+    type: 'training', sport: null, title: 'Voleibol', date: '2026-11-02', allDay: false, startTime: '19:00', durationMin: 90,
     intensity: 'medium', notes: 'Cancha 2', repeat: { days: [0, 1], until: '2026-12-14' },
   });
   expect(buildCreateInput(base({ repeats: true, repeatDays: [5], until: '' })).repeat).toEqual({ days: [5], until: null });
@@ -81,4 +81,10 @@ test('repeatSummary cuenta cada día entre el inicio y la fecha final', () => {
 
 test('las notas se recortan a 500 letras (regla de la API)', () => {
   expect(buildCreateInput(base({ notes: 'n'.repeat(900) })).notes).toHaveLength(500);
+});
+
+test('el deporte solo viaja en los entrenamientos', () => {
+  expect(buildCreateInput(base({ sport: 'volleyball' })).sport).toBe('volleyball');
+  expect(buildCreateInput(base({ type: 'match', sport: 'volleyball' })).sport).toBeNull();
+  expect(buildCreateInput(base()).sport).toBeNull();
 });

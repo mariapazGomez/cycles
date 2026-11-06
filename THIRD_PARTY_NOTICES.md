@@ -4,6 +4,8 @@
 
 Los pictogramas de las actividades paralelas del atleta (voleibol, fútbol, básquetbol, correr, ciclismo, natación, pesas, yoga, copa, caminata, maleta, venda y puntos) son glifos de [Phosphor Icons](https://phosphoricons.com), incrustados como trazados SVG en `apps/mobile/src/components/events/glyphs.ts` (CYC-252). No se agrega ningún paquete.
 
+> **VERIFICAR CONTRA EL LICENSE OFICIAL (pendiente, no validado):** el aviso de derechos de autor de abajo está escrito desde el texto estándar de la licencia MIT, no copiado del archivo oficial.
+
 Licencia MIT (texto estándar; el aviso de derechos de autor sale del repositorio oficial de Phosphor, <https://github.com/phosphor-icons/core>, y conviene cotejarlo con su archivo `LICENSE` al actualizar los glifos):
 
 ```

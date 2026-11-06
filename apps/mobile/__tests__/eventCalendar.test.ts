@@ -14,7 +14,7 @@ import {
 } from '../src/utils/eventCalendar';
 
 const ev = (date: string, title: string, startTime: string | null = null, allDay = false) => ({
-  seriesId: title, date, isException: false, type: 'training' as const, title, startTime, durationMin: null, allDay,
+  seriesId: title, date, isException: false, type: 'training' as const, sport: null, title, startTime, durationMin: null, allDay,
   intensity: null, notes: null, repeat: null,
 });
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import type { EventIntensity, EventScope, EventType } from '@cycles/shared';
+import type { EventIntensity, EventScope, EventSport, EventType } from '@cycles/shared';
+import { SPORT_KIND } from './eventKinds';
 import { WEEKDAY_SHORT } from '../../utils/eventCalendar';
 import {
   buildCreateInput,
@@ -92,7 +93,23 @@ export function EventForm({ initial, editing, saving, error, onSubmit, onDelete,
         ))}
       </View>
 
-      <Text style={styles.label}>{form.type === 'match' ? 'Nombre del evento' : 'Deporte o nombre'}</Text>
+      {form.type === 'training' && (
+        <>
+          <Text style={styles.label}>Deporte</Text>
+          <View style={styles.row}>
+            {(Object.keys(SPORT_KIND) as EventSport[]).map(sport => (
+              <Chip
+                key={sport}
+                label={SPORT_KIND[sport].label}
+                selected={form.sport === sport}
+                // Elegir un deporte propone su nombre si aún no se escribió uno.
+                onPress={() => setForm(prev => ({ ...prev, sport, title: prev.title.trim() ? prev.title : SPORT_KIND[sport].label }))}
+              />
+            ))}
+          </View>
+        </>
+      )}
+      <Text style={styles.label}>{form.type === 'match' ? 'Nombre del evento' : 'Nombre'}</Text>
       <TextInput
         style={styles.input}
         value={form.title}

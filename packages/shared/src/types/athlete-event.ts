@@ -3,6 +3,18 @@
 // app: si cambia la forma, falla la compilación de los dos lados (patrón CYC-249).
 // Fechas como «AAAA-MM-DD» (día local del atleta, sin zona horaria); horas «HH:mm».
 export type EventType = "training" | "match" | "rest" | "travel" | "injury" | "other";
+// Deporte del entrenamiento paralelo (opcional, separado del tipo y del título libre): de ahí
+// sale el ícono. null/ausente = no aplica (partido, viaje…) o evento anterior al campo.
+export type EventSport =
+  | "volleyball"
+  | "soccer"
+  | "basketball"
+  | "running"
+  | "cycling"
+  | "swimming"
+  | "weights"
+  | "yoga"
+  | "other";
 export type EventIntensity = "low" | "medium" | "high";
 export type EventScope = "occurrence" | "series";
 
@@ -21,6 +33,7 @@ export interface AthleteEventOccurrence {
   // true = esta ocurrencia se editó «solo este día».
   isException: boolean;
   type: EventType;
+  sport: EventSport | null;
   title: string;
   startTime: string | null;
   durationMin: number | null;
@@ -35,6 +48,7 @@ export interface AthleteEventOccurrence {
 export interface AthleteEventSeries {
   id: string;
   type: EventType;
+  sport: EventSport | null;
   title: string;
   date: string;
   startTime: string | null;
@@ -58,6 +72,7 @@ export interface AthleteEventsResponse {
 
 export interface CreateAthleteEventInput {
   type: EventType;
+  sport?: EventSport | null;
   title: string;
   date: string;
   startTime?: string | null;

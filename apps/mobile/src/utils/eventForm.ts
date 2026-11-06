@@ -2,6 +2,7 @@ import type {
   CreateAthleteEventInput,
   EventIntensity,
   EventScope,
+  EventSport,
   EventType,
   UpdateAthleteEventInput,
 } from '@cycles/shared';
@@ -11,6 +12,8 @@ import { addDays, weekdayOf } from './eventCalendar';
 // Sin estilos: lo usa un componente provisional hasta que llegue el diseño final.
 export interface EventFormState {
   type: EventType;
+  /** Solo para entrenamientos; null = sin deporte elegido. */
+  sport: EventSport | null;
   title: string;
   date: string;
   allDay: boolean;
@@ -34,6 +37,7 @@ export const DURATION_MAX = 600;
 export function emptyForm(date: string, type: EventType = 'training'): EventFormState {
   return {
     type,
+    sport: null,
     title: '',
     date,
     allDay: false,
@@ -101,6 +105,8 @@ function body(form: EventFormState): CreateAthleteEventInput {
   const duration = !form.allDay && form.durationMin ? Number(form.durationMin) : null;
   return {
     type: form.type,
+    // El deporte solo aplica a los entrenamientos paralelos.
+    sport: form.type === 'training' ? form.sport : null,
     title: form.title.trim(),
     date: form.date,
     allDay: form.allDay,

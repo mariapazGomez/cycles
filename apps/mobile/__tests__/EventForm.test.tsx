@@ -85,3 +85,20 @@ test('guardando bloquea el envío y todo el texto mide 11 px o más', () => {
   const sizes = tree.root.findAll(n => n.props.style && !Array.isArray(n.props.style) && n.props.style.fontSize).map(n => n.props.style.fontSize);
   sizes.forEach((s: number) => expect(s).toBeGreaterThanOrEqual(11));
 });
+
+test('elegir un deporte lo guarda y propone su nombre si aún no hay uno', () => {
+  const { tree, onSubmit } = mount();
+  act(() => byLabel(tree, 'Voleibol').props.onPress());
+  expect(byLabel(tree, 'Nombre').props.value).toBe('Voleibol');
+  act(() => byLabel(tree, 'Guardar').props.onPress());
+  expect(onSubmit.mock.calls[0][0]).toMatchObject({ kind: 'create', input: { type: 'training', sport: 'volleyball', title: 'Voleibol' } });
+});
+
+test('un nombre ya escrito no se pisa al elegir deporte, y un partido no ofrece deportes', () => {
+  const { tree } = mount();
+  act(() => byLabel(tree, 'Nombre').props.onChangeText('Vóley playa'));
+  act(() => byLabel(tree, 'Voleibol').props.onPress());
+  expect(byLabel(tree, 'Nombre').props.value).toBe('Vóley playa');
+  act(() => byLabel(tree, 'Partido o competencia').props.onPress());
+  expect(texts(tree)).not.toContain('Deporte');
+});
