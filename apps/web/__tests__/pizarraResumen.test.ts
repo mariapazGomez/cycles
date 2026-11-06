@@ -186,6 +186,8 @@ describe("modo Organizar", () => {
     hideChart(base, "esfuerzo");
     resizeChart(base, "esfuerzo", "completo");
     expect(JSON.stringify(base)).toBe(copy);
+  });
+});
 
 // Con la forma REAL de la API (el ejemplo de @cycles/shared que la prueba e2e de la API
 // comprueba contra las respuestas verdaderas), no con datos inventados.
