@@ -25,6 +25,12 @@ Orden decidido por la usuaria:
 
 **Sin sesión hoy:** la tarjeta dice «Hoy no tienes sesión», «Tu siguiente: Piernas pesadas, vie 13 nov» y el botón **Adelantar Piernas pesadas**, con la nota «Se registra hoy y tu coach lo verá. Si no la haces hoy, sigue el viernes.». Es el mismo mecanismo de «Asignadas para hoy / Hacer esta» que ya existe en `TodayScreen`.
 
+## Ajustes finales (2026-11-07)
+
+- **Color:** lo que agrega el atleta (entrenamientos, torneos, eventos) **nunca es azul**; el azul es solo del coach y de la app. Deportes en naranja, descanso y yoga en verde, partido en tinta, viaje en gris.
+- **Anillo de progreso:** más pequeño y proporcionado (76 px, trazo de 8, perla final de 5), con solo el porcentaje dentro; el texto que lo explica va en el título de la tarjeta. Crece con la letra hasta 100 px.
+- **Rangos de tiempo explícitos:** toda cifra dice qué período cuenta. Hoy: tarjeta «Esta semana» con el rango («9 al 15 nov»): sesiones hechas, **tiempo entrenado (se cuenta por semana)** y esfuerzo medio. Resumen: «Todo el ciclo, Semana 3 de 6» (o la semana, según el interruptor Ciclo | Semana).
+
 ## Cómo se adapta (tamaño de letra, tamaño de iconos y pantalla)
 
 La maqueta usa un factor de letra `--f` (×0,85 a ×2; en iOS equivale a Dynamic Type hasta Accesibilidad, en Android a «Tamaño de fuente» y «Tamaño de pantalla») y un ancho de 320 a 430 px.
