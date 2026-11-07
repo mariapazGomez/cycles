@@ -66,6 +66,9 @@ export const EVENT_NOTES_MAX = 500;
 export const EVENT_DURATION_MAX = 600;
 export const EVENT_RANGE_MAX_DAYS = 92;
 
+// GET /me/events y GET /athletes/:id/events (el del coach, solo lectura y solo con vínculo
+// activo) devuelven esta misma forma. En el del coach `notes` llega SIEMPRE en null: las
+// notas son privadas del atleta (pueden mencionar salud, R7).
 export interface AthleteEventsResponse {
   events: AthleteEventOccurrence[];
 }
