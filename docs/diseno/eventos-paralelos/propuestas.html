@@ -215,6 +215,11 @@ svg.i{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-l
 .wev{border:0;background:rgba(31,34,40,.05)}.wev .tile{width:18px;height:18px}
 .li .tile{width:28px;height:28px}
 .evB .tile{width:22px;height:22px}
+
+/* ===== mes igual al de vistas-app ===== */
+.mc{height:54px;gap:3px;padding-top:4px}.mc .mn{font-size:11px;font-weight:600;color:var(--ink2);min-width:1.8em;line-height:1.5}.mc.today .mn{background:var(--blue);color:#fff;font-weight:700}
+.mi{gap:3px;flex-wrap:nowrap}.xs{width:19px;height:19px}.mg{gap:4px 2px}
+.xs svg.g{width:60%;height:60%}
 </style>
 </head>
 <body>
@@ -308,12 +313,13 @@ document.getElementById('vC').innerHTML=evC('training','Voleibol','19:00')+evC('
 
 
 // ---- vista de mes ----
+const XC=`<span class="xs" style="background:#2f9e5f"><svg class="g" viewBox="0 0 256 256" aria-hidden="true">${G.weights}</svg></span>`;
 const XT=(t)=>`<span class="xs" style="background:${COL[T[t].c]}"><svg class="g" viewBox="0 0 256 256" aria-hidden="true">${G[T[t].g]}</svg></span>`;
 const MD={'26':['d','training'],'27':['training'],'28':['d'],'29':['training'],'30':['d'],'31':['match'],'1':['match'],'2':['d','training'],'3':['training'],'4':['d'],'6':['d'],'7':['match'],'8':['match'],
  '9':['d','training'],'10':['training','rest'],'11':['p'],'13':['p'],'14':['match'],'15':['match'],'16':['p','training'],'17':['training','rest','travel','other'],'18':['p'],'20':['p'],'21':['match'],'22':['match'],'23':['p','training'],'24':['training'],'25':['p'],'27b':['p'],'28b':['match'],'29b':['match']};
 (()=>{for(const k of Object.keys(MD)){const v=MD[k];delete MD[k];const n=k.replace('b','');MD[(['26','27','28','29','30','31'].includes(k)?'o':'n')+n]=v;}})();
 function mcell(label,key,o){const it=(MD[key]||[]);const slots=it.length>3?it.slice(0,2):it;const more=it.length>3?it.length-2:0;
- return `<button class="mc ${o.off?'off':''} ${o.sel?'sel':''} ${o.today?'today':''}" aria-label="${label}${it.length?', '+it.length+' elementos':''}"><span class="mn">${label.split(' ')[1]}</span><span class="mi">${slots.map(x=>x==='d'?'<i class="mb"></i>':x==='p'?'<i class="mb p"></i>':XT(x)).join('')}${more?`<span class="mp">+${more}</span>`:''}</span></button>`}
+ return `<button class="mc ${o.off?'off':''} ${o.sel?'sel':''} ${o.today?'today':''}" aria-label="${label}${it.length?', '+it.length+' elementos':''}"><span class="mn">${label.split(' ')[1]}</span><span class="mi">${slots.map(x=>(x==='d'||x==='p')?XC:XT(x)).join('')}${more?`<span class="mp">+${more}</span>`:''}</span></button>`}
 function month(opts={}){
  const days=[];const dn=['L','M','X','J','V','S','D'];
  // 26 oct a 6 dic
@@ -327,7 +333,7 @@ function month(opts={}){
  return h+'</div>';}
 const mtool=(mode)=>`<div class="vt"><span class="sg2"><b>Semana</b><b class="on">Mes</b></span>${mode==='ciclo'?'':''}<span class="today-l">Ir a hoy</span></div>`;
 const mnav=(t)=>`<div class="mnav"><button class="hbtn" aria-label="Mes anterior">${ic('back',16)}</button><strong>${t}</strong><button class="hbtn" aria-label="Mes siguiente">${ic('chev',16)}</button></div>`;
-const mleg=`<div class="mleg"><span><i class="mb"></i>Sesión del coach</span><span><i class="mb p"></i>Pendiente</span><span>${XT('training')}Actividad</span></div>`;
+const mleg=`<div class="mleg"><span>${XC}Sesión del coach</span><span>${XT('training')}Actividad</span></div>`;
 
 // 2
 const wkM=[['bd done','ev'],['bd done','ev','ev'],['bd pend'],[],['bd pend'],['ev'],['ev']];
