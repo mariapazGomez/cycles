@@ -18,6 +18,10 @@ La usuaria aprobó el flujo y pidió un diseño visual más compacto. Cambios: t
 
 La usuaria dijo que los íconos de trazo se veían planos y sin la personalidad de la marca, y entregó una referencia: pictogramas rellenos dentro de círculos de color. Cambios: **perlas de color** (círculo con anillo, el motivo de la marca) con **pictograma relleno blanco**, un ícono por deporte (voleibol, fútbol, básquetbol, correr, ciclismo, natación, pesas, yoga, otro) y por tipo (partido o competencia, descanso activo, viaje, lesión, otro); el **color según la familia** (naranja deporte, verde fuerza, azul descanso, oscuro competencia, rojo lesión, gris otros); **tarjetas con tinte** del color de su familia en lugar de borde punteado gris; chips de deporte con su ícono en el alta. Los glifos son de Phosphor Icons, peso «fill» (licencia MIT); para la app se pueden usar los mismos SVG o el paquete oficial para React Native. Los íconos de interfaz (más, repetir, candado) siguen siendo de trazo.
 
+## Alineado con las reglas de color de las vistas de la app (2026-11-07)
+
+Para convivir con `docs/diseno/vistas-app/`: el **azul es solo de la app** y el **verde con pesas es la fuerza del coach**. En las actividades del atleta, descanso activo y yoga pasan a **violeta**, las pesas propias a **naranja**; deportes en naranja, partido en tinta, viaje en gris. La tabla de colores de v3 queda reemplazada por esta.
+
 ## Qué es
 
 El atleta agrega por su cuenta lo que hace fuera del plan: «lunes y martes entreno voleibol», «sábado y domingo tengo partidos de liga». No dependen del coach, pero el coach los ve para planear. Nombre en la interfaz: **actividades** (en la ficha del coach, sección **Fuera del plan**).
