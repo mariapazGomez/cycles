@@ -105,3 +105,10 @@ Estados: **hoy** (encabezado «Hoy» en azul), **pasado** (se atenúa, sin check
 4. ¿Las **notas** del atleta las ve el coach, o quedan privadas?
 5. Si el atleta **se vincula con un coach más tarde**, ¿el coach ve de inmediato lo que ya agregó? (Lo diseñé así y lo avisa el texto de «sin coach».)
 6. ¿Quieres que el atleta también vea el aviso de choque de carga en la app? La v1 lo deja solo en la web del coach.
+
+## Implementación de la API (CYC-251)
+
+- **Modelo** (migración aditiva `20261107120000_eventos_atleta`): `AthleteEvent` (la serie: tipo, deporte, título, día de inicio, hora, duración, todo el día, intensidad, notas y la regla de repetición `repeatDays` + `repeatUntil`) y `AthleteEventException` (un día cancelado o editado «solo ese día», con `overrides`). Nada se duplica por semana: la lista se expande al consultar.
+- **Endpoints:** `GET/POST /me/events`, `PATCH/DELETE /me/events/:id` (con `scope` `occurrence` o `series`) y `GET /athletes/:id/events` (coach, solo lectura). La lista por rango (máximo 92 días) viene **ya expandida**: cada ocurrencia con `seriesId`, `date` e `isException`.
+- **v1:** «solo esta ocurrencia» cambia hora, duración, intensidad, título, tipo o notas de ese día, pero **no mueve el día** (400): para mover un día se borra y se crea otro. Las notas son privadas del atleta (el coach recibe `notes: null`).
+- **Tipos y contrato:** `packages/shared/src/types/athlete-event.ts` y `fixtures/athleteEvents.ts`; la prueba e2e comprueba que la respuesta real tiene la forma del ejemplo.
