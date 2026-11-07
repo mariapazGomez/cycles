@@ -27,7 +27,7 @@ Orden decidido por la usuaria:
 
 ## Ajustes finales (2026-11-07)
 
-- **Color:** lo que agrega el atleta (entrenamientos, torneos, eventos) **nunca es azul**; el azul es solo del coach y de la app. Deportes en naranja, descanso y yoga en verde, partido en tinta, viaje en gris.
+- **Color:** el azul es **solo de la app** (botones, selección, anillo). Los entrenamientos de **fuerza del coach** van en **verde**; lo que agrega el atleta usa otros colores: deportes en naranja, descanso y yoga en violeta, partido en tinta, viaje en gris. Así «verde con pesas» siempre es una sesión del coach. (La maqueta de actividades paralelas, PR #206, tenía pesas del atleta en verde y descanso en azul; hay que alinearla a esta regla.)
 - **Anillo de progreso:** más pequeño y proporcionado (76 px, trazo de 8, perla final de 5), con solo el porcentaje dentro; el texto que lo explica va en el título de la tarjeta. Crece con la letra hasta 100 px.
 - **Rangos de tiempo explícitos:** toda cifra dice qué período cuenta. Hoy: tarjeta «Esta semana» con el rango («9 al 15 nov»): sesiones hechas, **tiempo entrenado (se cuenta por semana)** y esfuerzo medio. Resumen: «Todo el ciclo, Semana 3 de 6» (o la semana, según el interruptor Ciclo | Semana).
 
