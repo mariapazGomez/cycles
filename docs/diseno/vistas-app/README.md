@@ -14,16 +14,16 @@ updated: 2026-11-07
 
 Perlas de color con pictograma (mismos glifos de CYC-237), tarjetas blancas de 22 px de radio con sombra azulada (sin degradados), fondo `#eef3fc`, anillo del ciclo con una **perla al final** del arco. Botones y segmentos activos en `#1a66dd` (texto blanco 5,2:1; el `#3080fc` de marca no alcanza 4,5:1 con texto blanco, queda para fondos y gráficos).
 
-## Hoy: nuevo orden y aviso del coach
+## Hoy: orden y aviso del coach
 
-Auditoría de carga cognitiva (la prueba de «¿qué ve primero?»): quien abre Hoy quiere entrenar, así que el orden pasó a:
+Orden decidido por la usuaria:
 
-1. **Aviso «Tu coach agregó una rutina»** (la tarjeta de tu referencia). Solo aparece cuando hay algo nuevo; toda la tarjeta es un botón de 56 px o más que abre la sesión; al abrirla desaparece y la campana pierde su punto rojo. Si hay varias, «Tu coach agregó 2 rutinas» y abre la lista de novedades. Texto sin puntos medios: «Torso B, fuerza» y «Para hoy, 5 ejercicios». **La hora y la duración solo se muestran si el coach las definió** (hoy las sesiones no tienen hora del día); hace falta una novedad en la API/notificaciones (`NotificationsScreen`).
-2. **Entrenamiento de hoy** con el botón grande **Iniciar rutina** y, dentro de la misma tarjeta, «Hoy también: voleibol» (antes eran dos tarjetas).
-3. **Resumen corto:** anillo del ciclo y tres cifras (sesiones de la semana, tiempo entrenado, esfuerzo medio).
+1. **Resumen:** anillo del ciclo y tres cifras (sesiones de la semana, tiempo entrenado, esfuerzo medio).
+2. **Rutina de hoy:** «Torso B» con el botón grande **Iniciar rutina** y, dentro de la misma tarjeta, «Hoy también: voleibol».
+3. **Aviso «Tu coach agregó una rutina»** (tarjeta de su referencia). Solo aparece si hay algo nuevo; toda la tarjeta es un botón de 56 px o más; al abrirla desaparece y la campana pierde su punto rojo. Con varias: «Tu coach agregó 2 rutinas». Texto sin puntos medios («Torso B, fuerza» y «Para hoy, 5 ejercicios»). La hora y la duración solo se muestran si el coach las definió (hoy las sesiones no tienen hora); hace falta una novedad en la API y en `NotificationsScreen`.
 4. **Próximas:** dos filas.
 
-Se quitó lo redundante (el chip «Tuyo», el subtítulo repetido) y se bajó de seis a cuatro bloques.
+**Sin sesión hoy:** la tarjeta dice «Hoy no tienes sesión», «Tu siguiente: Piernas pesadas, vie 13 nov» y el botón **Adelantar Piernas pesadas**, con la nota «Se registra hoy y tu coach lo verá. Si no la haces hoy, sigue el viernes.». Es el mismo mecanismo de «Asignadas para hoy / Hacer esta» que ya existe en `TodayScreen`.
 
 ## Cómo se adapta (tamaño de letra, tamaño de iconos y pantalla)
 
@@ -56,7 +56,7 @@ En código (React Native): `allowFontScaling` por defecto, `maxFontSizeMultiplie
 
 ## Preguntas
 
-1. ¿El aviso del coach va **sobre** la sesión de hoy (propuesto) o debajo?
+1. «Adelantar» una sesión: ¿la sesión se mueve a hoy (y el viernes queda libre) o se hace hoy y el viernes sigue como estaba? La maqueta supone lo segundo no; confírmalo.
 2. ¿Mostramos hora y duración en el aviso aunque hoy las sesiones no tengan hora (se agregaría al modelo)?
 3. ¿Dejamos «Esfuerzo medio» en Hoy? Sale del esfuerzo percibido registrado.
 4. ¿Aplicamos este lenguaje al resto (Asistente, sesión, perfil)?

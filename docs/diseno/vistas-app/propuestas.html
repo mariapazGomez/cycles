@@ -32,7 +32,7 @@ svg.i{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-l
 /* hoy */
 .today{display:flex;gap:calc(12px*var(--f));align-items:center}.today h4{margin:0;font-size:calc(19px*var(--f));line-height:1.2}.today small{color:var(--ink2);font-weight:600;font-size:calc(14px*var(--f));display:block}
 .cta{display:flex;align-items:center;justify-content:center;gap:calc(8px*var(--f));background:var(--blue);color:#fff;border-radius:16px;min-height:max(52px,3.4em);font-size:calc(16px*var(--f));font-weight:800;margin-top:calc(12px*var(--f));box-shadow:0 8px 16px -8px rgba(26,102,221,.7)}
-.also{display:flex;align-items:center;gap:calc(10px*var(--f));border-top:1px solid #edf0f4;margin-top:calc(12px*var(--f));padding-top:calc(10px*var(--f));font-size:calc(14px*var(--f));font-weight:700;min-height:max(44px,2.6em)}.also small{display:block;color:var(--ink2);font-weight:600;font-size:calc(13px*var(--f))}
+.hint{margin:8px 2px 0;font-size:calc(13px*var(--f));color:var(--ink2);font-weight:600}.also{display:flex;align-items:center;gap:calc(10px*var(--f));border-top:1px solid #edf0f4;margin-top:calc(12px*var(--f));padding-top:calc(10px*var(--f));font-size:calc(14px*var(--f));font-weight:700;min-height:max(44px,2.6em)}.also small{display:block;color:var(--ink2);font-weight:600;font-size:calc(13px*var(--f))}
 .hero{display:flex;gap:calc(14px*var(--f));align-items:center}.ringw{position:relative;width:calc(88px*var(--g));height:calc(88px*var(--g));flex:none}.ringw svg{width:100%;height:100%}.ringw div{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}.ringw b{font-size:calc(22px*var(--g));letter-spacing:-1px;line-height:1}.ringw small{font-size:calc(11px*var(--g));font-weight:700;color:var(--ink2)}
 .stats{flex:1;min-width:0}.kp{display:flex;align-items:center;gap:calc(10px*var(--f));margin-bottom:calc(8px*var(--f))}.kp:last-child{margin-bottom:0}.kp b{display:block;font-size:calc(16px*var(--f));line-height:1.15}.kp small{font-size:calc(13px*var(--f));color:var(--ink2);font-weight:600;line-height:1.25}
 .phone[data-big] .hd{flex-wrap:wrap}.phone[data-big] .hd>div{flex-basis:100%}.phone[data-big] .hd .sp{display:none}.phone[data-big] .hd .ib,.phone[data-big] .hd .av{margin-top:4px}.phone[data-big] .notice{flex-wrap:wrap}.phone[data-big] .notice .tx{order:3;flex-basis:100%}.phone[data-big] .notice>svg{margin-left:auto}.phone[data-big] .hero{flex-direction:column;align-items:stretch}.phone[data-big] .ringw{align-self:center}
@@ -54,11 +54,11 @@ svg.i{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-l
 .fold{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:800;font-size:calc(15px*var(--f));min-height:max(48px,3em)}
 .note{max-width:1500px;margin:0 auto;padding:0 16px 24px;color:var(--ink2);font-size:.86rem}
 </style></head><body>
-<div class="top"><h1>Vistas de la app: Hoy, Calendario y Resumen (v2 adaptable)</h1><p>Hoy lleva ahora el aviso «Tu coach agregó una rutina». Todo se redibuja según el tamaño de letra (×0,85 a ×2) y el ancho de pantalla (320 a 430 px) que configure la persona. Abajo, un configurador para probar cualquier combinación.</p></div>
+<div class="top"><h1>Vistas de la app: Hoy, Calendario y Resumen (v2 adaptable)</h1><p>Hoy: primero el resumen, luego la rutina de hoy y después el aviso «Tu coach agregó una rutina». Sin sesión hoy, dice cuándo es la siguiente y permite adelantarla. Todo se redibuja según el tamaño de letra (×0,85 a ×2) y el ancho de pantalla (320 a 430 px) que configure la persona. Abajo, un configurador para probar cualquier combinación.</p></div>
 <h2 class="s">Hoy en cuatro configuraciones</h2><div class="row" id="rowM"></div>
 <h2 class="s">Calendario y Resumen con letra grande</h2><div class="row" id="rowO"></div>
 <h2 class="s">Prueba tú misma</h2>
-<div class="ctl"><label>Pantalla <select id="sScr"><option value="hoy">Hoy</option><option value="mes">Calendario, mes</option><option value="sem">Calendario, semana</option><option value="res">Resumen</option></select></label>
+<div class="ctl"><label>Pantalla <select id="sScr"><option value="hoy">Hoy</option><option value="hoy0">Hoy sin sesión</option><option value="mes">Calendario, mes</option><option value="sem">Calendario, semana</option><option value="res">Resumen</option></select></label>
 <label>Tamaño de letra <select id="sF"><option value="0.85">Pequeña ×0,85</option><option value="1" selected>Normal ×1</option><option value="1.15">×1,15</option><option value="1.3">Grande ×1,3</option><option value="1.6">Muy grande ×1,6</option><option value="2">Accesibilidad ×2</option></select></label>
 <label>Ancho <select id="sW"><option value="320">320 px (compacto)</option><option value="375" selected>375 px</option><option value="390">390 px</option><option value="430">430 px (grande)</option></select></label></div>
 <div class="row" id="live"></div>
@@ -80,17 +80,22 @@ function ring(pct,r=48){const c=2*Math.PI*r,a=pct/100*2*Math.PI-Math.PI/2,x=50+r
 const spark=(pts,w=70,h=28)=>{const mn=Math.min(...pts),mx=Math.max(...pts),sx=w/(pts.length-1);const xy=pts.map((v,i)=>[i*sx+3,h-4-(v-mn)/(mx-mn||1)*(h-10)]);return `<svg class="sp" viewBox="0 0 ${w+6} ${h}" aria-hidden="true"><path d="${xy.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ')}" fill="none" stroke="#3080fc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>${xy.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===xy.length-1?4:2.5}" fill="${i===xy.length-1?'#3080fc':'#fff'}" stroke="#3080fc" stroke-width="2"/>`).join('')}</svg>`};
 const bell=`<span class="ib" role="img" aria-label="Notificaciones, 1 nueva">${ic('bell',22)}<i class="dot"></i></span>`;
 // HOY
-const hoyHTML=()=>`<div class="hd"><div><h2>Hola, María</h2><small>Semana 3 de 6</small></div><span class="sp"></span>${bell}<span class="av">MG</span></div>
-<button class="notice" aria-label="Tu coach agregó una rutina: Torso B, para hoy, 5 ejercicios. Abrir">${P('coachp',44)}<span class="tx"><b>Tu coach agregó una rutina</b><span class="t">Torso B, fuerza</span><span class="t">Para hoy, 5 ejercicios</span></span>${ic('chev',20)}</button>
-<div class="card"><div class="today">${P('coach',48,1)}<div><h4>Torso B</h4><small>Semana 3, sesión 2</small></div></div><div class="cta">${ic('play',16)}Iniciar rutina</div>
-<div class="also">${P('volley',26)}<span>Hoy también: voleibol<small>19:00, 90 min</small></span></div></div>
-<div class="card"><div class="hero"><div class="ringw">${ring(80)}<div><b>80%</b><small>del ciclo</small></div></div><div class="stats">
+const hoyHTML=(rest)=>{
+const resumenC=`<div class="card"><div class="hero"><div class="ringw">${ring(80)}<div><b>80%</b><small>del ciclo</small></div></div><div class="stats">
 <div class="kp">${P('coach',30)}<span><b>4 de 5</b><small>Sesiones de la semana</small></span></div>
 <div class="kp">${P('clock',30)}<span><b>3 h 10 min</b><small>Tiempo entrenado</small></span></div>
-<div class="kp">${P('bolt',30)}<span><b>7,2</b><small>Esfuerzo medio</small></span></div></div></div></div>
+<div class="kp">${P('bolt',30)}<span><b>7,2</b><small>Esfuerzo medio</small></span></div></div></div></div>`;
+const hoyC=rest?`<div class="card"><div class="today">${P('walk',48)}<div><h4>Hoy no tienes sesión</h4><small>Tu siguiente: Piernas pesadas, vie 13 nov</small></div></div><div class="cta">${ic('play',16)}Adelantar Piernas pesadas</div><p class="hint">Se registra hoy y tu coach lo verá. Si no la haces hoy, sigue el viernes.</p>
+<div class="also">${P('volley',26)}<span>Hoy también: voleibol<small>19:00, 90 min</small></span></div></div>`
+:`<div class="card"><div class="today">${P('coach',48,1)}<div><h4>Torso B</h4><small>Semana 3, sesión 2</small></div></div><div class="cta">${ic('play',16)}Iniciar rutina</div>
+<div class="also">${P('volley',26)}<span>Hoy también: voleibol<small>19:00, 90 min</small></span></div></div>`;
+const an=rest?'Piernas pesadas':'Torso B',ad=rest?'Para el viernes 13, 6 ejercicios':'Para hoy, 5 ejercicios';
+const aviso=`<button class="notice" aria-label="Tu coach agregó una rutina: ${an}, ${ad.toLowerCase()}. Abrir">${P('coachp',44)}<span class="tx"><b>Tu coach agregó una rutina</b><span class="t">${an}, fuerza</span><span class="t">${ad}</span></span>${ic('chev',20)}</button>`;
+return `<div class="hd"><div><h2>Hola, María</h2><small>Semana 3 de 6</small></div><span class="sp"></span>${bell}<span class="av">MG</span></div>
+${resumenC}${hoyC}${aviso}
 <div class="sub"><b>Próximas</b><a>Ver calendario</a></div>
 <div class="mini">${P('coach',30)}<span class="tx"><b>Piernas pesadas</b><small>Vie 13 nov</small></span><span class="tag">Coach</span></div>
-<div class="mini">${P('match',30)}<span class="tx"><b>Partido de liga</b><small>Sáb 14 nov, 10:00</small></span><span class="tag" style="background:#e9ebef;color:var(--ink)">Evento</span></div>`;
+<div class="mini">${P('match',30)}<span class="tx"><b>Partido de liga</b><small>Sáb 14 nov, 10:00</small></span><span class="tag" style="background:#e9ebef;color:var(--ink)">Evento</span></div>`};
 // CALENDARIO
 const D={26:['coach'],27:['volley'],28:['coach'],29:['volley'],30:['coach'],31:['match'],1:['match'],2:['coach','volley'],3:['volley'],4:['coach'],6:['coach'],7:['match'],8:['match'],9:['coach','volley'],10:['volley','walk'],11:['coach'],13:['coach'],14:['match'],15:['match'],16:['coach','volley'],17:['volley','walk','bag','yoga'],18:['coach'],20:['coach'],21:['match'],22:['match'],23:['coach','volley'],24:['volley'],25:['coach']};
 function mcell(n,o,big){const it=o.off?[]:(D[n]||[]);const lim=big?1:2;const show=it.length>lim?it.slice(0,lim-(lim>1?1:0)):it;const more=it.length>lim?it.length-show.length:0;return `<div class="mc ${o.off?'off':''} ${o.sel?'sel':''} ${o.today?'today':''}"><span class="n">${n}</span><span class="pp">${show.map(k=>P(k,show.length>1?20:24)).join('')}${more?`<span class="pl">+${more}</span>`:''}</span></div>`}
@@ -114,11 +119,11 @@ const resumen=()=>`<div class="hd"><h2>Resumen</h2><span class="sp"></span><span
 <div class="card"><div class="ex">${P('coach',34)}<span class="tx"><b>Press de banca</b><small>Peso 60 a 70 kg</small></span>${spark([60,62,65,67,70])}</div><div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><span class="delta">+10 kg</span><span class="chip" style="background:#eef0f3;color:var(--ink)">Reps 6 a 5</span></div></div>
 <div class="card"><div class="ex">${P('coach',34)}<span class="tx"><b>Sentadilla</b><small>Peso 80 a 95 kg</small></span>${spark([80,82,88,90,95])}</div><div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><span class="delta">+15 kg</span><span class="chip" style="background:#eef0f3;color:var(--ink)">Reps 8 a 8</span></div></div>
 <div class="card fold">${P('coach',30)}<span style="flex:1">Qué músculos trabajas</span>${ic('chev',18)}</div>`;
-const SCR={hoy:[()=>hoyHTML(),1],mes:[(b)=>calMes(b),0],sem:[()=>calSem(),0],res:[()=>resumen(),2]};
+const SCR={hoy:[()=>hoyHTML(),1],hoy0:[()=>hoyHTML(1),1],mes:[(b)=>calMes(b),0],sem:[()=>calSem(),0],res:[()=>resumen(),2]};
 const build=(k,f,w)=>{const big=f>=1.3||w<340;return phone(SCR[k][0](big),SCR[k][1],f,w)};
 const col=(c,h)=>`<div class="col"><p class="cap">${c}</p>${h}</div>`;
 // matriz Hoy
-document.getElementById('rowM').innerHTML=[['Letra pequeña (×0,85), 430 px',0.85,430],['Normal (×1), 375 px',1,375],['Grande (×1,3), 375 px',1.3,375],['Accesibilidad (×2), 320 px',2,320]].map(([c,f,w])=>col(c,build('hoy',f,w))).join('');
+document.getElementById('rowM').innerHTML=[['Letra pequeña (×0,85), 430 px',0.85,430],['Normal (×1), 375 px',1,375],['Grande (×1,3), 375 px',1.3,375],['Accesibilidad (×2), 320 px',2,320]].map(([c,f,w])=>col(c,build('hoy',f,w))).concat(col('Hoy sin sesión, ×1',build('hoy0',1,375)),col('Hoy sin sesión, ×1,6',build('hoy0',1.6,375))).join('');
 // matriz otras
 document.getElementById('rowO').innerHTML=[['Calendario mes, normal',build('mes',1,375)],['Calendario mes, letra ×1,6',build('mes',1.6,375)],['Calendario semana, ×1,3',build('sem',1.3,375)],['Resumen, ×1,3',build('res',1.3,375)]].map(([c,h])=>col(c,h)).join('');
 // configurador
