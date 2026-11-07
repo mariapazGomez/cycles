@@ -31,6 +31,19 @@ Orden decidido por la usuaria:
 - **Anillo de progreso:** más pequeño y proporcionado (76 px, trazo de 8, perla final de 5), con solo el porcentaje dentro; el texto que lo explica va en el título de la tarjeta. Crece con la letra hasta 100 px.
 - **Rangos de tiempo explícitos:** toda cifra dice qué período cuenta. Hoy: tarjeta «Esta semana» con el rango («9 al 15 nov»): sesiones hechas, **tiempo entrenado (se cuenta por semana)** y esfuerzo medio. Resumen: «Todo el ciclo, Semana 3 de 6» (o la semana, según el interruptor Ciclo | Semana).
 
+## Modo nocturno (app móvil)
+
+Decisión de la usuaria (2026-11-07): la app se adapta al modo nocturno. La maqueta lo muestra lado a lado y con un selector de tema.
+
+- **Selección:** sigue el ajuste del sistema por defecto; en la cuenta, «Apariencia: Sistema, Claro, Oscuro». La web sigue en claro (modo oscuro de la web es otra fase).
+- **Superficies:** fondo `#0e1117` (no negro puro), tarjetas `#191d25`, línea `#2a303b`. **Sin sombras**: la elevación se da por superficie más clara y un borde de 1 px.
+- **Texto:** principal `#eef1f6` (≈15:1 sobre la tarjeta), secundario `#a9b0bc` (≈7:1).
+- **Azul:** botones y selección `#2b6fe6` (texto blanco 4,6:1; el `#3080fc` no alcanza); enlaces y «Ver calendario» `#8ab8ff`; el aro del anillo sigue en `#3080fc` (5:1 sobre la tarjeta).
+- **Perlas:** conservan sus colores (verde fuerza, naranja deporte, violeta descanso, gris viaje); el color «tinta» del partido y de los avatares pasa a `#454c59`, que se distingue del fondo. Los pictogramas siguen blancos.
+- **Tintes:** aviso del coach `#1b2b4b`, filas de eventos `#2a2216`, etiqueta de hecha `#17301f` con texto `#7fd69a`.
+- **Gráficos del Resumen:** las líneas azules `#3080fc` se mantienen; la rampa del mapa muscular y los colores por grupo se validan de nuevo sobre `#191d25` con el validador de la guía de gráficos antes de implementar.
+- **Pendiente de definir:** capturas e imágenes (que no queden con fondo blanco), barra de estado, y el mapa del cuerpo en oscuro.
+
 ## Cómo se adapta (tamaño de letra, tamaño de iconos y pantalla)
 
 La maqueta usa un factor de letra `--f` (×0,85 a ×2; en iOS equivale a Dynamic Type hasta Accesibilidad, en Android a «Tamaño de fuente» y «Tamaño de pantalla») y un ancho de 320 a 430 px.
