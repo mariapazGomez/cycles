@@ -6,6 +6,7 @@ import type {
   EventType,
   UpdateAthleteEventInput,
 } from '@cycles/shared';
+import { EVENT_DURATION_MAX, EVENT_NOTES_MAX, EVENT_TITLE_MAX } from '@cycles/shared';
 import { addDays, weekdayOf } from './eventCalendar';
 
 // Estado, validación y armado de la petición del formulario de alta/edición (CYC-252).
@@ -29,10 +30,10 @@ export interface EventFormState {
 
 export type FormErrors = Partial<Record<'title' | 'date' | 'startTime' | 'durationMin' | 'repeatDays' | 'until', string>>;
 
-export const TITLE_MAX = 60;
-// Mismas reglas que la API (CYC-251).
-export const NOTES_MAX = 500;
-export const DURATION_MAX = 600;
+// Mismas reglas que la API (CYC-251), de @cycles/shared.
+export const TITLE_MAX = EVENT_TITLE_MAX;
+export const NOTES_MAX = EVENT_NOTES_MAX;
+export const DURATION_MAX = EVENT_DURATION_MAX;
 
 export function emptyForm(date: string, type: EventType = 'training'): EventFormState {
   return {
@@ -84,9 +85,16 @@ export function validateForm(form: EventFormState): FormErrors {
       errors.durationMin = `La duración va de 1 a ${DURATION_MAX} minutos.`;
     }
   }
+  // La API no acepta una duración sin hora de inicio (salvo que sea de todo el día).
+  if (!form.allDay && form.durationMin && !form.startTime && !errors.durationMin) {
+    errors.startTime = 'La duración necesita una hora de inicio.';
+  }
   if (form.repeats) {
     if (form.repeatDays.length === 0) {
       errors.repeatDays = 'Elige al menos un día de la semana.';
+    } else if (isRealDate(form.date) && !form.repeatDays.includes(weekdayOf(form.date))) {
+      // La API exige que el primer día sea uno de los días de la repetición.
+      errors.repeatDays = 'El primer día debe ser uno de los días que se repiten: marca también ese día o cambia la fecha.';
     }
     if (form.until) {
       if (!isRealDate(form.until)) {

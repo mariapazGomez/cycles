@@ -6,7 +6,7 @@ import type {
   EventScope,
   UpdateAthleteEventInput,
 } from '@cycles/shared';
-import { apiRequest } from './httpClient';
+import { ApiError, apiRequest } from './httpClient';
 
 export type { AthleteEventOccurrence, AthleteEventSeries, CreateAthleteEventInput, EventScope, UpdateAthleteEventInput };
 
@@ -32,4 +32,24 @@ export function updateEvent(seriesId: string, input: UpdateAthleteEventInput) {
 export function deleteEvent(seriesId: string, scope: EventScope, occurrenceDate?: string) {
   const query = scope === 'occurrence' && occurrenceDate ? `?scope=occurrence&date=${occurrenceDate}` : '?scope=series';
   return apiRequest<unknown>(`/me/events/${seriesId}${query}`, { method: 'DELETE' });
+}
+
+// Mensaje para la persona cuando falla guardar, editar o borrar (CYC-251: 400 validación,
+// 404 la actividad no es tuya o ya no existe, 403 un coach en /me/events, tope de 200).
+export function describeEventError(err: unknown): string {
+  if (err instanceof ApiError) {
+    if (err.status === 404) {
+      return 'Esa actividad ya no existe. Actualiza el calendario.';
+    }
+    if (err.status === 403) {
+      return 'Esta cuenta no puede agregar actividades.';
+    }
+    if (err.status === 400 || err.status === 422) {
+      return err.message || 'Revisa los datos de la actividad.';
+    }
+    if (err.status === 401) {
+      return 'Tu sesión terminó. Vuelve a entrar.';
+    }
+  }
+  return 'No pudimos guardar la actividad. Revisa tu conexión e inténtalo de nuevo.';
 }

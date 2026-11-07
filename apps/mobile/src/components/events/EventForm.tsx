@@ -9,6 +9,7 @@ import {
   buildUpdateInput,
   hasErrors,
   repeatSummary,
+  TITLE_MAX,
   validateForm,
   type EventFormState,
   type FormErrors,
@@ -117,7 +118,7 @@ export function EventForm({ initial, editing, saving, error, onSubmit, onDelete,
         onChangeText={value => set('title', value)}
         accessibilityLabel="Nombre"
         placeholder="Voleibol"
-        maxLength={80}
+        maxLength={TITLE_MAX}
       />
       {errors.title && <Text style={styles.error}>{errors.title}</Text>}
 

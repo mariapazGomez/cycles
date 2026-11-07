@@ -2,6 +2,9 @@ import {
   buildCreateInput,
   buildUpdateInput,
   emptyForm,
+  DURATION_MAX,
+  NOTES_MAX,
+  TITLE_MAX,
   hasErrors,
   repeatSummary,
   validateForm,
@@ -87,4 +90,22 @@ test('el deporte solo viaja en los entrenamientos', () => {
   expect(buildCreateInput(base({ sport: 'volleyball' })).sport).toBe('volleyball');
   expect(buildCreateInput(base({ type: 'match', sport: 'volleyball' })).sport).toBeNull();
   expect(buildCreateInput(base()).sport).toBeNull();
+});
+
+test('una duración sin hora de inicio no pasa (la API la rechaza), salvo todo el día', () => {
+  expect(validateForm(base({ durationMin: '90', startTime: '' })).startTime).toBe('La duración necesita una hora de inicio.');
+  expect(hasErrors(validateForm(base({ durationMin: '90', startTime: '19:00' })))).toBe(false);
+  expect(hasErrors(validateForm(base({ durationMin: '90', startTime: '', allDay: true })))).toBe(false);
+});
+
+test('al repetir, el primer día debe ser uno de los días de la repetición (regla de la API)', () => {
+  // 2 de noviembre de 2026 es lunes.
+  expect(validateForm(base({ repeats: true, repeatDays: [1, 2] })).repeatDays).toContain('primer día');
+  expect(hasErrors(validateForm(base({ repeats: true, repeatDays: [0, 1] })))).toBe(false);
+});
+
+test('los límites salen de @cycles/shared (título 60, notas 500, duración 600)', () => {
+  expect(TITLE_MAX).toBe(60);
+  expect(NOTES_MAX).toBe(500);
+  expect(DURATION_MAX).toBe(600);
 });
