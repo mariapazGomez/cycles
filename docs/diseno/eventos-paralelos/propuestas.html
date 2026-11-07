@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Actividades paralelas Cycles</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&display=swap">
+<style>
+/* Concepto: lo que el atleta hace por su cuenta es una capa propia. En la app, tarjetas con tile de ícono cuadrado y borde punteado (las sesiones del coach son blancas con nodo circular numerado). En la web del coach, una capa discreta de solo lectura, con aviso de choque de carga. */
+:root{--font-display:"Bricolage Grotesque","Inter",system-ui,sans-serif;--font-body:"Inter",system-ui,sans-serif;
+ --brand:#3080fc;--blue:#1a66dd;--blue-100:#eaf2ff;--bg:#fff;--ink:#1f2228;--ink2:#5c6068;--mid:#8a8f98;--gray:#f6f7f9;--line:#dfe2e7;--dash:#bfc4cc;--page:#f3f5f8;
+ --ok-bg:#e9f5ec;--ok:#1e6b32;--warn-bg:#fff1e3;--warn:#9a4a00;--warn-fill:#e08a2e;--pain-bg:#fdecec;--pain:#a3282c;
+ --r-sm:6px;--r-md:8px;--r-lg:10px;--e1:0 0 0 1px rgba(31,34,40,.06),0 1px 2px rgba(31,34,40,.06),0 3px 8px -2px rgba(31,34,40,.08)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5}
+h1,h2,h3,h4{font-family:var(--font-display);margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.top{max-width:1240px;margin:0 auto;padding:18px 16px 0}.top h1{font-size:1.5rem}
+.nav{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}.nav a{background:#fff;border-radius:var(--r-md);box-shadow:var(--e1);padding:6px 12px;font-weight:600;font-size:.86rem;color:var(--ink);text-decoration:none;min-height:34px;display:inline-flex;align-items:center}
+section{max-width:1240px;margin:0 auto;padding:26px 16px 6px}
+section>h2{font-size:1.4rem;margin-bottom:4px}
+section>p{margin:0 0 14px;color:var(--ink2);max-width:80ch;font-size:.92rem}
+.row{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}
+.cap{font-weight:700;font-size:.82rem;margin:0 0 6px}
+.col{display:flex;flex-direction:column;gap:6px}
+/* teléfono */
+.phone{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter",system-ui,sans-serif;font-variant-numeric:tabular-nums;width:340px;background:var(--page);border-radius:34px;border:1px solid var(--line);box-shadow:var(--e1);position:relative;overflow:hidden;color:var(--ink)}
+.scr{padding:46px 14px 110px;min-height:690px}
+.phone.fixed{height:720px}.phone.fixed .scr{height:100%;overflow:hidden}
+.pt{display:flex;align-items:center;gap:8px;font-weight:800;letter-spacing:-.4px;font-size:1.5rem;margin-bottom:10px}
+.pt .sp{flex:1}
+.hbtn{width:36px;height:36px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;border:0}
+.avt{width:36px;height:36px;border-radius:50%;background:var(--ink);color:#fff;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.isl{position:absolute;left:50%;transform:translateX(-50%);bottom:18px;background:#fff;border-radius:999px;box-shadow:0 8px 24px -8px rgba(0,0,0,.25);display:flex;padding:5px;gap:2px;z-index:3}
+.isl span{width:58px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:999px;color:var(--ink2)}.isl span.on{background:var(--blue);color:#fff}
+.card{background:#fff;border-radius:14px;padding:12px;margin-bottom:8px}
+.hero h4{font-family:inherit;font-weight:800;font-size:1.05rem}.hero small{font-size:.78rem;color:var(--ink2);font-weight:600}
+.segs{display:flex;gap:3px;margin-top:8px}.segs i{flex:1;height:6px;border-radius:3px;background:var(--line)}.segs i.d{background:var(--brand)}.segs i.c{background:var(--ink)}
+.wk{display:flex;gap:4px;margin-bottom:8px}.wk b{font-size:.78rem;padding:5px 10px;border-radius:999px;background:var(--gray);color:var(--ink2)}.wk b.on{background:var(--ink);color:#fff}
+.strip{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:8px;text-align:center}
+.strip .l{font-size:.72rem;font-weight:700;color:var(--ink2)}
+.strip .n{width:30px;height:30px;margin:2px auto;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem}
+.strip .n.today{background:var(--blue);color:#fff}
+.mk{display:flex;gap:3px;justify-content:center;height:8px;align-items:center}
+.bd{width:6px;height:6px;border-radius:50%;background:var(--brand)}.bd.done{background:var(--ink)}.bd.pend{background:#fff;box-shadow:inset 0 0 0 1.5px var(--brand)}
+.ev{width:6px;height:6px;border-radius:2px;background:transparent;box-shadow:inset 0 0 0 1.5px var(--ink2)}
+.dh{display:flex;align-items:center;gap:8px;margin:12px 2px 6px;font-weight:800;font-size:.84rem;color:var(--ink2)}
+.dh .hoy{background:var(--blue);color:#fff;border-radius:999px;padding:0 8px;font-size:.72rem;line-height:18px}
+.sess{display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:10px 12px;margin-bottom:6px}
+.node{width:32px;height:32px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--line);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.88rem;color:var(--ink2);flex:none}
+.node.done{background:var(--brand);color:#fff;box-shadow:none}.node.next{box-shadow:inset 0 0 0 2px var(--blue);color:var(--blue)}
+.sess b{display:block;font-size:.95rem;line-height:1.25}.sess small{font-size:.78rem;color:var(--ink2);font-weight:600}
+.sess.past{opacity:.78}
+/* tiles de ícono */
+.tile{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none}
+.tile.sm{width:24px;height:24px;border-radius:7px}
+.t-training{background:var(--blue-100);color:var(--blue)}.t-match{background:var(--ink);color:#fff}.t-rest{background:var(--ok-bg);color:var(--ok)}
+.t-travel{background:#e9ebef;color:var(--ink2)}.t-injury{background:var(--pain-bg);color:var(--pain)}.t-other{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--dash)}
+svg.i{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+/* variante A */
+.evA{display:flex;align-items:center;gap:10px;border:1.5px dashed var(--dash);border-radius:14px;padding:9px 12px;margin-bottom:6px;background:rgba(255,255,255,.55)}
+.evA .tx{flex:1;min-width:0}.evA b{display:flex;align-items:center;gap:5px;font-size:.95rem;line-height:1.25}.evA b svg{color:var(--mid)}
+.evA small{font-size:.78rem;color:var(--ink2);font-weight:600}
+.evA.past{border-color:#d7dce3}.evA.past .tile{opacity:.6}.evA.past b,.evA.past small{color:var(--mid)}
+.evA.clash{border-color:var(--warn-fill)}
+.pearls{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-size:.72rem;font-weight:700;color:var(--ink2)}
+.pearls span{display:flex;gap:3px}.pearls i{width:8px;height:8px;border-radius:50%;background:var(--line)}.pearls i.f{background:var(--ink)}
+/* variante B */
+.evB{display:flex;align-items:center;gap:8px;background:#fff;border-radius:10px;padding:0 10px 0 0;margin-bottom:6px;min-height:44px;overflow:hidden}
+.evB .bar{width:5px;align-self:stretch;flex:none}.evB .tx{flex:1;font-size:.9rem;font-weight:700}.evB .tx small{font-weight:600;color:var(--ink2);font-size:.78rem;margin-left:4px}
+.evB .tile{margin-left:4px}
+.b-training{background:var(--brand)}.b-match{background:var(--ink)}.b-rest{background:#3fa35a}.b-travel{background:var(--mid)}.b-injury{background:#d1494d}
+/* variante C */
+.evC{display:inline-flex;align-items:center;gap:6px;border-radius:999px;border:1.5px dashed var(--dash);padding:3px 10px 3px 4px;font-size:.82rem;font-weight:700;margin:0 4px 6px 0;background:rgba(255,255,255,.6)}
+.evC small{font-size:.72rem;font-weight:700;color:var(--ink2)}
+/* hojas */
+.dim{position:absolute;inset:0;background:rgba(31,34,40,.45);z-index:4}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:22px 22px 0 0;padding:10px 16px 22px;z-index:5;box-shadow:0 -8px 30px rgba(0,0,0,.18)}
+.sheet .grab{width:38px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 10px}
+.sheet h4{font-family:inherit;font-weight:800;font-size:1.1rem;margin-bottom:8px}
+.dchip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:var(--gray);padding:5px 12px;font-weight:700;font-size:.84rem;margin-bottom:10px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tp{display:flex;align-items:center;gap:10px;border:0;background:var(--gray);border-radius:14px;padding:10px;text-align:left;font-weight:700;font-size:.9rem;min-height:56px;line-height:1.2}
+.lock{display:flex;align-items:center;gap:6px;margin-top:12px;font-size:.78rem;font-weight:600;color:var(--ink2)}
+.f{margin-bottom:12px}.f>label,.lab{display:block;font-weight:800;font-size:.8rem;margin-bottom:5px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.ch{border:0;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line);padding:6px 12px;min-height:34px;font-weight:700;font-size:.84rem}.ch.on{background:var(--ink);color:#fff;box-shadow:none}
+.fld{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fff;border-radius:12px;box-shadow:inset 0 0 0 1.5px var(--line);padding:10px 12px;min-height:44px;font-weight:600;font-size:.92rem}
+.fld.sel{box-shadow:inset 0 0 0 2px var(--blue)}.fld span.s{color:var(--ink2);font-size:.8rem}
+.two{display:grid;grid-template-columns:1fr 1.4fr;gap:8px}
+.seg3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.sg{border:0;background:#fff;border-radius:12px;box-shadow:inset 0 0 0 1.5px var(--line);padding:8px 4px;min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-weight:700;font-size:.84rem}
+.sg .pearls{align-items:center}.sg.on{box-shadow:inset 0 0 0 2px var(--ink);background:var(--gray)}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.days b{height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.86rem;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line)}.days b.on{background:var(--ink);color:#fff;box-shadow:none}
+.cta{display:flex;align-items:center;justify-content:center;border:0;background:var(--blue);color:#fff;border-radius:14px;min-height:48px;width:100%;font-weight:800;font-size:1rem}
+.cta.ghost{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line);margin-top:8px}.cta.del{background:var(--pain)}
+.bk{display:flex;align-items:center;gap:6px;font-weight:700;color:var(--blue);margin-bottom:8px;font-size:.9rem}
+.opt{display:flex;gap:10px;align-items:center;background:var(--gray);border-radius:14px;padding:12px;margin-bottom:8px;font-weight:700;font-size:.92rem;min-height:52px}
+.opt i{width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--dash);flex:none}.opt.on i{box-shadow:inset 0 0 0 6px var(--blue)}.opt small{display:block;font-weight:600;color:var(--ink2);font-size:.78rem}
+.sum{background:var(--blue-100);border-radius:12px;padding:10px 12px;font-weight:700;font-size:.88rem;margin-top:10px}
+.ban{display:flex;gap:10px;background:var(--blue-100);border-radius:14px;padding:10px 12px;margin-bottom:8px;font-size:.84rem;font-weight:600;align-items:flex-start}
+.ban .btn{margin-top:6px;display:inline-block;color:var(--blue);font-weight:800;text-decoration:underline}
+.ban.err{background:var(--pain-bg);color:var(--pain)}
+.emp{border:1.5px dashed var(--dash);border-radius:14px;padding:14px;text-align:center;font-weight:600;font-size:.88rem;margin-top:10px;color:var(--ink2)}
+.emp b{display:block;color:var(--ink);font-size:.95rem;margin-bottom:2px}.emp .cta{margin-top:10px;min-height:44px}
+/* icon sheet */
+.icons{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.ic{background:#fff;border-radius:var(--r-lg);box-shadow:var(--e1);padding:12px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.ic .big{display:flex;gap:10px;align-items:center}.ic b{font-size:.9rem}.ic small{font-size:.78rem;color:var(--ink2)}
+.big .tile{width:56px;height:56px;border-radius:14px}
+.var{background:#fff;border-radius:var(--r-lg);box-shadow:var(--e1);padding:14px;width:380px;max-width:100%}
+.var h3{font-size:1.05rem;margin-bottom:8px}.var p{font-size:.84rem;color:var(--ink2);margin:8px 0 0}
+.var .st{background:var(--page);border-radius:12px;padding:10px}
+/* web */
+.wrapw{overflow:hidden;border-radius:var(--r-lg);border:1px solid var(--line);background:var(--page)}
+.win{width:1180px;transform-origin:top left;background:var(--page)}
+.hdr{display:flex;align-items:center;gap:22px;padding:10px 22px;background:#fff;border-bottom:1px solid var(--line)}
+.logo{font-family:var(--font-display);font-weight:700;font-size:1.15rem}.hdr nav{display:flex;gap:16px;flex:1}.hdr nav a{font-weight:600;font-size:.9rem;color:var(--ink2)}.hdr nav a.on{color:var(--ink);box-shadow:inset 0 -2px 0 var(--brand)}
+.pg{padding:18px 26px 30px}.pg h2{font-size:1.7rem}
+.tb{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:10px 0 12px}
+.sw{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:.86rem;min-height:36px}
+.sw i{width:38px;height:22px;border-radius:999px;background:var(--line);position:relative;display:inline-block}.sw i:after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .12s}.sw.on i{background:var(--blue)}.sw.on i:after{left:19px}
+.lg{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;color:var(--ink2);font-weight:600;align-items:center}.lg span{display:inline-flex;gap:6px;align-items:center}
+.wkrow{display:grid;grid-template-columns:64px repeat(7,minmax(0,1fr));gap:6px;margin-bottom:6px}
+.wl{font-weight:800;font-size:.84rem;padding-top:8px;color:var(--ink2)}
+.dc{min-height:126px;padding:8px;border-radius:12px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);display:flex;flex-direction:column;gap:6px;min-width:0}
+.dc.today{background:var(--blue-100);box-shadow:inset 0 0 0 2px var(--brand)}
+.dc .dn{font-size:.78rem;font-weight:700;color:var(--ink2);display:flex;justify-content:space-between;align-items:center}
+.dc.today .dn{color:var(--blue)}
+.wses{background:#fff;border-radius:12px;box-shadow:var(--e1);padding:8px 10px;font-size:.84rem;font-weight:600;line-height:1.25}
+.wses small{display:flex;gap:6px;margin-top:4px;font-size:.78rem;color:var(--ink2);font-weight:600;align-items:center}
+.wses.done{background:var(--ok-bg);color:var(--ok);box-shadow:0 0 0 1px #b9dcc2}
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:0 8px;line-height:18px;font-size:.72rem;font-weight:700;background:var(--gray);color:var(--ink2)}
+.pill.warn{background:var(--warn-bg);color:var(--warn)}
+.lay{border-top:1px dashed var(--dash);padding-top:6px;display:flex;flex-direction:column;gap:4px}
+.wev{display:flex;align-items:center;gap:6px;border:1px dashed var(--dash);border-radius:8px;padding:3px 6px 3px 3px;font-size:.78rem;font-weight:600;color:var(--ink2);min-height:28px;line-height:1.2;background:transparent}
+.wev .tile{width:20px;height:20px;border-radius:6px}.wev em{font-style:normal;margin-left:auto;display:flex;gap:2px}.wev em i{width:5px;height:5px;border-radius:50%;background:var(--line)}.wev em i.f{background:var(--ink2)}
+.wev.clash{border:1.5px solid var(--warn-fill);background:var(--warn-bg);color:var(--warn)}
+.wev.hid{display:none}
+.clashbar{grid-column:1/-1;display:flex;gap:10px;align-items:center;background:var(--warn-bg);border-radius:12px;padding:8px 12px;color:var(--warn);font-weight:700;font-size:.86rem;box-shadow:inset 0 0 0 1px #f2cfa3;margin:2px 0 6px}
+.clashbar span.m{flex:1}.clashbar button{border:0;background:none;color:var(--warn);font-weight:800;text-decoration:underline;min-height:32px}
+.pop{background:#fff;border-radius:12px;box-shadow:0 10px 30px -8px rgba(31,34,40,.35),0 0 0 1px var(--line);padding:12px 14px;width:330px;font-size:.84rem}
+.pop h4{font-family:var(--font-body);font-size:.92rem;margin-bottom:6px;display:flex;gap:6px;align-items:center}
+.pop p{margin:0 0 6px;color:var(--ink2);font-weight:500}.pop b{color:var(--ink)}
+.wc{background:#fff;border-radius:var(--r-lg);box-shadow:var(--e1);padding:14px 16px;margin-top:14px}
+.wc h3{font-size:1.1rem;margin-bottom:6px;display:flex;gap:8px;align-items:center;justify-content:space-between}
+.li{display:flex;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--line);font-size:.88rem}
+.li:first-of-type{border-top:0}.li .tile{width:32px;height:32px}.li b{display:block;font-size:.92rem}.li small{color:var(--ink2);font-weight:600;font-size:.8rem}
+.li .nx{margin-left:auto;text-align:right;font-weight:700;font-size:.82rem;color:var(--ink2)}
+.ro{display:inline-flex;align-items:center;gap:5px;font-weight:700;font-size:.78rem;color:var(--ink2)}
+.wemp{text-align:center;padding:18px 10px;color:var(--ink2);font-size:.9rem}.wemp b{display:block;color:var(--ink);font-size:1rem}
+.note{font-size:.84rem;color:var(--ink2);max-width:80ch;margin:10px 0 0}
+
+/* ===== v2 compacto ===== */
+.scr{padding:38px 12px 78px;min-height:560px}.phone.fixed{height:640px}
+.pt{font-size:1.25rem;margin-bottom:6px;gap:6px}.hbtn,.avt{width:32px;height:32px}
+.isl{bottom:12px;padding:3px}.isl span{width:50px;height:36px}
+.card{padding:8px 10px;margin-bottom:6px;border-radius:12px}
+.hero h4{font-size:.95rem}.hero small{font-size:.75rem}.segs{margin-top:5px}.segs i{height:5px}
+.wk{margin-bottom:5px;gap:3px}.wk b{font-size:.75rem;padding:3px 9px}
+.strip{margin-top:4px}.strip .l{font-size:.7rem}.strip .n{width:26px;height:26px;font-size:.82rem;margin:1px auto}
+.dh{margin:7px 2px 3px;font-size:.75rem}.dh .hoy{font-size:.7rem;line-height:16px}
+.sess{padding:6px 10px;margin-bottom:4px;border-radius:12px;gap:8px}.node{width:26px;height:26px;font-size:.8rem}.sess b{font-size:.88rem}.sess small{font-size:.72rem}
+.tile{width:30px;height:30px;border-radius:9px}.tile.sm{width:22px;height:22px;border-radius:6px}
+.evA{padding:5px 10px 5px 6px;gap:8px;border-radius:12px;margin-bottom:4px}
+.evA b{font-size:.88rem;gap:5px;align-items:baseline;white-space:nowrap}.evA b small{font-size:.74rem;color:var(--ink2);font-weight:600;overflow:hidden;text-overflow:ellipsis}
+.evC{padding:2px 8px 2px 3px;font-size:.78rem;margin:0 3px 4px 0}
+.sheet{padding:8px 14px 16px;border-radius:18px 18px 0 0}.sheet h4{font-size:1rem;margin-bottom:6px}.dchip{padding:3px 10px;font-size:.78rem;margin-bottom:8px}
+.tp{min-height:46px;padding:7px 9px;font-size:.84rem;border-radius:12px}.tiles{gap:6px}
+.lock{margin-top:8px;font-size:.75rem}.f{margin-bottom:8px}.f>label,.lab{font-size:.75rem;margin-bottom:3px}
+.ch{min-height:32px;padding:4px 11px;font-size:.8rem}.fld{min-height:38px;padding:7px 11px;font-size:.88rem;border-radius:10px}
+.sg{min-height:46px;padding:5px 3px;font-size:.8rem;border-radius:10px}.days b{height:34px;font-size:.82rem}
+.cta{min-height:42px;font-size:.92rem;border-radius:12px}.cta.ghost{margin-top:6px}.bk{margin-bottom:6px;font-size:.86rem}
+.opt{padding:8px 10px;min-height:44px;margin-bottom:6px;font-size:.88rem;border-radius:12px}.sum{padding:7px 10px;font-size:.82rem;margin-top:6px}
+.ban{padding:7px 10px;font-size:.8rem;margin-bottom:6px;border-radius:12px}.emp{padding:10px;margin-top:6px;font-size:.82rem}.emp .cta{min-height:40px;margin-top:8px}
+/* barra de vista y mes */
+.vt{display:flex;align-items:center;gap:6px;justify-content:space-between;margin-bottom:6px}
+.sg2{display:inline-flex;background:var(--gray);border-radius:999px;padding:2px}.sg2 b{font-size:.75rem;padding:4px 10px;border-radius:999px;color:var(--ink2);min-height:26px;display:inline-flex;align-items:center}.sg2 b.on{background:var(--ink);color:#fff}
+.mnav{display:flex;align-items:center;gap:4px;margin-bottom:4px}.mnav strong{flex:1;text-align:center;font-size:.92rem}.mnav .hbtn{background:var(--gray);color:var(--ink);width:30px;height:30px}
+.today-l{font-size:.78rem;font-weight:800;color:var(--blue);text-decoration:underline}
+.mg{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}.mg .wd{font-size:.7rem;font-weight:700;color:var(--ink2);text-align:center;padding-bottom:2px}
+.mc{height:48px;border-radius:8px;background:var(--gray);padding:3px 2px 2px;display:flex;flex-direction:column;align-items:center;gap:3px;border:0;font:inherit;color:inherit}
+.mc.off{opacity:.45}.mc.sel{box-shadow:inset 0 0 0 2px var(--ink);background:#fff}
+.mc .mn{font-size:.74rem;font-weight:700;line-height:15px;min-width:18px;border-radius:999px;text-align:center}
+.mc.today .mn{background:var(--blue);color:#fff}
+.mi{display:flex;gap:2px;align-items:center;justify-content:center;flex-wrap:nowrap}
+.xs{width:14px;height:14px;border-radius:4px;display:flex;align-items:center;justify-content:center}
+.mb{width:10px;height:10px;border-radius:50%;background:var(--ink)}.mb.p{background:#fff;box-shadow:inset 0 0 0 2px var(--blue)}
+.mp{font-size:.68rem;font-weight:800;color:var(--ink2);line-height:14px}
+.mleg{display:flex;gap:12px;font-size:.72rem;font-weight:700;color:var(--ink2);margin:6px 2px 0;align-items:center}.mleg span{display:inline-flex;gap:5px;align-items:center}
+
+/* ===== v2 web compacta ===== */
+.pg{padding:12px 20px 18px}.pg h2{font-size:1.35rem;display:inline}
+.tb{margin:6px 0 8px;gap:12px}.sw{min-height:30px;font-size:.8rem}.lg{font-size:.75rem;gap:10px}
+.wkrow{grid-template-columns:48px repeat(7,minmax(0,1fr));gap:4px;margin-bottom:4px}.wl{font-size:.75rem;padding-top:6px}
+.dc{min-height:72px;padding:5px;gap:4px;border-radius:10px}.dc .dn{font-size:.72rem}
+.wses{padding:4px 7px;font-size:.78rem;border-radius:8px}.wses small{margin-top:1px;font-size:.72rem;gap:4px}
+.lay{padding-top:4px;gap:3px}.wev{min-height:22px;padding:1px 5px 1px 2px;font-size:.72rem;gap:4px;border-radius:6px}.wev .tile{width:18px;height:18px;border-radius:5px}
+.clashbar{padding:5px 10px;font-size:.78rem;border-radius:10px;margin:0 0 4px}.clashbar button{min-height:26px}
+.wc{padding:8px 12px;margin-top:8px;border-radius:10px}.wc h3{font-size:.95rem;margin-bottom:2px}
+.li{padding:5px 0;gap:8px;font-size:.8rem}.li .tile{width:24px;height:24px;border-radius:7px}.li b{display:inline;font-size:.84rem;margin-right:6px}.li small{font-size:.76rem}.li .nx{font-size:.76rem;white-space:nowrap}
+.li .pearls{display:inline-flex;flex-direction:row;gap:5px;vertical-align:middle}
+.pop{padding:9px 12px;font-size:.78rem}
+
+/* ===== v3 íconos de pictograma ===== */
+.tile{border-radius:50%;color:#fff}.tile svg.g{width:58%;height:58%;fill:#fff}
+.tile:not(.sm){outline:1.5px solid var(--c);outline-offset:2px}
+.tile.sm{width:26px;height:26px}.evA .tile{width:28px;height:28px}
+.evA{border:0;background-clip:padding-box}.evA.clash{box-shadow:inset 0 0 0 1.5px var(--warn-fill)}
+.evA b svg{color:var(--ink2)}
+.xs{width:15px;height:15px;border-radius:50%}.xs svg.g{width:62%;height:62%;fill:#fff}
+.chi{display:inline-flex;align-items:center;gap:6px;padding-left:4px}.chi .tile.sm{width:22px;height:22px}.chi.on .tile{outline:0}
+.tile,.big .tile,.tile.sm{border-radius:50%}.big .tile{width:56px;height:56px;outline-offset:3px;outline-width:2px}.ic{gap:10px}
+.wev{border:0;background:rgba(31,34,40,.05)}.wev .tile{width:18px;height:18px}
+.li .tile{width:28px;height:28px}
+.evB .tile{width:22px;height:22px}
+
+/* ===== mes igual al de vistas-app ===== */
+.mc{height:54px;gap:3px;padding-top:4px}.mc .mn{font-size:11px;font-weight:600;color:var(--ink2);min-width:1.8em;line-height:1.5}.mc.today .mn{background:var(--blue);color:#fff;font-weight:700}
+.mi{gap:3px;flex-wrap:nowrap}.xs{width:19px;height:19px}.mg{gap:4px 2px}
+.xs svg.g{width:60%;height:60%}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>Actividades paralelas del atleta (CYC-237)</h1>
+  <div class="nav"><a href="#tarjetas">1 Tarjetas e íconos</a><a href="#semana">2 Calendario semanal</a><a href="#alta">3 Alta, edición y borrado</a><a href="#coach">4 Lo que ve el coach</a><a href="#vacios">5 Estados vacíos y sin coach</a><a href="#fechas">6 Por fechas y pestaña Hoy</a></div>
+</div>
+
+<section id="tarjetas">
+  <h2>1 Tarjetas e íconos</h2>
+  <p>Pictogramas rellenos dentro de una perla de color (círculo con un anillo, el motivo de la marca), como en tu referencia: seis tipos y nueve deportes, el color según la familia (naranja deporte, verde fuerza, azul descanso, oscuro competencia, rojo lesión, gris otros). Las tarjetas llevan un tinte del mismo color, así el calendario tiene color y no queda plano. La intensidad se dice con tres perlas y una palabra, nunca solo con color.</p>
+  <div class="icons" id="iconos"></div>
+  <div class="row">
+    <div class="var"><h3>A. Ficha con tile (recomendada)</h3><div class="st" id="vA"></div><p>Borde punteado y fondo translúcido: se lee como «tuyo, fuera del plan». Dos líneas: nombre y hora. A la derecha, las perlas de intensidad.</p></div>
+    <div class="var"><h3>B. Cinta de color</h3><div class="st" id="vB"></div><p>Una sola línea con barra lateral por tipo. Más compacta, pero separa menos de las sesiones del coach.</p></div>
+    <div class="var"><h3>C. Chip para días llenos</h3><div class="st" id="vC"></div><p>Cuando un día lleva más de dos actividades, las extra pasan a chips. Se agrupan en una fila.</p></div>
+  </div>
+</section>
+
+<section id="semana">
+  <h2>2 Calendario del atleta: semana y mes</h2>
+  <p>Versión compacta (v2): tarjetas de una línea, tiles de 22 px, márgenes de 4 a 6 px. Una barra con dos controles: <b>Semana | Mes</b> y, en semana, <b>Ciclo | Fechas</b>. En el <b>mes</b>, cada día muestra el ícono de cada actividad y un punto por sesión del coach (relleno oscuro = hecha, aro azul = pendiente); si no caben, dos elementos y «+N». Tocar un día abre su detalle debajo de la cuadrícula; flechas de mes y «Ir a hoy». Texto mínimo de 11 px.</p>
+  <div class="row" id="rowSemana"></div>
+  <div class="note">Lunes: sesión del coach y voleibol. Martes (pasado): dos actividades, la segunda como chip. Viernes: sesión pesada; sábado y domingo: partidos. Los pasados se atenúan; las actividades no se «completan».</div>
+</section>
+
+<section id="alta">
+  <h2>3 Alta, edición y borrado</h2>
+  <p>Pantalla 1: elegir el tipo. 2: el entrenamiento paralelo. 3: repetición. 4: partido (sin deporte, con nombre del evento). 5: abrir una actividad. 6: eliminar o editar una serie.</p>
+  <div class="row" id="rowAlta"></div>
+</section>
+
+<section id="coach">
+  <h2>4 Lo que ve el coach</h2>
+  <p>Versión compacta (v2): celdas de 72 px de alto, chips de 22 px, fichas de una línea. En la pizarra del ciclo, la capa del atleta va debajo de las sesiones, separada por una línea punteada, en chips pequeños de solo lectura (sin menú ni arrastre). Se puede apagar con el interruptor. El choque de carga se avisa con ámbar y texto.</p>
+  <div class="wrapw" id="wrapWeb"><div class="win" id="winWeb"></div></div>
+  <div class="row" style="margin-top:16px">
+    <div><p class="cap">Detalle del aviso (al tocar «Ver detalle»)</p><div class="pop" id="pop"></div></div>
+  </div>
+</section>
+
+<section id="vacios">
+  <h2>5 Estados vacíos, error y sin coach</h2>
+  <p>Con ciclo y sin actividades; sin coach todavía (puede agregar, solo lo ve él); error al cargar las actividades (las sesiones siguen visibles); y la ficha del coach cuando el atleta no ha agregado nada.</p>
+  <div class="row" id="rowVacios"></div>
+  <div class="wrapw" style="margin-top:18px"><div class="win" id="winEmp" style="width:760px"></div></div>
+</section>
+<section id="fechas">
+  <h2>6 Calendario por fechas y pestaña Hoy</h2>
+  <p>Las actividades no dependen del ciclo ni del coach. El calendario gana un modo por <b>semana calendario</b> (fechas reales); el modo ciclo sigue como hoy. Sin ciclo, solo existe el modo fechas.</p>
+  <div class="row" id="rowFechas"></div>
+  <div class="note">1: con ciclo, el interruptor «Ciclo | Fechas» (solo aparece con ciclo activo) y las flechas navegan por fechas, también antes y después del ciclo. 2: semana anterior al ciclo, solo actividades y la etiqueta «Fuera del ciclo». 3: sin ciclo ni coach, con actividades. 4: pestaña Hoy con la fila «Hoy también».</div>
+</section>
+<script>
+const P={
+ ball:'<circle cx="12" cy="12" r="9"/><path d="M12 3c2.6 3 3.1 6.6 1.6 9.6M3.7 8.4c3.6.2 6.6 1.8 8.4 3.6M20.2 15.2c-3-.6-6 .2-8.6 2.3"/>',
+ trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0V4z"/><path d="M8 6H5v1.5A3 3 0 0 0 8 10.5M16 6h3v1.5a3 3 0 0 1-3 3M12 13v4M9 20h6M10 17h4"/>',
+ leaf:'<path d="M5 19c0-8 5-13 14-14 0 9-5 14-14 14z"/><path d="M5 19l7-7"/>',
+ bag:'<rect x="4" y="7" width="16" height="12" rx="2"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M4 12h16"/>',
+ band:'<rect x="2.5" y="8.5" width="19" height="7" rx="3.5" transform="rotate(-45 12 12)"/><path d="M10.5 10.5h.01M13.5 13.5h.01M10.5 13.5h.01M13.5 10.5h.01"/>',
+ star:'<path d="M12 3.5l2 5.5 5.5 2-5.5 2-2 5.5-2-5.5-5.5-2 5.5-2z"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',repeat:'<path d="M17 3l3 3-3 3M4 11V9a3 3 0 0 1 3-3h13M7 21l-3-3 3-3M20 13v2a3 3 0 0 1-3 3H4"/>',
+ lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+ warn:'<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/>',chev:'<path d="M9 6l6 6-6 6"/>',back:'<path d="M15 6l-6 6 6 6"/>',
+ trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',pen:'<path d="M4 20l1-4L16 5l3 3L8 19z"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',
+ home:'<path d="M4 11l8-7 8 7v9H4z"/>',cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',chart:'<path d="M5 20V10M12 20V4M19 20v-7"/>',chat:'<path d="M4 5h16v11H9l-5 4z"/>'};
+const ic=(n,s=20,x='')=>`<svg class="i" viewBox="0 0 24 24" width="${s}" height="${s}" aria-hidden="true" ${x}>${P[n]}</svg>`;
+const G={"volley": "<path d='M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm87.63,96H181.37a104.18,104.18,0,0,0-35.78-78.23A88.18,88.18,0,0,1,215.63,120ZM44.53,155.87A87.95,87.95,0,0,1,77.27,56.13L94.39,85.78a104.14,104.14,0,0,0-49.86,70.09ZM58.9,182.43a88,88,0,0,1,43.49-82.79L118.76,128,77.27,199.87A88.62,88.62,0,0,1,58.9,182.43Zm150.84-21.85a88,88,0,0,1-93.49,3.78L132.62,136h83A87.16,87.16,0,0,1,209.74,160.58Z'/>", "soccer": "<path d='M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm8,39.38,24.79-17.05a88.41,88.41,0,0,1,36.18,27l-8,26.94c-.2,0-.41.1-.61.17l-22.82,7.41a7.59,7.59,0,0,0-1,.4L136,88.62c0-.2,0-.41,0-.62V64C136,63.79,136,63.58,136,63.38ZM95.24,46.33,120,63.38c0,.2,0,.41,0,.62V88c0,.21,0,.42,0,.62L91.44,108.29a7.59,7.59,0,0,0-1-.4l-22.82-7.41c-.2-.07-.41-.12-.61-.17l-8-26.94A88.41,88.41,0,0,1,95.24,46.33Zm-13,129.09H53.9a87.4,87.4,0,0,1-13.79-43.07l22-16.88a5.77,5.77,0,0,0,.58.22l22.83,7.42a7.83,7.83,0,0,0,.93.22l10.79,31.42c-.15.18-.3.36-.44.55L82.7,174.71A7.8,7.8,0,0,0,82.24,175.42ZM150.69,213a88.16,88.16,0,0,1-45.38,0L95.25,184.6c.13-.16.27-.31.39-.48l14.11-19.42a7.66,7.66,0,0,0,.46-.7h35.58a7.66,7.66,0,0,0,.46.7l14.11,19.42c.12.17.26.32.39.48Zm23.07-37.61a7.8,7.8,0,0,0-.46-.71L159.19,155.3c-.14-.19-.29-.37-.44-.55l10.79-31.42a7.83,7.83,0,0,0,.93-.22l22.83-7.42a5.77,5.77,0,0,0,.58-.22l22,16.88a87.4,87.4,0,0,1-13.79,43.07Z'/>", "basket": "<path d='M63.6,46.39a103.48,103.48,0,0,1,52-21.65,4,4,0,0,1,4.45,4V120H95.7A103.77,103.77,0,0,0,63.38,52.44,4,4,0,0,1,63.6,46.39ZM46,64.07a103.51,103.51,0,0,0-21.29,51.46,4,4,0,0,0,4,4.47H79.63A87.86,87.86,0,0,0,51.89,63.59,4,4,0,0,0,46,64.07ZM192.4,46.39a103.48,103.48,0,0,0-52-21.65,4,4,0,0,0-4.45,4V120h24.3a103.77,103.77,0,0,1,32.32-67.56A4,4,0,0,0,192.4,46.39Zm38.86,69.14A103.51,103.51,0,0,0,210,64.07a4,4,0,0,0-5.86-.48A87.86,87.86,0,0,0,176.37,120h50.91A4,4,0,0,0,231.26,115.53ZM24.74,140.47A103.51,103.51,0,0,0,46,191.93a4,4,0,0,0,5.86.48A87.86,87.86,0,0,0,79.63,136H28.72A4,4,0,0,0,24.74,140.47ZM210,191.93a103.51,103.51,0,0,0,21.29-51.46,4,4,0,0,0-4-4.47H176.37a87.86,87.86,0,0,0,27.74,56.41A4,4,0,0,0,210,191.93ZM63.6,209.61a103.48,103.48,0,0,0,52,21.65,4,4,0,0,0,4.45-4V136H95.7a103.77,103.77,0,0,1-32.32,67.56A4,4,0,0,0,63.6,209.61ZM160.3,136H136v91.28a4,4,0,0,0,4.45,4,103.48,103.48,0,0,0,52-21.65,4,4,0,0,0,.22-6.05A103.77,103.77,0,0,1,160.3,136Z'/>", "run": "<path d='M120,56a32,32,0,1,1,32,32A32,32,0,0,1,120,56Zm103.28,74.08a8,8,0,0,0-10.6-4c-.25.12-26.71,10.72-72.18-20.19-52.29-35.54-88-7.77-89.51-6.57a8,8,0,1,0,10,12.48c.26-.21,25.12-19.5,64.07,3.27-4.25,13.35-12.76,31.82-25.25,47-18.56,22.48-41.11,32.56-67,30A8,8,0,0,0,31.2,208a92.29,92.29,0,0,0,9.34.47c27.38,0,52-12.38,71.63-36.18.57-.69,1.14-1.4,1.69-2.1C133.31,175.29,168,190.3,168,232a8,8,0,0,0,16,0c0-24.65-10.08-45.35-29.15-59.86a104.29,104.29,0,0,0-31.31-15.81A169.31,169.31,0,0,0,139,124c26.14,16.09,46.84,20,60.69,20,12.18,0,19.06-3,19.67-3.28A8,8,0,0,0,223.28,130.08Z'/>", "bike": "<path d='M136,52a28,28,0,1,1,28,28A28,28,0,0,1,136,52ZM240,176a40,40,0,1,1-40-40A40,40,0,0,1,240,176Zm-16,0a24,24,0,1,0-24,24A24,24,0,0,0,224,176Zm-24-64a8,8,0,0,0-8-8H155.31L125.66,74.34a8,8,0,0,0-11.32,0l-32,32a8,8,0,0,0,0,11.32L120,155.31V200a8,8,0,0,0,16,0V152a8,8,0,0,0-2.34-5.66L99.31,112,120,91.31l26.34,26.35A8,8,0,0,0,152,120h40A8,8,0,0,0,200,112ZM96,176a40,40,0,1,1-40-40A40,40,0,0,1,96,176Zm-16,0a24,24,0,1,0-24,24A24,24,0,0,0,80,176Z'/>", "swim": "<path d='M144,72a32,32,0,1,1,32,32A32,32,0,0,1,144,72Zm66.89,112.19c-31.83,26.39-53.72,14.51-79.07.74-26.61-14.44-56.76-30.81-96.93,2.49a8,8,0,1,0,10.22,12.31c31.83-26.39,53.72-14.5,79.07-.74,15.11,8.2,31.35,17,49.93,17,14.14,0,29.64-5.11,47-19.5a8,8,0,0,0-10.22-12.32Zm-176-36.76a8,8,0,1,0,10.22,12.31c31.83-26.38,53.72-14.5,79.07-.74,15.11,8.2,31.35,17,49.93,17,14.14,0,29.64-5.11,47-19.5a8,8,0,1,0-10.22-12.31,75.79,75.79,0,0,1-19.28,12.06l-53.84-53.82A103.34,103.34,0,0,0,64.24,72H40a8,8,0,0,0,0,16H64.24a87.66,87.66,0,0,1,41.88,10.56L76.49,128.17C63.82,129.36,50.07,134.84,34.89,147.42Z'/>", "weights": "<path d='M200,64V192a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V136H104v56a16,16,0,0,1-16,16H72a16,16,0,0,1-16-16V64A16,16,0,0,1,72,48H88a16,16,0,0,1,16,16v56h48V64a16,16,0,0,1,16-16h16A16,16,0,0,1,200,64ZM36,72H32A16,16,0,0,0,16,88v32H8.27A8.18,8.18,0,0,0,0,127.47,8,8,0,0,0,8,136h8v32a16,16,0,0,0,16,16h4a4,4,0,0,0,4-4V76A4,4,0,0,0,36,72Zm220,55.47a8.18,8.18,0,0,0-8.25-7.47H240V88a16,16,0,0,0-16-16h-4a4,4,0,0,0-4,4V180a4,4,0,0,0,4,4h4a16,16,0,0,0,16-16V136h8A8,8,0,0,0,256,127.47Z'/>", "yoga": "<path d='M245.83,121.63a15.53,15.53,0,0,0-9.52-7.33,73.55,73.55,0,0,0-22.17-2.22c4-19.85,1-35.55-2-44.86a16.17,16.17,0,0,0-18.8-10.88,85.53,85.53,0,0,0-28.55,12.12,94.58,94.58,0,0,0-27.11-33.25,16.05,16.05,0,0,0-19.26,0A94.58,94.58,0,0,0,91.26,68.46,85.53,85.53,0,0,0,62.71,56.34,16.14,16.14,0,0,0,43.92,67.22c-3,9.31-6,25-2.06,44.86a73.55,73.55,0,0,0-22.17,2.22,15.53,15.53,0,0,0-9.52,7.33,16,16,0,0,0-1.6,12.26c3.39,12.58,13.8,36.49,45.33,55.33S113.13,208,128.05,208s42.67,0,74-18.78c31.53-18.84,41.94-42.75,45.33-55.33A16,16,0,0,0,245.83,121.63ZM62.1,175.49C35.47,159.57,26.82,140.05,24,129.7a59.61,59.61,0,0,1,22.5-1.17,129.08,129.08,0,0,0,9.15,19.41,142.28,142.28,0,0,0,34,39.56A114.92,114.92,0,0,1,62.1,175.49ZM128,190.4c-9.33-6.94-32-28.23-32-71.23C96,76.7,118.38,55.24,128,48c9.62,7.26,32,28.72,32,71.19C160,162.17,137.33,183.46,128,190.4Zm104-60.68c-2.77,10.24-11.4,29.81-38.09,45.77a114.92,114.92,0,0,1-27.55,12,142.28,142.28,0,0,0,34-39.56,129.08,129.08,0,0,0,9.15-19.41A59.69,59.69,0,0,1,232,129.71Z'/>", "sleep": "<path d='M216,72H32V48a8,8,0,0,0-16,0V208a8,8,0,0,0,16,0V176H240v32a8,8,0,0,0,16,0V112A40,40,0,0,0,216,72ZM32,88h72v72H32Z'/>", "trophy": "<path d='M232,64H208V48a8,8,0,0,0-8-8H56a8,8,0,0,0-8,8V64H24A16,16,0,0,0,8,80V96a40,40,0,0,0,40,40h3.65A80.13,80.13,0,0,0,120,191.61V216H96a8,8,0,0,0,0,16h64a8,8,0,0,0,0-16H136V191.58c31.94-3.23,58.44-25.64,68.08-55.58H208a40,40,0,0,0,40-40V80A16,16,0,0,0,232,64ZM48,120A24,24,0,0,1,24,96V80H48v32q0,4,.39,8ZM232,96a24,24,0,0,1-24,24h-.5a81.81,81.81,0,0,0,.5-8.9V80h24Z'/>", "bag": "<path d='M192,48H168V24A24,24,0,0,0,144,0H112A24,24,0,0,0,88,24V48H64A16,16,0,0,0,48,64V208a16,16,0,0,0,16,16H80v16a8,8,0,0,0,16,0V224h64v16a8,8,0,0,0,16,0V224h16a16,16,0,0,0,16-16V64A16,16,0,0,0,192,48ZM96,192a8,8,0,0,1-16,0V80a8,8,0,0,1,16,0Zm40,0a8,8,0,0,1-16,0V80a8,8,0,0,1,16,0ZM152,48H104V24a8,8,0,0,1,8-8h32a8,8,0,0,1,8,8Zm24,144a8,8,0,0,1-16,0V80a8,8,0,0,1,16,0Z'/>", "band": "<path d='M128,116a12,12,0,1,1-12,12A12,12,0,0,1,128,116Zm84.28,39.72a40,40,0,1,1-56.56,56.56L128,184.57l-27.72,27.71a40,40,0,1,1-56.56-56.56L71.43,128,43.72,100.28a40,40,0,1,1,56.56-56.56L128,71.43l27.72-27.71a40,40,0,1,1,56.56,56.56L184.57,128Zm-95.59,17.53L82.75,139.31,55,167A24,24,0,1,0,89,201ZM161.94,128,128,94.06,94.06,128,128,161.94Zm39-39A24,24,0,1,0,167,55L139.31,82.75l33.94,33.94Z'/>", "dots": "<path d='M224,80H32A16,16,0,0,0,16,96v64a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V96A16,16,0,0,0,224,80ZM60,140a12,12,0,1,1,12-12A12,12,0,0,1,60,140Zm68,0a12,12,0,1,1,12-12A12,12,0,0,1,128,140Zm68,0a12,12,0,1,1,12-12A12,12,0,0,1,196,140Z'/>", "walk": "<path d='M120,48a32,32,0,1,1,32,32A32,32,0,0,1,120,48Zm88,88c-28.64,0-41.81-13.3-55.75-27.37-3.53-3.57-7.18-7.26-11-10.58-37-32.14-96.22,22.73-98.72,25.08a8,8,0,0,0,10.95,11.66A163.88,163.88,0,0,1,84,113c13.78-7.38,25.39-10.23,34.7-8.58L64.66,228.81a8,8,0,0,0,4.15,10.52A7.84,7.84,0,0,0,72,240a8,8,0,0,0,7.34-4.81l33.59-77.27L144,180.12V232a8,8,0,0,0,16,0V176a8,8,0,0,0-3.35-6.51l-37.2-26.57L132.88,112c2.64,2.44,5.26,5.07,8,7.84C155.05,134.19,172.69,152,208,152a8,8,0,0,0,0-16Z'/>"};
+const COL={violet:'#8a63d2',orange:'#f08a24',green:'#2f9e5f',blue:'#3080fc',ink:'#1f2228',gray:'#8d95a2',red:'#d1494d'};
+const T={training:{n:'Entrenamiento paralelo',g:'volley',c:'orange'},match:{n:'Partido o competencia',g:'trophy',c:'ink'},rest:{n:'Descanso activo',g:'walk',c:'violet'},travel:{n:'Viaje',g:'bag',c:'gray'},injury:{n:'Lesión',g:'band',c:'red'},other:{n:'Otro',g:'dots',c:'gray'},
+ volley:{n:'Voleibol',g:'volley',c:'orange'},soccer:{n:'Fútbol',g:'soccer',c:'orange'},basket:{n:'Básquetbol',g:'basket',c:'orange'},run:{n:'Correr',g:'run',c:'orange'},bike:{n:'Ciclismo',g:'bike',c:'orange'},swim:{n:'Natación',g:'swim',c:'orange'},weights:{n:'Pesas',g:'weights',c:'orange'},yoga:{n:'Yoga',g:'yoga',c:'violet'},dots:{n:'Otro deporte',g:'dots',c:'gray'}};
+const TYPES=['training','match','rest','travel','injury','other'],SPORTS=['volley','soccer','basket','run','bike','swim','weights','yoga','dots'];
+const tile=(t,sm)=>`<span class="tile${sm?' sm':''}" style="background:${COL[T[t].c]};--c:${COL[T[t].c]}"><svg class="g" viewBox="0 0 256 256" aria-hidden="true">${G[T[t].g]}</svg></span>`;
+const pearls=(n,label=true)=>`<div class="pearls"><span>${[1,2,3].map(k=>`<i class="${k<=n?'f':''}"></i>`).join('')}</span>${label?['','Suave','Media','Alta'][n]:''}</div>`;
+const evA=(t,title,sub,n,o={})=>`<div class="evA ${o.past?'past':''} ${o.clash?'clash':''}" style="background:${COL[T[t].c]}1f" role="group" aria-label="${title}, ${sub}${n?', intensidad '+['','suave','media','alta'][n]:''}">${tile(t,1)}<div class="tx"><b>${title}${o.rep?ic('repeat',12):''}<small>${sub}</small></b></div>${n?pearls(n,false):''}</div>`;
+const evB=(t,title,sub)=>`<div class="evB"><span class="bar b-${t}"></span>${tile(t,1)}<div class="tx">${title}<small>${sub}</small></div></div>`;
+const evC=(t,title,sub)=>`<span class="evC">${tile(t,1)}${title}<small>${sub}</small></span>`;
+const sess=(num,name,state,sub)=>`<div class="sess ${state==='done'?'past':''}"><span class="node ${state}">${state==='done'?ic('plus',0).replace('width="0" height="0"','width="16" height="16"').replace(P.plus,'<path d="M5 12l5 5 9-10"/>'):num}</span><div><b>${name}</b><small>${sub}</small></div></div>`;
+const island=(on=0)=>`<div class="isl">${['cal','home','chart','chat'].map((k,i)=>`<span class="${i===on?'on':''}">${ic(k,22)}</span>`).join('')}</div>`;
+const strip=(m)=>{const L='LMXJVSD',N=[9,10,11,12,13,14,15];return `<div class="strip">${L.split('').map((l,i)=>`<div><div class="l">${l}</div><div class="n ${i===2?'today':''}">${N[i]}</div><div class="mk">${(m[i]||[]).map(x=>`<i class="${x}"></i>`).join('')}</div></div>`).join('')}</div>`};
+const hero=(sub)=>`<div class="card hero"><div style="display:flex;align-items:baseline;gap:8px"><h4>Fuerza base</h4><small>${sub}</small></div><div class="segs"><i class="d"></i><i class="d"></i><i class="c"></i><i></i><i></i><i></i></div></div>`;
+const header=(plus=true,hl=false)=>`<div class="pt"><span style="color:var(--brand)">◯</span>Calendario<span class="sp"></span>${plus?`<button class="hbtn" aria-label="Agregar actividad">${ic('plus',20,'style="stroke-width:2.5"')}</button>`:''}<span class="avt">CR</span></div>`;
+const day=(l,hoy)=>`<div class="dh">${l}${hoy?'<span class="hoy">Hoy</span>':''}</div>`;
+const phone=(inner,o={})=>`<div class="phone ${o.fixed?'fixed':''}"><div class="scr">${inner}</div>${o.over||''}${o.noisl?'':island(0)}</div>`;
+
+// 1
+document.getElementById('iconos').innerHTML=[...TYPES,...SPORTS].map(k=>`<div class="ic"><div class="big">${tile(k)}</div><b>${T[k].n}</b></div>`).join('');
+document.getElementById('vA').innerHTML=evA('training','Voleibol','19:00, 90 min',3,{rep:1})+evA('match','Partido de liga','Sábado, 10:00',3)+evA('rest','Caminata','Mañana, 45 min',1)+evA('injury','Molestia en la rodilla','Todo el día',0);
+document.getElementById('vB').innerHTML=evB('training','Voleibol','19:00')+evB('match','Partido de liga','10:00')+evB('rest','Caminata','45 min')+evB('travel','Viaje a Valdivia','Todo el día');
+document.getElementById('vC').innerHTML=evC('training','Voleibol','19:00')+evC('rest','Caminata','45 min')+evC('travel','Viaje','Día')+evC('other','Cumpleaños','Tarde');
+
+
+// ---- vista de mes ----
+const XC=`<span class="xs" style="background:#2f9e5f"><svg class="g" viewBox="0 0 256 256" aria-hidden="true">${G.weights}</svg></span>`;
+const XT=(t)=>`<span class="xs" style="background:${COL[T[t].c]}"><svg class="g" viewBox="0 0 256 256" aria-hidden="true">${G[T[t].g]}</svg></span>`;
+const MD={'26':['d','training'],'27':['training'],'28':['d'],'29':['training'],'30':['d'],'31':['match'],'1':['match'],'2':['d','training'],'3':['training'],'4':['d'],'6':['d'],'7':['match'],'8':['match'],
+ '9':['d','training'],'10':['training','rest'],'11':['p'],'13':['p'],'14':['match'],'15':['match'],'16':['p','training'],'17':['training','rest','travel','other'],'18':['p'],'20':['p'],'21':['match'],'22':['match'],'23':['p','training'],'24':['training'],'25':['p'],'27b':['p'],'28b':['match'],'29b':['match']};
+(()=>{for(const k of Object.keys(MD)){const v=MD[k];delete MD[k];const n=k.replace('b','');MD[(['26','27','28','29','30','31'].includes(k)?'o':'n')+n]=v;}})();
+function mcell(label,key,o){const it=(MD[key]||[]);const slots=it.length>3?it.slice(0,2):it;const more=it.length>3?it.length-2:0;
+ return `<button class="mc ${o.off?'off':''} ${o.sel?'sel':''} ${o.today?'today':''}" aria-label="${label}${it.length?', '+it.length+' elementos':''}"><span class="mn">${label.split(' ')[1]}</span><span class="mi">${slots.map(x=>(x==='d'||x==='p')?XC:XT(x)).join('')}${more?`<span class="mp">+${more}</span>`:''}</span></button>`}
+function month(opts={}){
+ const days=[];const dn=['L','M','X','J','V','S','D'];
+ // 26 oct a 6 dic
+ let d=new Date(2026,9,26);for(let i=0;i<42;i++){const dd=d.getDate(),mo=d.getMonth();const lab=['dom','lun','mar','mié','jue','vie','sáb'][d.getDay()]+' '+dd;
+  let key=(mo===9?'o':mo===11?'d':'n')+dd;
+  days.push({lab,key,off:mo!==10,today:mo===10&&dd===11,sel:mo===10&&dd===opts.sel});d=new Date(d.getTime()+864e5);}
+ let h=`<div class="mg">${dn.map(x=>`<div class="wd">${x}</div>`).join('')}`;
+ days.forEach(c=>{const empty=opts.empty;let k=c.key;
+  if(c.off&&c.lab.split(' ')[1]!=='1'&&parseInt(c.lab.split(' ')[1])>=26&&c.lab.includes('lun')===false){} 
+  h+=mcell(c.lab,empty?'x':k,c)});
+ return h+'</div>';}
+const mtool=(mode)=>`<div class="vt"><span class="sg2"><b>Semana</b><b class="on">Mes</b></span>${mode==='ciclo'?'':''}<span class="today-l">Ir a hoy</span></div>`;
+const mnav=(t)=>`<div class="mnav"><button class="hbtn" aria-label="Mes anterior">${ic('back',16)}</button><strong>${t}</strong><button class="hbtn" aria-label="Mes siguiente">${ic('chev',16)}</button></div>`;
+const mleg=`<div class="mleg"><span>${XC}Sesión del coach</span><span>${XT('training')}Actividad</span></div>`;
+
+// 2
+const wkM=[['bd done','ev'],['bd done','ev','ev'],['bd pend'],[],['bd pend'],['ev'],['ev']];
+const vtw=`<div class="vt"><span class="sg2"><b class="on">Semana</b><b>Mes</b></span><span class="sg2"><b class="on">Ciclo</b><b>Fechas</b></span></div>`;
+const semana=phone(
+ header()+hero('Semana 3 de 6')+`<div class="card">${vtw}<div class="wk"><b>S2</b><b class="on">S3</b><b>S4</b><b>S5</b></div>${strip(wkM)}</div>`+
+ day('Lun 9')+sess(1,'Tren inferior A','done','Hecha')+evA('training','Voleibol','19:00, 90 min',3,{past:1,rep:1})+
+ day('Mar 10')+evA('training','Voleibol','19:00, 90 min',3,{past:1,rep:1})+evA('rest','Caminata','7:30, 45 min',1,{past:1})+
+ day('Mié 11',1)+sess(2,'Torso B','next','Pendiente')+
+ day('Vie 13')+sess(3,'Piernas pesadas','','Pendiente')+
+ day('Sáb 14')+evA('match','Partido de liga','10:00, 2 h',3,{clash:1,rep:1})+
+ day('Dom 15')+evA('match','Partido de liga','10:00, 2 h',3,{rep:1}),{});
+const detail=(d,items)=>day(d)+items;
+const mesP=phone(header()+`<div class="card"><div class="vt"><span class="sg2"><b>Semana</b><b class="on">Mes</b></span><span class="today-l">Ir a hoy</span></div>${mnav('Noviembre 2026')}${month({sel:17})}${mleg}</div>`+
+ day('Mar 17')+evA('training','Voleibol','19:00, 90 min',3,{rep:1})+evA('rest','Caminata','7:30, 45 min',1)+evA('travel','Viaje a Valdivia','Todo el día',0)+evA('other','Cumpleaños de Ana','Tarde',0),{});
+const mesSel=phone(header()+`<div class="card"><div class="vt"><span class="sg2"><b>Semana</b><b class="on">Mes</b></span><span class="today-l">Ir a hoy</span></div>${mnav('Noviembre 2026')}${month({sel:14})}${mleg}</div>`+
+ day('Sáb 14')+evA('match','Partido de liga','10:00, 2 h',3,{clash:1,rep:1})+`<div class="row" style="gap:6px"></div>`+`<div class="ban" style="background:var(--warn-bg);color:var(--warn)">${ic('warn',16)}<div>Un partido de alta intensidad el sábado, con piernas pesadas el viernes.</div></div>`,{});
+document.getElementById('rowSemana').innerHTML=[['Semana, compacta',semana],['Mes, con un día abierto (+2)',mesP],['Mes, partido abierto',mesSel]].map(([c,h])=>`<div class="col"><p class="cap">${c}</p>${h}</div>`).join('');
+
+// 3
+const base=(h)=>header()+hero('Semana 3 de 6')+`<div class="card"><div class="wk"><b>S2</b><b class="on">S3</b></div>${strip(wkM)}</div>`+day('Mié 11',1)+sess(2,'Torso B','next','Pendiente');
+const s1=phone(base(),{fixed:1,noisl:1,over:`<div class="dim"></div><div class="sheet"><div class="grab"></div><h4>Agregar al calendario</h4><span class="dchip">${ic('cal',16)}Mié 11 de noviembre</span><div class="tiles">${TYPES.map(k=>`<button class="tp">${tile(k)}${T[k].n}</button>`).join('')}</div><div class="lock">${ic('lock',14)}Solo lo ve tu coach.</div></div>`});
+const form1=`<div class="bk">${ic('back',18)}Entrenamiento paralelo</div>
+<div class="f"><label>Deporte</label><div class="chips">${['volley','soccer','swim','bike','run','weights','yoga','dots'].map((k,i)=>`<button class="ch chi ${i?'':'on'}">${tile(k,1)}${T[k].n}</button>`).join('')}</div></div>
+<div class="f"><label>Cuándo</label><div class="two"><div class="fld">19:00<span class="s">Inicio</span></div><div class="chips" style="align-content:center">${['60','90','120'].map((x,i)=>`<button class="ch ${i===1?'on':''}">${x} min</button>`).join('')}</div></div></div>
+<div class="f"><label>Intensidad</label><div class="seg3"><button class="sg">${pearls(1,false)}Suave</button><button class="sg">${pearls(2,false)}Media</button><button class="sg on">${pearls(3,false)}Alta</button></div></div>
+<div class="f"><label>Se repite</label><div class="fld sel"><span>Lunes y martes, hasta el 20 dic</span>${ic('chev',18)}</div></div>
+<div class="f"><label>Notas</label><div class="fld" style="color:var(--mid)">Opcional</div></div>
+<button class="cta">Guardar</button><div class="lock">${ic('lock',14)}Solo lo ve tu coach.</div>`;
+const s2=phone(form1,{fixed:1,noisl:1});
+const s3=phone(base(),{fixed:1,noisl:1,over:`<div class="dim"></div><div class="sheet"><div class="grab"></div><h4>Se repite</h4>
+<div class="opt"><i></i>No se repite</div><div class="opt on"><i></i><div>Cada semana<small>Elige los días</small></div></div>
+<div class="days" style="margin:4px 0 12px">${'LMXJVSD'.split('').map((l,i)=>`<b class="${i<2?'on':''}" role="checkbox" aria-checked="${i<2}">${l}</b>`).join('')}</div>
+<label class="lab">Hasta</label><div class="chips" style="margin-bottom:8px"><button class="ch on">Fin del ciclo (20 dic)</button><button class="ch">Otra fecha</button><button class="ch">Sin fecha final</button></div>
+<div class="sum">Se agregan 6 lunes y 6 martes.</div><button class="cta" style="margin-top:12px">Listo</button></div>`});
+const form2=`<div class="bk">${ic('back',18)}Partido o competencia</div>
+<div class="f"><label>Nombre</label><div class="fld">Liga universitaria</div></div>
+<div class="f"><label>Tipo</label><div class="chips"><button class="ch on">Partido</button><button class="ch">Competencia</button></div></div>
+<div class="f"><label>Cuándo</label><div class="two"><div class="fld">10:00<span class="s">Inicio</span></div><div class="chips" style="align-content:center"><button class="ch">1 h</button><button class="ch on">2 h</button><button class="ch">Todo el día</button></div></div></div>
+<div class="f"><label>Intensidad</label><div class="seg3"><button class="sg">${pearls(1,false)}Suave</button><button class="sg">${pearls(2,false)}Media</button><button class="sg on">${pearls(3,false)}Alta</button></div></div>
+<div class="f"><label>Se repite</label><div class="fld sel"><span>Sábado y domingo, hasta el 20 dic</span>${ic('chev',18)}</div></div>
+<button class="cta">Guardar</button><div class="lock">${ic('lock',14)}Solo lo ve tu coach.</div>`;
+const s4=phone(form2,{fixed:1,noisl:1});
+const s5=phone(base(),{fixed:1,noisl:1,over:`<div class="dim"></div><div class="sheet"><div class="grab"></div><div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">${tile('training')}<div><b style="font-size:1.05rem">Voleibol</b><div style="font-size:.82rem;color:var(--ink2);font-weight:600">Lunes y martes, 19:00 a 20:30</div></div>${pearls(3).replace('pearls','pearls" style="margin-left:auto')}</div><div class="sum" style="margin:0 0 12px">Hasta el 20 de diciembre</div><button class="cta">${ic('pen',18)}&nbsp;Editar</button><button class="cta ghost" style="color:var(--pain)">${ic('trash',18)}&nbsp;Eliminar</button></div>`});
+const s6=phone(base(),{fixed:1,noisl:1,over:`<div class="dim"></div><div class="sheet"><div class="grab"></div><h4>¿Qué quieres eliminar?</h4><div class="opt on"><i></i><div>Solo este día<small>Lunes 16 de noviembre</small></div></div><div class="opt"><i></i><div>Toda la serie<small>Los 12 días, del 9 de nov al 15 de dic</small></div></div><button class="cta del" style="margin-top:6px">Eliminar</button><button class="cta ghost">Cancelar</button></div>`});
+document.getElementById('rowAlta').innerHTML=[['1 Elegir el tipo',s1],['2 Entrenamiento paralelo',s2],['3 Repetición',s3],['4 Partido o competencia',s4],['5 Abrir una actividad',s5],['6 Eliminar una serie',s6]].map(([c,h])=>`<div class="col"><p class="cap">${c}</p>${h}</div>`).join('');
+
+// 4 web
+const wev=(t,txt,n,cl)=>`<div class="wev ${cl?'clash':''}">${tile(t,1)}<span>${txt}</span><em>${[1,2,3].map(k=>`<i class="${k<=n?'f':''}"></i>`).join('')}</em></div>`;
+const wses=(txt,sub,done,pill)=>`<div class="wses ${done?'done':''}">${txt}<small>${sub}${pill||''}</small></div>`;
+const dayc=(d,n,body,today,warn)=>`<div class="dc ${today?'today':''}"><div class="dn"><span>${d} ${n}</span>${warn?`<span style="color:var(--warn)" title="Choque de carga">${ic('warn',16)}</span>`:''}</div>${body}</div>`;
+const lay=(x)=>x?`<div class="lay" data-layer>${x}</div>`:'';
+const wk2=`<div class="wl">Semana 2</div>`+[
+ dayc('Lun',2,wses('Tren inferior A','Hecha',1)+lay(wev('training','Voleibol 19:00',3))),
+ dayc('Mar',3,lay(wev('training','Voleibol 19:00',3))),
+ dayc('Mié',4,wses('Torso A','Hecha',1)),
+ dayc('Jue',5,''),
+ dayc('Vie',6,wses('Piernas B','Hecha',1)),
+ dayc('Sáb',7,lay(wev('match','Partido de liga',3))),
+ dayc('Dom',8,lay(wev('match','Partido de liga',3)))].join('');
+const wk3=`<div class="wl">Semana 3</div>`+[
+ dayc('Lun',9,wses('Tren inferior A','Hecha',1)+lay(wev('training','Voleibol 19:00',3))),
+ dayc('Mar',10,lay(wev('training','Voleibol 19:00',3)+wev('rest','Caminata 7:30',1))),
+ dayc('Mié',11,wses('Torso B','Pendiente'),1),
+ dayc('Jue',12,''),
+ dayc('Vie',13,wses('Piernas pesadas','Pendiente','','<span class="pill warn">Pesada</span>'),0,1),
+ dayc('Sáb',14,lay(wev('match','Partido de liga',3,1)),0,1),
+ dayc('Dom',15,lay(wev('match','Partido de liga',3)))].join('');
+const web=`<div class="hdr"><span class="logo">Cycles</span><nav><a>Inicio</a><a class="on">Atletas</a><a>Rutinas</a><a>Ejercicios</a></nav><span class="avt" style="width:32px;height:32px">MG</span></div>
+<div class="pg"><h2>Fuerza base</h2><div style="font-weight:600;color:var(--ink2);font-size:.92rem">Camila Rojas</div>
+<div class="tb"><button class="sw on" id="sw" role="switch" aria-checked="true" style="border:0;background:none">${'<i></i>'}Actividades del atleta</button><div class="lg"><span>${tile('training',1)}Entrenamiento</span><span>${tile('match',1)}Partido</span><span>${tile('rest',1)}Descanso</span><span>${ic('lock',14)}Solo lectura</span></div></div>
+<div class="wkrow">${wk2}</div>
+<div class="wkrow">${wk3}<div class="wl"></div><div class="clashbar">${ic('warn',18)}<span class="m">Choque de carga: piernas pesadas el viernes y partido de liga el sábado, intensidad alta.</span><button type="button">Ver detalle</button></div></div>
+<div class="wc"><h3>Fuera del plan<span class="ro">${ic('lock',14)}Lo agrega Camila; tú solo lo ves</span></h3>
+<div class="li">${tile('training')}<div><b>Voleibol</b><small>Lun y mar, 19:00, hasta el 20 dic. Intensidad alta</small></div><div class="nx">Próxima: mar 10 nov</div></div>
+<div class="li">${tile('match')}<div><b>Partido de liga</b><small>Sáb y dom, 10:00, hasta el 20 dic. Intensidad alta</small></div><div class="nx">Próxima: sáb 14 nov</div></div>
+<div class="li">${tile('rest')}<div><b>Caminata</b><small>Mar 10 nov, 7:30. Intensidad suave</small></div><div class="nx">Una vez</div></div></div></div>`;
+document.getElementById('winWeb').innerHTML=web;
+document.getElementById('pop').innerHTML=`<h4>${ic('warn',18,'style="color:var(--warn)"')}Choque de carga</h4><p><b>Viernes 13:</b> Piernas pesadas, 24 series, la tercera parte más alta del ciclo.</p><p><b>Sábado 14:</b> Partido de liga, intensidad alta, 10:00.</p><p>Considera mover la sesión del viernes al jueves, o bajar su volumen. Esto es un aviso; no cambia nada.</p>`;
+document.getElementById('sw').onclick=function(){const on=!this.classList.contains('on');this.classList.toggle('on',on);this.setAttribute('aria-checked',on);document.querySelectorAll('[data-layer]').forEach(e=>e.style.display=on?'':'none')};
+
+// 5
+const emp1=phone(header()+hero('Semana 3 de 6')+`<div class="card"><div class="wk"><b class="on">S3</b></div>${strip([['bd done'],['bd done'],['bd pend'],[],['bd pend'],[],[]])}</div>`+day('Mié 11',1)+sess(2,'Torso B','next','Pendiente')+day('Vie 13')+sess(3,'Piernas pesadas','','Pendiente')+`<div class="emp"><b>¿Entrenas algo por tu cuenta?</b>Agrégalo y tu coach lo tendrá en cuenta al planear.<button class="cta">${ic('plus',18)}&nbsp;Agregar actividad</button></div>`,{});
+const emp2=phone(header()+`<div class="ban">${ic('lock',20)}<div>Aún no tienes coach. Lo que agregues solo lo ves tú, hasta que aceptes la invitación de un coach.</div></div><div class="card"><div class="wk"><b class="on">Esta semana</b></div>${strip([[],['ev'],[],['ev'],[],['ev'],[]])}</div>`+day('Mar 10')+evA('training','Pádel','19:00, 60 min',2,{rep:1})+day('Jue 12')+evA('training','Pádel','19:00, 60 min',2,{rep:1})+day('Sáb 14')+evA('match','Torneo del club','10:00, todo el día',3)+`<div class="emp"><b>Aún no tienes un ciclo activo</b>Cuando tu coach active uno, verás sus sesiones aquí.</div>`,{});
+const emp3=phone(header()+hero('Semana 3 de 6')+`<div class="card"><div class="wk"><b class="on">S3</b></div>${strip([['bd done'],['bd done'],['bd pend'],[],['bd pend'],[],[]])}</div><div class="ban err">${ic('warn',20)}<div>No se pudieron cargar tus actividades. Tus sesiones sí están al día.<br><span class="btn">Reintentar</span></div></div>`+day('Mié 11',1)+sess(2,'Torso B','next','Pendiente')+day('Vie 13')+sess(3,'Piernas pesadas','','Pendiente'),{});
+document.getElementById('rowVacios').innerHTML=[['Con ciclo, sin actividades',emp1],['Sin coach todavía',emp2],['Error al cargar actividades',emp3]].map(([c,h])=>`<div class="col"><p class="cap">${c}</p>${h}</div>`).join('');
+document.getElementById('winEmp').innerHTML=`<div class="pg"><div class="wc" style="margin-top:0"><h3>Fuera del plan<span class="ro">${ic('lock',14)}Solo lectura</span></h3><div class="wemp"><b>Camila aún no agregó actividades por su cuenta.</b>Cuando agregue un partido o un entrenamiento, aparecerá aquí y en la pizarra.</div></div></div>`;
+
+// 6
+const seg=(m)=>`<div class="wk" style="margin-bottom:10px"><b class="${m?'':'on'}">Ciclo</b><b class="${m?'on':''}">Fechas</b></div>`;
+const nav=(r,tag)=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><button class="hbtn" style="background:var(--gray);color:var(--ink)" aria-label="Semana anterior">${ic('back',18)}</button><div style="flex:1;text-align:center"><strong style="font-size:1rem">${r}</strong>${tag?`<div><span class="pill" style="margin-top:2px">${tag}</span></div>`:''}</div><button class="hbtn" style="background:var(--gray);color:var(--ink)" aria-label="Semana siguiente">${ic('chev',18)}</button></div><div style="text-align:center;margin-bottom:4px"><span class="link" style="color:var(--blue);font-weight:800;font-size:.82rem;text-decoration:underline">Ir a hoy</span></div>`;
+const f1=phone(header()+hero('Semana 3 de 6')+`<div class="card">${seg(1)}${nav('9 al 15 de noviembre')}${strip(wkM)}</div>`+day('Lun 9')+sess(1,'Tren inferior A','done','Hecha')+evA('training','Voleibol','19:00, 90 min',3,{past:1,rep:1})+day('Mar 10')+evA('training','Voleibol','19:00, 90 min',3,{past:1,rep:1})+day('Mié 11',1)+sess(2,'Torso B','next','Pendiente')+evA('other','Cumpleaños de Ana','Todo el día',0));
+const f2=phone(header()+`<div class="card">${seg(1)}${nav('26 oct al 1 de noviembre','Fuera del ciclo')}${strip([[],['ev'],[],['ev'],[],['ev'],[]]).replace(/>9</g,'>26<').replace(/>10</g,'>27<').replace(/>11</g,'>28<').replace(/>12</g,'>29<').replace(/>13</g,'>30<').replace(/>14</g,'>31<').replace(/>15</g,'>1<').replace('n today','n')}</div>`+day('Mar 27')+evA('training','Voleibol','19:00, 90 min',3,{past:1,rep:1})+day('Jue 29')+evA('training','Voleibol','19:00, 90 min',3,{past:1,rep:1})+day('Sáb 31')+evA('match','Partido de liga','10:00, 2 h',3,{past:1,rep:1})+`<div class="emp" style="margin-top:12px">Tu ciclo Fuerza base empieza el lunes 2 de noviembre.</div>`);
+const f3=emp2.replace('Esta semana','9 al 15 nov');
+const f4=phone(`<div class="pt"><span style="color:var(--brand)">◯</span>Hoy<span class="sp"></span><span class="avt">CR</span></div><div class="card hero"><small>Miércoles 11 de noviembre</small><h4 style="font-size:1.3rem;margin:2px 0 8px">Torso B</h4><div class="cta" style="min-height:44px">Empezar sesión</div></div><div class="evrow" style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px dashed var(--dash);border-radius:12px;font-size:.88rem;font-weight:700;background:rgba(255,255,255,.55)">${tile('training',1)}<span>Hoy también: voleibol, 19:00</span><span style="margin-left:auto;color:var(--blue);display:flex">${ic('chev',16)}</span></div><p style="font-size:.78rem;color:var(--ink2);font-weight:600;margin:10px 2px 0">Con dos o más: «Hoy también: voleibol y 1 más». Toca la fila para abrir el calendario en ese día. Sin actividades, la fila no aparece.</p>`);
+document.getElementById('rowFechas').innerHTML=[['1 Modo fechas con ciclo',f1],['2 Semana antes del ciclo',f2],['3 Sin ciclo ni coach',f3],['4 Pestaña Hoy',f4]].map(([c,h])=>`<div class="col"><p class="cap">${c}</p>${h}</div>`).join('');
+
+// escala de la ventana web
+function fit(){document.querySelectorAll('.wrapw').forEach(w=>{const win=w.firstElementChild;const k=Math.min(1,(w.clientWidth)/win.offsetWidth);win.style.zoom=k;});}
+addEventListener('resize',fit);fit();
+</script>
+</body>
+</html>
