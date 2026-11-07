@@ -30,6 +30,36 @@ export const colors = {
   painInk: '#a3282c',
 } as const;
 
+// ─── Reglas de color de las vistas (CYC-258, docs/diseno/vistas-app) ───────────────────
+// 1. El AZUL es solo de la app: botones, selección, anillo del ciclo, enlaces y las líneas
+//    de los gráficos. Ninguna perla (ícono de actividad) va en azul.
+// 2. La FUERZA DEL COACH va en VERDE: «verde con pesas» siempre es una sesión del coach.
+// 3. Lo que agrega el ATLETA usa otros colores: deportes (y pesas) en NARANJA, descanso y
+//    yoga en VIOLETA, partido o competencia en TINTA, viaje y «otro» en GRIS, y la lesión en
+//    ROJO (color de estado, con texto siempre al lado).
+// 4. El color nunca va solo: toda perla lleva texto con su nombre (diseño de accesibilidad).
+// 5. Sin valores sueltos: los componentes de las vistas importan de aquí, no escriben hex.
+export const pearlColors = {
+  green: '#2f9e5f',
+  orange: '#f08a24',
+  violet: '#8a63d2',
+  ink: '#1f2228',
+  gray: '#8d95a2',
+  red: '#d1494d',
+} as const;
+
+export type PearlFamily = keyof typeof pearlColors;
+
+// Superficies y sombra de las vistas nuevas (Hoy, Calendario, Resumen). El fondo azulado
+// y la sombra azulada reemplazan a `bgApp` y `cardShadow` pantalla por pantalla.
+export const viewColors = {
+  bg: '#eef3fc',
+  track: '#dbe6fb',
+  pearlGlyph: '#ffffff',
+  danger: '#a3282c',
+  surfaceMuted: '#f1f3f6',
+} as const;
+
 // Un color por grupo muscular, en este orden fijo (el color sigue al grupo,
 // no a su tamaño). Paleta categórica validada con el script de la guía de
 // gráficos: pasa luminosidad, saturación y daltonismo; tres tonos quedan por
