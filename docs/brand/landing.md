@@ -96,6 +96,13 @@ Se dice como dirección, no como función disponible. Sin «gemelo digital», si
 
 El formulario guarda el mensaje en la base de datos y avisa al canal privado de Slack `#cycles-early-adopters` (ver [[PRD-LandingContacto]]).
 
+## Título de la página y vista previa al compartir (CYC-264)
+
+- **Título de la página:** Cycles: planifica el ciclo, recibe el feedback, ajusta el siguiente
+- **Descripción (meta y vista previa):** Cycles es la plataforma de ciclos de entrenamiento para coaches: tú los planificas en la web, tu atleta los entrena en la app y te cuenta cómo le fue.
+- **Vista previa al compartir (Open Graph y Twitter):** título «Planifica el ciclo. Recibe el feedback. Ajusta el siguiente.» y la misma descripción. **Sin imagen de vista previa todavía** (no hay una creada; es una mejora aparte).
+- Viven en `apps/web/index.html`. Como ese archivo es común a toda la web, el título de la pestaña es el mismo en todas las pantallas.
+
 ## 9. Pie
 
 Hecho por InProgress Co. (ver [[firma]]).

@@ -132,11 +132,11 @@ export function LandingPage() {
             <div>
               <RotatingAudience />
               <h1>
-                Potencia tus ciclos, agiliza tu planificación y <em>mejora la comunicación</em> con cada atleta.
+                Planifica el ciclo. Recibe el feedback. <em>Ajusta el siguiente.</em>
               </h1>
               <p className="lp-lead">
-                Cycles es la plataforma de ciclos de entrenamiento para coaches: tú diseñas, tu atleta registra y tú ves
-                quién necesita tu atención.
+                Cycles es la plataforma de ciclos de entrenamiento para coaches: tú los planificas en la web, tu atleta
+                los entrena en la app y te cuenta cómo le fue, y tú ajustas el siguiente con lo que de verdad pasó.
               </p>
               <a href="#contacto" className="lp-btn lp-btn-pulse">
                 Quiero acceso anticipado {ARROW}
@@ -352,6 +352,17 @@ export function LandingPage() {
                     <img src={plan} alt="Ciclo por semanas con dos sesiones omitidas y la nota de cada una" />
                   </picture>
             </div>
+          </div>
+        </section>
+
+        <section className="lp-center">
+          <div className="lp-wrap lp-vision">
+            <p className="lp-eyebrow">Hacia dónde vamos</p>
+            <h2>Cada ciclo deja memoria.</h2>
+            <p>
+              Cada ciclo que planificas deja el historial de cada atleta. Estamos construyendo hacia una memoria viva de
+              cómo responde cada uno, para que Cycles pueda sugerirte ajustes. Siempre tú decides.
+            </p>
           </div>
         </section>
 
