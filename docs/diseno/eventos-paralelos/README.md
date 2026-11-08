@@ -136,3 +136,12 @@ Construido contra `coach-calendarios.html` (CYC-270). Solo lectura, con `GET /at
 - **Estados:** cargando, error con Reintentar, capa apagada, sin actividades y sin nada en el día.
 - **Falta:** el **Inicio** (entrega 2: franja de perlas en las celdas de 72 px y barra de choque) y la **Política de privacidad** (entrega 3).
 
+## Implementación web, entrega 2: Inicio del coach (CYC-253)
+
+- **Franja de perlas** bajo una línea punteada en cada celda del día de la semana de cada atleta (`CoachWeekBoard`): hasta 2 perlas; con 3 o más, una y «+N». Cada franja tiene su nombre accesible («Camila Rojas, martes 10 de noviembre: Voleibol, 19:00 · 90 min; …»).
+- **Interruptor «Actividades de los atletas»** en la barra de la semana; se recuerda en este navegador y está encendido por defecto. Apagado, desaparecen las franjas y los avisos.
+- **Choque de carga:** borde ámbar en los días implicados, etiqueta «⚠ Choque de carga» bajo el nombre del atleta y una barra ámbar compacta con «Ver detalle». La regla es la misma del perfil (`lib/loadClash.ts`).
+- **Datos:** una consulta `GET /athletes/:id/events` por atleta para la semana (`hooks/useBoardEvents.ts`). Las sesiones del coach y su volumen (para el choque) se piden **solo** a quien tiene esa semana una actividad exigente (intensidad alta o partido).
+- **Estados:** si alguna consulta falla, la barra avisa con «Reintentar». Un atleta sin ciclo activo esta semana no muestra celdas de día, así que sus actividades se ven en su perfil. Un atleta con invitación pendiente no se consulta.
+- **Falta:** la **Política de privacidad** (entrega 3).
+

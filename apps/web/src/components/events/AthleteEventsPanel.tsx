@@ -11,7 +11,7 @@ import {
   type CalendarDay,
 } from "../../lib/eventCalendar";
 import { PEARL_KINDS, kindFor } from "../../lib/eventPearls";
-import { clashDays, isDemanding, loadClashes, type CoachSession, type LoadClash } from "../../lib/loadClash";
+import { clashDays, clashSentence, isDemanding, loadClashes, type CoachSession } from "../../lib/loadClash";
 import { coachSessionsOf, cyclesOverlapping } from "../../lib/coachSessions";
 import { Pearl } from "./Pearl";
 import { Skeleton } from "../Skeleton";
@@ -23,17 +23,6 @@ import { Skeleton } from "../Skeleton";
 type Mode = "week" | "month";
 
 const COACH_KIND = PEARL_KINDS.coachStrength;
-
-function dayName(clash: LoadClash, which: "session" | "event"): string {
-  const iso = which === "session" ? clash.sessionDate : clash.eventDate;
-  return longDay(iso).split(" ")[0];
-}
-
-export function clashSentence(clashes: LoadClash[]): string {
-  const first = clashes[0];
-  const extra = clashes.length > 1 ? ` (y ${clashes.length - 1} más)` : "";
-  return `${first.session.name} el ${dayName(first, "session")} y ${first.event.title.toLowerCase()} el ${dayName(first, "event")}, intensidad ${INTENSITY_LABEL[first.event.intensity ?? "high"]}${extra}.`;
-}
 
 export function AthleteEventsPanel({ athleteId, athleteName, cycles }: { athleteId: string; athleteName: string; cycles: TrainingCycle[] }) {
   const today = toLocalDay(new Date());
