@@ -138,6 +138,13 @@ const rows: Row[] = [
 
   // Seguimiento (coach)
   { method: "get", path: () => "/coach/attention", cases: [noSession(), wrongRoleCoachOnly()] },
+  // Actividades paralelas del atleta (CYC-251): solo el atleta gestiona las suyas; el coach solo lee las de sus atletas.
+  { method: "get", path: () => "/me/events?from=2026-11-01&to=2026-11-30", cases: [noSession(), wrongRoleAthleteOnly()] },
+  { method: "post", path: () => "/me/events", body: () => ({ type: "match", title: "Liga", date: "2026-11-07" }), cases: [noSession(), wrongRoleAthleteOnly()] },
+  { method: "patch", path: () => "/me/events/no-existe", body: () => ({ scope: "series", title: "x" }), cases: [noSession(), wrongRoleAthleteOnly(), ["athleteA", 404, "actividad que no existe"]] },
+  { method: "delete", path: () => "/me/events/no-existe?scope=series", cases: [noSession(), wrongRoleAthleteOnly(), ["athleteA", 404, "actividad que no existe"]] },
+  { method: "get", path: (c) => `/athletes/${c.userId.athleteA}/events?from=2026-11-01&to=2026-11-30`, cases: [noSession(), wrongRoleCoachOnly(), notOwnerCoach()] },
+  { method: "get", path: (c) => `/athletes/${c.userId.athleteC}/events?from=2026-11-01&to=2026-11-30`, cases: [["coachA", 403, "relación con el atleta terminada"]] },
   // Pizarra del Resumen (CYC-238): solo coach, y siempre la suya.
   { method: "get", path: () => "/coach/summary-layout", cases: [noSession(), wrongRoleCoachOnly()] },
   { method: "put", path: () => "/coach/summary-layout", body: () => ({ charts: [] }), cases: [noSession(), wrongRoleCoachOnly()] },

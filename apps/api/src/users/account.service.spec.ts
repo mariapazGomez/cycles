@@ -20,6 +20,7 @@ function setup(user: { id: string; role: string }, cycles: unknown[] = []) {
     notification: { deleteMany: fn() },
     policyAcceptance: { deleteMany: fn() },
     coachSummaryLayout: { deleteMany: fn() },
+    athleteEvent: { deleteMany: fn(), findMany: fn() },
     athleteInvitationToken: { deleteMany: fn() },
     coachAthlete: { deleteMany: fn(), updateMany: fn() },
     routine: { findMany: jest.fn().mockResolvedValue([{ id: "r1" }]), deleteMany: fn() },
