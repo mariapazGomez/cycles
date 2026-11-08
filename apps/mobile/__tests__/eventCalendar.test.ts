@@ -100,3 +100,28 @@ test('timeLabel: hora y duración, todo el día o sin hora', () => {
   expect(timeLabel(ev('d', 'x', null, true))).toBe('Todo el día');
   expect(timeLabel(ev('d', 'x'))).toBe('Sin hora');
 });
+
+import { longDay, monthCell, monthOf, monthTitle } from '../src/utils/eventCalendar';
+
+test('monthTitle, longDay y monthOf en español', () => {
+  expect(monthTitle(2026, 11)).toBe('Noviembre 2026');
+  expect(longDay('2026-11-13')).toBe('viernes 13 de noviembre');
+  expect(longDay('2026-03-01')).toBe('domingo 1 de marzo');
+  expect(monthOf('2026-11-13')).toEqual({ year: 2026, month: 11 });
+});
+
+test('monthCell: 2 perlas o menos se muestran; con más, una perla y «+N»; con letra grande, una y «+N»', () => {
+  const day = { iso: '2026-11-13', day: 13, weekday: 4, inMonth: true };
+  const events = (n: number) => Array.from({ length: n }, (_, i) => ev('2026-11-13', `A${i}`));
+  expect(monthCell(day, events(0))).toMatchObject({ shown: [], extra: 0 });
+  expect(monthCell(day, events(1))).toMatchObject({ extra: 0 });
+  expect(monthCell(day, events(1)).shown).toHaveLength(1);
+  expect(monthCell(day, events(2)).shown).toHaveLength(2);
+  const three = monthCell(day, events(3));
+  expect(three.shown).toHaveLength(1);
+  expect(three.extra).toBe(2);
+  const big = monthCell(day, events(2), true);
+  expect(big.shown).toHaveLength(1);
+  expect(big.extra).toBe(1);
+  expect(monthCell(day, events(1), true)).toMatchObject({ extra: 0 });
+});

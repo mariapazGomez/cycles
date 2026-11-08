@@ -6,13 +6,18 @@ export const EVENTS_ERROR = 'No pudimos cargar tus actividades. Tus sesiones sí
 
 // Actividades paralelas en un rango de fechas (CYC-252). El error de las actividades es
 // propio: nunca esconde las sesiones del coach (diseño). `reload` repite la petición.
-export function useEvents(from: string, to: string) {
+export function useEvents(from: string, to: string, enabled = true) {
   const [events, setEvents] = useState<AthleteEventOccurrence[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
+    // Sin pedir nada mientras la vista no se muestra (p. ej. el calendario en modo semana).
+    if (!enabled) {
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     setLoading(true);
     setError(null);
@@ -34,7 +39,7 @@ export function useEvents(from: string, to: string) {
     return () => {
       cancelled = true;
     };
-  }, [from, to, tick]);
+  }, [from, to, tick, enabled]);
 
   const reload = useCallback(() => setTick(t => t + 1), []);
   return { events, loading, error, reload };

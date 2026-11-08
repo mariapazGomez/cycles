@@ -7,6 +7,9 @@ const DAY_MS = 86400000;
 const toIso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 const toMs = (iso: string) => Date.parse(`${iso}T00:00:00Z`);
 
+// Letra de cada día en el encabezado del mes (como en el diseño: L M X J V S D).
+export const WEEKDAY_LETTER = ['L', 'M', 'X', 'J', 'V', 'S', 'D'] as const;
+
 export const WEEKDAY_SHORT = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'] as const;
 
 export const addDays = (iso: string, days: number) => toIso(toMs(iso) + days * DAY_MS);
@@ -122,4 +125,42 @@ export function timeLabel(event: AthleteEventOccurrence): string {
     return event.durationMin ? `${event.durationMin} min` : 'Sin hora';
   }
   return event.durationMin ? `${event.startTime} · ${event.durationMin} min` : event.startTime;
+}
+
+export const MONTH_NAMES = [
+  'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+  'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+] as const;
+
+const WEEKDAY_LONG = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'] as const;
+
+// «Noviembre 2026».
+export function monthTitle(year: number, month: number): string {
+  const name = MONTH_NAMES[month - 1];
+  return `${name[0].toUpperCase()}${name.slice(1)} ${year}`;
+}
+
+// «viernes 13 de noviembre» (para el detalle del día y los nombres accesibles).
+export function longDay(iso: string): string {
+  const day = Number(iso.slice(8, 10));
+  return `${WEEKDAY_LONG[weekdayOf(iso)]} ${day} de ${MONTH_NAMES[Number(iso.slice(5, 7)) - 1]}`;
+}
+
+// Año y mes («AAAA-MM») de un día.
+export const monthOf = (iso: string) => ({ year: Number(iso.slice(0, 4)), month: Number(iso.slice(5, 7)) });
+
+export interface MonthCell {
+  day: CalendarDay;
+  /** Perlas a dibujar (máximo 2 en total con el «+N»). */
+  shown: AthleteEventOccurrence[];
+  extra: number;
+}
+
+// Una celda del mes: con 2 actividades o menos, ambas perlas; con más, una perla y «+N»
+// (diseño CYC-254). Con letra grande (`compact`), una sola perla y «+N».
+export function monthCell(day: CalendarDay, events: AthleteEventOccurrence[], compact = false): MonthCell {
+  const limit = compact ? 1 : 2;
+  const keep = events.length > limit ? Math.max(1, limit - 1) : events.length;
+  const { shown, extra } = visibleWithOverflow(events, keep);
+  return { day, shown, extra };
 }

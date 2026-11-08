@@ -62,3 +62,17 @@ test('al cambiar de rango descarta la respuesta vieja que llega tarde', async ()
   await ReactTestRenderer.act(async () => resolveOld([event('2026-11-03')]));
   expect(h.ref.current?.events.map(e => e.date)).toEqual(['2026-11-10']);
 });
+
+test('con enabled en falso no pide nada', async () => {
+  fetchMock.mockResolvedValue([event('2026-11-03')]);
+  const ref: { current: Result | null } = { current: null };
+  function Probe() {
+    ref.current = useEvents('2026-11-02', '2026-11-08', false);
+    return null;
+  }
+  await ReactTestRenderer.act(async () => {
+    ReactTestRenderer.create(<Probe />);
+  });
+  expect(fetchMock).not.toHaveBeenCalled();
+  expect(ref.current).toMatchObject({ loading: false, events: [] });
+});

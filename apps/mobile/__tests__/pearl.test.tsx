@@ -92,3 +92,14 @@ test('los avisos de terceros mencionan Phosphor y su licencia MIT, y siguen marc
   expect(text).toContain('MIT License');
   expect(text).toContain('apps/mobile/src/components/pearl/glyphs.ts');
 });
+
+test('sin valores sueltos: las vistas de calendario y actividades tampoco escriben colores hex', () => {
+  ['events', 'calendar'].forEach(folder => {
+    const dir = path.resolve(__dirname, '../src/components', folder);
+    fs.readdirSync(dir)
+      .filter((file: string) => /\.tsx?$/.test(file))
+      .forEach((file: string) => {
+        expect(`${folder}/${file}: ${fs.readFileSync(path.join(dir, file), 'utf8').match(/#[0-9a-fA-F]{3,8}\b/g)}`).toBe(`${folder}/${file}: null`);
+      });
+  });
+});

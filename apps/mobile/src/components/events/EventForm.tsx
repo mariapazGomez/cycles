@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View
 import type { EventIntensity, EventScope, EventSport, EventType } from '@cycles/shared';
 import { PEARL_KINDS } from '../pearl/kinds';
 import { SPORT_PEARL } from './eventKinds';
+import { colors, viewColors } from '../../theme/colors';
 import { WEEKDAY_SHORT } from '../../utils/eventCalendar';
 import {
   buildCreateInput,
@@ -216,23 +217,23 @@ export function EventForm({ initial, editing, saving, error, onSubmit, onDelete,
 // Estilos mínimos y provisionales; texto de 11 px o más.
 const styles = StyleSheet.create({
   content: { padding: 16, gap: 8 },
-  title: { fontSize: 20, fontWeight: '800', color: '#1f2228' },
-  hint: { fontSize: 13, color: '#5c6068' },
-  label: { fontSize: 13, fontWeight: '600', color: '#1f2228', marginTop: 8 },
+  title: { fontSize: 20, fontWeight: '800', color: colors.ink },
+  hint: { fontSize: 13, color: colors.inkSecondary },
+  label: { fontSize: 13, fontWeight: '600', color: colors.ink, marginTop: 8 },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 44 },
-  input: { borderWidth: 1, borderColor: '#dfe2e7', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 16, color: '#1f2228', backgroundColor: '#ffffff' },
-  chip: { minHeight: 36, paddingHorizontal: 12, justifyContent: 'center', borderRadius: 999, borderWidth: 1, borderColor: '#dfe2e7', backgroundColor: '#ffffff' },
-  chipOn: { backgroundColor: '#1f2228', borderColor: '#1f2228' },
-  chipText: { fontSize: 13, color: '#1f2228' },
-  chipTextOn: { color: '#ffffff' },
-  error: { fontSize: 13, color: '#b3261e' },
-  primary: { minHeight: 48, borderRadius: 999, backgroundColor: '#3080fc', alignItems: 'center', justifyContent: 'center', marginTop: 12 },
-  primaryText: { color: '#ffffff', fontSize: 16, fontWeight: '700' },
+  input: { borderWidth: 1, borderColor: colors.grayBorder, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 16, color: colors.ink, backgroundColor: colors.bg },
+  chip: { minHeight: 36, paddingHorizontal: 12, justifyContent: 'center', borderRadius: 999, borderWidth: 1, borderColor: colors.grayBorder, backgroundColor: colors.bg },
+  chipOn: { backgroundColor: colors.ink, borderColor: colors.ink },
+  chipText: { fontSize: 13, color: colors.ink },
+  chipTextOn: { color: colors.onBlue },
+  error: { fontSize: 13, color: viewColors.danger },
+  primary: { minHeight: 48, borderRadius: 999, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center', marginTop: 12 },
+  primaryText: { color: colors.onBlue, fontSize: 16, fontWeight: '700' },
   disabled: { opacity: 0.6 },
-  locked: { backgroundColor: '#f1f3f6', color: '#5c6068' },
+  locked: { backgroundColor: viewColors.surfaceMuted, color: colors.inkSecondary },
   danger: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
-  dangerText: { color: '#b3261e', fontSize: 15, fontWeight: '600' },
+  dangerText: { color: viewColors.danger, fontSize: 15, fontWeight: '600' },
   secondary: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
-  secondaryText: { color: '#5c6068', fontSize: 15 },
+  secondaryText: { color: colors.inkSecondary, fontSize: 15 },
 });
