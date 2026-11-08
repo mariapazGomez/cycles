@@ -1,6 +1,11 @@
 import { useState } from "react";
+import { Pearl } from "./events/Pearl";
+import { useBoardEvents } from "../hooks/useBoardEvents";
+import { INTENSITY_LABEL, groupByDay, longDay, monthCell, shortDate, timeLabel } from "../lib/eventCalendar";
+import { kindFor } from "../lib/eventPearls";
+import { clashDays, clashSentence } from "../lib/loadClash";
 import { Link } from "react-router-dom";
-import type { TrainingCycle } from "@cycles/shared";
+import type { AthleteEventOccurrence, TrainingCycle } from "@cycles/shared";
 import type { AthleteStatus } from "../lib/coachHome";
 import { newCyclePath } from "../lib/library";
 import type { AttentionItem } from "../services/trackingApi";
@@ -74,6 +79,21 @@ function Tile({ session, dayName }: { session: BoardSession; dayName: string }) 
   );
 }
 
+// Franja de perlas de lo que el atleta agregó ese día (CYC-253): hasta 2; con 3 o más, una y «+N».
+// Solo lectura, sin notas. El nombre accesible dice qué es y cuándo.
+function EventStrip({ athlete, iso, events }: { athlete: string; iso: string; events: AthleteEventOccurrence[] }) {
+  const { shown, extra } = monthCell({ iso, day: 0, weekday: 0, inMonth: true }, events);
+  const label = `${athlete}, ${longDay(iso)}: ${events.map((e) => `${e.title}, ${timeLabel(e)}`).join("; ")}`;
+  return (
+    <span className="cb-ev" role="img" aria-label={label} title={label}>
+      {shown.map((e) => (
+        <Pearl key={`${e.seriesId}-${e.date}`} kind={kindFor(e)} />
+      ))}
+      {extra > 0 && <span className="ev-more">+{extra}</span>}
+    </span>
+  );
+}
+
 // Con más sesiones que esto en un día se ven las primeras y el resto se abre.
 const MAX_TILES = 3;
 
@@ -87,6 +107,28 @@ const MESSAGE: Partial<Record<AthleteStatus, string>> = {
 // va bajo el nombre y, al tocarlo, se abren los avisos con sus acciones.
 export function CoachWeekBoard({ rows, monday, todayIso, onDismiss, onApplied }: CoachWeekBoardProps) {
   const [onlyAttention, setOnlyAttention] = useState(false);
+  // Capa de actividades de los atletas (CYC-253): se recuerda en este navegador; encendida por defecto.
+  const [layerOn, setLayerOn] = useState(() => {
+    try {
+      return window.localStorage.getItem("cycles.board.events") !== "off";
+    } catch {
+      return true;
+    }
+  });
+  function toggleLayer(on: boolean) {
+    setLayerOn(on);
+    try {
+      window.localStorage.setItem("cycles.board.events", on ? "on" : "off");
+    } catch {
+      // sin almacenamiento: la preferencia vale solo mientras esta pantalla esté abierta
+    }
+  }
+  const board = useBoardEvents(
+    rows.map((r) => ({ id: r.id, cycle: r.cycle, enabled: r.status !== "pending" })),
+    monday,
+    layerOn,
+  );
+  const [openClash, setOpenClash] = useState<Record<string, boolean>>({});
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const [openDays, setOpenDays] = useState<Record<string, boolean>>({});
   const days = weekDays(monday);
@@ -102,6 +144,18 @@ export function CoachWeekBoard({ rows, monday, todayIso, onDismiss, onApplied }:
           <button type="button" className="cb-chip" aria-pressed={onlyAttention} onClick={() => setOnlyAttention((v) => !v)}>
             Necesitan atención <em>{attentionCount}</em>
           </button>
+        )}
+        <label className="ev-switch">
+          <input type="checkbox" role="switch" checked={layerOn} onChange={(e) => toggleLayer(e.target.checked)} />
+          <span>Actividades de los atletas</span>
+        </label>
+        {board.anyError && (
+          <span className="ev-note" role="alert">
+            No se pudieron cargar algunas actividades.{" "}
+            <button type="button" className="tour-link" onClick={board.refetch}>
+              Reintentar
+            </button>
+          </span>
         )}
         <span className="cb-spacer" />
         <span className="pc-legend" aria-hidden="true">
@@ -134,6 +188,10 @@ export function CoachWeekBoard({ rows, monday, todayIso, onDismiss, onApplied }:
           const summary = row.week ? weekSummary(row.week) : null;
           const grouped = row.week ? sessionsByDay(row.week, monday) : null;
           const message = MESSAGE[row.status];
+          const layer = board.byAthlete.get(row.id);
+          const eventsByDay = groupByDay(layer?.events ?? []);
+          const flagged = clashDays(layer?.clashes ?? []);
+          const clashOpen = Boolean(openClash[row.id]);
           return (
             <li
               key={row.id}
@@ -147,6 +205,7 @@ export function CoachWeekBoard({ rows, monday, todayIso, onDismiss, onApplied }:
                   <span className="cb-who-text">
                     {row.status === "pending" ? <b>{row.name}</b> : <Link to={`/athletes/${row.id}`}>{row.name}</Link>}
                     {row.cycleName && <small>{row.cycleName}</small>}
+                    {layer && layer.clashes.length > 0 && <em className="cb-clash-tag">⚠ Choque de carga</em>}
                     {badge && (
                       <button
                         type="button"
@@ -166,7 +225,7 @@ export function CoachWeekBoard({ rows, monday, todayIso, onDismiss, onApplied }:
                   days.map((iso, i) => (
                     <div
                       key={iso}
-                      className={`cb-day${iso === todayIso ? " cb-day-today" : ""}${i >= 5 ? " cb-day-weekend" : ""}${grouped[i].length === 0 ? " cb-day-empty" : ""}`}
+                      className={`cb-day${iso === todayIso ? " cb-day-today" : ""}${i >= 5 ? " cb-day-weekend" : ""}${grouped[i].length === 0 && !eventsByDay[iso] ? " cb-day-empty" : ""}${flagged.has(iso) ? " cb-day-clash" : ""}`}
                       data-d={`${weekdayShort(iso).slice(0, 1)} ${dayOfMonth(iso)}`}
                     >
                       {(openDays[`${row.id}:${iso}`] ? grouped[i] : grouped[i].slice(0, MAX_TILES)).map((session) => (
@@ -182,6 +241,7 @@ export function CoachWeekBoard({ rows, monday, todayIso, onDismiss, onApplied }:
                           {openDays[`${row.id}:${iso}`] ? "Ver menos" : `+${grouped[i].length - MAX_TILES} más`}
                         </button>
                       )}
+                      {eventsByDay[iso] && <EventStrip athlete={row.name} iso={iso} events={eventsByDay[iso]} />}
                     </div>
                   ))
                 ) : row.weekLoading ? (
@@ -213,6 +273,29 @@ export function CoachWeekBoard({ rows, monday, todayIso, onDismiss, onApplied }:
                   ) : null}
                 </div>
               </div>
+
+              {layer && layer.clashes.length > 0 && (
+                <div className="cb-clash" role="status">
+                  <span aria-hidden="true">⚠</span>
+                  <span>Choque de carga: {clashSentence(layer.clashes)}</span>
+                  <button type="button" className="tour-link" aria-expanded={clashOpen} onClick={() => setOpenClash((p) => ({ ...p, [row.id]: !clashOpen }))}>
+                    Ver detalle
+                  </button>
+                  {clashOpen && (
+                    <div className="ev-clash-detail">
+                      {layer.clashes.slice(0, 3).map((c) => (
+                        <p key={`${c.sessionDate}-${c.event.seriesId}-${c.eventDate}`}>
+                          <strong>{shortDate(c.sessionDate)}:</strong> {c.session.name}, {c.session.volume} series, entre las más altas del ciclo.
+                          <br />
+                          <strong>{shortDate(c.eventDate)}:</strong> {c.event.title}, intensidad {INTENSITY_LABEL[c.event.intensity ?? "high"]}
+                          {c.event.startTime ? `, ${c.event.startTime}` : ""}.
+                        </p>
+                      ))}
+                      <p>Considera mover la sesión o bajar el volumen. Es solo un aviso.</p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {badge && expanded && (
                 <div id={`cb-detail-${row.id}`} className="cb-detail">

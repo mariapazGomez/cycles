@@ -1,5 +1,5 @@
 import type { AthleteEventOccurrence } from "@cycles/shared";
-import { addDays } from "./eventCalendar";
+import { INTENSITY_LABEL, addDays, longDay } from "./eventCalendar";
 
 // Choque de carga (CYC-253, diseño docs/diseno/eventos-paralelos, CYC-270): una actividad de
 // intensidad alta, o un partido, el mismo día, el día antes o el día siguiente de una sesión del
@@ -56,4 +56,13 @@ export function loadClashes(sessions: CoachSession[], events: AthleteEventOccurr
 // Días (de sesión o de actividad) que llevan el aviso.
 export function clashDays(clashes: LoadClash[]): Set<string> {
   return new Set(clashes.flatMap((c) => [c.sessionDate, c.eventDate]));
+}
+
+const dayWord = (iso: string) => longDay(iso).split(" ")[0];
+
+// «Piernas pesadas el viernes y partido de liga el sábado, intensidad alta (y 1 más).»
+export function clashSentence(clashes: LoadClash[]): string {
+  const first = clashes[0];
+  const extra = clashes.length > 1 ? ` (y ${clashes.length - 1} más)` : "";
+  return `${first.session.name} el ${dayWord(first.sessionDate)} y ${first.event.title.toLowerCase()} el ${dayWord(first.eventDate)}, intensidad ${INTENSITY_LABEL[first.event.intensity ?? "high"]}${extra}.`;
 }
