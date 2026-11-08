@@ -123,3 +123,16 @@ Estados: **hoy** (encabezado «Hoy» en azul), **pasado** (se atenúa, sin check
 - **Endpoints:** `GET/POST /me/events`, `PATCH/DELETE /me/events/:id` (con `scope` `occurrence` o `series`) y `GET /athletes/:id/events` (coach, solo lectura). La lista por rango (máximo 92 días) viene **ya expandida**: cada ocurrencia con `seriesId`, `date` e `isException`.
 - **v1:** «solo esta ocurrencia» cambia hora, duración, intensidad, título, tipo o notas de ese día, pero **no mueve el día** (400): para mover un día se borra y se crea otro. Las notas son privadas del atleta (el coach recibe `notes: null`).
 - **Tipos y contrato:** `packages/shared/src/types/athlete-event.ts` y `fixtures/athleteEvents.ts`; la prueba e2e comprueba que la respuesta real tiene la forma del ejemplo.
+
+## Implementación web, entrega 1: perfil del atleta (CYC-253)
+
+Construido contra `coach-calendarios.html` (CYC-270). Solo lectura, con `GET /athletes/:id/events` y el tipo compartido de `@cycles/shared`.
+
+- **Dónde:** `components/events/AthleteEventsPanel.tsx`, en la vista **Ciclo** de la ficha del atleta, sobre la lista de ciclos.
+- **Qué trae:** interruptor **Semana | Mes** con flechas y «Hoy»; mes con números de 11 px y perlas de 19 px (hasta 2 y «+N»); detalle del día a la derecha; interruptor **Actividades de {nombre}**; leyenda; sección **Fuera del plan** con cada serie y su regla de repetición; y el aviso de **choque de carga** con «Ver detalle».
+- **Choque de carga** (`lib/loadClash.ts`): una actividad de intensidad alta o un partido el mismo día, el día antes o el día siguiente de una sesión del coach con volumen en el tercio más alto del ciclo (series planificadas; mínimo 3 sesiones). Es solo un aviso.
+- **Datos:** `hooks/useAthleteEvents.ts` pide el rango visible (parte los rangos de más de 92 días); las sesiones del coach salen de `/cycles/:id/sessions` (el día que eligió el atleta; las tentativas no se dibujan) y su volumen de `/cycles/:id/progress`.
+- **Perlas y glifos:** copia de las reglas y de los glifos de Phosphor de la app (`lib/eventPearls.ts`, `assets/pearl/glyphs.ts`, `lib/eventCalendar.ts`); si cambian allá, hay que cambiarlos aquí. Licencia MIT en `THIRD_PARTY_NOTICES.md`.
+- **Estados:** cargando, error con Reintentar, capa apagada, sin actividades y sin nada en el día.
+- **Falta:** el **Inicio** (entrega 2: franja de perlas en las celdas de 72 px y barra de choque) y la **Política de privacidad** (entrega 3).
+
