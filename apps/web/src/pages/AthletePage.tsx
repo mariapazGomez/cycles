@@ -11,6 +11,7 @@ import { usePageWide } from "../hooks/usePageWide";
 import { LoadingScreen } from "../components/LoadingScreen";
 import { CycleSection } from "../components/board/CycleSection";
 import { NewCycleDialog } from "../components/board/NewCycleDialog";
+import { AthleteEventsPanel } from "../components/events/AthleteEventsPanel";
 import { orderSections, sectionKind } from "../lib/cycleSections";
 import { suggestStart } from "../lib/newCycle";
 import { toLocalDay } from "../lib/calendar";
@@ -128,6 +129,8 @@ export function AthletePage() {
           </button>
         ))}
       </div>
+
+      {view === "ciclo" && <AthleteEventsPanel athleteId={athleteId} athleteName={athlete.name} cycles={cycles} />}
 
       {view === "resumen" ? (
         <AthleteSummaryView athleteId={athleteId} />

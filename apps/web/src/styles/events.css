@@ -1,0 +1,65 @@
+/* Calendario de actividades del atleta en el perfil, para el coach (CYC-253) */
+.ev-panel { display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: var(--radius-lg); background: var(--color-bg); box-shadow: var(--shadow-e1); min-width: 0; }
+.ev-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.ev-seg { display: inline-flex; padding: 3px; border-radius: var(--radius-md); background: var(--color-gray-light); }
+.ev-seg button { min-height: 32px; padding: 0 16px; border: 0; border-radius: var(--radius-sm); background: transparent; font: 700 0.88rem Inter, system-ui, sans-serif; color: var(--color-ink-secondary); cursor: pointer; }
+.ev-seg button[aria-pressed="true"] { background: var(--color-ink); color: #fff; }
+.ev-title { font-size: 1rem; }
+.ev-arrows { display: inline-flex; gap: 6px; }
+.ev-arrows button { width: 32px; height: 32px; border: 1px solid var(--color-gray-border); border-radius: var(--radius-md); background: var(--color-bg); font-size: 1.1rem; line-height: 1; cursor: pointer; }
+.ev-switch { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; }
+.ev-switch input { width: 18px; height: 18px; accent-color: var(--color-ink); }
+.ev-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0 0 0 auto; padding: 0; list-style: none; font-size: 0.8rem; color: var(--color-ink-secondary); }
+.ev-legend li { display: inline-flex; align-items: center; gap: 5px; }
+.ev-note { margin: 0; font-size: 0.9rem; color: var(--color-ink-secondary); }
+
+.ev-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+@media (min-width: 1100px) { .ev-layout.ev-with-detail { grid-template-columns: minmax(0, 1fr) 280px; } }
+.ev-board { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+
+.ev-month { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.ev-head { text-align: center; font-size: 0.8rem; font-weight: 700; color: var(--color-ink-secondary); padding: 2px 0; }
+.ev-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-height: 64px; padding: 5px 6px; border: 1px solid transparent; border-radius: var(--radius-sm); background: var(--color-gray-light); text-align: left; cursor: pointer; font: inherit; min-width: 0; }
+.ev-cell:hover { border-color: var(--color-gray-border); }
+.ev-cell:focus-visible, .ev-wday:focus-visible { outline: 2px solid var(--color-blue); outline-offset: 1px; }
+.ev-num { font-size: 0.6875rem; font-weight: 700; color: var(--color-ink-secondary); }
+.ev-cell-out { opacity: 0.45; }
+.ev-cell-today .ev-num { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 4px; border-radius: 999px; background: var(--color-blue); color: #fff; }
+.ev-cell-sel { background: #eaf2ff; border-color: var(--color-blue); }
+.ev-cell-clash { border-color: #d9831f; }
+.ev-pearls, .ev-wlayer { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; }
+.ev-pearl { flex: none; }
+.ev-more { font-size: 0.6875rem; font-weight: 700; color: var(--color-ink-secondary); }
+
+.ev-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.ev-wday { display: flex; flex-direction: column; gap: 6px; min-height: 72px; padding: 6px; border: 1px solid var(--color-gray-border); border-radius: var(--radius-sm); background: var(--color-bg); text-align: left; cursor: pointer; font: inherit; min-width: 0; }
+.ev-wname { font-size: 0.75rem; font-weight: 700; color: var(--color-ink-secondary); }
+.ev-wsessions { display: flex; flex-direction: column; gap: 4px; }
+.ev-wsession { display: flex; align-items: center; gap: 5px; padding: 3px 5px; border-radius: var(--radius-xs); background: var(--color-bg); box-shadow: var(--shadow-e1); font-size: 0.75rem; font-weight: 600; min-width: 0; }
+.ev-wsession span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ev-wlayer { margin-top: auto; padding-top: 5px; border-top: 1px dashed var(--color-gray-border); min-height: 24px; }
+
+.ev-clash { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 10px 12px; border-radius: var(--radius-md); background: #fdf1e0; color: #7a4a05; font-size: 0.9rem; font-weight: 600; }
+.ev-clash-detail { flex-basis: 100%; font-weight: 500; }
+.ev-clash-detail p { margin: 6px 0 0; }
+.ev-clash-mini { margin: 0; padding: 8px 10px; border-radius: var(--radius-sm); background: #fdf1e0; color: #7a4a05; font-size: 0.85rem; font-weight: 600; }
+
+.ev-detail { display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: var(--radius-lg); background: var(--color-bg); box-shadow: var(--shadow-e2); align-self: start; min-width: 0; }
+.ev-detail-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.ev-row { display: flex; gap: 10px; align-items: flex-start; margin: 0; font-size: 0.9rem; }
+.ev-readonly { margin: 0; font-size: 0.85rem; color: var(--color-ink-secondary); }
+
+.ev-out { display: flex; flex-direction: column; gap: 8px; padding-top: 8px; border-top: 1px solid var(--color-gray-border); }
+.ev-out .section-title { margin: 0; }
+.ev-out ul { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.ev-out li { display: flex; align-items: center; gap: 12px; }
+.ev-out small { font-size: 0.85rem; color: var(--color-ink-secondary); }
+
+@media (max-width: 640px) {
+  .ev-panel { padding: 12px; }
+  .ev-week { grid-template-columns: minmax(0, 1fr); }
+  .ev-wday { flex-direction: row; flex-wrap: wrap; align-items: center; min-height: 0; }
+  .ev-wname { flex-basis: 70px; }
+  .ev-wlayer { margin-top: 0; padding-top: 0; border-top: 0; min-height: 0; }
+  .ev-legend { margin-left: 0; }
+}
