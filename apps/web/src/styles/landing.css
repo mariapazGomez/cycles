@@ -67,6 +67,10 @@
 .lp-hero .lp-lead { margin-bottom: 28px; }
 .lp-hero-visual { position: relative; display: grid; align-items: start; padding: 24px 22px; border-radius: 24px; overflow: hidden; }
 .lp-hero h1 em { font-style: normal; color: var(--blue); }
+/* Sección «Hacia dónde vamos» (CYC-264): texto centrado, sin imagen. */
+.lp-vision { max-width: 760px; }
+.lp-vision .lp-eyebrow { justify-content: center; }
+.lp-vision p:last-child { margin-top: 18px; font-size: 1.125rem; }
 
 /* Marcos: navegador con capturas reales de la web y teléfono con los diseños de la app */
 .lp-browser { width: 100%; max-width: 760px; margin: 0 auto; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--bg); box-shadow: 0 12px 32px rgba(31,34,40,.10); }

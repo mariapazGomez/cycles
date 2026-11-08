@@ -20,11 +20,11 @@ updated: 2026-10-12
 
 ## 1. Portada
 
-*Actualizada el 2026-10-12: el título resume los tres pilares y la imagen principal es la plataforma del coach.*
+*Actualizada el 2026-11-08 (CYC-262, decidido por la usuaria): el título recorre el círculo completo del coach (planifica, recibe el feedback, ajusta). Antes, 2026-10-12: el título resumía los tres pilares.*
 
 - **Etiqueta:** "PARA" fija y una palabra que gira hacia abajo como un carrete: *coaches, personal trainers, preparadores físicos, entrenadores de equipos*. Sin fondo ni burbuja.
-- **Título:** Potencia tus ciclos, agiliza tu planificación y **mejora la comunicación** con cada atleta.
-- **Definición:** Cycles es la plataforma de ciclos de entrenamiento para coaches: tú diseñas, tu atleta registra y tú ves quién necesita tu atención.
+- **Título:** Planifica el ciclo. Recibe el feedback. **Ajusta el siguiente.**
+- **Definición:** Cycles es la plataforma de ciclos de entrenamiento para coaches: tú los planificas en la web, tu atleta los entrena en la app y te cuenta cómo le fue, y tú ajustas el siguiente con lo que de verdad pasó.
 - **Botón:** Quiero acceso anticipado
 - **Visual:** la **plataforma del coach** como imagen principal, en un marco de navegador que alterna cada 4,5 s entre tres vistas (**Inicio**, **Rutinas** y **Planes**), con un selector de píldoras (al elegir una, la rotación se detiene). Encima, a la derecha, el teléfono "Hoy" con la etiqueta **App del atleta**: la app del atleta es el complemento del sistema del coach. Todo sobre la cadena de proteína animada.
 
@@ -81,6 +81,22 @@ Dos capturas de la web con datos ficticios, con pie: "Inicio: quién necesita tu
 - **Fondo:** cadena de proteína animada, detrás de una tarjeta opaca.
 
 El formulario guarda el mensaje en la base de datos y avisa al canal privado de Slack `#cycles-early-adopters` (ver [[PRD-LandingContacto]]).
+
+## 8b. Hacia dónde vamos (antes del acceso anticipado)
+
+*Agregada el 2026-11-08 (CYC-262 y CYC-264).* Sin imagen ni animación. La visión se dice como dirección, nunca como producto ya hecho.
+
+- **Etiqueta:** Hacia dónde vamos
+- **Título:** Cada ciclo deja memoria.
+- **Texto:** Cada ciclo que planificas deja el historial de cada atleta. Estamos construyendo hacia una memoria viva de cómo responde cada uno, para que Cycles pueda sugerirte ajustes. Siempre tú decides.
+- **Reglas:** sin «gemelo digital» ni «agentes de IA» en público, sin fechas y sin «mejora el rendimiento». El coach siempre decide.
+
+## Título de la página y vista previa al compartir
+
+- **Título de la página:** Cycles: planifica el ciclo, recibe el feedback, ajusta el siguiente
+- **Descripción (meta y vista previa):** Cycles es la plataforma de ciclos de entrenamiento para coaches: tú los planificas en la web, tu atleta los entrena en la app y te cuenta cómo le fue.
+- **Vista previa al compartir (Open Graph y Twitter):** título «Planifica el ciclo. Recibe el feedback. Ajusta el siguiente.» y la misma descripción. **Sin imagen de vista previa todavía** (no hay una creada; es una mejora aparte).
+- Viven en `apps/web/index.html`.
 
 ## 9. Pie
 
