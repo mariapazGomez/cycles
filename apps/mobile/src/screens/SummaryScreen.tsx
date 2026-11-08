@@ -411,7 +411,7 @@ const styles = StyleSheet.create({
   sectionTitleInline: { fontSize: 18, fontWeight: '800', color: colors.ink },
   sectionChevron: { fontSize: 12, color: colors.inkSecondary },
   skeleton: { height: 120, backgroundColor: colors.grayBorder, opacity: 0.5 },
-  emptyCard: { height: 360, overflow: 'hidden', justifyContent: 'flex-end', padding: 20 },
+  emptyCard: { minHeight: 360, overflow: 'hidden', justifyContent: 'flex-end', padding: 20 },
   emptyBox: { backgroundColor: colors.bg, borderRadius: 14, borderWidth: 1, borderColor: colors.grayBorder, padding: 16 },
   emptyTitle: { fontSize: 21, fontWeight: '800', color: colors.ink, marginBottom: 6 },
   emptyText: { fontSize: 14, color: colors.inkSecondary },

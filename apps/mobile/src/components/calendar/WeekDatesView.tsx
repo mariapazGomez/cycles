@@ -7,6 +7,8 @@ import { Icon } from '../Icon';
 import { EventRow, SessionRow, type DaySession } from './DayDetail';
 import { colors } from '../../theme/colors';
 import { viewShadow } from '../../theme/elevation';
+import { useViewScale } from '../../hooks/useViewScale';
+import { scaledIcon } from '../../utils/viewScale';
 import { WEEKDAY_LETTER, calendarWeek, longDay, monthCell } from '../../utils/eventCalendar';
 
 // Lista de días con sus actividades (y sesiones del coach si se pasan), con un encabezado por
@@ -62,6 +64,8 @@ const PEARL = 16;
 // perlas de sus actividades y debajo la lista por día.
 export function WeekDatesView({ anchor, today, eventsByDay, sessionsByDay, onPrev, onNext, onToday, onOpenEvent, onOpenSession, onAdd }: Props) {
   const week = calendarWeek(anchor);
+  const scale = useViewScale();
+  const pearl = scaledIcon(PEARL, scale);
   const first = week[0];
   const last = week[6];
   const title = `${first.day} al ${last.day}`;
@@ -84,7 +88,7 @@ export function WeekDatesView({ anchor, today, eventsByDay, sessionsByDay, onPre
         <View style={styles.strip}>
           {week.map(day => {
             const events = eventsByDay[day.iso] ?? [];
-            const cell = monthCell(day, events);
+            const cell = monthCell(day, events, scale.big);
             const isToday = day.iso === today;
             return (
               <View key={day.iso} style={styles.stripDay}>
@@ -96,7 +100,7 @@ export function WeekDatesView({ anchor, today, eventsByDay, sessionsByDay, onPre
                 </View>
                 <View style={styles.pearls}>
                   {cell.shown.map((event, index) => (
-                    <Pearl key={`${event.seriesId}-${index}`} kind={kindFor(event)} size={PEARL} />
+                    <Pearl key={`${event.seriesId}-${index}`} kind={kindFor(event)} size={pearl} />
                   ))}
                   {cell.extra > 0 && <Text style={styles.more}>{`+${cell.extra}`}</Text>}
                 </View>
@@ -139,11 +143,11 @@ const styles = StyleSheet.create({
   strip: { flexDirection: 'row' },
   stripDay: { flex: 1, alignItems: 'center', gap: 2 },
   letter: { fontSize: 11, fontWeight: '700', color: colors.inkSecondary },
-  number: { minWidth: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  number: { minWidth: 24, minHeight: 24, paddingHorizontal: 3, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   numberToday: { backgroundColor: colors.blue },
   numberText: { fontSize: 13, fontWeight: '700', color: colors.ink },
   numberTextToday: { color: colors.onBlue },
-  pearls: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 2, minHeight: PEARL },
+  pearls: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 2 },
   more: { fontSize: 11, fontWeight: '800', color: colors.inkSecondary },
   dayBlock: { backgroundColor: colors.bg, borderRadius: 22, padding: 12, marginBottom: 8, ...viewShadow },
   dayTitle: { fontSize: 15, fontWeight: '800', color: colors.ink, marginBottom: 4 },

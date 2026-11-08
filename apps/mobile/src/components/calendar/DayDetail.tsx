@@ -7,6 +7,8 @@ import { kindFor } from '../events/eventKinds';
 import { colors } from '../../theme/colors';
 import { viewShadow } from '../../theme/elevation';
 import { longDay, timeLabel } from '../../utils/eventCalendar';
+import { useViewScale } from '../../hooks/useViewScale';
+import { scaledIcon } from '../../utils/viewScale';
 
 export interface DaySession {
   id: string;
@@ -27,13 +29,14 @@ const INTENSITY_LABEL: Record<EventIntensity, string> = { low: 'Suave', medium: 
 
 // Filas reutilizables del día (detalle del mes y listas de la semana).
 export function SessionRow({ session, onOpen }: { session: DaySession; onOpen: (sessionId: string) => void }) {
+  const scale = useViewScale();
   return (
     <TouchableOpacity
       style={styles.row}
       onPress={() => onOpen(session.id)}
       accessibilityRole="button"
       accessibilityLabel={`Sesión del coach: ${session.name}, ${session.done ? 'hecha' : 'pendiente'}. Abrir`}>
-      <Pearl kind={PEARL_KINDS.coachStrength} size={26} />
+      <Pearl kind={PEARL_KINDS.coachStrength} size={scaledIcon(26, scale)} />
       <View style={styles.info}>
         <Text style={styles.name}>{session.name}</Text>
         <Text style={styles.sub}>{session.done ? 'Hecha' : 'Pendiente'}</Text>
@@ -43,6 +46,7 @@ export function SessionRow({ session, onOpen }: { session: DaySession; onOpen: (
 }
 
 export function EventRow({ event, onOpen }: { event: AthleteEventOccurrence; onOpen: (event: AthleteEventOccurrence) => void }) {
+  const scale = useViewScale();
   const kind = kindFor(event);
   const intensity = event.intensity ? INTENSITY_LABEL[event.intensity] : null;
   return (
@@ -51,7 +55,7 @@ export function EventRow({ event, onOpen }: { event: AthleteEventOccurrence; onO
       onPress={() => onOpen(event)}
       accessibilityRole="button"
       accessibilityLabel={`${kind.label}: ${event.title}, ${timeLabel(event)}${intensity ? `, intensidad ${intensity.toLowerCase()}` : ''}${event.repeat ? ', se repite' : ''}. Abrir`}>
-      <Pearl kind={kind} size={26} />
+      <Pearl kind={kind} size={scaledIcon(26, scale)} />
       <View style={styles.info}>
         <Text style={styles.name}>{event.title}</Text>
         <Text style={styles.sub}>{[timeLabel(event), intensity].filter(Boolean).join(', ')}</Text>

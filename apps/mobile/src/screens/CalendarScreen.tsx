@@ -4,7 +4,6 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { TrainingCycle, TrainingSession } from '@cycles/shared';
 import {
   Modal,
-  PixelRatio,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -28,6 +27,7 @@ import { EventSheet } from '../components/calendar/EventSheet';
 import { MonthView } from '../components/calendar/MonthView';
 import { DaysList, WeekDatesView } from '../components/calendar/WeekDatesView';
 import { EVENTS_ERROR, useEvents } from '../hooks/useEvents';
+import { useViewScale } from '../hooks/useViewScale';
 import { calendarWeek, groupByDay, monthOf, monthRange, shiftMonth, shiftWeek } from '../utils/eventCalendar';
 import type { AthleteEventOccurrence } from '@cycles/shared';
 import type { AppStackParamList } from '../navigation/types';
@@ -64,7 +64,7 @@ const STATE_LABEL: Record<SessionState, string> = {
 
 export function CalendarScreen() {
   const insets = useSafeAreaInsets();
-  const fontScale = PixelRatio.getFontScale();
+  const scale = useViewScale();
   const clearance = useTabBarClearance();
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
   const [plans, setPlans] = useState<PlanData[] | undefined>(undefined);
@@ -292,7 +292,7 @@ export function CalendarScreen() {
               selected={selectedDay}
               eventsByDay={eventsByDay}
               sessions={allSessions}
-              compact={fontScale >= 1.3}
+              compact={scale.big}
               onSelect={setSelectedDay}
               onPrev={() => setCursor(c => shiftMonth(c.year, c.month, -1))}
               onNext={() => setCursor(c => shiftMonth(c.year, c.month, 1))}
@@ -578,7 +578,7 @@ export function CalendarScreen() {
 }
 
 const styles = StyleSheet.create({
-  addButton: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center' },
+  addButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center' },
   viewSwitch: { flexDirection: 'row', backgroundColor: viewColors.track, borderRadius: 999, padding: 3, marginBottom: 8 },
   viewOption: { flex: 1, minHeight: 36, alignItems: 'center', justifyContent: 'center', borderRadius: 999 },
   viewOptionOn: { backgroundColor: colors.blue },
@@ -609,7 +609,7 @@ const styles = StyleSheet.create({
   segmentCurrent: { backgroundColor: colors.onBlue },
   weekCard: { paddingBottom: 12 },
   weekRow: { gap: 8, paddingBottom: 12 },
-  weekChip: { minWidth: 44, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bgApp, paddingHorizontal: 12 },
+  weekChip: { minWidth: 44, minHeight: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bgApp, paddingHorizontal: 12 },
   weekChipOn: { backgroundColor: colors.ink },
   weekChipCurrent: { borderWidth: 2, borderColor: colors.blue },
   weekChipText: { fontSize: 14, fontWeight: '700', color: colors.inkSecondary },
@@ -617,9 +617,9 @@ const styles = StyleSheet.create({
   weekTitle: { fontSize: 18, fontWeight: '800', color: colors.ink },
   weekRange: { fontSize: 13, color: colors.inkSecondary, marginTop: 2 },
   strip: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 14 },
-  stripDay: { width: 38, alignItems: 'center' },
+  stripDay: { flex: 1, alignItems: 'center' },
   stripLetter: { fontSize: 11, color: colors.inkSecondary, marginBottom: 4 },
-  stripNumber: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
+  stripNumber: { minWidth: 34, minHeight: 34, paddingHorizontal: 3, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
   stripNumberToday: { backgroundColor: colors.blue },
   stripNumberText: { fontSize: 14, fontWeight: '600', color: colors.ink },
   stripBeads: { flexDirection: 'row', gap: 3, height: 10, marginTop: 5 },
@@ -629,7 +629,7 @@ const styles = StyleSheet.create({
   stripBeadPending: { borderWidth: 2, borderColor: colors.brand, backgroundColor: colors.bg },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   rowNext: { borderWidth: 2, borderColor: colors.blue },
-  node: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.bgApp, alignItems: 'center', justifyContent: 'center' },
+  node: { minWidth: 34, minHeight: 34, borderRadius: 17, backgroundColor: colors.bgApp, alignItems: 'center', justifyContent: 'center' },
   nodeDone: { backgroundColor: colors.brand },
   nodeWarn: { backgroundColor: colors.warnBg },
   nodeNext: { backgroundColor: colors.blueTint, borderWidth: 2, borderColor: colors.blue },
@@ -643,7 +643,7 @@ const styles = StyleSheet.create({
   pillWarn: { backgroundColor: colors.warnBg },
   pillNext: { backgroundColor: colors.blueTint },
   pillText: { fontSize: 12, fontWeight: '700', color: colors.inkSecondary },
-  emptyCard: { height: 380, overflow: 'hidden', justifyContent: 'flex-end', padding: 20 },
+  emptyCard: { minHeight: 380, overflow: 'hidden', justifyContent: 'flex-end', padding: 20 },
   emptyBox: { backgroundColor: colors.bg, borderRadius: 14, borderWidth: 1, borderColor: colors.grayBorder, padding: 16 },
   emptyTitle: { fontSize: 21, fontWeight: '800', color: colors.ink, marginBottom: 6 },
   emptyText: { fontSize: 14, color: colors.inkSecondary },
@@ -659,7 +659,7 @@ const styles = StyleSheet.create({
   flip: { transform: [{ scaleX: -1 }] },
   dim: { opacity: 0.35 },
   sheetDays: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 },
-  sheetDay: { width: 40, height: 66, borderRadius: 14, backgroundColor: colors.bgApp, alignItems: 'center', justifyContent: 'center', gap: 2 },
+  sheetDay: { flex: 1, minWidth: 44, minHeight: 66, borderRadius: 14, backgroundColor: colors.bgApp, alignItems: 'center', justifyContent: 'center', gap: 2 },
   sheetDayOn: { backgroundColor: colors.blue },
   sheetDayLetter: { fontSize: 11, color: colors.inkSecondary },
   sheetDayNumber: { fontSize: 18, fontWeight: '800', color: colors.ink },

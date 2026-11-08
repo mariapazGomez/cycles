@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   doneMessageText: { color: colors.okInk, fontWeight: '600', fontSize: 14 },
-  emptyCard: { height: 380, overflow: 'hidden', justifyContent: 'flex-end', padding: 20 },
+  emptyCard: { minHeight: 380, overflow: 'hidden', justifyContent: 'flex-end', padding: 20 },
   emptyBox: {
     backgroundColor: colors.bg,
     borderRadius: 14,
