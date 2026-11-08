@@ -4,12 +4,30 @@ parent: "[[brand]]"
 status: draft
 tags: [brand, speech, coaches]
 created: 2026-10-03
-updated: 2026-10-06
+updated: 2026-11-08
 ---
 
 > Hijo de [[historia]] y [[mensajes]]. Speech principal **para coaches**, en voz alta. Decisiones de la fundadora: versión neutra, sin biografía personal; abre con el rol del coach; pone el **ciclo de entrenamiento** al centro (es el nombre del producto); la oferta es acceso anticipado gratis mientras se construye, en vez de una venta. Alineado con [[landing]] el 2026-10-06. Voz según [[voz-y-tono]].
 
+> **Actualización 2026-11-08 (CYC-263):** el speech cuenta un solo ciclo con dos lados (el coach lo planifica en la web, el atleta lo entrena y responde en la app). Se agregan las tres longitudes de abajo; las versiones de 30 segundos y 2 minutos siguen vigentes. Guía completa para conversaciones: [[conversaciones-con-coaches]].
+
 # Speech principal
+
+## Tres longitudes (2026-11-08)
+
+**Una frase**
+
+> Cycles es la plataforma donde el coach planifica el ciclo de entrenamiento y el atleta responde con su feedback, para que cada ciclo mejore el siguiente.
+
+**20 segundos, para el coach**
+
+> Hacemos Cycles. El coach planifica los ciclos de entrenamiento de sus atletas en una web, y cada atleta los entrena en una app, registra cada serie y le cuenta cómo se sintió. Todo vuelve al coach en un solo lugar, y así ajusta el ciclo siguiente con lo que de verdad pasó, sin Excel ni chats de WhatsApp.
+
+**Para el atleta**
+
+> Es la app donde tu entrenador te deja tu plan, tú registras cada sesión y le cuentas cómo te sentiste, para que tu siguiente ciclo parta de lo que de verdad hiciste.
+
+**Línea de apertura hablada:** «Cada ciclo que planificas vuelve a ti con lo que tu atleta vivió.»
 
 ## Versión de 30 segundos
 
@@ -29,6 +47,8 @@ updated: 2026-10-06
 
 ## Qué se evita a propósito
 
+- Decir «dos ciclos»: es un solo ciclo, con el lado del coach y el lado del atleta.
+- «Gemelo digital», «agentes de IA», fechas y «mejora el rendimiento».
 - Prometer resultados o ciencia del deporte: hoy no se pueden demostrar (ver [[mensajes]]).
 - La biografía de la fundadora: el speech funciona sin depender de una persona.
 - Prometer que Cycles arma el siguiente ciclo solo: quien decide es el coach.
