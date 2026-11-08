@@ -19,6 +19,7 @@ import { ExercisesModule } from "./exercises/exercises.module";
 import { RoutinesModule } from "./routines/routines.module";
 import { ExecutionModule } from "./execution/execution.module";
 import { TrackingModule } from "./tracking/tracking.module";
+import { EventsModule } from "./events/events.module";
 import { NotificationsModule } from "./notifications/notifications.module";
 import { ContactModule } from "./contact/contact.module";
 import { AdminModule } from "./admin/admin.module";
@@ -42,6 +43,7 @@ import { HealthController } from "./health/health.controller";
     RoutinesModule,
     ExecutionModule,
     TrackingModule,
+    EventsModule,
     ContactModule,
     NotificationsModule,
     AdminModule,

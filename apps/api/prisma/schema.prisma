@@ -127,6 +127,7 @@ model User {
   policyAcceptances       PolicyAcceptance[]
   betaInvite              BetaInvite?
   summaryLayout           CoachSummaryLayout?
+  athleteEvents           AthleteEvent[]
 }
 
 // Invitación al grupo externo «Piloto» de TestFlight (CYC-194). El correo es el del
@@ -617,4 +618,79 @@ model CoachSummaryLayout {
   updatedAt DateTime @updatedAt
 
   coach User @relation(fields: [coachId], references: [id], onDelete: Cascade)
+}
+
+// Actividades paralelas del atleta (CYC-251, diseño docs/diseno/eventos-paralelos): voleibol,
+// partidos de liga, competencias… Son del atleta y no dependen de un coach ni de un ciclo;
+// el coach vinculado solo las lee (sin las notas). La repetición es una regla (días de la
+// semana, hasta una fecha o sin fin) y no se guarda una fila por semana: se expande al
+// consultar un rango. Editar o borrar «solo un día» es una excepción de la serie.
+enum EventType {
+  training
+  match
+  rest
+  travel
+  injury
+  other
+}
+
+enum EventSport {
+  volleyball
+  soccer
+  basketball
+  running
+  cycling
+  swimming
+  weights
+  yoga
+  other
+}
+
+enum EventIntensity {
+  low
+  medium
+  high
+}
+
+model AthleteEvent {
+  id          String          @id @default(uuid())
+  athleteId   String
+  type        EventType
+  sport       EventSport?
+  title       String
+  // Día de inicio de la serie (día local del atleta, sin zona horaria).
+  date        DateTime        @db.Date
+  // «HH:mm»; nulo si es de todo el día o no tiene hora.
+  startTime   String?
+  durationMin Int?
+  allDay      Boolean         @default(false)
+  intensity   EventIntensity?
+  // Texto libre del atleta: puede mencionar salud, así que el coach no lo ve (R7).
+  notes       String?
+  // Días de la semana en que se repite (0 = lunes … 6 = domingo); vacío = no se repite.
+  repeatDays  Int[]
+  // Último día de la repetición; nulo = sin fin.
+  repeatUntil DateTime?       @db.Date
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  athlete    User                    @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+  exceptions AthleteEventException[]
+
+  @@index([athleteId, date])
+}
+
+// Una excepción de la serie en un día: se borró («solo ese día») o se editó (`overrides` trae
+// solo los campos que cambian).
+model AthleteEventException {
+  id        String   @id @default(uuid())
+  eventId   String
+  date      DateTime @db.Date
+  cancelled Boolean  @default(false)
+  overrides Json?
+  createdAt DateTime @default(now())
+
+  event AthleteEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, date])
 }
