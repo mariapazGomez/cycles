@@ -4,7 +4,7 @@ parent: "[[brand]]"
 status: draft
 tags: [brand, mensajes, audiencias]
 created: 2026-10-02
-updated: 2026-10-02
+updated: 2026-11-08
 ---
 
 > Hijo de [[esencia]]. Mensajes para cada audiencia, en la voz de [[voz-y-tono]]. Los borradores de promesa fueron aprobados por la fundadora el 2026-10-02 ("suenan a mí"). Lo que se sabe del coach viene de la experiencia de la fundadora como atleta, **no de conversaciones con coaches**: es una hipótesis hasta validarla.
@@ -18,11 +18,23 @@ updated: 2026-10-02
 - Sus dos preocupaciones principales: **ahorrar tiempo** y **demostrar resultados**.
 - Diseña el plan, pero no está en cada sesión; hoy se coordina con Excel y WhatsApp.
 
-**Promesa** (actualizada 2026-10-06, ver [[landing]])
+**Promesa** (actualizada 2026-11-08, CYC-262; antes: «Tú diseñas el ciclo de entrenamiento. Cycles te cuenta cómo les fue.»; ver [[landing]])
 
-> **Tú diseñas el ciclo de entrenamiento. Cycles te cuenta cómo les fue.**
+> **Planifica el ciclo. Recibe el feedback. Ajusta el siguiente.**
 >
-> Cycles es la plataforma de ciclos de entrenamiento: armas el ciclo, tu atleta lo registra desde el celular y tú ves quién necesita tu atención. Todos tus atletas en un solo lugar, sin perseguir mensajes.
+> Cycles es la plataforma de ciclos de entrenamiento para coaches: tú los planificas en la web, tu atleta los entrena en la app y te cuenta cómo le fue, y tú ajustas el siguiente con lo que de verdad pasó.
+
+**Enfoque (2026-11-08):** un solo ciclo con dos lados. La web del coach es donde se planifica; la app del atleta es donde el ciclo se entrena y vuelve como feedback. Juntos son Cycles y explican el nombre. No se habla de «dos ciclos».
+
+**Frase corta para redes y biografías** (62 caracteres)
+
+> Tú planificas el ciclo. Tu atleta te responde. Cycles los une.
+
+**Hacia dónde vamos (se dice como dirección)**
+
+> Cada ciclo deja memoria. Cada ciclo que planificas deja el historial de cada atleta. Estamos construyendo hacia una memoria viva de cómo responde cada uno, para que Cycles pueda sugerirte ajustes. Siempre tú decides.
+
+**Reglas:** sin «gemelo digital» ni «agentes de IA» en público; sin fechas ni «mejora el rendimiento»; la visión va como dirección («estamos construyendo hacia»); el coach siempre decide. Cómo conversar con coaches e influencers: [[conversaciones-con-coaches]].
 
 **Lo que se le promete al coach que ya trabaja bien:** no cambia cómo entrena ("Tú sigues diseñando el plan"); le suma saber qué pasó sin preguntar, a quién mirar primero, ajustar el ciclo con datos y recuperar tiempo.
 

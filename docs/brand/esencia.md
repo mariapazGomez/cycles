@@ -4,12 +4,14 @@ parent: "[[brand]]"
 status: decided
 tags: [brand, esencia, storytelling]
 created: 2026-10-02
-updated: 2026-10-11
+updated: 2026-11-08
 ---
 
 > Hijo de [[brand]]. Nace de una conversación con la fundadora el 2026-10-02: el origen, el enemigo, la atleta y la emoción salen de su experiencia, no de investigación de mercado. Es un borrador para ajustar; las decisiones ya tomadas están marcadas.
 >
 > **Actualización 2026-10-11: el producto se enfoca en el coach.** La esencia nació desde la experiencia de la atleta, pero Cycles le habla primero al coach: es quien lo adopta, quien arma el ciclo y quien necesita saber cómo les fue a sus atletas. El mensaje, la landing y el diseño de la web apuntan al coach (ver [[mensajes]] y [[landing]], reescritos el 2026-10-06). El origen se mantiene como historia de fondo; la promesa y la frase cambian de destinatario. Las secciones de abajo ya reflejan este giro.
+
+> **Actualización 2026-11-08 (CYC-262, CYC-263): Cycles es un solo fundamento, el ciclo.** No son «dos ciclos» ni dos productos pegados: los ciclos que planea el coach (en la web) y los de planificación y feedback del atleta (en la app) son lo mismo visto desde dos lados. Juntos son lo que da nombre a Cycles y explican por qué existen la web del coach y la app del atleta. Ver «El nombre: un solo ciclo» más abajo.
 
 # Esencia de InProgress Co. y Cycles
 
@@ -70,20 +72,31 @@ El nombre InProgress tiene dos lecturas a propósito: el progreso del atleta y e
 
 Idea conjunta: **el progreso ocurre en ciclos.**
 
+## El nombre: un solo ciclo
+
+El coach **planifica** el ciclo en la web. El atleta lo **entrena** en la app y **responde** con su feedback. Esa respuesta vuelve al coach, que **ajusta el siguiente**. Es un solo círculo con dos lados, y de ahí viene el nombre: Cycles.
+
+- La web y la app no son dos cosas: son los dos lados del mismo ciclo.
+- El coach siempre decide. Cycles junta lo que pasó; no arma el ciclo por él.
+- Frase corta: **Tú planificas el ciclo. Tu atleta te responde. Cycles los une.**
+- Título de la portada: **Planifica el ciclo. Recibe el feedback. Ajusta el siguiente.**
+
 ## Promesa: hoy y hacia dónde vamos
 
 | Capa | Qué decimos |
 |---|---|
-| **Hoy** | Tú diseñas el ciclo de entrenamiento y Cycles te cuenta cómo les fue: todos tus atletas en un solo lugar, sin perseguir mensajes. |
-| **Hacia dónde vamos** | Entender a cada atleta tan bien, con sus datos de entrenamiento, sueño y alimentación, que la ciencia del deporte esté a su alcance. |
+| **Hoy** | Planifica el ciclo, recibe el feedback de tu atleta y ajusta el siguiente con lo que de verdad pasó: todos tus atletas en un solo lugar, sin perseguir mensajes. |
+| **Hacia dónde vamos** | Entender a cada atleta tan bien, con sus datos de entrenamiento, sueño y alimentación, que la ciencia del deporte esté a su alcance. En público se dice como dirección: **«Cada ciclo deja memoria»**, una memoria viva de cómo responde cada atleta, para que Cycles pueda sugerirte ajustes. Siempre tú decides. |
 
-Se separan a propósito. La promesa de hoy es verificable; la de mañana es la visión de la compañía. Prometer hoy un agente que "comprende completamente al atleta" erosionaría la confianza justo cuando hay que enganchar al coach.
+Se separan a propósito, y en público la segunda nunca lleva «gemelo digital» ni «agentes de IA», fechas ni «mejora el rendimiento». La promesa de hoy es verificable; la de mañana es la visión de la compañía. Prometer hoy un agente que "comprende completamente al atleta" erosionaría la confianza justo cuando hay que enganchar al coach.
 
 El orden real es: enganchar al coach, levantar datos con el uso real, entender qué necesita de verdad, y recién ahí construir la inteligencia.
 
 ## Frase que une todo
 
 > Nada se pierde entre tú y tus atletas.
+
+Frase de marca para redes y biografías (decidida el 2026-11-08): **Tú planificas el ciclo. Tu atleta te responde. Cycles los une.** (62 caracteres).
 
 La frase original, aprobada el 2026-10-02, decía "entre tú y tu coach" y le hablaba a la atleta. Con el giro al coach (2026-10-06) pasó a "tus atletas"; la versión original puede seguir usándose en los mensajes dirigidos al atleta. Alternativas del documento madre que siguen vigentes como apoyo: *El rendimiento no es un momento. Es un ciclo.* / *Cada ciclo construye el siguiente.*
 
