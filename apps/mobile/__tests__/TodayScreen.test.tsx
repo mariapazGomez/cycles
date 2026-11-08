@@ -3,6 +3,9 @@ import ReactTestRenderer from 'react-test-renderer';
 import { TodayScreen } from '../src/screens/TodayScreen';
 import { fetchToday } from '../src/services/executionApi';
 import { fetchCycles } from '../src/services/planApi';
+import { fetchNotifications, markNotificationRead } from '../src/services/notificationsApi';
+import { fetchEvents } from '../src/services/eventsApi';
+import { toLocalDay } from '../src/utils/planCalendar';
 import { ApiError } from '../src/services/httpClient';
 
 jest.mock('@react-navigation/native', () => {
@@ -15,6 +18,8 @@ jest.mock('react-native-safe-area-context', () => ({
 jest.mock('../src/services/tokenStore', () => ({ tokenStore: { getAccessToken: jest.fn(), getRefreshToken: jest.fn() } }));
 jest.mock('../src/services/executionApi', () => ({ fetchToday: jest.fn(), startSession: jest.fn() }));
 jest.mock('../src/services/planApi', () => ({ fetchCycles: jest.fn() }));
+jest.mock('../src/services/notificationsApi', () => ({ fetchNotifications: jest.fn(), markNotificationRead: jest.fn() }));
+jest.mock('../src/services/eventsApi', () => ({ fetchEvents: jest.fn() }));
 jest.mock('../src/store/RestTimerContext', () => ({
   DEFAULT_REST_SECONDS: 90,
   useRestTimer: () => ({ routineStarted: false, setRoutineStarted: jest.fn(), autoRest: true, setAutoRest: jest.fn() }),
@@ -26,6 +31,10 @@ jest.mock('../src/store/AuthContext', () => ({ useAuth: () => ({ user: mockUser 
 
 const fetchTodayMock = fetchToday as jest.Mock;
 const fetchCyclesMock = fetchCycles as jest.Mock;
+const notificationsMock = fetchNotifications as jest.Mock;
+const markReadMock = markNotificationRead as jest.Mock;
+const eventsMock = fetchEvents as jest.Mock;
+const navigateMock = jest.fn();
 
 const session = (id: string, name: string, slot: number) => ({
   id, cycleId: 'c1', name, weekNumber: 1, slotNumber: slot, status: 'pending', startedAt: null, sessionExercises: [],
@@ -40,7 +49,7 @@ async function mount() {
   let tree!: ReactTestRenderer.ReactTestRenderer;
   await ReactTestRenderer.act(async () => {
     tree = ReactTestRenderer.create(
-      <TodayScreen {...(({ navigation: { navigate: jest.fn() }, route: {} } as unknown) as React.ComponentProps<typeof TodayScreen>)} />,
+      <TodayScreen {...(({ navigation: { navigate: navigateMock }, route: {} } as unknown) as React.ComponentProps<typeof TodayScreen>)} />,
     );
   });
   return tree;
@@ -51,6 +60,9 @@ const texts = (tree: ReactTestRenderer.ReactTestRenderer) =>
 beforeEach(() => {
   jest.clearAllMocks();
   mockUser = { email: 'v@example.com', hasActiveCoach: true };
+  notificationsMock.mockResolvedValue([]);
+  eventsMock.mockResolvedValue([]);
+  markReadMock.mockResolvedValue(undefined);
 });
 
 test('pide Hoy con el día local del atleta', async () => {
@@ -129,4 +141,107 @@ test('sin coach no se consultan los ciclos', async () => {
   fetchTodayMock.mockResolvedValue(null);
   await mount();
   expect(fetchCyclesMock).not.toHaveBeenCalled();
+});
+
+
+const notif = (id: string, type: string, over: Record<string, unknown> = {}) => ({
+  id, type, planId: 'p1', sessionId: 's1', count: 1, payload: { routineName: 'Torso B', planName: 'Ciclo 1' },
+  read: false, createdAt: '2026-11-08T10:00:00.000Z', at: '2026-11-08T10:00:00.000Z', ...over,
+});
+const occurrence = (title: string, over: Record<string, unknown> = {}) => ({
+  seriesId: title, date: toLocalDay(new Date()), isException: false, type: 'training', sport: 'volleyball', title,
+  startTime: '19:00', durationMin: 90, allDay: false, intensity: 'medium', notes: null, repeat: null, ...over,
+});
+const tapLabel = async (tree: ReactTestRenderer.ReactTestRenderer, startsWith: string) => {
+  await ReactTestRenderer.act(async () => {
+    tree.root.find(n => typeof n.props.accessibilityLabel === 'string' && n.props.accessibilityLabel.startsWith(startsWith) && typeof n.props.onPress === 'function').props.onPress();
+  });
+};
+
+test('aviso «Tu coach agregó una rutina» con el nombre de la rutina; sin avisos nuevos no aparece', async () => {
+  fetchTodayMock.mockResolvedValue(payload(session('a', 'Full body, día 1', 1), []));
+  const none = texts(await mount());
+  expect(none).not.toContain('Tu coach agregó una rutina');
+  notificationsMock.mockResolvedValue([notif('n1', 'session_added')]);
+  const t = texts(await mount());
+  expect(t).toContain('Tu coach agregó una rutina');
+  expect(t).toContain('Torso B');
+});
+
+test('con varias novedades dice cuántas rutinas, cuenta los ajustes agrupados y no cuenta los leídos ni otros tipos', async () => {
+  fetchTodayMock.mockResolvedValue(payload(session('a', 'Full body, día 1', 1), []));
+  notificationsMock.mockResolvedValue([
+    notif('n1', 'session_added'),
+    notif('n2', 'session_added', { count: 2 }),
+    notif('n3', 'session_added', { read: true }),
+    notif('n4', 'session_changed'),
+    notif('n5', 'session_logged'),
+  ]);
+  const t = texts(await mount());
+  expect(t).toContain('Tu coach agregó 3 rutinas');
+  expect(t).toContain('Revisa lo nuevo en tu calendario.');
+});
+
+test('abrir el aviso lo marca como leído, lo oculta y lleva a la sesión', async () => {
+  fetchTodayMock.mockResolvedValue(payload(session('a', 'Full body, día 1', 1), []));
+  notificationsMock.mockResolvedValue([notif('n1', 'session_added')]);
+  const tree = await mount();
+  await tapLabel(tree, 'Tu coach agregó una rutina');
+  expect(markReadMock).toHaveBeenCalledWith('n1');
+  expect(navigateMock).toHaveBeenCalledWith('SessionDetail', { sessionId: 's1' });
+  expect(texts(tree)).not.toContain('Tu coach agregó una rutina');
+});
+
+test('con varias novedades, abrir el aviso lleva al calendario y marca todas', async () => {
+  fetchTodayMock.mockResolvedValue(payload(session('a', 'Full body, día 1', 1), []));
+  notificationsMock.mockResolvedValue([notif('n1', 'session_added'), notif('n2', 'plan_assigned')]);
+  const tree = await mount();
+  await tapLabel(tree, 'Tu coach agregó 2 rutinas');
+  expect(markReadMock.mock.calls.map(c => c[0]).sort()).toEqual(['n1', 'n2']);
+  expect(navigateMock).toHaveBeenCalledWith('Calendar');
+});
+
+test('sin «Adelantar»: Hoy no ofrece mover ni repetir una sesión', async () => {
+  fetchTodayMock.mockResolvedValue(null);
+  fetchCyclesMock.mockResolvedValue([{ id: 'c1' }]);
+  const t = texts(await mount());
+  expect(t.some(x => x.startsWith('Adelantar'))).toBe(false);
+});
+
+test('fila «Hoy también»: una actividad, varias, y sin actividades no aparece', async () => {
+  fetchTodayMock.mockResolvedValue(payload(session('a', 'Full body, día 1', 1), []));
+  expect(texts(await mount()).some(x => x.startsWith('Hoy también'))).toBe(false);
+  eventsMock.mockResolvedValue([occurrence('Voleibol')]);
+  expect(texts(await mount())).toContain('Hoy también: voleibol, 19:00');
+  eventsMock.mockResolvedValue([occurrence('Voleibol'), occurrence('Gimnasio', { startTime: '08:00' })]);
+  expect(texts(await mount())).toContain('Hoy también: gimnasio y 1 más');
+});
+
+test('tocar «Hoy también» abre el calendario', async () => {
+  fetchTodayMock.mockResolvedValue(payload(session('a', 'Full body, día 1', 1), []));
+  eventsMock.mockResolvedValue([occurrence('Voleibol')]);
+  const tree = await mount();
+  await tapLabel(tree, 'Hoy también');
+  expect(navigateMock).toHaveBeenCalledWith('Calendar');
+});
+
+test('también aparece cuando hoy no hay sesión', async () => {
+  fetchTodayMock.mockResolvedValue(null);
+  fetchCyclesMock.mockResolvedValue([{ id: 'c1' }]);
+  eventsMock.mockResolvedValue([occurrence('Voleibol')]);
+  notificationsMock.mockResolvedValue([notif('n1', 'session_added')]);
+  const t = texts(await mount());
+  expect(t).toContain('Hoy no tienes sesión');
+  expect(t).toContain('Hoy también: voleibol, 19:00');
+  expect(t).toContain('Tu coach agregó una rutina');
+});
+
+test('si fallan los avisos o las actividades, Hoy se ve igual, sin esos extras', async () => {
+  fetchTodayMock.mockResolvedValue(payload(session('a', 'Full body, día 1', 1), []));
+  notificationsMock.mockRejectedValue(new Error('sin red'));
+  eventsMock.mockRejectedValue(new Error('sin red'));
+  const t = texts(await mount());
+  expect(t).toContain('Full body, día 1');
+  expect(t).not.toContain('Tu coach agregó una rutina');
+  expect(t.some(x => x.startsWith('Hoy también'))).toBe(false);
 });

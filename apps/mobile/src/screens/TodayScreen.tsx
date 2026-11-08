@@ -33,6 +33,9 @@ import { NotificationBell } from '../components/NotificationBell';
 import { useTabBarClearance } from '../components/FloatingTabBar';
 import { CoachNote } from '../components/CoachNote';
 import { TourAnchor } from '../components/tour/TourAnchor';
+import { CoachNotice } from '../components/today/CoachNotice';
+import { TodayAlso } from '../components/today/TodayAlso';
+import { useTodayExtras } from '../hooks/useTodayExtras';
 import { useTourAnchor } from '../store/TourContext';
 import { colors } from '../theme/colors';
 import { cardShadow } from '../theme/elevation';
@@ -56,6 +59,8 @@ export function TodayScreen({ navigation }: Props) {
   // la siguiente pendiente del plan.
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { routineStarted, setRoutineStarted, autoRest, setAutoRest } = useRestTimer();
+  // Aviso del coach y actividades del día (CYC-256): extras que nunca rompen Hoy.
+  const extras = useTodayExtras(toLocalDay(new Date()));
 
   const load = useCallback(async () => {
     setError(null);
@@ -167,6 +172,26 @@ export function TodayScreen({ navigation }: Props) {
     );
   }
 
+  const openCalendar = () => navigation.navigate('Calendar');
+  const openNotice = () => {
+    const current = extras.notice;
+    if (!current) {
+      return;
+    }
+    extras.dismiss(current);
+    if (current.target.kind === 'session') {
+      navigation.navigate('SessionDetail', { sessionId: current.target.sessionId });
+    } else {
+      openCalendar();
+    }
+  };
+  const extrasBlock = (
+    <>
+      <TodayAlso events={extras.events} onOpen={openCalendar} />
+      {extras.notice && <CoachNotice notice={extras.notice} onOpen={openNotice} />}
+    </>
+  );
+
   const assignedHere = (data?.assignedToday ?? []).some(a => a.id === data?.session.id);
   const otherAssigned = (data?.assignedToday ?? []).filter(a => a.id !== data?.session.id);
 
@@ -208,6 +233,8 @@ export function TodayScreen({ navigation }: Props) {
           </View>
         </View>
       )}
+
+      {data === null && !error && extrasBlock}
 
       {data && (
         <>
@@ -266,6 +293,8 @@ export function TodayScreen({ navigation }: Props) {
             )}
             </TourAnchor>
           </View>
+
+          {extrasBlock}
 
           {routineStarted && !nextExercise && (
             <>
