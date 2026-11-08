@@ -22,6 +22,17 @@ La usuaria dijo que los íconos de trazo se veían planos y sin la personalidad 
 
 Para convivir con `docs/diseno/vistas-app/`: el **azul es solo de la app** y el **verde con pesas es la fuerza del coach**. En las actividades del atleta, descanso activo y yoga pasan a **violeta**, las pesas propias a **naranja**; deportes en naranja, partido en tinta, viaje en gris. La tabla de colores de v3 queda reemplazada por esta.
 
+## Calendarios del coach con íconos (CYC-270, 2026-11-08)
+
+Maqueta: [`coach-calendarios.html`](coach-calendarios.html). Extiende la sección «Lo que ve el coach» y es el diseño de CYC-253. Solo lectura.
+
+- **Inicio:** la fila de cada atleta mantiene las celdas de 72 px. Las sesiones del plan son **tarjeta blanca con perla verde**; lo que agregó el atleta es solo una **perla de 19 px** en una franja bajo una línea punteada. Hasta 2 perlas; con 3 o más, una perla y «+N». Interruptor «Actividades de los atletas» para apagar la capa y barra ámbar compacta con el aviso de choque de carga; el atleta afectado lleva un chip «Choque de carga: vie y sáb» y las celdas implicadas, borde ámbar.
+- **Perfil del atleta:** interruptor **Semana | Mes**. La semana reutiliza las celdas del Inicio; el **mes** usa números de 11 px y perlas de 19 px (igual que la app), flechas de mes y el día elegido abre su **detalle** a la derecha (nombre, hora, intensidad, aviso de choque, «Lo agregó Camila. Solo lectura.»). Debajo, **Fuera del plan** con cada serie, su regla y la próxima fecha.
+- **Colores por rol (#208):** azul solo de la app; verde, fuerza del coach; naranja, deporte del atleta; violeta, descanso; tinta, partido; gris, viaje.
+- **Estados:** atleta sin actividades, capa apagada y error al cargar (las sesiones siguen visibles, la franja dice «No se pudieron cargar»). Con 20 atletas el Inicio sigue como hoy (los que necesitan atención primero).
+- **Accesibilidad:** cada celda tiene nombre completo; el aviso lleva icono y texto; las perlas se nombran en el detalle y en «Fuera del plan».
+- **Privacidad:** solo de atletas con vínculo activo (R5); notas del atleta no se muestran.
+
 ## Qué es
 
 El atleta agrega por su cuenta lo que hace fuera del plan: «lunes y martes entreno voleibol», «sábado y domingo tengo partidos de liga». No dependen del coach, pero el coach los ve para planear. Nombre en la interfaz: **actividades** (en la ficha del coach, sección **Fuera del plan**).
