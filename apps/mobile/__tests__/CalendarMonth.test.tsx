@@ -67,16 +67,22 @@ beforeEach(() => {
   events.mockResolvedValue([]);
 });
 
-test('arranca en la vista de semana y no pide actividades hasta abrir el mes', async () => {
+test('sin ciclo la semana usa el modo Fechas: pide lunes a domingo y no ofrece Ciclo | Fechas', async () => {
   const tree = await mount();
-  expect(events).not.toHaveBeenCalled();
-  expect(texts(tree)).toContain('Aún no tienes un ciclo activo');
-  await press(tree, 'Mes');
   expect(events).toHaveBeenCalledTimes(1);
+  const [from, to] = events.mock.calls[0];
+  expect((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86400000).toBe(6);
+  expect(from <= todayIso() && todayIso() <= to).toBe(true);
+  expect(texts(tree).some(t => t.startsWith('Semana del '))).toBe(true);
+  expect(texts(tree)).toContain('Aún no tienes un ciclo activo');
+  expect(tree.root.findAll(n => n.props.accessibilityLabel === 'Fechas' && typeof n.props.onPress === 'function')).toHaveLength(0);
+  await press(tree, 'Mes');
+  expect(events).toHaveBeenCalledTimes(2);
 });
 
 test('el mes funciona sin ciclo ni coach: pide el rango del mes con sus días de relleno', async () => {
   const tree = await mount();
+  events.mockClear();
   await press(tree, 'Mes');
   const [from, to] = events.mock.calls[0];
   expect(from <= todayIso() && todayIso() <= to).toBe(true);
@@ -101,6 +107,7 @@ test('muestra las actividades del día elegido y abre su edición al tocarlas', 
 test('agregar una actividad: abre la hoja, valida, guarda y recarga el mes', async () => {
   const tree = await mount();
   await press(tree, 'Mes');
+  events.mockClear();
   create.mockResolvedValue({ id: 'nuevo' });
   await press(tree, 'Agregar actividad');
   expect(texts(tree)).toContain('Agregar al calendario');
@@ -112,7 +119,7 @@ test('agregar una actividad: abre la hoja, valida, guarda y recarga el mes', asy
   expect(create).toHaveBeenCalledTimes(1);
   expect(create.mock.calls[0][0]).toMatchObject({ type: 'training', title: 'Voleibol', date: todayIso() });
   // Tras guardar: la hoja se cierra y se vuelve a pedir el mes.
-  expect(events).toHaveBeenCalledTimes(2);
+  expect(events).toHaveBeenCalledTimes(1);
   expect(texts(tree)).not.toContain('Agregar al calendario');
 });
 
@@ -147,11 +154,11 @@ test('editar «solo este día» y eliminar una ocurrencia llaman a la API con su
 });
 
 test('si las actividades no cargan, avisa aparte y permite reintentar sin esconder el calendario', async () => {
-  events.mockRejectedValueOnce(new Error('sin red'));
+  events.mockRejectedValue(new Error('sin red'));
   const tree = await mount();
   await press(tree, 'Mes');
   expect(texts(tree)).toContain('No pudimos cargar tus actividades. Tus sesiones sí están al día.');
-  events.mockResolvedValueOnce([occurrence(todayIso())]);
+  events.mockResolvedValue([occurrence(todayIso())]);
   await press(tree, 'Reintentar');
   expect(texts(tree)).not.toContain('No pudimos cargar tus actividades. Tus sesiones sí están al día.');
   expect(texts(tree)).toContain('Voleibol');
@@ -160,11 +167,65 @@ test('si las actividades no cargan, avisa aparte y permite reintentar sin escond
 test('las flechas cambian de mes y «Ir a hoy» vuelve', async () => {
   const tree = await mount();
   await press(tree, 'Mes');
+  events.mockClear();
   const title = () => texts(tree).find(t => /^[A-Z][a-z]+ \d{4}$/.test(t));
   const first = title();
   await press(tree, 'Mes siguiente');
   expect(title()).not.toBe(first);
-  expect(events).toHaveBeenCalledTimes(2);
+  expect(events).toHaveBeenCalledTimes(1);
   await press(tree, 'Ir a hoy');
   expect(title()).toBe(first);
+});
+
+
+describe('semana con actividades', () => {
+  const session = (id: string, day: string) => ({ id, cycleId: 'c1', name: `Sesión ${id}`, weekNumber: 1, slotNumber: 1, status: 'pending', scheduledDate: `${day}T00:00:00.000Z` });
+  const cycle = {
+    id: 'c1', name: 'Rutina en Casa 1',
+    startDate: new Date(Date.now() - 2 * 86400000).toISOString(),
+    endDate: new Date(Date.now() + 30 * 86400000).toISOString(),
+  };
+
+  test('modo Fechas: lista por día las actividades y las sesiones del coach, y deja agregar si no hay nada', async () => {
+    events.mockResolvedValue([occurrence(todayIso())]);
+    cycles.mockResolvedValue([cycle]);
+    sessions.mockResolvedValue([session('a', todayIso())]);
+    const tree = await mount();
+    await press(tree, 'Fechas');
+    const t = texts(tree);
+    expect(t.some(x => x.startsWith('Semana del '))).toBe(true);
+    expect(t.some(x => x.startsWith('Hoy, '))).toBe(true);
+    expect(t).toContain('Voleibol');
+    expect(t).toContain('Sesión a');
+  });
+
+  test('modo Ciclo: debajo de las sesiones, «Tus actividades esta semana»; sin actividades no aparece', async () => {
+    cycles.mockResolvedValue([cycle]);
+    sessions.mockResolvedValue([session('a', todayIso())]);
+    expect(texts(await mount())).not.toContain('Tus actividades esta semana');
+    events.mockResolvedValue([occurrence(todayIso())]);
+    const t = texts(await mount());
+    expect(t).toContain('Tus actividades esta semana');
+    expect(t).toContain('Voleibol');
+  });
+
+  test('en Fechas las flechas cambian de semana y «Ir a hoy» vuelve, pidiendo cada rango', async () => {
+    cycles.mockResolvedValue([cycle]);
+    sessions.mockResolvedValue([]);
+    const tree = await mount();
+    await press(tree, 'Fechas');
+    events.mockClear();
+    await press(tree, 'Semana siguiente');
+    const [from] = events.mock.calls[0];
+    expect(from > todayIso()).toBe(true);
+    await press(tree, 'Ir a hoy');
+    expect(events.mock.calls[1][0] <= todayIso()).toBe(true);
+  });
+
+  test('una semana sin nada lo dice y ofrece agregar una actividad', async () => {
+    const tree = await mount();
+    expect(texts(tree)).toContain('Esta semana no tienes nada');
+    await press(tree, 'Agregar actividad esta semana');
+    expect(texts(tree)).toContain('Agregar al calendario');
+  });
 });

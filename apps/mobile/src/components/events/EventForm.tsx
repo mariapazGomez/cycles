@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import type { EventIntensity, EventScope, EventSport, EventType } from '@cycles/shared';
-import { PEARL_KINDS } from '../pearl/kinds';
-import { SPORT_PEARL } from './eventKinds';
+import { Pearl } from '../pearl/Pearl';
+import { PEARL_KINDS, type PearlKind } from '../pearl/kinds';
+import { SPORT_PEARL, TYPE_PEARL } from './eventKinds';
 import { colors, viewColors } from '../../theme/colors';
 import { WEEKDAY_SHORT } from '../../utils/eventCalendar';
 import {
@@ -44,7 +45,7 @@ interface Props {
   onCancel: () => void;
 }
 
-function Chip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+function Chip({ label, selected, onPress, kind }: { label: string; selected: boolean; onPress: () => void; kind?: PearlKind }) {
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -52,7 +53,29 @@ function Chip({ label, selected, onPress }: { label: string; selected: boolean; 
       accessibilityLabel={label}
       accessibilityState={{ selected }}
       style={[styles.chip, selected && styles.chipOn]}>
+      {kind && <Pearl kind={kind} size={22} />}
       <Text style={[styles.chipText, selected && styles.chipTextOn]}>{label}</Text>
+    </TouchableOpacity>
+  );
+}
+
+// Tres perlas llenas según la intensidad (el motivo de la marca): suave 1, media 2, alta 3.
+const INTENSITY_BEADS: Record<EventIntensity, number> = { low: 1, medium: 2, high: 3 };
+
+function IntensityChip({ level, selected, onPress }: { level: EventIntensity; selected: boolean; onPress: () => void }) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={INTENSITY_LABEL[level]}
+      accessibilityState={{ selected }}
+      style={[styles.chip, selected && styles.chipOn]}>
+      <View style={styles.beads}>
+        {[1, 2, 3].map(n => (
+          <View key={n} style={[styles.bead, n <= INTENSITY_BEADS[level] && (selected ? styles.beadOnSelected : styles.beadOn)]} />
+        ))}
+      </View>
+      <Text style={[styles.chipText, selected && styles.chipTextOn]}>{INTENSITY_LABEL[level]}</Text>
     </TouchableOpacity>
   );
 }
@@ -92,7 +115,7 @@ export function EventForm({ initial, editing, saving, error, onSubmit, onDelete,
 
       <View style={styles.row}>
         {(Object.keys(TYPE_LABEL) as EventType[]).map(type => (
-          <Chip key={type} label={TYPE_LABEL[type]} selected={form.type === type} onPress={() => set('type', type)} />
+          <Chip key={type} label={TYPE_LABEL[type]} kind={PEARL_KINDS[TYPE_PEARL[type]]} selected={form.type === type} onPress={() => set('type', type)} />
         ))}
       </View>
 
@@ -104,6 +127,7 @@ export function EventForm({ initial, editing, saving, error, onSubmit, onDelete,
               <Chip
                 key={sport}
                 label={PEARL_KINDS[SPORT_PEARL[sport]].label}
+                kind={PEARL_KINDS[SPORT_PEARL[sport]]}
                 selected={form.sport === sport}
                 // Elegir un deporte propone su nombre si aún no se escribió uno.
                 onPress={() => setForm(prev => ({ ...prev, sport, title: prev.title.trim() ? prev.title : PEARL_KINDS[SPORT_PEARL[sport]].label }))}
@@ -158,7 +182,7 @@ export function EventForm({ initial, editing, saving, error, onSubmit, onDelete,
       <Text style={styles.label}>Intensidad</Text>
       <View style={styles.row}>
         {(Object.keys(INTENSITY_LABEL) as EventIntensity[]).map(level => (
-          <Chip key={level} label={INTENSITY_LABEL[level]} selected={form.intensity === level} onPress={() => set('intensity', level)} />
+          <IntensityChip key={level} level={level} selected={form.intensity === level} onPress={() => set('intensity', level)} />
         ))}
       </View>
 
@@ -219,19 +243,23 @@ const styles = StyleSheet.create({
   content: { padding: 16, gap: 8 },
   title: { fontSize: 20, fontWeight: '800', color: colors.ink },
   hint: { fontSize: 13, color: colors.inkSecondary },
-  label: { fontSize: 13, fontWeight: '600', color: colors.ink, marginTop: 8 },
+  label: { fontSize: 14, fontWeight: '700', color: colors.ink, marginTop: 8 },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 44 },
-  input: { borderWidth: 1, borderColor: colors.grayBorder, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 16, color: colors.ink, backgroundColor: colors.bg },
-  chip: { minHeight: 36, paddingHorizontal: 12, justifyContent: 'center', borderRadius: 999, borderWidth: 1, borderColor: colors.grayBorder, backgroundColor: colors.bg },
-  chipOn: { backgroundColor: colors.ink, borderColor: colors.ink },
-  chipText: { fontSize: 13, color: colors.ink },
-  chipTextOn: { color: colors.onBlue },
+  input: { minHeight: 44, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10, fontSize: 16, color: colors.ink, backgroundColor: viewColors.surfaceMuted },
+  locked: { color: colors.inkSecondary, opacity: 0.7 },
+  chip: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, borderRadius: 999, backgroundColor: viewColors.surfaceMuted, borderWidth: 2, borderColor: 'transparent' },
+  chipOn: { backgroundColor: colors.blueTint, borderColor: colors.blue },
+  chipText: { fontSize: 14, fontWeight: '600', color: colors.ink },
+  chipTextOn: { color: colors.blue },
+  beads: { flexDirection: 'row', gap: 3 },
+  bead: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.grayBorder },
+  beadOn: { backgroundColor: colors.ink },
+  beadOnSelected: { backgroundColor: colors.blue },
   error: { fontSize: 13, color: viewColors.danger },
-  primary: { minHeight: 48, borderRadius: 999, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center', marginTop: 12 },
+  primary: { minHeight: 52, borderRadius: 999, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center', marginTop: 12 },
   primaryText: { color: colors.onBlue, fontSize: 16, fontWeight: '700' },
   disabled: { opacity: 0.6 },
-  locked: { backgroundColor: viewColors.surfaceMuted, color: colors.inkSecondary },
   danger: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   dangerText: { color: viewColors.danger, fontSize: 15, fontWeight: '600' },
   secondary: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },

@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
+import { Circle } from 'react-native-svg';
 import { EventForm } from '../src/components/events/EventForm';
 import { emptyForm } from '../src/utils/eventForm';
 
@@ -101,4 +102,17 @@ test('un nombre ya escrito no se pisa al elegir deporte, y un partido no ofrece 
   expect(byLabel(tree, 'Nombre').props.value).toBe('Vóley playa');
   act(() => byLabel(tree, 'Partido o competencia').props.onPress());
   expect(texts(tree)).not.toContain('Deporte');
+});
+
+
+test('los tipos y los deportes llevan su perla, y los controles miden 44 px o más', () => {
+  const { tree } = mount();
+  // Hay una perla (círculo) por cada chip de tipo y de deporte, y las perlas de intensidad son puntos.
+  const circles = tree.root.findAllByType(Circle as never).length;
+  expect(circles).toBeGreaterThanOrEqual(6 + 9);
+  const minHeights = tree.root
+    .findAll(n => n.props.style && !Array.isArray(n.props.style) && typeof n.props.style.minHeight === 'number')
+    .map(n => n.props.style.minHeight as number);
+  expect(minHeights.length).toBeGreaterThan(5);
+  minHeights.forEach(h => expect(h).toBeGreaterThanOrEqual(44));
 });

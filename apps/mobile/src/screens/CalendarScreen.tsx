@@ -26,8 +26,9 @@ import { scheduleSession } from '../services/executionApi';
 import { DayDetail } from '../components/calendar/DayDetail';
 import { EventSheet } from '../components/calendar/EventSheet';
 import { MonthView } from '../components/calendar/MonthView';
+import { DaysList, WeekDatesView } from '../components/calendar/WeekDatesView';
 import { EVENTS_ERROR, useEvents } from '../hooks/useEvents';
-import { groupByDay, monthOf, monthRange, shiftMonth } from '../utils/eventCalendar';
+import { calendarWeek, groupByDay, monthOf, monthRange, shiftMonth, shiftWeek } from '../utils/eventCalendar';
 import type { AthleteEventOccurrence } from '@cycles/shared';
 import type { AppStackParamList } from '../navigation/types';
 import { fetchActiveCycles, fetchCycleSessions } from '../services/planApi';
@@ -80,6 +81,9 @@ export function CalendarScreen() {
   const [view, setView] = useState<'week' | 'month'>('week');
   const [cursor, setCursor] = useState(() => monthOf(toLocalDay(new Date())));
   const [selectedDay, setSelectedDay] = useState(() => toLocalDay(new Date()));
+  // Semana por fechas reales (modo «Fechas»): un día cualquiera de la semana que se muestra.
+  const [weekMode, setWeekMode] = useState<'cycle' | 'dates'>('cycle');
+  const [weekAnchor, setWeekAnchor] = useState(() => toLocalDay(new Date()));
   const [eventSheet, setEventSheet] = useState<{ day: string; editing: AthleteEventOccurrence | null } | null>(null);
 
   const load = useCallback(async () => {
@@ -117,8 +121,17 @@ export function CalendarScreen() {
   const nextPending = plan ? firstPending(plan.sessions) : undefined;
   const days = plan ? weekDays(plan.cycle.startDate, shownWeek) : [];
 
-  const range = monthRange(cursor.year, cursor.month);
-  const monthEvents = useEvents(range.from, range.to, view === 'month');
+  // Sin ciclo solo existe el modo «Fechas». Cada vista pide el rango de actividades que muestra.
+  const datesMode = view === 'week' && (weekMode === 'dates' || !plan);
+  const datesWeek = calendarWeek(weekAnchor);
+  const cycleDays = days.length > 0 ? days : datesWeek;
+  const range =
+    view === 'month'
+      ? monthRange(cursor.year, cursor.month)
+      : datesMode
+        ? { from: datesWeek[0].iso, to: datesWeek[6].iso }
+        : { from: cycleDays[0].iso, to: cycleDays[6].iso };
+  const monthEvents = useEvents(range.from, range.to, view === 'month' || (view === 'week' && (datesMode || Boolean(plan))));
   const eventsByDay = useMemo(() => groupByDay(monthEvents.events), [monthEvents.events]);
   // Todas las sesiones de los ciclos activos, por día (el mes no depende de un solo ciclo).
   const allSessions = useMemo(
@@ -132,9 +145,15 @@ export function CalendarScreen() {
     [plans],
   );
   const daySessions = allSessions.filter(s => s.day === selectedDay);
+  const sessionsByDay = useMemo(() => {
+    const byDay: Record<string, Array<{ id: string; name: string; done: boolean }>> = {};
+    allSessions.forEach(s => (byDay[s.day] ??= []).push({ id: s.id, name: s.name, done: s.done }));
+    return byDay;
+  }, [allSessions]);
   const goToday = () => {
     setCursor(monthOf(today));
     setSelectedDay(today);
+    setWeekAnchor(today);
   };
 
   const weekSessions = useMemo(
@@ -220,18 +239,52 @@ export function CalendarScreen() {
           ))}
         </View>
 
+        {view === 'week' && plan && (
+          <View style={styles.viewSwitch} accessibilityRole="tablist">
+            {(['cycle', 'dates'] as const).map(option => (
+              <TouchableOpacity
+                key={option}
+                style={[styles.viewOption, weekMode === option && styles.viewOptionOn]}
+                onPress={() => setWeekMode(option)}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: weekMode === option }}
+                accessibilityLabel={option === 'cycle' ? 'Ciclo' : 'Fechas'}>
+                <Text style={[styles.viewOptionText, weekMode === option && styles.viewOptionTextOn]}>
+                  {option === 'cycle' ? 'Ciclo' : 'Fechas'}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+
         {error && <Text style={styles.error}>{error}</Text>}
+
+        {monthEvents.error && (
+          <View style={styles.eventsError}>
+            <Text style={styles.error}>{EVENTS_ERROR}</Text>
+            <TouchableOpacity onPress={monthEvents.reload} accessibilityRole="button" accessibilityLabel="Reintentar" style={styles.retry}>
+              <Text style={styles.retryText}>Reintentar</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {datesMode && (
+          <WeekDatesView
+            anchor={weekAnchor}
+            today={today}
+            eventsByDay={eventsByDay}
+            sessionsByDay={sessionsByDay}
+            onPrev={() => setWeekAnchor(a => shiftWeek(a, -1))}
+            onNext={() => setWeekAnchor(a => shiftWeek(a, 1))}
+            onToday={() => setWeekAnchor(today)}
+            onOpenEvent={event => setEventSheet({ day: event.date, editing: event })}
+            onOpenSession={sessionId => navigation.navigate('SessionDetail', { sessionId })}
+            onAdd={day => setEventSheet({ day, editing: null })}
+          />
+        )}
 
         {view === 'month' && (
           <>
-            {monthEvents.error && (
-              <View style={styles.eventsError}>
-                <Text style={styles.error}>{EVENTS_ERROR}</Text>
-                <TouchableOpacity onPress={monthEvents.reload} accessibilityRole="button" accessibilityLabel="Reintentar" style={styles.retry}>
-                  <Text style={styles.retryText}>Reintentar</Text>
-                </TouchableOpacity>
-              </View>
-            )}
             <MonthView
               year={cursor.year}
               month={cursor.month}
@@ -266,7 +319,7 @@ export function CalendarScreen() {
           </View>
         )}
 
-        {view === 'week' && plan && (
+        {view === 'week' && plan && !datesMode && (
           <>
             {plans && plans.length > 1 && (
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
@@ -430,6 +483,18 @@ export function CalendarScreen() {
                 );
               })
             )}
+
+            {Object.keys(eventsByDay).some(d => cycleDays.some(c => c.iso === d)) && (
+              <>
+                <Text style={styles.sectionTitle}>Tus actividades esta semana</Text>
+                <DaysList
+                  days={cycleDays.map(d => d.iso)}
+                  today={today}
+                  eventsByDay={eventsByDay}
+                  onOpenEvent={event => setEventSheet({ day: event.date, editing: event })}
+                />
+              </>
+            )}
           </>
         )}
       </ScrollView>
@@ -520,6 +585,7 @@ const styles = StyleSheet.create({
   viewOptionText: { fontSize: 14, fontWeight: '700', color: colors.inkSecondary },
   viewOptionTextOn: { color: colors.onBlue },
   eventsError: { marginBottom: 8 },
+  sectionTitle: { fontSize: 16, fontWeight: '800', color: colors.ink, marginTop: 6, marginBottom: 6 },
   retry: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
   retryText: { fontSize: 14, fontWeight: '700', color: colors.blue },
   container: { flex: 1, backgroundColor: colors.bgApp },
