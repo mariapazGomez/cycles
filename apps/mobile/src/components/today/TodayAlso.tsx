@@ -5,6 +5,8 @@ import { Pearl } from '../pearl/Pearl';
 import { kindFor } from '../events/eventKinds';
 import { colors } from '../../theme/colors';
 import { todaySummary } from '../../utils/eventCalendar';
+import { useViewScale } from '../../hooks/useViewScale';
+import { scaledIcon, touchHeight } from '../../utils/viewScale';
 
 interface Props {
   events: AthleteEventOccurrence[];
@@ -14,13 +16,14 @@ interface Props {
 // Fila discreta «Hoy también: voleibol, 19:00» (CYC-237 y CYC-256), con borde punteado. Con
 // varias actividades, «voleibol y 1 más». Al tocarla abre el calendario. Sin actividades, no existe.
 export function TodayAlso({ events, onOpen }: Props) {
+  const scale = useViewScale();
   if (events.length === 0) {
     return null;
   }
   const summary = todaySummary(events);
   return (
-    <TouchableOpacity style={styles.row} onPress={onOpen} accessibilityRole="button" accessibilityLabel={`${summary}. Abrir calendario`}>
-      <Pearl kind={kindFor(events[0])} size={22} />
+    <TouchableOpacity style={[styles.row, { minHeight: touchHeight(scale) }]} onPress={onOpen} accessibilityRole="button" accessibilityLabel={`${summary}. Abrir calendario`}>
+      <Pearl kind={kindFor(events[0])} size={scaledIcon(22, scale)} />
       <Text style={styles.text} numberOfLines={2}>
         {summary}
       </Text>

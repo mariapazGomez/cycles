@@ -6,6 +6,8 @@ import { kindFor } from '../events/eventKinds';
 import { Icon } from '../Icon';
 import { colors, viewColors } from '../../theme/colors';
 import { viewShadow } from '../../theme/elevation';
+import { useViewScale } from '../../hooks/useViewScale';
+import { scaledIcon } from '../../utils/viewScale';
 import { WEEKDAY_LETTER, longDay, monthCell, monthGrid, monthTitle } from '../../utils/eventCalendar';
 
 // Sesión del coach en un día, reducida a lo que el mes necesita: un punto por sesión
@@ -39,6 +41,11 @@ const PEARL_SIZE = 19;
 // resaltado y el día elegido con borde. Los números de los días miden 11 px.
 export function MonthView({ year, month, today, selected, eventsByDay, sessions, compact, onSelect, onPrev, onNext, onToday }: Props) {
   const rows = monthGrid(year, month);
+  const scale = useViewScale();
+  // Letra grande o pantalla angosta: una sola perla por día (el detalle del día queda completo).
+  const oneBead = compact ?? scale.big;
+  const pearl = scaledIcon(PEARL_SIZE, scale);
+  const cellHeight = Math.round(CELL_MIN_HEIGHT * scale.icon);
   return (
     <View style={styles.card}>
       <View style={styles.head}>
@@ -69,7 +76,7 @@ export function MonthView({ year, month, today, selected, eventsByDay, sessions,
           {row.map(day => {
             const events = day.inMonth ? eventsByDay[day.iso] ?? [] : [];
             const dots = day.inMonth ? sessions.filter(s => s.day === day.iso) : [];
-            const cell = monthCell(day, events, compact);
+            const cell = monthCell(day, events, oneBead);
             const isToday = day.iso === today;
             const isSelected = day.iso === selected;
             const spoken = [
@@ -88,13 +95,13 @@ export function MonthView({ year, month, today, selected, eventsByDay, sessions,
                 accessibilityRole="button"
                 accessibilityLabel={spoken}
                 accessibilityState={{ selected: isSelected, disabled: !day.inMonth }}
-                style={[styles.cell, isSelected && styles.cellSelected, !day.inMonth && styles.cellOff]}>
+                style={[styles.cell, { minHeight: cellHeight }, isSelected && styles.cellSelected, !day.inMonth && styles.cellOff]}>
                 <View style={[styles.number, isToday && styles.numberToday]}>
                   <Text style={[styles.numberText, isToday && styles.numberTextToday]}>{day.day}</Text>
                 </View>
                 <View style={styles.pearls}>
                   {cell.shown.map((event, index) => (
-                    <Pearl key={`${event.seriesId}-${index}`} kind={kindFor(event)} size={PEARL_SIZE} />
+                    <Pearl key={`${event.seriesId}-${index}`} kind={kindFor(event)} size={pearl} />
                   ))}
                   {cell.extra > 0 && <Text style={styles.more}>{`+${cell.extra}`}</Text>}
                 </View>
@@ -128,11 +135,11 @@ const styles = StyleSheet.create({
   cell: { flex: 1, minHeight: CELL_MIN_HEIGHT, alignItems: 'center', paddingTop: 3, paddingBottom: 3, borderRadius: 12, borderWidth: 2, borderColor: 'transparent' },
   cellSelected: { borderColor: colors.blue, backgroundColor: colors.blueTint },
   cellOff: { opacity: 0.3 },
-  number: { minWidth: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  number: { minWidth: 20, minHeight: 20, paddingHorizontal: 3, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   numberToday: { backgroundColor: colors.blue },
   numberText: { fontSize: 11, fontWeight: '700', color: colors.ink },
   numberTextToday: { color: colors.onBlue },
-  pearls: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 2, marginTop: 2, minHeight: PEARL_SIZE },
+  pearls: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 2, marginTop: 2 },
   more: { fontSize: 11, fontWeight: '800', color: colors.inkSecondary },
   dots: { flexDirection: 'row', gap: 3, marginTop: 3 },
   dot: { width: 6, height: 6, borderRadius: 3 },
