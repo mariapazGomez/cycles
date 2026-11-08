@@ -48,6 +48,10 @@ jobs:
         run: npm run typecheck --workspace apps/api
       - name: Pruebas
         run: npm test --workspace apps/api
+      - name: Compilar la API y comprobar que arranca desde dist/main.js
+        run: |
+          npm run build --workspace apps/api
+          test -f apps/api/dist/main.js || { echo "::error::La API no compiló a apps/api/dist/main.js (Render arranca 'node apps/api/dist/main.js'). Revisa que ningún archivo de la API importe valores de @cycles/shared."; exit 1; }
 
   # Pruebas de autorización de extremo a extremo (CYC-90, S-11): arrancan la API
   # real contra un Postgres de pruebas y recorren la matriz de cada endpoint

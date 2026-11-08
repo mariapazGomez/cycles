@@ -1,5 +1,4 @@
 import { BadRequestException } from "@nestjs/common";
-import { EVENT_RANGE_MAX_DAYS } from "@cycles/shared";
 import type { EventFields } from "./event-input";
 import { isDay } from "./event-input";
 
@@ -7,6 +6,8 @@ import { isDay } from "./event-input";
 // fecha o sin fin) y excepciones por día. Se expande al consultar un rango; nunca se guarda
 // una fila por semana. Funciones puras, sin base de datos.
 
+// Igual que EVENT_RANGE_MAX_DAYS de @cycles/shared (ver event-input.ts: la API no importa valores del paquete).
+export const EVENT_RANGE_MAX_DAYS = 92;
 const DAY_MS = 86_400_000;
 const ms = (d: string) => Date.parse(`${d}T00:00:00Z`);
 const iso = (t: number) => new Date(t).toISOString().slice(0, 10);
