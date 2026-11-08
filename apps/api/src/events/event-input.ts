@@ -1,6 +1,13 @@
 import { BadRequestException } from "@nestjs/common";
 import type { EventIntensity, EventRepeat, EventScope, EventSport, EventType } from "@cycles/shared";
-import { EVENT_DURATION_MAX, EVENT_NOTES_MAX, EVENT_TITLE_MAX } from "@cycles/shared";
+
+// Los límites son los de @cycles/shared (EVENT_*_MAX), copiados aquí a propósito: la API solo
+// importa TIPOS de @cycles/shared. Un import de valores mete el paquete compartido en la
+// compilación, cambia la carpeta de salida y `node apps/api/dist/main.js` deja de existir
+// (así falló el despliegue de CYC-251). Una prueba comprueba que siguen iguales.
+export const EVENT_TITLE_MAX = 60;
+export const EVENT_NOTES_MAX = 500;
+export const EVENT_DURATION_MAX = 600;
 
 // Validación estricta de lo que manda el atleta al crear o editar una actividad paralela
 // (CYC-251). Listas cerradas, topes de largo y nada de campos de más.

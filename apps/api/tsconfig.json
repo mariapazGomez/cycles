@@ -12,12 +12,7 @@
     "outDir": "./dist",
     "baseUrl": ".",
     "sourceMap": true,
-    "declaration": true,
-    "paths": {
-      "@cycles/shared": [
-        "../../packages/shared/src"
-      ]
-    }
+    "declaration": true
   },
   "include": [
     "src"
