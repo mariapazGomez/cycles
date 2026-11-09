@@ -9,6 +9,10 @@ created: 2026-11-08
 
 > Contrastado con `origin/main` (9677590+). Estado: propuesto. Maqueta en [`propuestas.html`](propuestas.html). La usuaria pidió agrupar los ejercicios de una rutina en bloques (calentamiento, pliometría, fuerza) y mandó la captura de la pantalla actual: `apps/web/src/pages/SessionDetailPage.tsx`, con ejercicios sueltos y «Quitar» y «Agregar nota» en cada fila.
 
+## Encabezados más sobrios (2026-11-09)
+
+La usuaria dijo que los encabezados se veían «generados por IA». Cambios: la **ruta de migas** (Atletas, Camila Rojas, Introducción semana 2, Full body día 1) reemplaza el enlace azul subrayado «← Introducción» y la frase larga de fecha y ciclo; el **estado** es un punto de color con texto (sin píldora); una **franja de datos** con filetes finos (Fecha, Bloques, Ejercicios, Series, Descanso estimado; en una sesión hecha, Esfuerzo y Duración) reemplaza la línea suelta de resumen; el título baja a 26 px; los **bloques** pasan de una cabecera teñida a una tarjeta blanca con un borde de color de 4 px a la izquierda, perla y nombre en peso semibold. Sin subrayados azules, sin píldoras de relleno y sin metadatos separados por puntos.
+
 ## Color por tipo de bloque (2026-11-08)
 
 La usuaria pidió variar el color: **cada tipo de bloque tiene el suyo, y ninguno es azul** (el azul es de la app). Calentamiento ámbar `#e8a317`, Pliometría rosa `#d9588f`, Fuerza verde `#2f9e5f`, Movilidad violeta `#8a63d2`, Vuelta a la calma verde azulado `#1fa39a`, Cardio naranja `#e0752b`, Superserie pizarra `#4a5568`. En el **bloque personalizado** el coach elige el nombre y el **color** entre 10 muestras (sin azules), con vista previa antes de crear. Cabecera y perla usan el color (cabecera a 11 % de opacidad); el tipo siempre se reconoce también por su ícono y su nombre.
