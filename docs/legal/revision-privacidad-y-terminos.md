@@ -100,6 +100,7 @@ Entregar: las dos páginas, este documento y el inventario de la sección 3.
 
 | Versión | Qué cambió |
 |---|---|
+| 1.5 (CYC-253) | **Actividades fuera del plan** del atleta (voleibol, partidos, viajes…): nueva tarjeta en la sección 2, mención en la 3 (sus notas pueden hablar de salud, son solo del atleta), en la 6 (el coach con relación activa las lee, sin las notas) y en la 8 (se conservan mientras exista la cuenta o hasta que el atleta las borre). Sube `POLICY_VERSION`: todas las cuentas aceptan de nuevo y se recarga la demo. |
 | 1.4 (CYC-218) | Sentry procesa los reportes de errores de la app en **Estados Unidos**, no en la UE (decisión de la usuaria, 2026-11-04: Estados Unidos por defecto, UE solo si la política lo exige). Cambia la tarjeta de la sección 2, el proveedor en la 6 y la región en la 7. Sube `POLICY_VERSION`: todas las cuentas aceptan de nuevo y se recarga la demo. |
 | 1.3 (CYC-218) | Reportes de errores de la app con **Sentry** (UE, sin datos personales ni IP, 30 días); nueva tarjeta en la sección 2, proveedor en la 6, región en la 7 y conservación en la 8. Interés legítimo como base legal. Sube `POLICY_VERSION`: todas las cuentas aceptan de nuevo y se recarga la demo. |
 | 1.2 (CYC-194) | Correo del Apple ID y teléfono del atleta para la invitación a TestFlight. |
