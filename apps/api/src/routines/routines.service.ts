@@ -6,6 +6,7 @@ import { UpdateRoutineDto } from "./dto/update-routine.dto";
 import { RoutineExerciseInputDto } from "./dto/routine-exercise-input.dto";
 
 const ROUTINE_INCLUDE = {
+  blocks: { orderBy: { orderIndex: "asc" as const } },
   routineExercises: {
     include: { exercise: true },
     orderBy: { orderIndex: "asc" as const },
@@ -74,6 +75,7 @@ export class RoutinesService {
     await this.getForCoach(id, coachId);
     await this.prisma.$transaction([
       this.prisma.routineExercise.deleteMany({ where: { routineId: id } }),
+      this.prisma.routineBlock.deleteMany({ where: { routineId: id } }),
       this.prisma.routine.delete({ where: { id } }),
     ]);
   }

@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import {
   BadRequestException,
   ConflictException,
@@ -58,7 +59,7 @@ export class SessionsService {
 
     const routine = await this.prisma.routine.findUnique({
       where: { id: dto.routineId },
-      include: { routineExercises: true },
+      include: { routineExercises: true, blocks: true },
     });
     if (!routine || routine.coachId !== coachId) {
       throw new BadRequestException("La rutina elegida no está disponible.");
@@ -69,7 +70,19 @@ export class SessionsService {
       throw new BadRequestException("Indica el día de la sesión.");
     }
 
+    // Los bloques de la rutina se copian a la sesión con ids nuevos; cada ejercicio
+    // apunta al bloque copiado de su bloque de origen (o a ninguno).
+    const blockIdOf = new Map(routine.blocks.map((b) => [b.id, randomUUID()]));
+    const blocks = routine.blocks.map((b) => ({
+      id: blockIdOf.get(b.id)!,
+      name: b.name,
+      type: b.type,
+      color: b.color,
+      orderIndex: b.orderIndex,
+      note: b.note,
+    }));
     const exercises = routine.routineExercises.map((re) => ({
+      blockId: re.blockId ? (blockIdOf.get(re.blockId) ?? null) : null,
       exerciseId: re.exerciseId,
       orderIndex: re.orderIndex,
       targetSets: re.defaultSets,
@@ -79,7 +92,10 @@ export class SessionsService {
       targetRir: re.defaultRir,
       note: re.note,
     }));
-    const include = { sessionExercises: { include: { exercise: true }, orderBy: { orderIndex: "asc" as const } } };
+    const include = {
+      sessionExercises: { include: { exercise: true }, orderBy: { orderIndex: "asc" as const } },
+      blocks: { orderBy: { orderIndex: "asc" as const } },
+    };
 
     let created;
     if (byCell) {
@@ -108,6 +124,7 @@ export class SessionsService {
           slotNumber: dto.slotNumber!,
           scheduledDate: dto.scheduledDate ? new Date(dto.scheduledDate) : undefined,
           routineId: routine.id,
+          blocks: { create: blocks },
           sessionExercises: { create: exercises },
         },
         include,
@@ -130,7 +147,8 @@ export class SessionsService {
               slotNumber: (last?.slotNumber ?? 0) + 1,
               scheduledDate: day,
               routineId: routine.id,
-              sessionExercises: { create: exercises },
+              blocks: { create: blocks },
+          sessionExercises: { create: exercises },
             },
             select: { id: true },
           });
@@ -185,6 +203,7 @@ export class SessionsService {
       where: { id: sessionId },
       include: {
         cycle: true,
+        blocks: { orderBy: { orderIndex: "asc" } },
         sessionExercises: {
           orderBy: { orderIndex: "asc" },
           include: {
@@ -329,7 +348,10 @@ export class SessionsService {
       await this.reassignWeekSlots(tx, session.cycleId, session.weekNumber);
       return tx.trainingSession.findUniqueOrThrow({
         where: { id: session.id },
-        include: { sessionExercises: { include: { exercise: true }, orderBy: { orderIndex: "asc" } } },
+        include: {
+          sessionExercises: { include: { exercise: true }, orderBy: { orderIndex: "asc" } },
+          blocks: { orderBy: { orderIndex: "asc" } },
+        },
       });
     });
   }
@@ -345,6 +367,8 @@ export class SessionsService {
       where: { sessionId: session.id },
       orderBy: { orderIndex: "asc" },
     });
+    const sourceBlocks = await this.prisma.sessionBlock.findMany({ where: { sessionId: session.id } });
+    const blockIdOf = new Map(sourceBlocks.map((b) => [b.id, randomUUID()]));
     try {
       const id = await this.prisma.$transaction(async (tx) => {
         const last = await tx.trainingSession.findFirst({
@@ -360,8 +384,19 @@ export class SessionsService {
             slotNumber: (last?.slotNumber ?? 0) + 1,
             scheduledDate: day,
             routineId: session.routineId,
+            blocks: {
+              create: sourceBlocks.map((b) => ({
+                id: blockIdOf.get(b.id)!,
+                name: b.name,
+                type: b.type,
+                color: b.color,
+                orderIndex: b.orderIndex,
+                note: b.note,
+              })),
+            },
             sessionExercises: {
               create: exercises.map((e) => ({
+                blockId: e.blockId ? (blockIdOf.get(e.blockId) ?? null) : null,
                 exerciseId: e.exerciseId,
                 orderIndex: e.orderIndex,
                 targetSets: e.targetSets,
@@ -381,7 +416,10 @@ export class SessionsService {
       this.notifications.coachEditedSession(id, "added");
       return this.prisma.trainingSession.findUniqueOrThrow({
         where: { id },
-        include: { sessionExercises: { include: { exercise: true }, orderBy: { orderIndex: "asc" } } },
+        include: {
+          sessionExercises: { include: { exercise: true }, orderBy: { orderIndex: "asc" } },
+          blocks: { orderBy: { orderIndex: "asc" } },
+        },
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
@@ -409,6 +447,7 @@ export class SessionsService {
     const ids = stale.map((s) => s.id);
     await this.prisma.$transaction([
       this.prisma.sessionExercise.deleteMany({ where: { sessionId: { in: ids } } }),
+      this.prisma.sessionBlock.deleteMany({ where: { sessionId: { in: ids } } }),
       this.prisma.trainingSession.deleteMany({ where: { id: { in: ids } } }),
     ]);
   }

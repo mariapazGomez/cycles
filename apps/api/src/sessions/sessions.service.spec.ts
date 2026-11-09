@@ -31,6 +31,7 @@ const routine = {
   id: "r1",
   coachId: "c1",
   name: "Empuje A",
+  blocks: [],
   routineExercises: [
     { exerciseId: "e1", orderIndex: 0, defaultSets: 3, defaultReps: 8, defaultWeight: null, defaultRestSeconds: 90, defaultRir: 2 },
   ],
@@ -61,6 +62,7 @@ function setup() {
     exerciseLog: { count: jest.fn().mockResolvedValue(0) },
     sessionFeedback: { count: jest.fn().mockResolvedValue(0) },
     sessionExercise: { findMany: jest.fn().mockResolvedValue([]), deleteMany: jest.fn() },
+    sessionBlock: { findMany: jest.fn().mockResolvedValue([]), deleteMany: jest.fn() },
     $transaction: jest.fn((arg: unknown) => (typeof arg === "function" ? arg(tx) : Promise.all(arg as unknown[]))),
   };
   const notifications = { coachEditedSession: jest.fn() };
@@ -409,7 +411,7 @@ describe("SessionsService.duplicateSession", () => {
     expect(data).toMatchObject({ cycleId: "y1", name: "Empuje A", weekNumber: 1, slotNumber: 3, routineId: "r1" });
     expect(data.status).toBeUndefined();
     expect(data.sessionExercises.create).toEqual([
-      { exerciseId: "e1", orderIndex: 1, targetSets: 4, targetReps: 6, targetWeight: 60, targetRestSeconds: 120, targetRir: 1 },
+      { blockId: null, exerciseId: "e1", orderIndex: 1, targetSets: 4, targetReps: 6, targetWeight: 60, targetRestSeconds: 120, targetRir: 1 },
     ]);
     expect(notifications.coachEditedSession).toHaveBeenCalledWith("copia", "added");
   });

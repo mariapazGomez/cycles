@@ -365,6 +365,7 @@ export class CyclesService {
     await tx.notification.deleteMany({ where: { planId: id } });
     await tx.loadAdjustment.deleteMany({ where: { cycleId: id } });
     await tx.sessionExercise.deleteMany({ where: { sessionId: { in: sessionIds } } });
+    await tx.sessionBlock.deleteMany({ where: { sessionId: { in: sessionIds } } });
     await tx.trainingSession.deleteMany({ where: { cycleId: id } });
     await tx.trainingCycle.delete({ where: { id } });
     return "deleted";

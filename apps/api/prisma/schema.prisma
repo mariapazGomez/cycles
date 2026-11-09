@@ -294,7 +294,40 @@ model Routine {
 
   coach            User              @relation(fields: [coachId], references: [id])
   routineExercises RoutineExercise[]
+  blocks           RoutineBlock[]
   sessions         TrainingSession[]
+}
+
+// Tipo de un bloque de trabajo de una rutina o sesión (docs/diseno/sesion-por-bloques).
+// «superset» queda reservado hasta definir sus reglas (CYC-108): se acepta en la base
+// pero ninguna pantalla ni endpoint lo usa todavía.
+enum BlockType {
+  warmup
+  plyometrics
+  strength
+  mobility
+  cooldown
+  cardio
+  custom
+  superset
+}
+
+// Un bloque de la rutina: agrupa ejercicios y se copia a la sesión al asignarla.
+// Al borrar un bloque sus ejercicios no se borran: quedan sin bloque.
+model RoutineBlock {
+  id         String    @id @default(uuid())
+  routineId  String
+  name       String
+  type       BlockType
+  // Solo para el tipo «custom» (muestra de la lista cerrada del diseño); nulo en los demás.
+  color      String?
+  orderIndex Int
+  note       String?
+
+  routine          Routine           @relation(fields: [routineId], references: [id])
+  routineExercises RoutineExercise[]
+
+  @@index([routineId])
 }
 
 // La "receta" por defecto de una rutina. Al asignar la rutina a una celda
@@ -314,9 +347,12 @@ model RoutineExercise {
   defaultRir         Int?
   // Nota del coach para el atleta (máx. 500 caracteres); se copia a la sesión al asignar.
   note               String?
+  // Bloque al que pertenece. Nulo = ejercicio suelto, sin bloque (rutinas anteriores).
+  blockId            String?
 
-  routine  Routine  @relation(fields: [routineId], references: [id])
-  exercise Exercise @relation(fields: [exerciseId], references: [id])
+  routine  Routine       @relation(fields: [routineId], references: [id])
+  exercise Exercise      @relation(fields: [exerciseId], references: [id])
+  block    RoutineBlock? @relation(fields: [blockId], references: [id], onDelete: SetNull)
 }
 
 // Una celda del grid (weekNumber, slotNumber) dentro de un plan.
@@ -341,6 +377,7 @@ model TrainingSession {
   cycle            TrainingCycle     @relation(fields: [cycleId], references: [id])
   routine          Routine?          @relation(fields: [routineId], references: [id], onDelete: SetNull)
   sessionExercises SessionExercise[]
+  blocks           SessionBlock[]
   feedback         SessionFeedback[]
 
   @@unique([cycleId, weekNumber, slotNumber])
@@ -368,27 +405,43 @@ enum Equipment {
 }
 
 model Exercise {
-  id          String       @id @default(uuid())
-  name        String
-  muscleGroup MuscleGroup?
+  id                    String        @id @default(uuid())
+  name                  String
+  muscleGroup           MuscleGroup?
   // Otros grupos que trabaja además del principal (opcional, sin repetir el principal).
   secondaryMuscleGroups MuscleGroup[] @default([])
-  description String?
-  videoUrl    String?
+  description           String?
+  videoUrl              String?
   // Vacío mientras el ejercicio del catálogo no tenga sus implementos revisados.
-  equipment   Equipment[]  @default([])
+  equipment             Equipment[]   @default([])
   // null = catálogo global (seed); no-null = ejercicio propio de ese coach.
-  createdBy   String?
+  createdBy             String?
   // Permite ocultar un ejercicio propio sin borrarlo (protege el historial
   // de SessionExercise/ExerciseLog que ya lo referencian). No aplica al
   // catálogo global en esta iteración.
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
+  isActive              Boolean       @default(true)
+  createdAt             DateTime      @default(now())
 
   creator          User?             @relation(fields: [createdBy], references: [id])
   sessionExercises SessionExercise[]
   routineExercises RoutineExercise[]
   loadAdjustments  LoadAdjustment[]
+}
+
+// Un bloque de la sesión: copia de los de la rutina al asignarla, editable por sesión.
+model SessionBlock {
+  id         String    @id @default(uuid())
+  sessionId  String
+  name       String
+  type       BlockType
+  color      String?
+  orderIndex Int
+  note       String?
+
+  session          TrainingSession   @relation(fields: [sessionId], references: [id])
+  sessionExercises SessionExercise[]
+
+  @@index([sessionId])
 }
 
 model SessionExercise {
@@ -405,9 +458,12 @@ model SessionExercise {
   // Nota del coach para el atleta, copiada de la rutina y editable por sesión. Texto
   // libre: puede mencionar salud, así que nunca va en los avisos (R7).
   note              String?
+  // Bloque al que pertenece. Nulo = ejercicio suelto, sin bloque.
+  blockId           String?
 
   session  TrainingSession @relation(fields: [sessionId], references: [id])
   exercise Exercise        @relation(fields: [exerciseId], references: [id])
+  block    SessionBlock?   @relation(fields: [blockId], references: [id], onDelete: SetNull)
   logs     ExerciseLog[]
 }
 

@@ -30,6 +30,44 @@ La sesión pasa de **una lista plana** a **bloques**. Es la misma jerarquía en 
 
 Migración aditiva: tablas `RoutineBlock` y `SessionBlock` (id, rutina o sesión, nombre, tipo, **color** opcional para el personalizado, orden, nota opcional) y `blockId` nulo en `RoutineExercise` y `SessionExercise`. Tipos: calentamiento, pliometría, fuerza, movilidad, vuelta a la calma, cardio, personalizado y superserie (reservado). Al asignar, se copian los bloques y sus ejercicios. Las notas del coach (CYC-60 a 63) siguen por ejercicio. Sin datos de salud en avisos (R7).
 
+### Diagrama del modelo (CYC-271, fase 1a)
+
+```mermaid
+erDiagram
+  Routine ||--o{ RoutineBlock : "NUEVO tiene"
+  Routine ||--o{ RoutineExercise : tiene
+  RoutineBlock |o--o{ RoutineExercise : "NUEVO agrupa"
+  TrainingSession ||--o{ SessionBlock : "NUEVO tiene"
+  TrainingSession ||--o{ SessionExercise : tiene
+  SessionBlock |o--o{ SessionExercise : "NUEVO agrupa"
+  RoutineBlock {
+    uuid id PK
+    uuid routineId FK
+    string name
+    BlockType type
+    string color "nulo"
+    int orderIndex
+    string note "nulo"
+  }
+  SessionBlock {
+    uuid id PK
+    uuid sessionId FK
+    string name
+    BlockType type
+    string color "nulo"
+    int orderIndex
+    string note "nulo"
+  }
+  RoutineExercise {
+    uuid blockId FK "NUEVO nulo"
+  }
+  SessionExercise {
+    uuid blockId FK "NUEVO nulo"
+  }
+```
+
+Aditiva: no borra ni cambia datos. Al borrar un bloque sus ejercicios quedan sin bloque (`ON DELETE SET NULL`).
+
 ## Coherencia y reglas
 
 - Azul solo de la app y botones; los tipos de bloque usan su propio color (sin azul). Radios y botones de la escala del coach (CYC-208). Texto en tuteo y con tildes.
