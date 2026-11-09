@@ -67,6 +67,10 @@ describe("choque de carga", () => {
   it("el umbral es el del tercio más alto y exige al menos 3 sesiones", () => {
     expect(heavyThreshold(sessions)).toBe(14); // 6 sesiones → el tercio son 2: 24 y 14
     expect(heavyThreshold(sessions.slice(0, 2))).toBeNull();
+    expect(heavyThreshold([sess("x", "2026-11-01", 13), sess("y", "2026-11-02", 13), sess("z", "2026-11-03", 13)])).toBeNull(); // todas iguales: ninguna es pesada
+    // solo dos sesiones pesan más y el resto es igual: el tercio llega al empate, pesadas son solo esas dos
+    const mixed = [21, 21, ...Array.from({ length: 16 }, () => 13)].map((v, i) => sess(`m${i}`, "2026-11-01", v));
+    expect(heavyThreshold(mixed)).toBe(21);
     expect(heavyThreshold([sess("x", "2026-11-01", 0), sess("y", "2026-11-02", 0), sess("z", "2026-11-03", 0)])).toBeNull();
   });
 
@@ -117,5 +121,16 @@ describe("con el ejemplo compartido de la API", () => {
     expect(Object.keys(groups)).toEqual(["2026-11-02", "2026-11-03", "2026-11-07"]);
     for (const e of athleteEventsFixture.events) expect(kindFor(e).label.length).toBeGreaterThan(0);
     expect(seriesIn(athleteEventsFixture.events).map((e) => e.seriesId)).toEqual(["ev-volei", "ev-liga"]);
+  });
+});
+
+import { clashSentence } from "../src/lib/loadClash";
+
+describe("texto del choque de carga", () => {
+  it("nombra la sesión, la actividad y los días, y cuenta los que faltan", () => {
+    const sessions = [sess("a", "2026-11-09", 12), sess("b", "2026-11-11", 14), sess("c", "2026-11-13", 24, "Piernas pesadas"), sess("d", "2026-11-16", 10), sess("e", "2026-11-18", 13), sess("f", "2026-11-20", 11)];
+    const partido = ev({ type: "match", sport: null, title: "Partido de liga", date: "2026-11-14", intensity: "high" });
+    expect(clashSentence(loadClashes(sessions, [partido]))).toBe("Piernas pesadas el viernes y partido de liga el sábado, intensidad alta.");
+    expect(clashSentence(loadClashes(sessions, [partido, ev({ date: "2026-11-12", title: "Voleibol", intensity: "high" })]))).toMatch(/\(y \d más\)\.$/);
   });
 });
