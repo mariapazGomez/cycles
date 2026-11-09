@@ -158,3 +158,34 @@ Ten presente:
 - Las cuentas usan `@example.com`: no recibirán correos. No invites desde la demo a correos reales sin querer; los correos sí salen de verdad.
 - La API del plan gratis se duerme a los 15 minutos: abre la app unos minutos antes para despertarla.
 - Si cambias la versión de los textos legales (`POLICY_VERSION`), reinicia la demo para que las cuentas tengan la aceptación vigente.
+
+## 7. Deportes, actividades paralelas y campeonatos (CYC-273)
+
+Cada atleta de la demo practica un deporte y tiene **actividades paralelas** a las sesiones del coach, para mostrar los calendarios del coach (Inicio y perfil del atleta) y la app. Todo con fechas relativas a **hoy**, sin notas.
+
+| Atleta | Deporte | Qué tiene |
+|---|---|---|
+| Valentina Soto | Voleibol | Entrena martes y jueves; liga los domingos; Copa Primavera y Campeonato regional. **Choque de carga.** |
+| Matías Fuentes | Fútbol | Entrena martes y jueves; liga los domingos; Copa Barrio y Campeonato regional. **Choque de carga.** |
+| Javiera Muñoz | Yoga | Yoga el miércoles y el sábado; una caminata; Copa de yoga y Campeonato regional de yoga. |
+| Diego Paredes | Ciclismo | Ciclismo el martes y salida larga el sábado; fechas del campeonato; Vuelta del Valle y Campeonato regional. |
+| Renata Aguirre | Correr | Correr el miércoles (con yoga y pesas ese mismo día: **3 actividades en un día**, para el «+N») y fondo largo; 10K y Maratón. |
+| Tomás Villalobos | Básquetbol | Entrena martes y jueves; liga los domingos; Torneo de verano y Campeonato regional. **Choque de carga.** |
+| Antonia Cárdenas | Natación | Natación lunes y jueves; liga los sábados; Copa de natación y Campeonato regional. |
+| Sebastián Rojas | Pesas | Pesas martes y jueves; liga de powerlifting; Torneo de fuerza, Campeonato de powerlifting y un viaje. |
+
+**Choque de carga:** solo lo ven Valentina, Matías y Tomás. En sus próximas sesiones de «Piernas» (las pendientes) se agregan dos ejercicios, así esas sesiones son las más altas del ciclo; sus partidos caen el domingo, el día antes. Los demás atletas tienen sesiones del mismo volumen, y en ese caso ninguna cuenta como «pesada».
+
+**Cómo cargarlos**
+- **Demo recién generada** (sección 2 o 6): `seed-demo.ts` ya los trae.
+- **Demo en producción, sin recargarla** (`apps/api/scripts/seed-demo-eventos.ts`): solo **inserta**, solo en cuentas de demostración (`isDemo = true`, `@example.com`; si algún atleta no lo es, se niega) y es idempotente (correrlo otra vez no duplica). Antes haz un respaldo (`apps/api/scripts/respaldo-supabase.sh`):
+
+  ```bash
+  cd apps/api
+  DATABASE_URL="$(cat <donde guardas la URL de producción>)" DEMO_EN_PRODUCCION=si npx tsx scripts/seed-demo-eventos.ts
+  ```
+
+  Termina con `Eventos de la demo: N nuevos para 8 atletas…` y comprueba que las actividades de cuentas reales no cambiaron.
+- **Las fechas son relativas al día en que se cargan:** pasadas unas semanas la demo queda atrasada. Se arregla recargando la demo (sección 6), que trae los mismos eventos con las fechas de ese día.
+- Para ver las actividades en la web del coach hace falta que el Inicio (CYC-253) y el perfil del atleta estén desplegados.
+

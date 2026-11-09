@@ -18,6 +18,7 @@
 import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
 import { policyAcceptanceData } from "../src/common/policy";
+import { cargarEventosDemo } from "./demo-eventos";
 
 const DEMO_PASSWORD = process.env.DEMO_PASSWORD ?? "";
 const DAY = 24 * 60 * 60 * 1000;
@@ -313,6 +314,9 @@ async function main() {
       }
     }
   }
+
+  // Deporte, actividades paralelas y campeonatos de cada atleta (CYC-273).
+  await cargarEventosDemo(prisma);
 
   console.log(`Demo lista: 1 coach, ${ATHLETES.length} atletas, ${ATHLETES.length} planes.`);
 }
