@@ -109,6 +109,7 @@ export class AccountService {
     await tx.exerciseLog.deleteMany({ where: { OR: [{ athleteId }, { sessionExerciseId: { in: sessionExerciseIds } }] } });
     await tx.sessionFeedback.deleteMany({ where: { OR: [{ athleteId }, { sessionId: { in: sessionIds } }] } });
     await tx.sessionExercise.deleteMany({ where: { id: { in: sessionExerciseIds } } });
+    await tx.sessionBlock.deleteMany({ where: { sessionId: { in: sessionIds } } });
     await tx.trainingSession.deleteMany({ where: { id: { in: sessionIds } } });
     await tx.loadAdjustment.deleteMany({ where: { cycleId: { in: cycleIds } } });
     await tx.trainingCycle.updateMany({ where: { parentCycleId: { in: cycleIds } }, data: { parentCycleId: null } });
@@ -139,6 +140,7 @@ export class AccountService {
 
     const routineIds = (await tx.routine.findMany({ where: { coachId }, select: { id: true } })).map((r) => r.id);
     await tx.routineExercise.deleteMany({ where: { routineId: { in: routineIds } } });
+    await tx.routineBlock.deleteMany({ where: { routineId: { in: routineIds } } });
     await tx.routine.deleteMany({ where: { id: { in: routineIds } } });
     await tx.exercise.updateMany({ where: { createdBy: coachId }, data: { isActive: false } });
 
@@ -195,7 +197,9 @@ export class AccountService {
       const [plans, logs, feedback, events] = await Promise.all([
         this.prisma.trainingCycle.findMany({
           where: { athleteId: userId },
-          include: { sessions: { include: { sessionExercises: { include: { exercise: { select: { name: true } } } } } } },
+          include: {
+            sessions: { include: { blocks: true, sessionExercises: { include: { exercise: { select: { name: true } } } } } },
+          },
         }),
         this.prisma.exerciseLog.findMany({ where: { athleteId: userId }, orderBy: { loggedAt: "asc" } }),
         this.prisma.sessionFeedback.findMany({ where: { athleteId: userId }, orderBy: { submittedAt: "asc" } }),
@@ -206,12 +210,12 @@ export class AccountService {
     }
 
     const [routines, exercises, plans, summaryLayout] = await Promise.all([
-      this.prisma.routine.findMany({ where: { coachId: userId }, include: { routineExercises: true } }),
+      this.prisma.routine.findMany({ where: { coachId: userId }, include: { routineExercises: true, blocks: true } }),
       this.prisma.exercise.findMany({ where: { createdBy: userId } }),
       // Solo la estructura de los planes: lo que los atletas registraron es de ellos.
       this.prisma.trainingCycle.findMany({
         where: { coachId: userId },
-        include: { sessions: { include: { sessionExercises: true } } },
+        include: { sessions: { include: { blocks: true, sessionExercises: true } } },
       }),
       this.prisma.coachSummaryLayout.findUnique({ where: { coachId: userId }, select: { charts: true, updatedAt: true } }),
     ]);

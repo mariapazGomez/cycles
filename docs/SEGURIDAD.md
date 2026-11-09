@@ -123,6 +123,7 @@ La llave de Sign in with Apple es distinta de la de App Store Connect (TestFligh
 | `apps/api/prisma/schema.prisma` | Modelo de datos completo. Tablas sensibles: `User` (hash de contraseña, consentimiento), `RefreshToken`, `PasswordResetToken`, `EmailVerificationToken`, `AthleteInvitationToken`, `ExerciseLog` y `SessionFeedback` (datos de salud y rendimiento). |
 | `apps/api/prisma/migrations/` | Historial de cambios de esquema. Nunca se edita una migración ya aplicada. |
 | `apps/api/src/execution/`, `apps/api/src/tracking/` | Registro de ejecución (append-only) y lectura del seguimiento del coach. |
+| `RoutineBlock`, `SessionBlock` (CYC-271) | Bloques de trabajo de una rutina o sesión. Se leen dentro de `GET /routines` y `GET /sessions/:id` con la misma propiedad que sus dueños (coach de la rutina; coach y atleta de la sesión); no tienen endpoint propio hasta la fase 1b. Entran en la exportación de datos y en el borrado de cuenta. La nota del bloque es texto libre: nunca va en los avisos (R7). |
 
 ### Clientes
 

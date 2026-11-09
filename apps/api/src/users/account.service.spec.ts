@@ -25,6 +25,8 @@ function setup(user: { id: string; role: string }, cycles: unknown[] = []) {
     coachAthlete: { deleteMany: fn(), updateMany: fn() },
     routine: { findMany: jest.fn().mockResolvedValue([{ id: "r1" }]), deleteMany: fn() },
     routineExercise: { deleteMany: fn() },
+    routineBlock: { deleteMany: fn() },
+    sessionBlock: { deleteMany: fn() },
     exercise: { updateMany: fn() },
     user: { delete: jest.fn(), update: jest.fn() },
     $executeRaw: jest.fn().mockResolvedValue(1),
