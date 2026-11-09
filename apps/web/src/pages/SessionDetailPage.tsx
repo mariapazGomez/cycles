@@ -8,6 +8,8 @@ import { useAuth } from "../hooks/useAuth";
 import { ApiError } from "../services/httpClient";
 import { LoadingScreen } from "../components/LoadingScreen";
 import { CoachNote, ExerciseNoteEditor } from "../components/ExerciseNote";
+import { SessionBlocks } from "../components/SessionBlocks";
+import { groupByBlock, sessionSummary } from "../lib/workBlocks";
 
 const SESSION_STATUS_LABEL: Record<SessionStatus, string> = {
   pending: "Pendiente",
@@ -129,6 +131,7 @@ export function SessionDetailPage() {
   }
 
   const session = sessionQuery.data;
+  const groups = groupByBlock(session.blocks, session.sessionExercises);
 
   function handleEditSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -338,44 +341,38 @@ export function SessionDetailPage() {
         {session.sessionExercises.length === 0 && <p>Todavía no hay ejercicios en esta sesión.</p>}
 
         {session.sessionExercises.length > 0 && (
-          <ul style={{ listStyle: "none", padding: 0 }}>
-            {session.sessionExercises.map((se) => (
-              <li
-                key={se.id}
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "12px 0",
-                  borderBottom: "1px solid var(--color-gray-border)",
-                }}
-              >
-                <span>
-                  <strong>{se.exercise.name}</strong>{" "}
-                  <span style={{ color: "var(--color-ink-secondary)" }}>{formatTargets(se)}</span>
-                </span>
-                {isCoach && (
-                  <button
-                    type="button"
-                    className="button-secondary"
-                    style={{ width: "auto", padding: "6px 12px" }}
-                    onClick={() => removeExerciseMutation.mutate(se.id)}
-                    disabled={removeExerciseMutation.isPending}
-                  >
-                    Quitar
-                  </button>
-                )}
-                <div style={{ flexBasis: "100%" }}>
-                  {isCoach ? (
-                    <ExerciseNoteEditor sessionExerciseId={se.id} note={se.note} onSaved={invalidateSession} />
-                  ) : (
-                    <CoachNote note={se.note} />
+          <>
+            <p className="session-blocks__summary">{sessionSummary(groups)}</p>
+            <SessionBlocks
+              groups={groups}
+              renderExercise={(se) => (
+                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                  <span>
+                    <strong>{se.exercise.name}</strong>{" "}
+                    <span style={{ color: "var(--color-ink-secondary)" }}>{formatTargets(se)}</span>
+                  </span>
+                  {isCoach && (
+                    <button
+                      type="button"
+                      className="button-secondary"
+                      style={{ width: "auto", padding: "6px 12px" }}
+                      onClick={() => removeExerciseMutation.mutate(se.id)}
+                      disabled={removeExerciseMutation.isPending}
+                    >
+                      Quitar
+                    </button>
                   )}
+                  <div style={{ flexBasis: "100%" }}>
+                    {isCoach ? (
+                      <ExerciseNoteEditor sessionExerciseId={se.id} note={se.note} onSaved={invalidateSession} />
+                    ) : (
+                      <CoachNote note={se.note} />
+                    )}
+                  </div>
                 </div>
-              </li>
-            ))}
-          </ul>
+              )}
+            />
+          </>
         )}
       </div>
     </div>

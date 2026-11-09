@@ -4,6 +4,7 @@ import type {
   SessionExercise,
   SessionFeedback,
   SessionStatus,
+  SessionWorkBlock,
   TrainingCycle,
   TrainingSession,
 } from "@cycles/shared";
@@ -18,6 +19,8 @@ export interface SessionExerciseWithExercise extends SessionExercise {
 export interface SessionDetail extends TrainingSession {
   cycle: TrainingCycle;
   sessionExercises: SessionExerciseWithExercise[];
+  // Bloques de trabajo de la sesión (CYC-271); vacío en las sesiones anteriores.
+  blocks?: SessionWorkBlock[];
   // Cierre vigente de la sesión: vacío o un elemento.
   feedback?: SessionFeedback[];
 }

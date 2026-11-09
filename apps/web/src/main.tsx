@@ -10,6 +10,7 @@ import "./styles/auth.css";
 import "./styles/layout.css";
 import "./styles/tracking.css";
 import "./styles/routines.css";
+import "./styles/session-blocks.css";
 import "./styles/home.css";
 import "./styles/plan.css";
 import "./styles/calendar.css";
