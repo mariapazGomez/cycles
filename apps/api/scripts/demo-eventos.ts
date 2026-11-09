@@ -233,13 +233,16 @@ export async function cargarEventosDemo(prisma: PrismaClient, hoy = new Date()):
         select: { id: true },
       });
       for (const s of sesiones) {
+        // Los ejercicios de refuerzo van dentro del bloque de fuerza, si la sesión tiene bloques.
+        const fuerza = await prisma.sessionBlock.findFirst({ where: { sessionId: s.id, type: "strength" }, select: { id: true } });
         const r = await prisma.sessionExercise.createMany({
           skipDuplicates: true,
           data: extra.map((e, i) => ({
             id: `demo-se-${s.id}-${i}`,
             sessionId: s.id,
             exerciseId: e.exerciseId,
-            orderIndex: 4 + i,
+            orderIndex: 6 + i,
+            blockId: fuerza?.id ?? null,
             targetSets: e.sets,
             targetReps: e.reps,
             targetWeight: e.kg,

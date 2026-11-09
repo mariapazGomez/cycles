@@ -43,36 +43,70 @@ const ATHLETES = [
 ] as const;
 type Scenario = (typeof ATHLETES)[number]["scenario"];
 
-// Tres rutinas, una por sesión de la semana. [ejercicio del catálogo, series, reps, kg base]
-const ROUTINES: Array<{ name: string; items: Array<[string, number, number, number]> }> = [
+// Tres rutinas, una por sesión de la semana, agrupadas en bloques de trabajo (CYC-271).
+// Cada ejercicio: [ejercicio del catálogo, series, reps, kg base, bloque].
+type BlockKey = "calentamiento" | "pliometria" | "fuerza" | "core" | "cardio";
+interface DemoBlock {
+  key: BlockKey;
+  name: string;
+  type: "warmup" | "plyometrics" | "strength" | "custom" | "cardio";
+  color?: string;
+  note?: string;
+}
+const ROUTINES: Array<{ name: string; blocks: DemoBlock[]; items: Array<[string, number, number, number, BlockKey]> }> = [
   {
     name: "Piernas",
+    blocks: [
+      { key: "calentamiento", name: "Calentamiento", type: "warmup", note: "Sin prisa, activa los glúteos antes de cargar." },
+      { key: "pliometria", name: "Pliometría", type: "plyometrics" },
+      { key: "fuerza", name: "Fuerza", type: "strength" },
+    ],
     items: [
-      ["Sentadilla con barra", 4, 6, 70],
-      ["Prensa de piernas", 3, 10, 120],
-      ["Zancadas con mancuernas", 3, 10, 16],
-      ["Peso muerto", 3, 5, 80],
+      ["Puente de glúteos", 2, 12, 0, "calentamiento"],
+      ["Salto de cuerda", 3, 20, 0, "pliometria"],
+      ["Sentadilla con barra", 4, 6, 70, "fuerza"],
+      ["Prensa de piernas", 3, 10, 120, "fuerza"],
+      ["Zancadas con mancuernas", 3, 10, 16, "fuerza"],
+      ["Peso muerto", 3, 5, 80, "fuerza"],
     ],
   },
   {
     name: "Empuje",
+    blocks: [
+      { key: "calentamiento", name: "Calentamiento", type: "warmup" },
+      { key: "fuerza", name: "Fuerza", type: "strength" },
+      { key: "core", name: "Core", type: "custom", color: "#8a63d2" },
+    ],
     items: [
-      ["Press de banca con barra", 4, 6, 50],
-      ["Press inclinado con mancuernas", 3, 10, 18],
-      ["Aperturas con mancuernas", 3, 12, 10],
-      ["Fondos en paralelas", 3, 8, 0],
+      ["Pájaros con mancuernas", 2, 15, 4, "calentamiento"],
+      ["Press de banca con barra", 4, 6, 50, "fuerza"],
+      ["Press inclinado con mancuernas", 3, 10, 18, "fuerza"],
+      ["Aperturas con mancuernas", 3, 12, 10, "fuerza"],
+      ["Fondos en paralelas", 3, 8, 0, "fuerza"],
+      ["Plancha abdominal", 3, 30, 0, "core"],
     ],
   },
   {
     name: "Tirón",
+    blocks: [
+      { key: "calentamiento", name: "Calentamiento", type: "warmup" },
+      { key: "fuerza", name: "Fuerza", type: "strength" },
+      { key: "cardio", name: "Cardio", type: "cardio" },
+    ],
     items: [
-      ["Dominadas", 4, 6, 0],
-      ["Remo con barra", 3, 8, 45],
-      ["Jalón al pecho", 3, 10, 40],
-      ["Remo sentado en polea", 3, 12, 35],
+      ["Hiperextensión lumbar", 2, 12, 0, "calentamiento"],
+      ["Dominadas", 4, 6, 0, "fuerza"],
+      ["Remo con barra", 3, 8, 45, "fuerza"],
+      ["Jalón al pecho", 3, 10, 40, "fuerza"],
+      ["Remo sentado en polea", 3, 12, 35, "fuerza"],
+      ["Remo en ergómetro", 1, 10, 0, "cardio"],
     ],
   },
 ];
+
+// Las sesiones de las primeras semanas se ven como las de antes de los bloques (lista
+// sin encabezados); desde esta semana copian los bloques de su rutina.
+const FIRST_WEEK_WITH_BLOCKS = 3;
 
 const TARGET_RIR = 2;
 const WEEKS = 6;
@@ -195,27 +229,30 @@ async function main() {
     return found.id;
   };
 
-  const routines = [];
+  const routines: Array<{ id: string }> = [];
   for (const r of ROUTINES) {
-    routines.push(
-      await prisma.routine.create({
-        data: {
-          coachId: coach.id,
-          name: r.name,
-          routineExercises: {
-            create: r.items.map(([name, sets, reps, kg], i) => ({
-              exerciseId: exerciseId(name),
-              orderIndex: i,
-              defaultSets: sets,
-              defaultReps: reps,
-              defaultWeight: kg || null,
-              defaultRestSeconds: 90,
-              defaultRir: TARGET_RIR,
-            })),
-          },
-        },
-      }),
-    );
+    const routine = await prisma.routine.create({ data: { coachId: coach.id, name: r.name } });
+    const blockIds = new Map<BlockKey, string>();
+    for (const [orderIndex, b] of r.blocks.entries()) {
+      const block = await prisma.routineBlock.create({
+        data: { routineId: routine.id, name: b.name, type: b.type, color: b.color ?? null, orderIndex, note: b.note ?? null },
+      });
+      blockIds.set(b.key, block.id);
+    }
+    await prisma.routineExercise.createMany({
+      data: r.items.map(([name, sets, reps, kg, block], i) => ({
+        routineId: routine.id,
+        exerciseId: exerciseId(name),
+        orderIndex: i,
+        defaultSets: sets,
+        defaultReps: reps,
+        defaultWeight: kg || null,
+        defaultRestSeconds: 90,
+        defaultRir: TARGET_RIR,
+        blockId: blockIds.get(block),
+      })),
+    });
+    routines.push(routine);
   }
 
   for (const [index, a] of ATHLETES.entries()) {
@@ -259,8 +296,18 @@ async function main() {
           },
         });
 
+        const sessionBlockIds = new Map<BlockKey, string>();
+        if (week >= FIRST_WEEK_WITH_BLOCKS) {
+          for (const [orderIndex, b] of routine.blocks.entries()) {
+            const block = await prisma.sessionBlock.create({
+              data: { sessionId: session.id, name: b.name, type: b.type, color: b.color ?? null, orderIndex, note: b.note ?? null },
+            });
+            sessionBlockIds.set(b.key, block.id);
+          }
+        }
+
         const sessionExercises = [];
-        for (const [i, [name, sets, reps, kg]] of routine.items.entries()) {
+        for (const [i, [name, sets, reps, kg, block]] of routine.items.entries()) {
           // Progresión suave semana a semana y pequeñas diferencias entre atletas.
           const weight = kg ? Math.round((kg * (0.8 + index * 0.04) + (week - 1) * 2.5) * 2) / 2 : null;
           sessionExercises.push(
@@ -269,6 +316,7 @@ async function main() {
                 sessionId: session.id,
                 exerciseId: exerciseId(name),
                 orderIndex: i,
+                blockId: sessionBlockIds.get(block) ?? null,
                 targetSets: sets,
                 targetReps: reps,
                 targetWeight: weight,

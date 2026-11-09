@@ -16,7 +16,7 @@ Tarea de origen: CYC-116. El script es `apps/api/scripts/seed-demo.ts`.
 | 8 atletas | `valentina.soto@`, `matias.fuentes@`, `javiera.munoz@`, `diego.paredes@`, `renata.aguirre@`, `tomas.villalobos@`, `antonia.cardenas@`, `sebastian.rojas@` (todos `@example.com`) | La app del atleta |
 
 - **Contraseña:** una sola para las nueve cuentas, guardada **fuera del repo** en `~/.cycles-secretos/demo/DEMO_PASSWORD` (permisos 600). Nunca la escribas en el repo, en un chat, en Linear ni en Notion, y cuida que no salga a cuadro al grabar.
-- **Qué lleva cada atleta:** un ciclo «Fuerza base» (mesociclo de 6 semanas, 3 sesiones por semana: **Piernas**, **Empuje** y **Tirón**) que empezó hace 3 semanas, con la ejecución de las semanas 1 a 4 registrada.
+- **Qué lleva cada atleta:** un ciclo «Fuerza base» (mesociclo de 6 semanas, 3 sesiones por semana: **Piernas**, **Empuje** y **Tirón**) que empezó hace 3 semanas, con la ejecución de las semanas 1 a 4 registrada. Las rutinas van **por bloques de trabajo** (CYC-271): Piernas = Calentamiento, Pliometría y Fuerza; Empuje = Calentamiento, Fuerza y un bloque personalizado «Core» (violeta); Tirón = Calentamiento, Fuerza y Cardio. Las **semanas 1 y 2 quedan sin bloques** (formato lista, como las sesiones de antes de los bloques) y las semanas 3 a 6 copian los bloques de su rutina. El catálogo no trae ejercicios de movilidad ni de vuelta a la calma, por eso esos tipos no aparecen en la demo. El refuerzo de «Piernas» del choque de carga (sección 7) va dentro del bloque de Fuerza.
 - **Casos que activan «Necesitan atención»:**
 
 | Atleta | Qué pasa |
