@@ -118,6 +118,8 @@ export interface SessionExercise {
   targetRir?: number | null;
   // Nota del coach para el atleta, copiada de la rutina y editable por sesión.
   note?: string | null;
+  // Bloque de trabajo al que pertenece (CYC-271); nulo = ejercicio suelto.
+  blockId?: string | null;
 }
 
 // Un registro por serie. Append-only: una corrección es un registro nuevo

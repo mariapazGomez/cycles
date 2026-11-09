@@ -1,0 +1,57 @@
+/* Sesión por bloques (CYC-268). El color de cada bloque llega en --block-color. */
+.session-blocks { display: flex; flex-direction: column; gap: 10px; }
+.session-blocks ul { list-style: none; margin: 0; padding: 0; }
+.session-blocks__loose { padding: 0 4px; }
+.session-blocks__loose li { padding: 12px 0; border-bottom: 1px solid var(--color-gray-border); }
+
+.session-block {
+  background: var(--color-bg);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-e1);
+  overflow: hidden;
+}
+.session-block__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 10px 14px;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--block-color) 25%, transparent);
+  background: color-mix(in srgb, var(--block-color) 11%, transparent);
+  color: var(--color-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.session-block__head:focus-visible { outline: 2px solid var(--color-ink); outline-offset: -3px; }
+.session-block__pearl { flex: none; width: 14px; height: 14px; border-radius: var(--radius-pill); background: var(--block-color); }
+.session-block__title { display: flex; flex-direction: column; min-width: 0; }
+.session-block__title strong { font-size: 1rem; line-height: 1.2; }
+.session-block__type { font-size: 0.78rem; font-weight: 600; color: var(--color-ink-secondary); }
+.session-block__summary { margin-left: auto; font-size: 0.82rem; font-weight: 600; color: var(--color-ink-secondary); text-align: right; }
+.session-block__chevron {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--color-ink-secondary);
+  border-bottom: 2px solid var(--color-ink-secondary);
+  transform: rotate(45deg);
+  transition: transform 0.15s;
+}
+.session-block__chevron[data-open="false"] { transform: rotate(-45deg); }
+
+.session-block__body { padding: 4px 14px 8px; }
+.session-block__body li { padding: 10px 0; border-top: 1px solid var(--color-gray-border); }
+.session-block__body li:first-child { border-top: 0; }
+.session-block__note { margin: 8px 0 4px; font-size: 0.88rem; color: var(--color-ink-secondary); }
+.session-block__empty { margin: 8px 0; font-size: 0.88rem; color: var(--color-ink-secondary); }
+
+.session-blocks__summary { margin: 8px 0 16px; font-size: 0.9rem; font-weight: 600; color: var(--color-ink-secondary); }
+
+@media (max-width: 560px) {
+  .session-block__head { flex-wrap: wrap; row-gap: 2px; }
+  .session-block__summary { order: 4; flex-basis: 100%; margin-left: 26px; text-align: left; }
+}
+@media (prefers-reduced-motion: reduce) { .session-block__chevron { transition: none; } }
