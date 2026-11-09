@@ -29,10 +29,14 @@ const MIN_SESSIONS = 3;
 export function heavyThreshold(sessions: CoachSession[]): number | null {
   const volumes = sessions.map((s) => s.volume).filter((v) => v > 0).sort((a, b) => b - a);
   if (volumes.length < MIN_SESSIONS) return null;
-  // Si todas las sesiones tienen el mismo volumen, ninguna está «entre las más altas».
-  if (volumes[0] === volumes[volumes.length - 1]) return null;
   const topCount = Math.ceil(volumes.length / 3);
-  return volumes[topCount - 1];
+  const threshold = volumes[topCount - 1];
+  const lowest = volumes[volumes.length - 1];
+  if (threshold !== lowest) return threshold;
+  // El tercio más alto llega hasta el volumen más bajo: ahí hay un empate y no todas pueden ser
+  // «las más altas». Pesadas son solo las que pesan más que el mínimo; si todas pesan igual, ninguna.
+  const higher = volumes.filter((v) => v > lowest);
+  return higher.length > 0 ? Math.min(...higher) : null;
 }
 
 export const isHeavy = (session: CoachSession, threshold: number | null) => threshold !== null && session.volume >= threshold;

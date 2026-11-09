@@ -68,6 +68,9 @@ describe("choque de carga", () => {
     expect(heavyThreshold(sessions)).toBe(14); // 6 sesiones → el tercio son 2: 24 y 14
     expect(heavyThreshold(sessions.slice(0, 2))).toBeNull();
     expect(heavyThreshold([sess("x", "2026-11-01", 13), sess("y", "2026-11-02", 13), sess("z", "2026-11-03", 13)])).toBeNull(); // todas iguales: ninguna es pesada
+    // solo dos sesiones pesan más y el resto es igual: el tercio llega al empate, pesadas son solo esas dos
+    const mixed = [21, 21, ...Array.from({ length: 16 }, () => 13)].map((v, i) => sess(`m${i}`, "2026-11-01", v));
+    expect(heavyThreshold(mixed)).toBe(21);
     expect(heavyThreshold([sess("x", "2026-11-01", 0), sess("y", "2026-11-02", 0), sess("z", "2026-11-03", 0)])).toBeNull();
   });
 
