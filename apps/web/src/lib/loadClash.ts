@@ -29,6 +29,8 @@ const MIN_SESSIONS = 3;
 export function heavyThreshold(sessions: CoachSession[]): number | null {
   const volumes = sessions.map((s) => s.volume).filter((v) => v > 0).sort((a, b) => b - a);
   if (volumes.length < MIN_SESSIONS) return null;
+  // Si todas las sesiones tienen el mismo volumen, ninguna está «entre las más altas».
+  if (volumes[0] === volumes[volumes.length - 1]) return null;
   const topCount = Math.ceil(volumes.length / 3);
   return volumes[topCount - 1];
 }

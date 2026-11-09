@@ -67,6 +67,7 @@ describe("choque de carga", () => {
   it("el umbral es el del tercio más alto y exige al menos 3 sesiones", () => {
     expect(heavyThreshold(sessions)).toBe(14); // 6 sesiones → el tercio son 2: 24 y 14
     expect(heavyThreshold(sessions.slice(0, 2))).toBeNull();
+    expect(heavyThreshold([sess("x", "2026-11-01", 13), sess("y", "2026-11-02", 13), sess("z", "2026-11-03", 13)])).toBeNull(); // todas iguales: ninguna es pesada
     expect(heavyThreshold([sess("x", "2026-11-01", 0), sess("y", "2026-11-02", 0), sess("z", "2026-11-03", 0)])).toBeNull();
   });
 
