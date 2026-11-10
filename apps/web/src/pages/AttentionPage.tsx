@@ -28,7 +28,7 @@ export function AttentionPage() {
       <div className="page-header">
         <h1 className="page-title">Inicio</h1>
         {hasAthletes && (
-          <Link className="button-secondary hm-invite" to="/athletes">
+          <Link className="button-primary hm-invite" to="/athletes">
             Invitar atleta
           </Link>
         )}

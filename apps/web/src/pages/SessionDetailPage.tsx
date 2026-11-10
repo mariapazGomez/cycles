@@ -45,12 +45,12 @@ export function SessionDetailPage() {
 
   return (
     <div>
-      <p style={{ marginBottom: 4 }}>
-        <Link to={`/cycles/${session.cycleId}`} style={{ color: "var(--color-ink-secondary)", fontSize: "0.85rem" }}>
-          ← {session.cycle.name}
-        </Link>
-      </p>
-      <h1 style={{ fontFamily: "var(--font-display)", marginBottom: 4 }}>{session.name}</h1>
+      <Link className="rt-back" to={`/cycles/${session.cycleId}`}>
+        ← {session.cycle.name}
+      </Link>
+      <h1 className="page-title" style={{ marginTop: 8, marginBottom: 4 }}>
+        {session.name}
+      </h1>
       <p style={{ color: "var(--color-ink-secondary)", fontSize: "0.9rem" }}>
         {session.scheduledDate && `${formatDate(session.scheduledDate)} · `}
         {SESSION_STATUS_LABEL[session.status]}
