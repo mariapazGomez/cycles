@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { DragDropContext, Draggable, Droppable, type DragStart, type DragUpdate, type DropResult, type ResponderProvided } from "@hello-pangea/dnd";
 import * as routinesApi from "../services/routinesApi";
 import * as exercisesApi from "../services/exercisesApi";
 import { useStructureDraft } from "../hooks/useStructureDraft";
@@ -32,6 +33,7 @@ export function RoutineBuilderPage() {
   const draft = useStructureDraft();
   const [loadedId, setLoadedId] = useState<string | null>(null);
   const [confirmingLeave, setConfirmingLeave] = useState(false);
+  const [draggingRow, setDraggingRow] = useState(false);
 
   useEffect(() => {
     if (routineQuery.data && loadedId !== routineQuery.data.id) {
@@ -85,6 +87,32 @@ export function RoutineBuilderPage() {
     navigate(exitTo);
   }
 
+  // Arrastre (@hello-pangea/dnd): los anuncios para lectores de pantalla van en español.
+  const rowName = (key: string) => draft.structure.rows.find((r) => r.key === key)?.name ?? "el ejercicio";
+  const blockName = (key: string | null) => (key && key !== "loose" ? (draft.structure.blocks.find((b) => b.key === key)?.name ?? "el bloque") : "ejercicios sin bloque");
+  const labelOf = (id: string, type: string) => (type === "BLOCK" ? `el bloque ${blockName(id)}` : rowName(id));
+
+  function onDragStart(start: DragStart, provided: ResponderProvided) {
+    setDraggingRow(start.type === "ROW");
+    provided.announce(`Levantaste ${labelOf(start.draggableId, start.type)}, posición ${start.source.index + 1}. Usa las flechas para moverlo, Espacio para soltarlo y Escape para cancelar.`);
+  }
+
+  function onDragUpdate(update: DragUpdate, provided: ResponderProvided) {
+    if (!update.destination) return provided.announce("Ahora no está sobre ningún lugar válido.");
+    const where = update.type === "ROW" ? ` en ${blockName(update.destination.droppableId)}` : "";
+    provided.announce(`${labelOf(update.draggableId, update.type)}: posición ${update.destination.index + 1}${where}.`);
+  }
+
+  function onDragEnd(result: DropResult, provided: ResponderProvided) {
+    setDraggingRow(false);
+    const { destination, source, draggableId, type } = result;
+    if (!destination) return provided.announce("Movimiento cancelado. Quedó donde estaba.");
+    if (type === "BLOCK") draft.dropBlock(source.index, destination.index);
+    else draft.dropRow(draggableId, destination.droppableId === "loose" ? null : destination.droppableId, destination.index);
+    const where = type === "ROW" ? ` en ${blockName(destination.droppableId)}` : "";
+    provided.announce(`Soltaste ${labelOf(draggableId, type)}${where}, posición ${destination.index + 1}.`);
+  }
+
   if (id && routineQuery.isLoading) return <LoadingScreen />;
   if (id && routineQuery.isError) {
     return (
@@ -126,33 +154,41 @@ export function RoutineBuilderPage() {
       )}
 
       <div className="bld-layout">
-        <div className="bld-main" data-tour="drawer-exercises">
-          {draft.views.length === 0 && <p className="bld-empty">Agrega el primer bloque o un ejercicio para empezar.</p>}
-          {draft.views.map((view, index) => (
-            <BlockCard
-              key={view.block?.key ?? "loose"}
-              view={view}
-              index={index}
-              count={blocks.length}
-              blocks={blocks}
-              attempted={draft.attempted}
-              actions={actions}
-              exercises={exercises}
-            />
-          ))}
-          {blocks.length === 0 && draft.structure.rows.length === 0 && (
-            <BlockCard
-              view={{ block: null, rows: [] }}
-              index={0}
-              count={0}
-              blocks={blocks}
-              attempted={draft.attempted}
-              actions={actions}
-              exercises={exercises}
-            />
-          )}
-          <AddBlockBar count={blocks.length} onAdd={draft.addBlock} />
-        </div>
+        <DragDropContext
+          onDragStart={onDragStart}
+          onDragUpdate={onDragUpdate}
+          onDragEnd={onDragEnd}
+          dragHandleUsageInstructions="Presiona Espacio para levantar. Con las flechas lo mueves, Espacio lo suelta y Escape cancela. También puedes usar el menú de acciones."
+        >
+          <div className="bld-main" data-tour="drawer-exercises">
+            {draft.views.length === 0 && <p className="bld-empty">Agrega el primer bloque o un ejercicio para empezar.</p>}
+            <Droppable droppableId="blocks" type="BLOCK">
+              {(dropProvided) => (
+                <div ref={dropProvided.innerRef} {...dropProvided.droppableProps} className="bld-blocks">
+                  {blocks.map((block, index) => {
+                    const view = draft.views.find((v) => v.block?.key === block.key);
+                    if (!view) return null;
+                    return (
+                      <Draggable key={block.key} draggableId={block.key} index={index}>
+                        {(drag) => (
+                          <BlockCard view={view} index={index} count={blocks.length} blocks={blocks} attempted={draft.attempted} actions={actions} exercises={exercises} drag={drag} draggingRow={draggingRow} />
+                        )}
+                      </Draggable>
+                    );
+                  })}
+                  {dropProvided.placeholder}
+                </div>
+              )}
+            </Droppable>
+            {draft.views.filter((v) => !v.block).map((view) => (
+              <BlockCard key="loose" view={view} index={blocks.length} count={blocks.length} blocks={blocks} attempted={draft.attempted} actions={actions} exercises={exercises} draggingRow={draggingRow} />
+            ))}
+            {blocks.length === 0 && draft.structure.rows.length === 0 && (
+              <BlockCard view={{ block: null, rows: [] }} index={0} count={0} blocks={blocks} attempted={draft.attempted} actions={actions} exercises={exercises} draggingRow={draggingRow} />
+            )}
+            <AddBlockBar count={blocks.length} onAdd={draft.addBlock} />
+          </div>
+        </DragDropContext>
 
         <BuilderSidePanel
           name={draft.name}

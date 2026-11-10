@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";
 import { NOTE_MAX_LENGTH } from "../ExerciseNote";
 import { isRowComplete } from "../../lib/routineStats";
 import type { DraftBlock } from "../../lib/blocksDraft";
@@ -19,6 +20,7 @@ export function ExerciseRowEditor({
   onMoveToBlock,
   onDuplicate,
   onRemove,
+  handleProps,
 }: {
   row: Row;
   blocks: DraftBlock[];
@@ -31,6 +33,8 @@ export function ExerciseRowEditor({
   onMoveToBlock: (blockKey: string | null) => void;
   onDuplicate: () => void;
   onRemove: () => void;
+  // Asa de arrastre (solo con arrastre activo).
+  handleProps?: DraggableProvidedDragHandleProps | null;
 }) {
   const [editingNote, setEditingNote] = useState(false);
   const missing = attempted && !isRowComplete(row);
@@ -51,6 +55,9 @@ export function ExerciseRowEditor({
 
   return (
     <div className="bld-ex" data-tour="drawer-row">
+      <span className="bld-grip" {...(handleProps ?? {})} aria-label={`Arrastrar ${row.name}`}>
+        ⠿
+      </span>
       <div className="bld-ex-name">
         <b>{row.name}</b>
         {row.note && !editingNote && (

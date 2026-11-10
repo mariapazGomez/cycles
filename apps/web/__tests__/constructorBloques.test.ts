@@ -14,6 +14,8 @@ import {
   moveBlock,
   moveRowInBlock,
   moveRowToBlock,
+  placeRow,
+  reorderBlocks,
   removeBlock,
   structureFromRoutine,
   structurePayload,
@@ -98,6 +100,49 @@ describe("bloques del constructor", () => {
     expect(structureView(s).map((v) => v.block?.key ?? null)).toEqual(["a", null]);
     expect(blockSummaryText([row("a", null, { sets: "2" }), row("b", null, { sets: "3" })])).toBe("2 ejercicios · 5 series");
     expect(blockSummaryText([row("a", null, { sets: "1" })])).toBe("1 ejercicio · 1 serie");
+  });
+});
+
+describe("arrastre", () => {
+  const two = addBlock(addBlock(empty, "warmup", "a"), "strength", "b");
+  const base: Structure = { blocks: two.blocks, rows: [row("e1", "a"), row("e2", "a"), row("e3", "b"), row("e4", "b"), row("e5", null)] };
+  const order = (s: Structure) => structureView(s).map((v) => [v.block?.key ?? null, v.rows.map((r) => r.key)]);
+
+  it("reordena un ejercicio dentro de su bloque", () => {
+    expect(order(placeRow(base, "e1", "a", 1))).toEqual([["a", ["e2", "e1"]], ["b", ["e3", "e4"]], [null, ["e5"]]]);
+    expect(order(placeRow(base, "e4", "b", 0))).toEqual([["a", ["e1", "e2"]], ["b", ["e4", "e3"]], [null, ["e5"]]]);
+  });
+
+  it("lo suelta en otro bloque, al principio, en medio o al final", () => {
+    expect(order(placeRow(base, "e1", "b", 0))[1]).toEqual(["b", ["e1", "e3", "e4"]]);
+    expect(order(placeRow(base, "e1", "b", 1))[1]).toEqual(["b", ["e3", "e1", "e4"]]);
+    expect(order(placeRow(base, "e1", "b", 2))[1]).toEqual(["b", ["e3", "e4", "e1"]]);
+    expect(order(placeRow(base, "e1", "b", 99))[1]).toEqual(["b", ["e3", "e4", "e1"]]);
+  });
+
+  it("lo suelta en un bloque vacío o en los sueltos", () => {
+    const withEmpty = addBlock(base, "cardio", "c");
+    expect(order(placeRow(withEmpty, "e5", "c", 0))[2]).toEqual(["c", ["e5"]]);
+    expect(placeRow(base, "e1", null, 0).rows.find((r) => r.key === "e1")?.blockId).toBeNull();
+    expect(order(placeRow(base, "e2", null, 1))[2]).toEqual([null, ["e5", "e2"]]);
+  });
+
+  it("no hace nada si no cambia nada o si el destino no existe", () => {
+    expect(placeRow(base, "e1", "a", 0)).toBe(base);
+    expect(placeRow(base, "e1", "no-existe", 0)).toBe(base);
+    expect(placeRow(base, "no-existe", "a", 0)).toBe(base);
+  });
+
+  it("conserva todos los ejercicios y sus datos", () => {
+    const moved = placeRow({ ...base, rows: base.rows.map((r) => (r.key === "e1" ? { ...r, reps: "12" } : r)) }, "e1", "b", 1);
+    expect(moved.rows).toHaveLength(5);
+    expect(moved.rows.find((r) => r.key === "e1")).toMatchObject({ reps: "12", blockId: "b" });
+  });
+
+  it("reordena bloques", () => {
+    expect(reorderBlocks(two, 0, 1).blocks.map((b) => b.key)).toEqual(["b", "a"]);
+    expect(reorderBlocks(two, 1, 1)).toBe(two);
+    expect(reorderBlocks(two, 0, 5)).toBe(two);
   });
 });
 

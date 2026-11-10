@@ -100,6 +100,33 @@ export function moveRowToBlock(s: Structure, rowKey: string, blockKey: string | 
   return { ...s, rows: [...s.rows.filter((r) => r.key !== rowKey), { ...row, blockId: blockKey }] };
 }
 
+// Suelta un ejercicio en la posición `index` de un bloque (o de los sueltos con null). `index`
+// cuenta los ejercicios de ese bloque sin el que se mueve, como lo informa el arrastre.
+export function placeRow(s: Structure, rowKey: string, blockKey: string | null, index: number): Structure {
+  const row = s.rows.find((r) => r.key === rowKey);
+  if (!row) return s;
+  if (blockKey !== null && !s.blocks.some((b) => b.key === blockKey)) return s;
+  const others = s.rows.filter((r) => r.key !== rowKey);
+  const target = others.filter((r) => (r.blockId ?? null) === blockKey);
+  const moved = { ...row, blockId: blockKey };
+  let at: number;
+  if (index < target.length) at = others.indexOf(target[Math.max(0, index)]);
+  else if (target.length > 0) at = others.indexOf(target[target.length - 1]) + 1;
+  else at = others.length;
+  const rows = [...others.slice(0, at), moved, ...others.slice(at)];
+  const unchanged = rows.every((r, i) => r === s.rows[i] || (r.key === s.rows[i]?.key && r.blockId === s.rows[i]?.blockId));
+  return unchanged ? s : { ...s, rows };
+}
+
+// Lleva el bloque de la posición `from` a la posición `to`.
+export function reorderBlocks(s: Structure, from: number, to: number): Structure {
+  if (from === to || from < 0 || to < 0 || from >= s.blocks.length || to >= s.blocks.length) return s;
+  const blocks = [...s.blocks];
+  const [moved] = blocks.splice(from, 1);
+  blocks.splice(to, 0, moved);
+  return { ...s, blocks };
+}
+
 // Sube o baja un ejercicio dentro de su bloque.
 export function moveRowInBlock(s: Structure, rowKey: string, direction: -1 | 1): Structure {
   const index = s.rows.findIndex((r) => r.key === rowKey);
