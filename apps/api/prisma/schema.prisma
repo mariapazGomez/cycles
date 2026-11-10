@@ -103,6 +103,8 @@ model User {
   // Qué teléfono usa el atleta que se registró solo (CYC-194). Null si no lo dijo.
   phonePlatform      PhonePlatform?
   tourStatus         TourStatus     @default(pending)
+  // Novedades vistas (`clave@version`, ver packages/shared/src/novelties.ts). Aditiva: vacía por defecto.
+  tourNewsSeen       String[]       @default([])
   // Último ingreso (contraseña, Google o Apple), para el portal del equipo (CYC-193).
   // Nulo hasta el próximo ingreso de cuentas anteriores.
   lastLoginAt        DateTime?

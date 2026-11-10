@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { TourStatus } from "@prisma/client";
+import { MAX_NEWS_SEEN } from "../common/novelties";
 import { PrismaService } from "../prisma/prisma.service";
 import { POLICY_VERSION, policyAcceptanceData } from "../common/policy";
 
@@ -39,6 +40,7 @@ export class UsersService {
       weightUnit: user.weightUnit,
       phonePlatform: user.phonePlatform,
       tourStatus: user.tourStatus,
+      tourNewsSeen: user.tourNewsSeen,
       emailVerified: Boolean(user.emailVerifiedAt),
       dataConsentAt: user.dataConsentAt,
       policyAcceptedAt: accepted?.acceptedAt ?? null,
@@ -51,6 +53,13 @@ export class UsersService {
   // Guarda si la persona saltó o terminó la guía de primer uso (o la vuelve a abrir).
   async setTourStatus(id: string, tourStatus: TourStatus): Promise<void> {
     await this.prisma.user.update({ where: { id }, data: { tourStatus } });
+  }
+
+  // Marca una novedad como vista. Es idempotente: repetirla no duplica la clave.
+  async markNewsSeen(id: string, key: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { id }, select: { tourNewsSeen: true } });
+    if (!user || user.tourNewsSeen.includes(key) || user.tourNewsSeen.length >= MAX_NEWS_SEEN) return;
+    await this.prisma.user.update({ where: { id }, data: { tourNewsSeen: { push: key } } });
   }
 
   // Quien ya tiene cuenta acepta la versión vigente desde la pantalla de

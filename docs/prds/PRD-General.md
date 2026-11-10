@@ -427,6 +427,7 @@ Una fase (o un PR grande dentro de ella) no se da por terminada hasta verificar 
 - [ ] El PRD de la funcionalidad tiene su estado al día, y la tabla de §0 también.
 - [ ] Si cambió el esquema: migración nueva (nunca editar una aplicada) y diagrama del modelo de datos actualizado (§6 y `docs/diagrams/modelo-relacional.html`).
 - [ ] `docs/enlaces.md` al día con las rutas y endpoints nuevos.
+- [ ] Si la funcionalidad cambia algo que la persona nota, trae su **ficha de novedad** en `packages/shared/src/novelties.ts` (popup de novedades, ver `docs/diseno/guia-novedades-bloques`) en el mismo PR; una mejora de una novedad ya publicada sube su `version`. Si no hay efecto visible, el PR dice «Sin novedad» y el motivo. También se copia la clave en `apps/api/src/common/novelties.ts` (una prueba las compara).
 
 **Diseño y textos**
 - [ ] Textos en español latino con "tú", sin voseo.

@@ -1,0 +1,496 @@
+/* Popup de novedades. Diseño en docs/diseno/guia-novedades-bloques. */
+.nv-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  background: rgba(31, 34, 40, 0.38);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.nv-card {
+  position: relative;
+  container-type: inline-size;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: min(720px, 100%);
+  max-height: calc(100dvh - 32px);
+  overflow: hidden;
+  border-radius: 18px;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-e3);
+}
+
+.nv-x {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-ink);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.nv-demo-wrap {
+  background: var(--color-blue-50);
+  border-bottom: 1px solid var(--color-gray-border);
+}
+
+.nv-body {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px 28px 8px;
+}
+
+.nv-eyebrow {
+  margin: 0 0 6px;
+  color: var(--color-blue);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.nv-title {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1.2;
+  color: var(--color-ink);
+}
+
+.nv-text {
+  margin: 0;
+  color: var(--color-ink-secondary);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.nv-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 28px 20px;
+}
+
+.nv-skip {
+  min-height: 40px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink-secondary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nv-skip:hover {
+  color: var(--color-ink);
+  text-decoration: underline;
+}
+
+.nv-dots {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nv-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-gray-border);
+}
+
+.nv-dot-on {
+  width: 22px;
+  background: var(--color-blue);
+}
+
+.nv-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.nv-back,
+.nv-next {
+  min-height: 40px;
+  padding: 0 18px;
+  border-radius: var(--radius-lg);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nv-back {
+  border: 1px solid var(--color-control-border);
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+.nv-next {
+  border: 1px solid var(--color-blue);
+  background: var(--color-blue);
+  color: #fff;
+}
+
+.nv-next:hover {
+  background: var(--color-blue-hover);
+}
+
+.nv-x:focus-visible,
+.nv-skip:focus-visible,
+.nv-back:focus-visible,
+.nv-next:focus-visible {
+  outline: 3px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+/* Demostración 16:9 */
+.nd-frame {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 292px;
+  margin-inline: auto;
+}
+
+.nd,
+.nd-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.nd text {
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+.nd-label {
+  font-size: 10px;
+  font-weight: 600;
+  fill: var(--color-ink);
+}
+
+.nd-hint {
+  fill: var(--color-ink-secondary);
+  font-weight: 500;
+}
+
+.nd-block-bg {
+  fill: var(--color-bg);
+  stroke: var(--color-gray-border);
+}
+
+.nd-row-bg {
+  fill: var(--color-gray-light);
+  stroke: var(--color-gray-border);
+}
+
+.nd-ink {
+  fill: var(--color-ink);
+  opacity: 0.55;
+}
+
+.nd-ink-soft {
+  fill: var(--color-gray-mid);
+  opacity: 0.6;
+}
+
+.nd-chip {
+  fill: var(--color-bg);
+  stroke: var(--color-blue-300);
+  stroke-width: 1.5;
+}
+
+.nd-primary {
+  fill: var(--color-blue);
+}
+
+.nd-btn-label {
+  font-size: 10px;
+  font-weight: 700;
+  fill: #fff;
+}
+
+/* Animación: el estado base es el resultado final; los fotogramas parten de otro estado
+   y llegan a él. Bucle de 7 s. */
+@keyframes nd-in {
+  0%,
+  10% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  30%,
+  88% {
+    opacity: 1;
+    transform: none;
+  }
+  96%,
+  100% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes nd-flat {
+  0%,
+  14% {
+    transform: translateY(var(--dy, 0));
+  }
+  36%,
+  88% {
+    transform: none;
+  }
+  96%,
+  100% {
+    transform: translateY(var(--dy, 0));
+  }
+}
+
+@keyframes nd-press {
+  0%,
+  12% {
+    transform: scale(1);
+  }
+  20% {
+    transform: scale(0.94);
+  }
+  28%,
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes nd-out {
+  0%,
+  26% {
+    opacity: 1;
+  }
+  34%,
+  88% {
+    opacity: 0;
+  }
+  96%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes nd-late {
+  0%,
+  30% {
+    opacity: 0;
+  }
+  44%,
+  88% {
+    opacity: 1;
+  }
+  96%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.nd-b1,
+.nd-b2,
+.nd-b3,
+.nd-note {
+  animation: nd-in 7s ease-in-out infinite;
+}
+
+.nd-b2 {
+  animation-delay: 0.25s;
+}
+
+.nd-b3,
+.nd-note {
+  animation-delay: 0.5s;
+}
+
+.nd-r1,
+.nd-r2,
+.nd-r3,
+.nd-mover {
+  animation: nd-flat 7s ease-in-out infinite;
+}
+
+.nd-menu {
+  animation: nd-late 7s ease-in-out infinite;
+}
+
+.nd-legacy .nd-header {
+  animation: nd-late 7s ease-in-out infinite;
+}
+
+.nd-legacy .nd-btn,
+.nd-page .nd-btn {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: nd-press 7s ease-in-out infinite;
+}
+
+.nd-legacy .nd-hint {
+  animation: nd-out 7s ease-in-out infinite;
+}
+
+.nd-page .nd-before {
+  animation: nd-out 7s ease-in-out infinite;
+}
+
+.nd-page .nd-after {
+  animation: nd-late 7s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nd *,
+  .nd-video {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* La imagen fija muestra el resultado final: lo que solo existe «antes» se oculta. */
+  .nd-legacy .nd-hint,
+  .nd-page .nd-before {
+    display: none;
+  }
+}
+
+/* Reactivo a la pantalla real (contenedor y alto de ventana) */
+@container (max-width: 479px) {
+  .nv-body {
+    padding: 16px 16px 6px;
+  }
+
+  .nv-title {
+    font-size: 1.25rem;
+  }
+
+  .nv-foot {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+    gap: 10px;
+    padding: 10px 16px calc(16px + env(safe-area-inset-bottom));
+  }
+
+  .nv-dots {
+    order: -1;
+    justify-content: center;
+  }
+
+  .nv-nav {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+  }
+
+  .nv-back,
+  .nv-next {
+    min-height: 44px;
+  }
+
+  .nv-skip {
+    order: 3;
+    justify-self: center;
+    min-height: 44px;
+  }
+}
+
+/* Horizontal bajo: demostración a la izquierda, texto y controles a la derecha. */
+@media (max-height: 520px) and (min-width: 560px) {
+  .nv-card {
+    grid-template-columns: 46% minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+
+  .nv-demo-wrap {
+    grid-row: 1 / 3;
+    display: grid;
+    align-items: center;
+    border-bottom: 0;
+    border-right: 1px solid var(--color-gray-border);
+  }
+
+  .nv-body {
+    padding: 16px 20px 6px;
+  }
+
+  .nv-foot {
+    padding: 8px 20px 14px;
+    flex-wrap: wrap;
+  }
+}
+
+/* Muy bajo: sin demostración (queda en el historial). */
+@media (max-height: 380px) and (max-width: 559px) {
+  .nv-demo-wrap {
+    display: none;
+  }
+}
+
+/* Historial dentro de «Cómo usar Cycles» */
+.nv-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 0 0 16px;
+  border-bottom: 1px solid var(--color-gray-border);
+}
+
+.nv-tab {
+  padding: 8px 12px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--color-ink-secondary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nv-tab[aria-selected="true"] {
+  border-bottom-color: var(--color-blue);
+  color: var(--color-ink);
+}
+
+.nv-history {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nv-history li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-gray-border);
+  border-radius: var(--radius-lg);
+}
+
+.nv-history strong {
+  display: block;
+}
+
+.nv-history-date {
+  color: var(--color-ink-secondary);
+  font-size: 0.85rem;
+}
+
+.nv-history .button-secondary {
+  flex-shrink: 0;
+  width: auto;
+}

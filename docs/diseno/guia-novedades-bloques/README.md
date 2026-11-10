@@ -8,7 +8,7 @@ updated: 2026-11-10
 
 # Novedades de Cycles: un sistema permanente (CYC-275, paso 4b)
 
-> Contrastado con `origin/main`. Estado: propuesto. Maqueta interactiva en [`propuestas.html`](propuestas.html) (el popup se abre, se cierra con Esc y atrapa el foco). Reemplaza la primera versión de este PR (cuatro marcas sobre la interfaz, como la guía de primer uso): la usuaria decidió que las novedades aparezcan **en el centro de la pantalla, con el fondo borroso, como un popup de un par de slides** con una animación de demostración y una explicación breve. Resuelve las tres preguntas anteriores (dónde avisar, arrastre, orden).
+> Contrastado con `origin/main`. Estado: construido (CYC-275, PR 4). Las demostraciones del primer lote son ilustraciones animadas en código (SVG y CSS, con imagen fija final para «reducir movimiento»); las fichas futuras pueden traer `video` y `poster`. Maqueta interactiva en [`propuestas.html`](propuestas.html) (el popup se abre, se cierra con Esc y atrapa el foco). Reemplaza la primera versión de este PR (cuatro marcas sobre la interfaz, como la guía de primer uso): la usuaria decidió que las novedades aparezcan **en el centro de la pantalla, con el fondo borroso, como un popup de un par de slides** con una animación de demostración y una explicación breve. Resuelve las tres preguntas anteriores (dónde avisar, arrastre, orden).
 
 ## Qué es
 
