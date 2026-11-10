@@ -4,7 +4,7 @@ parent: "[[brand]]"
 status: decided
 tags: [brand, esencia, storytelling]
 created: 2026-10-02
-updated: 2026-11-08
+updated: 2026-11-10
 ---
 
 > Hijo de [[brand]]. Nace de una conversación con la fundadora el 2026-10-02: el origen, el enemigo, la atleta y la emoción salen de su experiencia, no de investigación de mercado. Es un borrador para ajustar; las decisiones ya tomadas están marcadas.
@@ -34,6 +34,8 @@ No es una persona. Ni el atleta ni el coach hacen algo mal; lo que falla es el s
 > Aprobado por la fundadora el 2026-10-02; puede evolucionar más adelante.
 
 InProgress Co. existe para que cualquier atleta que entrena en serio tenga a su alcance la comprensión y la ciencia del deporte que hoy solo tiene la élite.
+
+> **Actualización 2026-11-10 (CYC-266): el propósito pasa a ser el eje de posicionamiento.** La frase **«Que cualquier atleta que entrene en serio tenga la comprensión que hoy solo tiene la élite»** (misma idea, con «comprensión» en lugar de «comprensión y ciencia del deporte») guía la identidad, el branding y el posicionamiento. Cómo se usa en cada canal y la escalera de mensajes: [[posicionamiento]].
 
 ## Creencias
 
