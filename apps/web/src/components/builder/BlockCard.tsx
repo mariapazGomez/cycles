@@ -35,6 +35,7 @@ export function BlockCard({
   exercises,
   drag,
   draggingRow,
+  locked = false,
 }: {
   view: BlockView;
   index: number;
@@ -47,6 +48,8 @@ export function BlockCard({
   drag?: DraggableProvided;
   // ¿Se está arrastrando un ejercicio? Un bloque plegado ofrece entonces dónde soltarlo.
   draggingRow: boolean;
+  // Sesión bloqueada: no se arrastra nada.
+  locked?: boolean;
 }) {
   const { block, rows } = view;
   const [open, setOpen] = useState(true);
@@ -75,7 +78,7 @@ export function BlockCard({
               { label: "Editar bloque", onClick: () => setSettings(true) },
               { label: "Subir bloque", onClick: () => actions.moveBlock(block.key, -1), disabled: index === 0 },
               { label: "Bajar bloque", onClick: () => actions.moveBlock(block.key, 1), disabled: index >= count - 1 || count < 2 },
-              { label: "Quitar bloque", onClick: () => actions.removeBlock(block.key, block.name), danger: true, divider: true },
+              { label: rows.some((r) => (r.loggedCount ?? 0) > 0) ? "Quitar bloque (tiene series registradas)" : "Quitar bloque", onClick: () => actions.removeBlock(block.key, block.name), danger: true, divider: true, disabled: rows.some((r) => (r.loggedCount ?? 0) > 0) },
             ]}
           />
         )}
@@ -154,7 +157,7 @@ export function BlockCard({
               <div ref={dropProvided.innerRef} {...dropProvided.droppableProps} className={`bld-rows${snapshot.isDraggingOver ? " bld-over" : ""}`}>
                 {rows.length === 0 && !snapshot.isDraggingOver && <p className="bld-empty">Este bloque todavía no tiene ejercicios.</p>}
                 {rows.map((row, i) => (
-                  <Draggable key={row.key} draggableId={row.key} index={i}>
+                  <Draggable key={row.key} draggableId={row.key} index={i} isDragDisabled={locked}>
                     {(p, snap) => (
                       <div ref={p.innerRef} {...p.draggableProps} className={`bld-item${snap.isDragging ? " bld-dragging" : ""}`}>
                         <ExerciseRowEditor

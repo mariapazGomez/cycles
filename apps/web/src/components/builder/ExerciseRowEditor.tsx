@@ -38,6 +38,7 @@ export function ExerciseRowEditor({
 }) {
   const [editingNote, setEditingNote] = useState(false);
   const missing = attempted && !isRowComplete(row);
+  const logged = (row.loggedCount ?? 0) > 0;
   const bad = (value: string) => (missing && (value.trim() === "" || !/^[1-9]\d*$/.test(value.trim())) ? " bld-bad" : "");
 
   const targets: MenuItem[] = [
@@ -50,7 +51,7 @@ export function ExerciseRowEditor({
     ...targets,
     { label: row.note ? "Editar nota" : "Agregar nota", onClick: () => setEditingNote(true), divider: true },
     { label: "Duplicar", onClick: onDuplicate },
-    { label: "Quitar", onClick: onRemove, danger: true },
+    { label: logged ? "Quitar (ya tiene series registradas)" : "Quitar", onClick: onRemove, danger: true, disabled: logged },
   ];
 
   return (
@@ -60,6 +61,7 @@ export function ExerciseRowEditor({
       </span>
       <div className="bld-ex-name">
         <b>{row.name}</b>
+        {row.result && <span className="bld-result">{row.result}</span>}
         {row.note && !editingNote && (
           <button type="button" className="bld-note" onClick={() => setEditingNote(true)} aria-label={`Editar la nota de ${row.name}`}>
             {row.note}

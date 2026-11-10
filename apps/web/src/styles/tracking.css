@@ -634,41 +634,11 @@
   flex: 1;
 }
 
-.ex-note-row {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-}
-
-.ex-note-form {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
 .ex-note-form textarea,
 .rt-note textarea {
   width: 100%;
   box-sizing: border-box;
   resize: vertical;
-}
-
-.ex-note-count {
-  align-self: flex-end;
-  font-size: 0.78rem;
-  color: var(--color-ink-secondary);
-}
-
-.ex-note-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.ex-note-actions .button-primary,
-.ex-note-actions .button-secondary {
-  width: auto;
-  padding: 8px 16px;
 }
 
 .rt-note {

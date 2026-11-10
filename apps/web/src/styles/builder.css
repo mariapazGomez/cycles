@@ -110,3 +110,10 @@
   .bld-sum { order: 5; flex-basis: 100%; margin-left: 38px; }
 }
 @media (prefers-reduced-motion: reduce) { .bld-chev { transition: none; } }
+
+.bld-result { font-size: 0.78rem; font-weight: 600; color: var(--color-ok-ink); }
+.bld-fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.bld-fieldset:disabled .bld-grip { cursor: default; opacity: 0.4; }
+.bld-lock { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border-radius: var(--radius-lg); background: var(--color-ok-bg); color: var(--color-ok-ink); font-size: 0.9rem; font-weight: 600; }
+.bld-field { display: flex; flex-direction: column; gap: 4px; }
+.bld-field input, .bld-field select { width: 100%; height: 38px; padding: 0 10px; border: 1px solid var(--color-control-border); border-radius: var(--radius-md); font: inherit; background: var(--color-bg); }
