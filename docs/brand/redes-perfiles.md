@@ -4,7 +4,7 @@ parent: "[[brand]]"
 status: draft
 tags: [brand, redes, perfiles]
 created: 2026-10-29
-updated: 2026-11-08
+updated: 2026-11-10
 ---
 
 > Hijo de [[voz-y-tono]] y [[mensajes]]. Textos listos para pegar en los perfiles (CYC-141). Borrador de Claude para que la fundadora ajuste: nada está publicado. Alcance según CYC-138: **TikTok e Instagram ahora**; LinkedIn y YouTube cuando existan. Usuario de las cuentas: pendiente de CYC-140.
@@ -19,6 +19,8 @@ updated: 2026-11-08
 - No usar datos de salud, cifras sin verificar ni el mensaje «demostrar resultados» (pendiente de verificar con producto, CYC-125).
 - Una sola idea por biografía: qué es Cycles y que se construye en público.
 - Sin humor forzado: el humor sigue sin definir ([[voz-y-tono]]).
+
+> **Actualización 2026-11-10 (CYC-266):** la frase-eje de [[posicionamiento]] puede abrir la biografía de Instagram y la descripción de LinkedIn (ver «Alternativa con la frase-eje» más abajo). TikTok conserva la frase corta de marca, porque la frase-eje mide 91 caracteres y el límite es 80.
 
 ## Foto de perfil
 
@@ -37,6 +39,15 @@ El isotipo de Cycles, con la separación entre los dos tramos, sobre `#3080fc` (
 | **LinkedIn** (eslogan de la página) | 120 caracteres | Plataforma de ciclos de entrenamiento para coaches. Tú planificas el ciclo. Tu atleta te responde. Cycles los une. | 114 |
 
 Alternativa con el título de la landing para TikTok (60 caracteres): *Planifica el ciclo. Recibe el feedback. Ajusta el siguiente.* Se usa solo si se prefiere el verbo de coach a la frase de marca.
+
+**Alternativa con la frase-eje (propuesta, a elegir por la fundadora):**
+
+| Red | Texto | Largo |
+|---|---|---|
+| **Instagram** | Que cualquier atleta que entrene en serio tenga la comprensión que hoy solo tiene la élite. Ciclos de entrenamiento para coaches. | 129 |
+| **LinkedIn** (eslogan) | Ciclos de entrenamiento para coaches. Que cualquier atleta que entrene en serio tenga la comprensión de la élite. | 113 |
+
+Sin «gemelo digital», sin «agentes de IA», sin fechas ni «mejora el rendimiento».
 
 ### Descripción larga (página de LinkedIn, sección «Acerca de»)
 

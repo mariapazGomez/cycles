@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Landing: frase-eje y jerarquía</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#3080fc;--blue-d:#1a66dd;--ink:#1f2228;--bg:#f4f6fa;--card:#fff;--line:#dde2ea;--muted:#5c6068;--soft:#eaf2ff;--orange:#e0752b;--ok:#2f9e5f}
+*{box-sizing:border-box;margin:0}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;padding:0 16px 64px}
+.wrap{max-width:1180px;margin:0 auto}
+header{padding:40px 0 8px}
+h1{font:700 clamp(28px,4vw,40px)/1.1 'Bricolage Grotesque',system-ui;letter-spacing:-.01em}
+h2{font:700 24px/1.2 'Bricolage Grotesque',system-ui;margin:48px 0 8px}
+h3{font:600 17px/1.3 'Bricolage Grotesque',system-ui}
+p.lead{color:var(--muted);max-width:70ch;margin-top:10px}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:24px}
+@media(max-width:900px){.cols{grid-template-columns:1fr}}
+.opt{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.opt.rec{border:2px solid var(--blue);box-shadow:0 6px 24px rgba(48,128,252,.14)}
+.tag{display:inline-block;font:600 12px Inter;padding:3px 10px;border-radius:999px;background:var(--soft);color:var(--blue-d);align-self:flex-start}
+.tag.no{background:#f0f1f4;color:var(--muted)}
+.page{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;display:flex;flex-direction:column}
+.s{padding:12px 14px;font-size:12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;align-items:center}
+.s:last-child{border-bottom:0}
+.s b{font-weight:600}
+.s small{color:var(--muted);font-size:11px}
+.hero{background:var(--blue-d);color:#fff;padding:18px 14px;font:700 17px/1.15 'Bricolage Grotesque',system-ui}
+.hero.alt{background:var(--ink)}
+.hero small{display:block;font:400 11px Inter;opacity:.85;margin-top:6px}
+.band{background:var(--ink);color:#f4f6fa;padding:16px 14px;font:700 15px/1.2 'Bricolage Grotesque',system-ui}
+.new{background:var(--soft)}
+.new b::after{content:" · nueva";color:var(--blue-d);font-weight:600}
+.sub{background:#fff6ec}
+ul.pc{list-style:none;padding:0;display:grid;gap:6px;font-size:14px}
+ul.pc li::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px}
+ul.pc li.y::before{background:var(--ok)}
+ul.pc li.n::before{background:var(--orange)}
+.demo{margin-top:20px;border-radius:20px;overflow:hidden;border:1px solid var(--line);background:#fff}
+.demo .bar{padding:10px 16px;font:600 13px Inter;background:#fbfcfe;border-bottom:1px solid var(--line);color:var(--muted)}
+.why{background:var(--ink);color:#f4f6fa;padding:clamp(40px,7vw,96px) clamp(20px,6vw,80px);display:grid;gap:clamp(20px,3vw,32px)}
+.why .eyebrow{font:600 13px/1 Inter;letter-spacing:.14em;text-transform:uppercase;color:#7db0ff}
+.why .q{font:700 clamp(28px,5vw,58px)/1.08 'Bricolage Grotesque',system-ui;max-width:18em}
+.why .q em{font-style:normal;color:#7db0ff}
+.why p{font-size:clamp(16px,1.6vw,20px);max-width:44em;color:#d5dbe6}
+.why .logo{width:clamp(72px,9vw,120px);height:auto;display:block;overflow:visible}
+.logo .flow{transform-origin:50px 50px;animation:flow 7s linear infinite}
+.logo .arc{fill:none;stroke:#3080fc;stroke-width:17;stroke-linecap:round;transform-origin:50px 50px;stroke-dasharray:104 147.3}
+.logo .a2{transform:rotate(180deg)}
+.logo .tr{fill:none;stroke:#3080fc;stroke-width:10;stroke-linecap:round;opacity:.32;transform-origin:50px 50px;stroke-dasharray:15 236.3}
+.logo .t1{transform:rotate(-25deg)}
+.logo .t2{transform:rotate(155deg)}
+@keyframes flow{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.logo .flow{animation:none}}
+.next{background:var(--soft);padding:clamp(24px,4vw,40px) clamp(20px,6vw,80px);display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.next h3{font-size:clamp(20px,2.6vw,28px)}
+.next span{font:600 12px Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--blue-d)}
+.bio{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:16px}
+.bc{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;gap:8px}
+.bc .av{width:44px;height:44px;border-radius:50%;background:var(--blue);display:grid;place-items:center;color:#fff;font:700 18px 'Bricolage Grotesque'}
+.bc .n{font:600 12px Inter;color:var(--muted)}
+.bc .t{font-size:15px}
+.bc .c{font:600 12px Inter;color:var(--blue-d)}
+table{width:100%;border-collapse:collapse;margin-top:16px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:14px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:#fbfcfe;font-weight:600}
+tr:last-child td{border-bottom:0}
+.scroll{overflow-x:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Landing: dónde entra la frase-eje</h1>
+<p class="lead">Tres formas de llevar «Que cualquier atleta que entrene en serio tenga la comprensión que hoy solo tiene la élite» a la landing para coaches. Recomiendo la B: el título sigue diciendo qué hace Cycles y la frase abre una sección de propósito. No está aplicada en el código: espera tu aprobación.</p>
+</header>
+
+<h2>Las tres opciones, en el orden de la página</h2>
+<div class="cols">
+
+<article class="opt">
+<span class="tag no">A · Frase como título</span>
+<h3>La frase manda la portada</h3>
+<div class="page">
+<div class="hero alt">Que cualquier atleta que entrene en serio tenga la comprensión que hoy solo tiene la élite.<small>Cycles: planifica el ciclo, recibe el feedback, ajusta el siguiente</small></div>
+<div class="s"><b>Pilares</b><small>qué te cambia</small></div>
+<div class="s"><b>Anillo del ciclo</b></div>
+<div class="s"><b>Semana normal</b></div>
+<div class="s"><b>Cada ciclo deja memoria</b></div>
+<div class="s"><b>Acceso anticipado</b></div>
+</div>
+<ul class="pc">
+<li class="y">Es la voz de marca más clara.</li>
+<li class="n">No dice qué es Cycles ni a quién le habla; el coach tiene que adivinar.</li>
+<li class="n">Obliga a una línea gris debajo para explicar el producto.</li>
+<li class="n">Se lee como promesa de resultado, justo lo que las reglas evitan.</li>
+</ul>
+</article>
+
+<article class="opt rec">
+<span class="tag">B · Recomendada</span>
+<h3>Título igual, sección «Por qué lo hacemos»</h3>
+<div class="page">
+<div class="hero">Planifica el ciclo. Recibe el feedback. Ajusta el siguiente.</div>
+<div class="s"><b>Pilares</b><small>qué te cambia</small></div>
+<div class="s new"><b>Por qué lo hacemos</b><small>frase-eje</small></div>
+<div class="s"><b>Anillo del ciclo</b></div>
+<div class="s"><b>Semana normal · teléfono · capturas</b></div>
+<div class="s sub"><b>Cada ciclo deja memoria</b><small>el cómo</small></div>
+<div class="s"><b>Acceso anticipado</b></div>
+</div>
+<ul class="pc">
+<li class="y">El coach entiende en cinco segundos qué es y qué haría con Cycles.</li>
+<li class="y">La frase llega cuando ya sabe qué es: se lee como propósito, no como eslogan.</li>
+<li class="y">«Cada ciclo deja memoria» queda como el cómo: un solo hilo hasta el cierre.</li>
+<li class="n">Una sección más en la página (corta, sin capturas).</li>
+</ul>
+</article>
+
+<article class="opt">
+<span class="tag no">C · Frase bajo el título</span>
+<h3>La frase como subtítulo</h3>
+<div class="page">
+<div class="hero">Planifica el ciclo. Recibe el feedback. Ajusta el siguiente.<small>Que cualquier atleta que entrene en serio tenga la comprensión que hoy solo tiene la élite.</small></div>
+<div class="s"><b>Pilares</b></div>
+<div class="s"><b>Anillo del ciclo</b></div>
+<div class="s"><b>Semana normal</b></div>
+<div class="s"><b>Cada ciclo deja memoria</b></div>
+<div class="s"><b>Acceso anticipado</b></div>
+</div>
+<ul class="pc">
+<li class="y">Cero secciones nuevas.</li>
+<li class="n">Compite con la definición del producto en la portada.</li>
+<li class="n">Es una línea gris bajo un título, lo que decidimos no usar.</li>
+<li class="n">En el celular empuja la definición y el botón fuera de la pantalla.</li>
+</ul>
+</article>
+</div>
+
+<h2>La opción B, a tamaño real</h2>
+<p class="lead">Sección de propósito entre los pilares y el anillo del ciclo. Fondo tinta, una sola frase grande, un texto de apoyo que pone al coach como quien lo hace posible. Sin subtítulos grises ni capturas. Cambia el tamaño de la ventana para ver cómo responde.</p>
+
+<div class="demo">
+<div class="bar">Landing · sección 1c</div>
+<section class="why">
+<div class="eyebrow">Por qué lo hacemos</div>
+<div class="q">Que cualquier atleta que entrene en serio tenga la comprensión que <em>hoy solo tiene la élite.</em></div>
+<p>En la élite hay un equipo entero que entiende a cada atleta. Cycles le da esa claridad al coach que entrena solo con sus atletas.</p>
+<svg class="logo" viewBox="0 0 100 100" role="img" aria-label="Isotipo de Cycles: dos arcos que fluyen en un ciclo continuo">
+<g class="flow">
+<circle class="tr t1" cx="50" cy="50" r="40"/>
+<circle class="tr t2" cx="50" cy="50" r="40"/>
+<circle class="arc a1" cx="50" cy="50" r="40"/>
+<circle class="arc a2" cx="50" cy="50" r="40"/>
+</g>
+</svg>
+</section>
+<section class="next">
+<span>Hacia dónde vamos</span>
+<h3>Cada ciclo deja memoria.</h3>
+</section>
+</div>
+
+<h2>Redes: dónde cabe la frase</h2>
+<p class="lead">La frase mide 91 caracteres: no cabe en TikTok (80), sí en Instagram (150) y LinkedIn (120). TikTok conserva la frase corta de marca.</p>
+<div class="bio">
+<div class="bc"><div class="av">C</div><div class="n">Instagram · 129 de 150</div><div class="t">Que cualquier atleta que entrene en serio tenga la comprensión que hoy solo tiene la élite. Ciclos de entrenamiento para coaches.</div><div class="c">getcycles.app</div></div>
+<div class="bc"><div class="av">C</div><div class="n">LinkedIn · 113 de 120</div><div class="t">Ciclos de entrenamiento para coaches. Que cualquier atleta que entrene en serio tenga la comprensión de la élite.</div><div class="c">getcycles.app</div></div>
+<div class="bc"><div class="av">C</div><div class="n">TikTok · 62 de 80 (se queda)</div><div class="t">Tú planificas el ciclo. Tu atleta te responde. Cycles los une.</div><div class="c">getcycles.app</div></div>
+</div>
+
+<h2>Lo que se dice y lo que no, por canal</h2>
+<div class="scroll"><table>
+<tr><th>Canal</th><th>Frase-eje</th><th>IA y gemelo digital</th></tr>
+<tr><td>Landing y redes</td><td>Sí, como propósito (no como título)</td><td>No. Solo «Cada ciclo deja memoria»</td></tr>
+<tr><td>Conversación personal con coaches</td><td>Sí, como apertura</td><td>Sí, como dirección</td></tr>
+<tr><td>Presentación para coaches testers</td><td>Sí</td><td>Sí, como dirección</td></tr>
+<tr><td>Inversionistas y aliados</td><td>Sí</td><td>Documento aparte (todavía no)</td></tr>
+</table></div>
+
+<h2>Qué necesito de ti</h2>
+<ul class="pc" style="margin-top:12px">
+<li class="y">¿Apruebas la opción B (título igual, sección «Por qué lo hacemos» nueva)?</li>
+<li class="y">¿Te sirve el texto de apoyo («En la élite hay un equipo entero…»), o prefieres solo la frase?</li>
+<li class="y">¿Aplicamos la frase-eje en Instagram y LinkedIn?</li>
+</ul>
+</div>
+</body>
+</html>

@@ -4,7 +4,7 @@ parent: "[[brand]]"
 status: draft
 tags: [brand, mensajes, audiencias]
 created: 2026-10-02
-updated: 2026-11-08
+updated: 2026-11-10
 ---
 
 > Hijo de [[esencia]]. Mensajes para cada audiencia, en la voz de [[voz-y-tono]]. Los borradores de promesa fueron aprobados por la fundadora el 2026-10-02 ("suenan a mí"). Lo que se sabe del coach viene de la experiencia de la fundadora como atleta, **no de conversaciones con coaches**: es una hipótesis hasta validarla.
@@ -33,6 +33,8 @@ updated: 2026-11-08
 **Hacia dónde vamos (se dice como dirección)**
 
 > Cada ciclo deja memoria. Cada ciclo que planificas deja el historial de cada atleta. Estamos construyendo hacia una memoria viva de cómo responde cada uno, para que Cycles pueda sugerirte ajustes. Siempre tú decides.
+
+**Frase-eje (2026-11-10, CYC-266):** debajo de la promesa de hoy está el *por qué*: **«Que cualquier atleta que entrene en serio tenga la comprensión que hoy solo tiene la élite.»** Se usa como propósito (landing, speech en persona, biografías), nunca como título ni como promesa de funciones. El coach es quien la hace posible. Detalle en [[posicionamiento]].
 
 **Reglas:** sin «gemelo digital» ni «agentes de IA» en público; sin fechas ni «mejora el rendimiento»; la visión va como dirección («estamos construyendo hacia»); el coach siempre decide. Cómo conversar con coaches e influencers: [[conversaciones-con-coaches]].
 

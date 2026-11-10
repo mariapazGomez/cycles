@@ -4,7 +4,7 @@ parent: "[[brand]]"
 status: decided
 tags: [brand, landing, copy]
 created: 2026-10-03
-updated: 2026-11-08
+updated: 2026-11-10
 ---
 
 > Hijo de [[speech]]. Texto de la landing para **coaches**, en voz "nosotros" ([[voz-y-tono]]). Vive dentro de `apps/web`, en la ruta `/` para visitantes sin sesión (ver [[PRD-LandingContacto]]). Reescrita el 2026-10-06 tras el feedback de la fundadora: la primera versión no dejaba claro a quién le hablaba ni qué ofrecía, y los ciclos de entrenamiento no tenían protagonismo.
@@ -42,6 +42,26 @@ Reemplaza a la sección "Qué cambia en tu trabajo" y va justo después de la po
 | **Mejora la comunicación** | Tu atleta registra cada serie y cuenta cómo se sintió. Ves quién necesita tu atención. Todo queda en un lugar. | Registro por serie, cierre de sesión, "Necesitan atención" |
 
 Cierre: **No cambia cómo entrenas. Tú sigues diseñando el plan.**
+
+## Propuesta pendiente de aprobación: frase-eje y jerarquía (2026-11-10, CYC-266)
+
+> **No está aplicada.** Es una propuesta de diseño para que la fundadora apruebe antes de tocar `apps/web`. Mockup en `docs/diseno/landing-jerarquia-elite/propuestas.html`. Marco: [[posicionamiento]].
+
+**Decisión que se pide:** dónde y cómo entra **«Que cualquier atleta que entrene en serio tenga la comprensión que hoy solo tiene la élite.»** en la landing, y si el título de la portada cambia.
+
+**Recomendación (opción B):**
+
+- **Título de la portada: se mantiene** («Planifica el ciclo. Recibe el feedback. Ajusta el siguiente.»). Un coach entiende en cinco segundos qué hace Cycles y qué haría con él; la frase-eje es un *por qué* y como título no diría qué es el producto.
+- **Nueva sección «Por qué lo hacemos»**, justo después de los tres pilares (1b) y antes del anillo del ciclo. Una frase grande sobre fondo tinta `#1f2228`, con el texto de apoyo: «En la élite hay un equipo entero que entiende a cada atleta. Cycles le da esa claridad al coach que entrena solo con sus atletas.» Sin subtítulos grises.
+- **«Hacia dónde vamos: Cada ciclo deja memoria»** (7b) se queda, y su etiqueta pasa a remitir a la frase: es el *cómo*.
+- **Cierre de la página** sigue siendo «Nada se pierde entre tú y tus atletas.»
+- **Título de la pestaña y vista previa**: no cambian (CYC-264).
+
+**Jerarquía resultante:** 1 portada (qué) → 1b pilares (qué te cambia) → **1c por qué (nueva)** → 2 anillo → 3 semana normal → 5 teléfono → 6 capturas → 7 sesión omitida → 7b cómo vamos más lejos → 8 acceso anticipado.
+
+**Alternativas descartadas:** (A) la frase como título: bonita, pero no dice qué es Cycles ni a quién le habla; (C) la frase bajo el título como subtítulo: compite con la definición y con las reglas de no poner líneas grises bajo los títulos.
+
+**Reglas que siguen:** sin «gemelo digital», sin «agentes de IA», sin fechas, sin «mejora el rendimiento», sin «ciencia del deporte».
 
 ## 2. Cada ciclo construye el siguiente
 

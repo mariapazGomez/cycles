@@ -4,7 +4,7 @@ parent: "[[brand]]"
 status: draft
 tags: [brand, speech, coaches]
 created: 2026-10-03
-updated: 2026-11-08
+updated: 2026-11-10
 ---
 
 > Hijo de [[historia]] y [[mensajes]]. Speech principal **para coaches**, en voz alta. Decisiones de la fundadora: versión neutra, sin biografía personal; abre con el rol del coach; pone el **ciclo de entrenamiento** al centro (es el nombre del producto); la oferta es acceso anticipado gratis mientras se construye, en vez de una venta. Alineado con [[landing]] el 2026-10-06. Voz según [[voz-y-tono]].
@@ -44,6 +44,14 @@ updated: 2026-11-08
 > Cuando una carga no calza, Cycles te propone cuánto cambiar y tú decides si lo aplicas. Si un día no pudo entrenar, eso también queda: no es un fracaso, es un dato para el siguiente ciclo. Porque cada ciclo construye el siguiente.
 >
 > Todavía lo estamos construyendo, y lo hacemos junto a los primeros coaches. Les damos acceso anticipado, gratis, y su experiencia nos ayuda a decidir qué sigue.
+
+## Apertura con el por qué (2026-11-10, CYC-266)
+
+En una conversación en persona, antes de cualquiera de las versiones de arriba se puede abrir con la frase-eje y pasar al ciclo:
+
+> «Creemos que cualquier atleta que entrene en serio debería tener la comprensión que hoy solo tiene la élite. Y que el coach es quien lo hace posible. Por eso hacemos Cycles: …» (sigue la versión de una frase, 20 segundos o 30 segundos).
+
+Mantiene las reglas públicas: en conversaciones personales se puede nombrar la IA y el gemelo digital como dirección; en la landing y las redes, no. Ver [[posicionamiento]].
 
 ## Qué se evita a propósito
 
