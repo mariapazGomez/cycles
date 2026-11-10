@@ -11,6 +11,8 @@ updated: 2026-11-08
 
 # Hablar de Cycles con entrenadores e influencers
 
+> Para escribirle a posibles colaboradores (perfil comercial, alianzas), ver [[mensajes-a-colaboradores]].
+
 ## Principio
 
 Separar tres cosas: **lo que Cycles hace hoy**, **lo que se está construyendo** y **lo que viene después**. Así no se promete nada que no existe y el entrenador entiende dónde subirse.
