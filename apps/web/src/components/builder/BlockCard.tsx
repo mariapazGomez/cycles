@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Draggable, Droppable, type DraggableProvided } from "@hello-pangea/dnd";
 import type { Exercise } from "@cycles/shared";
 import { CUSTOM_BLOCK_COLORS } from "@cycles/shared";
 import { ExercisePicker } from "../ExercisePicker";
@@ -32,6 +33,8 @@ export function BlockCard({
   attempted,
   actions,
   exercises,
+  drag,
+  draggingRow,
 }: {
   view: BlockView;
   index: number;
@@ -40,6 +43,10 @@ export function BlockCard({
   attempted: boolean;
   actions: BlockCardActions;
   exercises: { data: Exercise[] | undefined; isLoading: boolean; isError: boolean };
+  // Para arrastrar el bloque entero (no aplica a los ejercicios sueltos).
+  drag?: DraggableProvided;
+  // ¿Se está arrastrando un ejercicio? Un bloque plegado ofrece entonces dónde soltarlo.
+  draggingRow: boolean;
 }) {
   const { block, rows } = view;
   const [open, setOpen] = useState(true);
@@ -49,8 +56,9 @@ export function BlockCard({
   const color = block ? blockColorOf(block) : "var(--color-gray-mid)";
 
   return (
-    <section className="bld-block" style={{ ["--block-color" as string]: color }} aria-label={block ? `Bloque ${block.name}` : "Ejercicios sin bloque"}>
+    <section ref={drag?.innerRef} {...(drag?.draggableProps ?? {})} className="bld-block" style={{ ...(drag?.draggableProps.style ?? {}), ["--block-color" as string]: color }} aria-label={block ? `Bloque ${block.name}` : "Ejercicios sin bloque"}>
       <header className="bld-bh">
+        {drag && <span className="bld-grip" {...drag.dragHandleProps} aria-label={`Arrastrar el bloque ${block?.name ?? ""}`}>⠿</span>}
         <button type="button" className="bld-fold" aria-expanded={open} aria-controls={bodyId} aria-label={open ? "Plegar el bloque" : "Abrir el bloque"} onClick={() => setOpen((v) => !v)}>
           <span className="bld-chev" data-open={open} aria-hidden="true" />
         </button>
@@ -115,11 +123,23 @@ export function BlockCard({
         </div>
       )}
 
+      {!open && draggingRow && (
+        <Droppable droppableId={block?.key ?? "loose"} type="ROW">
+          {(p) => (
+            <div ref={p.innerRef} {...p.droppableProps} className="bld-dropstrip">
+              Soltar aquí, al final del bloque
+              {p.placeholder}
+            </div>
+          )}
+        </Droppable>
+      )}
+
       {open && (
         <div id={bodyId} className="bld-body">
           {block?.note && !settings && <p className="bld-bnote">{block.note}</p>}
           {rows.length > 0 && (
             <div className="bld-cols" aria-hidden="true">
+              <span />
               <span>Ejercicio</span>
               <span>Ser.</span>
               <span>Reps</span>
@@ -129,23 +149,36 @@ export function BlockCard({
               <span />
             </div>
           )}
-          {rows.length === 0 && <p className="bld-empty">Este bloque todavía no tiene ejercicios.</p>}
-          {rows.map((row) => (
-            <ExerciseRowEditor
-              key={row.key}
-              row={row}
-              blocks={blocks}
-              attempted={attempted}
-              canMoveUp={actions.canMoveRow(row.key, -1)}
-              canMoveDown={actions.canMoveRow(row.key, 1)}
-              onChange={(patch) => actions.updateRow(row.key, patch)}
-              onMoveUp={() => actions.moveRowInBlock(row.key, -1)}
-              onMoveDown={() => actions.moveRowInBlock(row.key, 1)}
-              onMoveToBlock={(target) => actions.moveRowToBlock(row.key, target)}
-              onDuplicate={() => actions.duplicateRow(row.key)}
-              onRemove={() => actions.removeRow(row.key)}
-            />
-          ))}
+          <Droppable droppableId={block?.key ?? "loose"} type="ROW">
+            {(dropProvided, snapshot) => (
+              <div ref={dropProvided.innerRef} {...dropProvided.droppableProps} className={`bld-rows${snapshot.isDraggingOver ? " bld-over" : ""}`}>
+                {rows.length === 0 && !snapshot.isDraggingOver && <p className="bld-empty">Este bloque todavía no tiene ejercicios.</p>}
+                {rows.map((row, i) => (
+                  <Draggable key={row.key} draggableId={row.key} index={i}>
+                    {(p, snap) => (
+                      <div ref={p.innerRef} {...p.draggableProps} className={`bld-item${snap.isDragging ? " bld-dragging" : ""}`}>
+                        <ExerciseRowEditor
+                          row={row}
+                          blocks={blocks}
+                          attempted={attempted}
+                          canMoveUp={actions.canMoveRow(row.key, -1)}
+                          canMoveDown={actions.canMoveRow(row.key, 1)}
+                          onChange={(patch) => actions.updateRow(row.key, patch)}
+                          onMoveUp={() => actions.moveRowInBlock(row.key, -1)}
+                          onMoveDown={() => actions.moveRowInBlock(row.key, 1)}
+                          onMoveToBlock={(target) => actions.moveRowToBlock(row.key, target)}
+                          onDuplicate={() => actions.duplicateRow(row.key)}
+                          onRemove={() => actions.removeRow(row.key)}
+                          handleProps={p.dragHandleProps}
+                        />
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {dropProvided.placeholder}
+              </div>
+            )}
+          </Droppable>
           <div className="bld-add">
             {adding ? (
               <>

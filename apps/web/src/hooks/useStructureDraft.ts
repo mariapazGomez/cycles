@@ -8,6 +8,8 @@ import {
   moveBlock,
   moveRowInBlock,
   moveRowToBlock,
+  placeRow,
+  reorderBlocks,
   removeBlock,
   structureFromRoutine,
   structurePayload,
@@ -91,6 +93,10 @@ export function useStructureDraft(initial: RoutineDetail | null = null) {
     moveRowInBlock: (key: string, direction: -1 | 1) => edit((s) => moveRowInBlock(s, key, direction)),
     canMoveRow: (key: string, direction: -1 | 1) => canMoveInBlock(structure, key, direction),
     moveRowToBlock: (key: string, blockKey: string | null) => edit((s) => moveRowToBlock(s, key, blockKey)),
+
+    // Arrastre: soltar un ejercicio en una posición de un bloque, o reordenar un bloque.
+    dropRow: (key: string, blockKey: string | null, index: number) => edit((s) => placeRow(s, key, blockKey, index)),
+    dropBlock: (from: number, to: number) => edit((s) => reorderBlocks(s, from, to)),
 
     addBlock: (type: WorkBlockType): string => {
       const key = makeKey();
