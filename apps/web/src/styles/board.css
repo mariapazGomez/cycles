@@ -180,7 +180,7 @@ body.wide-main .app-main { max-width: 1360px; }
 }
 .bd-pop .hm-card { padding: 4px; box-shadow: none; margin: 0; max-width: none; }
 
-/* Cajón de crear/editar rutina y ventana de detalles (CYC-179, PR 2) */
+/* Piezas del tablero que quedan de la rutina (CYC-179) */
 .bd-rrow { display: flex; align-items: center; gap: 4px; }
 .bd-rrow .bd-ritem { flex: 1; min-width: 0; }
 .bd-redit { flex: none; opacity: 0; }

@@ -9,7 +9,7 @@ import type { Row } from "../../lib/routineDraft";
 import { ExerciseRowEditor } from "./ExerciseRowEditor";
 import { RowMenu } from "./RowMenu";
 
-export interface BlockCardActions {
+interface BlockCardActions {
   addExercise: (exercise: Exercise, blockKey: string | null) => string;
   updateRow: (key: string, patch: Partial<Row>) => void;
   duplicateRow: (key: string) => void;

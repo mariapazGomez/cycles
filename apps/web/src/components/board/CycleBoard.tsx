@@ -396,7 +396,7 @@ export function CycleBoard({ cycle, athlete }: { cycle: TrainingCycle; athlete: 
                 disabled={readOnly}
                 draggingId={drag?.kind === "routine" ? drag.routine.id : null}
                 onRetry={() => routinesQuery.refetch()}
-                onOpenDrawer={(routine) => {
+                onOpenBuilder={(routine) => {
                   setSheetOpen(false);
                   openBuilder(routine?.id ?? "new");
                 }}

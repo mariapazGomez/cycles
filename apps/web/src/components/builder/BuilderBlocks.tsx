@@ -72,7 +72,7 @@ export function BuilderBlocks({
       onDragEnd={onDragEnd}
       dragHandleUsageInstructions="Presiona Espacio para levantar. Con las flechas lo mueves, Espacio lo suelta y Escape cancela. También puedes usar el menú de acciones."
     >
-      <div className="bld-main" data-tour={tour ? "drawer-exercises" : undefined}>
+      <div className="bld-main" data-tour={tour ? "builder-exercises" : undefined}>
         {draft.views.length === 0 && <p className="bld-empty">Agrega el primer bloque o un ejercicio para empezar.</p>}
         <Droppable droppableId="blocks" type="BLOCK" isDropDisabled={locked}>
           {(dropProvided) => (

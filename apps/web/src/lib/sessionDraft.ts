@@ -109,7 +109,7 @@ export function sessionPayload(s: Structure): SessionStructureInput {
   };
 }
 
-export interface SessionMeta {
+interface SessionMeta {
   name: string;
   date: string;
   status: SessionStatus;

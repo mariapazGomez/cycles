@@ -14,7 +14,7 @@ interface RoutinePanelProps {
   draggingId: string | null;
   onRetry: () => void;
   // Abre la página del constructor para crear (sin rutina) o editar una rutina.
-  onOpenDrawer: (routine: RoutineDetail | null) => void;
+  onOpenBuilder: (routine: RoutineDetail | null) => void;
   // Elegir una rutina sin arrastrar: abre el selector de día anclado a la fila.
   onActivate: (routine: RoutineDetail, anchor: HTMLElement) => void;
   onDragStart: (routine: RoutineDetail) => void;
@@ -22,7 +22,7 @@ interface RoutinePanelProps {
 }
 
 // Panel de rutinas (variante A): buscador, lista arrastrable y «Crear rutina nueva».
-export function RoutinePanel({ routines, isLoading, isError, disabled, draggingId, onRetry, onOpenDrawer, onActivate, onDragStart, onDragEnd }: RoutinePanelProps) {
+export function RoutinePanel({ routines, isLoading, isError, disabled, draggingId, onRetry, onOpenBuilder, onActivate, onDragStart, onDragEnd }: RoutinePanelProps) {
   const [query, setQuery] = useState("");
   const filtered = useMemo(() => {
     const needle = normalize(query.trim());
@@ -95,7 +95,7 @@ export function RoutinePanel({ routines, isLoading, isError, disabled, draggingI
                 </span>
               </div>
               {!disabled && (
-                <button type="button" className="bd-ghost bd-redit" aria-label={`Editar ${routine.name}`} onClick={() => onOpenDrawer(routine)}>
+                <button type="button" className="bd-ghost bd-redit" aria-label={`Editar ${routine.name}`} onClick={() => onOpenBuilder(routine)}>
                   Editar
                 </button>
               )}
@@ -104,7 +104,7 @@ export function RoutinePanel({ routines, isLoading, isError, disabled, draggingI
         </ul>
       )}
       {!disabled && (
-        <button type="button" className="bd-btn bd-btn-p bd-new" data-tour="new-routine" onClick={() => onOpenDrawer(null)}>
+        <button type="button" className="bd-btn bd-btn-p bd-new" data-tour="new-routine" onClick={() => onOpenBuilder(null)}>
           Crear rutina nueva
         </button>
       )}

@@ -53,7 +53,7 @@ export function BuilderSidePanel({
         <label className="bld-lbl" htmlFor="bd-r-name">
           {nameLabel}
         </label>
-        <input id="bd-r-name" data-autofocus data-tour={tour ? "drawer-name" : undefined} className="bld-name" type="text" value={name} disabled={locked} onChange={(e) => onName(e.target.value)} />
+        <input id="bd-r-name" data-autofocus data-tour={tour ? "builder-name" : undefined} className="bld-name" type="text" value={name} disabled={locked} onChange={(e) => onName(e.target.value)} />
         {fields}
       </div>
       <div className="bld-kpis" aria-live="polite">
@@ -74,7 +74,7 @@ export function BuilderSidePanel({
           <b>{formatInteger(stats.volumeKg)} kg</b>
         </div>
       </div>
-      <button type="button" className="bld-btn bld-primary" data-tour={tour ? "drawer-save" : undefined} disabled={saving || locked} onClick={onSave}>
+      <button type="button" className="bld-btn bld-primary" data-tour={tour ? "builder-save" : undefined} disabled={saving || locked} onClick={onSave}>
         {saving ? "Guardando…" : saveLabel}
       </button>
       {hasLoose && !locked && (
