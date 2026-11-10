@@ -46,13 +46,14 @@ ul.pc li.n::before{background:var(--orange)}
 .why .q em{font-style:normal;color:#7db0ff}
 .why p{font-size:clamp(16px,1.6vw,20px);max-width:44em;color:#d5dbe6}
 .why .logo{width:clamp(72px,9vw,120px);height:auto;display:block;overflow:visible}
-.logo .arc{fill:none;stroke:#3080fc;stroke-width:17;stroke-linecap:round;transform-origin:50px 50px}
-.logo .a1{stroke-dasharray:104 147.3;animation:spin 9s cubic-bezier(.6,0,.4,1) infinite,breathe 9s ease-in-out infinite}
-.logo .a2{stroke-dasharray:104 147.3;transform:rotate(180deg);animation:spin2 9s cubic-bezier(.6,0,.4,1) infinite,breathe 9s ease-in-out infinite}
-@keyframes spin{from{transform:rotate(-20deg)}to{transform:rotate(340deg)}}
-@keyframes spin2{from{transform:rotate(160deg)}to{transform:rotate(520deg)}}
-@keyframes breathe{0%,100%{stroke-dasharray:104 147.3}50%{stroke-dasharray:118 133.3}}
-@media(prefers-reduced-motion:reduce){.logo .arc{animation:none}.logo .a1{transform:rotate(-20deg)}.logo .a2{transform:rotate(160deg)}}
+.logo .flow{transform-origin:50px 50px;animation:flow 7s linear infinite}
+.logo .arc{fill:none;stroke:#3080fc;stroke-width:17;stroke-linecap:round;transform-origin:50px 50px;stroke-dasharray:104 147.3}
+.logo .a2{transform:rotate(180deg)}
+.logo .tr{fill:none;stroke:#3080fc;stroke-width:10;stroke-linecap:round;opacity:.32;transform-origin:50px 50px;stroke-dasharray:15 236.3}
+.logo .t1{transform:rotate(-25deg)}
+.logo .t2{transform:rotate(155deg)}
+@keyframes flow{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.logo .flow{animation:none}}
 .next{background:var(--soft);padding:clamp(24px,4vw,40px) clamp(20px,6vw,80px);display:flex;gap:16px;align-items:center;flex-wrap:wrap}
 .next h3{font-size:clamp(20px,2.6vw,28px)}
 .next span{font:600 12px Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--blue-d)}
@@ -147,9 +148,13 @@ tr:last-child td{border-bottom:0}
 <div class="eyebrow">Por qué lo hacemos</div>
 <div class="q">Que cualquier atleta que entrene en serio tenga la comprensión que <em>hoy solo tiene la élite.</em></div>
 <p>En la élite hay un equipo entero que entiende a cada atleta. Cycles le da esa claridad al coach que entrena solo con sus atletas.</p>
-<svg class="logo" viewBox="0 0 100 100" role="img" aria-label="Isotipo de Cycles: dos arcos que giran y cierran el ciclo">
+<svg class="logo" viewBox="0 0 100 100" role="img" aria-label="Isotipo de Cycles: dos arcos que fluyen en un ciclo continuo">
+<g class="flow">
+<circle class="tr t1" cx="50" cy="50" r="40"/>
+<circle class="tr t2" cx="50" cy="50" r="40"/>
 <circle class="arc a1" cx="50" cy="50" r="40"/>
 <circle class="arc a2" cx="50" cy="50" r="40"/>
+</g>
 </svg>
 </section>
 <section class="next">
