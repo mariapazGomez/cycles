@@ -15,6 +15,7 @@
   position: relative;
   container-type: inline-size;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr) auto;
   width: min(720px, 100%);
   max-height: calc(100dvh - 32px);
@@ -40,8 +41,11 @@
   cursor: pointer;
 }
 
+
 .nv-demo-wrap {
-  background: var(--color-blue-50);
+  min-width: 0;
+  overflow: hidden;
+  background: #eef1f6;
   border-bottom: 1px solid var(--color-gray-border);
 }
 
@@ -157,212 +161,340 @@
   outline-offset: 2px;
 }
 
-/* Demostración 16:9 */
+/* Demostración: escenario fijo de 648 × 292 escalado al ancho del popup (maqueta del #230) */
 .nd-frame {
   width: 100%;
-  aspect-ratio: 16 / 9;
-  max-height: 292px;
-  margin-inline: auto;
+  min-width: 0;
 }
 
-.nd,
+.nd-scaler {
+  margin-inline: auto;
+  overflow: hidden;
+}
+
+.nd-stage {
+  width: 648px;
+  height: 292px;
+  transform-origin: 0 0;
+}
+
+.nd-video-frame,
 .nd-video {
   display: block;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 292px;
+  object-fit: contain;
 }
 
-.nd text {
+.nd {
+  --ink: #1f2228;
+  --ink2: #5c6068;
+  position: relative;
+  width: 648px;
+  height: 292px;
+  overflow: hidden;
+  background: #eef1f6;
+  color: var(--ink);
   font-family: "Inter", system-ui, sans-serif;
 }
 
-.nd-label {
-  font-size: 10px;
+.nd small {
+  color: var(--ink2);
+  font-weight: 700;
+}
+
+.nd-rw,
+.nd-bk {
+  position: absolute;
+  left: 36px;
+  right: 36px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: var(--shadow-e1);
+}
+
+.nd-rw {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 38px;
+  padding: 0 14px;
+  font-size: 13.8px;
   font-weight: 600;
-  fill: var(--color-ink);
 }
 
-.nd-hint {
-  fill: var(--color-ink-secondary);
-  font-weight: 500;
+.nd-rw small,
+.nd-e small {
+  margin-left: auto;
 }
 
-.nd-block-bg {
-  fill: var(--color-bg);
-  stroke: var(--color-gray-border);
+.nd-bk {
+  border-left: 5px solid var(--c);
+  overflow: hidden;
 }
 
-.nd-row-bg {
-  fill: var(--color-gray-light);
-  stroke: var(--color-gray-border);
+.nd-h {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  font-size: 13.8px;
+  font-weight: 700;
 }
 
-.nd-ink {
-  fill: var(--color-ink);
-  opacity: 0.55;
+.nd-h small {
+  font-weight: 600;
 }
 
-.nd-ink-soft {
-  fill: var(--color-gray-mid);
-  opacity: 0.6;
+.nd-e {
+  display: flex;
+  padding: 6px 12px;
+  border-top: 1px solid #edf0f4;
+  font-size: 13.4px;
+  font-weight: 600;
+}
+
+.nd-blank {
+  height: 36px;
+  padding: 0;
+}
+
+.nd-pl {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--c);
+}
+
+.nd-btnm {
+  position: absolute;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: var(--color-blue);
+  color: #fff;
+  font-size: 13.4px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .nd-chip {
-  fill: var(--color-bg);
-  stroke: var(--color-blue-300);
-  stroke-width: 1.5;
+  position: absolute;
+  left: 36px;
+  bottom: 14px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 12.8px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
-.nd-primary {
-  fill: var(--color-blue);
+/* 1 · agrupar */
+.nd-flat,
+.nd-old {
+  opacity: 0;
+  animation: nd-fo 7s infinite;
 }
 
-.nd-btn-label {
-  font-size: 10px;
-  font-weight: 700;
-  fill: #fff;
+.nd-flat {
+  position: absolute;
+  inset: 0;
 }
 
-/* Animación: el estado base es el resultado final; los fotogramas parten de otro estado
-   y llegan a él. Bucle de 7 s. */
-@keyframes nd-in {
-  0%,
-  10% {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  30%,
-  88% {
-    opacity: 1;
-    transform: none;
-  }
-  96%,
-  100% {
-    opacity: 0;
-    transform: translateY(8px);
-  }
+.nd-d1 .nd-bk,
+.nd-d3 .nd-bk {
+  animation: nd-pop 7s infinite both;
 }
 
-@keyframes nd-flat {
-  0%,
-  14% {
-    transform: translateY(var(--dy, 0));
-  }
-  36%,
-  88% {
-    transform: none;
-  }
-  96%,
-  100% {
-    transform: translateY(var(--dy, 0));
-  }
-}
-
-@keyframes nd-press {
-  0%,
-  12% {
-    transform: scale(1);
-  }
-  20% {
-    transform: scale(0.94);
-  }
-  28%,
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes nd-out {
-  0%,
-  26% {
-    opacity: 1;
-  }
-  34%,
-  88% {
-    opacity: 0;
-  }
-  96%,
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes nd-late {
-  0%,
-  30% {
-    opacity: 0;
-  }
-  44%,
-  88% {
-    opacity: 1;
-  }
-  96%,
-  100% {
-    opacity: 0;
-  }
-}
-
-.nd-b1,
-.nd-b2,
-.nd-b3,
-.nd-note {
-  animation: nd-in 7s ease-in-out infinite;
-}
-
-.nd-b2 {
+.nd-d1 .nd-b2 {
   animation-delay: 0.25s;
 }
 
-.nd-b3,
-.nd-note {
+.nd-d1 .nd-b3 {
   animation-delay: 0.5s;
 }
 
-.nd-r1,
-.nd-r2,
-.nd-r3,
-.nd-mover {
-  animation: nd-flat 7s ease-in-out infinite;
+/* 2 · arrastrar */
+.nd-gap {
+  position: absolute;
+  left: 36px;
+  right: 36px;
+  top: 83px;
+  height: 36px;
+  box-sizing: border-box;
+  border: 2px dashed #2f9e5f;
+  border-radius: 8px;
+  background: rgba(47, 158, 95, 0.1);
+  opacity: 0;
+  animation: nd-gp 7s infinite;
 }
 
-.nd-menu {
-  animation: nd-late 7s ease-in-out infinite;
+.nd-mv {
+  position: absolute;
+  left: 46px;
+  right: 46px;
+  top: 83px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: var(--shadow-e1);
+  font-size: 13.4px;
+  font-weight: 700;
+  animation: nd-mv 7s infinite;
 }
 
-.nd-legacy .nd-header {
-  animation: nd-late 7s ease-in-out infinite;
+.nd-mv small {
+  margin-left: auto;
 }
 
-.nd-legacy .nd-btn,
-.nd-page .nd-btn {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: nd-press 7s ease-in-out infinite;
+/* 3 · rutinas anteriores */
+.nd-old {
+  position: absolute;
+  left: 36px;
+  right: 36px;
+  top: 20px;
+  height: 150px;
 }
 
-.nd-legacy .nd-hint {
-  animation: nd-out 7s ease-in-out infinite;
+.nd-d3 .nd-btnm {
+  left: 50%;
+  top: 182px;
+  transform: translateX(-50%);
+  animation: nd-pr 7s infinite;
 }
 
-.nd-page .nd-before {
-  animation: nd-out 7s ease-in-out infinite;
+.nd-d3 .nd-b2 {
+  animation-delay: 0.25s;
 }
 
-.nd-page .nd-after {
-  animation: nd-late 7s ease-in-out infinite;
+/* 4 · página nueva */
+.nd-d4 .nd-btnm {
+  right: 36px;
+  top: 18px;
 }
 
+.nd-pgw {
+  position: absolute;
+  inset: 0;
+  padding: 14px 16px;
+  background: #f7f8fb;
+  animation: nd-sl 7s infinite;
+}
+
+.nd-pg-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+}
+
+.nd-pgw .nd-wide {
+  left: 16px;
+  right: 16px;
+}
+
+@keyframes nd-fo {
+  0%,
+  38% {
+    opacity: 1;
+  }
+  48%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes nd-pop {
+  0%,
+  40% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  52%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes nd-gp {
+  0%,
+  20% {
+    opacity: 0;
+  }
+  28%,
+  54% {
+    opacity: 1;
+  }
+  62%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes nd-mv {
+  0%,
+  12% {
+    top: 178px;
+    box-shadow: var(--shadow-e1);
+    transform: none;
+  }
+  22% {
+    top: 178px;
+    box-shadow: 0 14px 26px -8px rgba(31, 34, 40, 0.45);
+    transform: rotate(-1deg);
+  }
+  52% {
+    top: 95px;
+    box-shadow: 0 14px 26px -8px rgba(31, 34, 40, 0.45);
+    transform: rotate(-1deg);
+  }
+  62%,
+  100% {
+    top: 83px;
+    box-shadow: var(--shadow-e1);
+    transform: none;
+  }
+}
+
+@keyframes nd-pr {
+  0%,
+  20% {
+    box-shadow: 0 0 0 0 rgba(48, 128, 252, 0);
+  }
+  30% {
+    box-shadow: 0 0 0 8px rgba(48, 128, 252, 0.3);
+  }
+  40%,
+  100% {
+    box-shadow: none;
+  }
+}
+
+@keyframes nd-sl {
+  0%,
+  38% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  52%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Con «reducir movimiento» queda la imagen fija del resultado final. */
 @media (prefers-reduced-motion: reduce) {
   .nd *,
   .nd-video {
     animation: none !important;
     transition: none !important;
-  }
-
-  /* La imagen fija muestra el resultado final: lo que solo existe «antes» se oculta. */
-  .nd-legacy .nd-hint,
-  .nd-page .nd-before {
-    display: none;
   }
 }
 
