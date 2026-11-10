@@ -39,7 +39,7 @@ Cada vez que se entrega una funcionalidad nueva, se genera su **novedad**: un po
 | 1 | Te presentamos la nueva forma de agrupar tu entrenamiento | Arma la rutina por bloques: calentamiento, pliometría, fuerza y más. Cada bloque tiene su color y su ícono. | Una lista plana se ordena en tres bloques de colores. |
 | 2 | Mueve los ejercicios entre bloques | Arrastra un ejercicio dentro de su bloque o a otro. ¿Prefieres no arrastrar? Usa ⋯ y Mover a otro bloque. | Un ejercicio se arrastra de Fuerza a Pliometría; la alternativa por menú queda a la vista. |
 | 3 | Tus rutinas anteriores siguen igual | Cuando quieras, toca Agrupar en bloques y ordénalas. Solo sale si tienes rutinas sin bloque. | Se pulsa «Agrupar en bloques» y la rutina suelta se ordena. **Se omite si no hay rutinas sin bloque** (`when: hasUngroupedRoutines`). |
-| 4 | Un solo cajón para crear y editar | Nueva rutina y Editar abren el mismo cajón. Ya no hay una página aparte. | Se pulsa «Nueva rutina» y el cajón entra por la derecha. |
+| 4 | Una página nueva para editar por bloques | Rutinas y sesiones se editan en la misma página, ordenadas por bloques. Toca Editar y pruébala. | Se pulsa «Editar» y entra la página, con los bloques. **Depende de que la usuaria confirme la página aislada de edición** (`when: blocksPageEnabled`); hasta entonces se omite. |
 
 ## 4. Cómo se define una novedad nueva (barato y sin tocar la lógica)
 
