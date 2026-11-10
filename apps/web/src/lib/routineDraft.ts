@@ -46,7 +46,9 @@ export function removeRowFrom(rows: Row[], key: string): Row[] {
 // La copia queda justo debajo del original.
 export function duplicateRowIn(rows: Row[], index: number, key: string): Row[] {
   if (index < 0 || index >= rows.length) return rows;
-  return [...rows.slice(0, index + 1), { ...rows[index], key }, ...rows.slice(index + 1)];
+  // La copia es un ejercicio nuevo: no hereda el id ni las series registradas del original.
+  const copy = { ...rows[index], key, sessionExerciseId: undefined, loggedCount: undefined, result: undefined };
+  return [...rows.slice(0, index + 1), copy, ...rows.slice(index + 1)];
 }
 
 // Un ejercicio se mueve dentro de su bloque: al guardar, cada bloque lleva sus ejercicios, así

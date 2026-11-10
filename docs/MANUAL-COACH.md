@@ -49,7 +49,7 @@ Para cambiarla después: **Rutinas** → abre la rutina → edita y guarda.
 Cada ejercicio puede llevar **una nota** que tu atleta ve en «Hoy» y al registrar ese ejercicio, con el título «Nota de tu coach».
 
 - **En la rutina:** el campo **Nota para el atleta**. Cuando asignas la rutina a un día, la nota se **copia** a la sesión; si después cambias la rutina, las sesiones ya asignadas **no** cambian.
-- **En una sesión:** toca el nombre de la sesión y, bajo el ejercicio, **Agregar nota** (o **Editar nota**). Dejarla vacía la borra. Sirve para un ajuste solo de esa semana.
+- **En una sesión:** abre la sesión y, en el menú **⋯** del ejercicio, elige **Agregar nota** (o **Editar nota**). Dejarla vacía la borra. Sirve para un ajuste solo de esa semana.
 - **Privacidad:** la nota puede mencionar la salud de tu atleta. Solo la ven tú y ese atleta; **no sale en los avisos** de la campana. Aun así, evita datos que no necesites.
 
 ### Si falta un ejercicio
@@ -187,3 +187,8 @@ Hoy la app se instala con **TestFlight**, la app de Apple para probar apps antes
 - [ ] Rutinas asignadas en las semanas del ciclo
 - [ ] Email de Apple ID del atleta enviado al equipo
 - [ ] Atleta instaló la app y ve su sesión en **Hoy**
+
+
+### La sesión en el constructor por bloques
+
+Al abrir una sesión (desde el calendario, Inicio, la pizarra o la ficha del atleta) ves la misma página que al editar una rutina: bloques a la izquierda y, a la derecha, el nombre, la fecha, el estado, el resumen y **Guardar cambios**. Puedes agregar, mover, arrastrar o quitar bloques y ejercicios, y cambiar series, reps, carga, descanso y reps en reserva. **Borrar sesión** pide confirmación. Una sesión ya hecha, omitida o con series registradas se abre **bloqueada**: bajo cada ejercicio ves lo que registró el atleta («Registró 3 × 8 a 62 kg») y **Editar** la desbloquea si hace falta corregir algo. Un ejercicio con series registradas no se puede quitar, y sus series se conservan siempre.

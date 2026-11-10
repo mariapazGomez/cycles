@@ -21,6 +21,11 @@ export interface Row {
   note: string;
   // Bloque de trabajo al que pertenece; null = suelto (CYC-271).
   blockId: string | null;
+  // Solo en sesiones (CYC-275, PR 3): el ejercicio ya existente (conserva su id y sus series
+  // registradas), cuántas series registró el atleta y un resumen de lo que hizo.
+  sessionExerciseId?: string;
+  loggedCount?: number;
+  result?: string;
 }
 
 export const DEFAULT_SETS = "3";

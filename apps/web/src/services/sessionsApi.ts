@@ -4,6 +4,7 @@ import type {
   SessionExercise,
   SessionFeedback,
   SessionStatus,
+  SessionStructureInput,
   SessionWorkBlock,
   TrainingCycle,
   TrainingSession,
@@ -70,32 +71,7 @@ export function duplicateSession(id: string, data: { scheduledDate: string; toda
   return apiRequest<SessionDetail>(`/sessions/${id}/duplicate`, { method: "POST", body: data });
 }
 
-export function addExercise(
-  sessionId: string,
-  data: {
-    exerciseId: string;
-    targetSets: number;
-    targetReps: number;
-    targetWeight?: number;
-    targetRestSeconds?: number;
-  },
-) {
-  return apiRequest<SessionExerciseWithExercise>(`/sessions/${sessionId}/exercises`, {
-    method: "POST",
-    body: data,
-  });
-}
-
-export function updateExercise(
-  id: string,
-  data: Partial<{ targetSets: number; targetReps: number; targetWeight: number; targetRestSeconds: number; note: string }>,
-) {
-  return apiRequest<SessionExerciseWithExercise>(`/session-exercises/${id}`, {
-    method: "PATCH",
-    body: data,
-  });
-}
-
-export function removeExercise(id: string) {
-  return apiRequest<void>(`/session-exercises/${id}`, { method: "DELETE" });
+// Guarda la estructura completa de la sesión (bloques y ejercicios en orden), CYC-275.
+export function saveSessionStructure(id: string, data: SessionStructureInput) {
+  return apiRequest<SessionDetail>(`/sessions/${id}/structure`, { method: "PUT", body: data });
 }

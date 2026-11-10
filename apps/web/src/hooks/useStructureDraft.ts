@@ -1,6 +1,8 @@
 import { useCallback, useRef, useState } from "react";
 import type { Exercise, WorkBlockType } from "@cycles/shared";
 import type { RoutineDetail } from "../services/routinesApi";
+import type { SessionDetail } from "../services/sessionsApi";
+import { SESSION_MESSAGES, hasLoggedRows, sessionPayload, structureFromSession, validateSessionStructure } from "../lib/sessionDraft";
 import {
   addBlock,
   canMoveInBlock,
@@ -30,7 +32,7 @@ export interface UndoState {
 
 // El borrador de una rutina con sus bloques mientras el coach la arma (CYC-275). Lo usa la
 // página del constructor; la lógica está en lib/blocksDraft.ts.
-export function useStructureDraft(initial: RoutineDetail | null = null) {
+export function useStructureDraft(initial: RoutineDetail | null = null, mode: "routine" | "session" = "routine") {
   const counter = useRef(0);
   const makeKey = useCallback(() => `n-${++counter.current}`, []);
   const [name, setName] = useState(initial?.name ?? "");
@@ -47,6 +49,17 @@ export function useStructureDraft(initial: RoutineDetail | null = null) {
       setName(routine.name);
       setStructure(next);
       baseline.current = structureSignature(routine.name, structureFromRoutine(routine, () => "x"));
+    },
+    [makeKey],
+  );
+
+  // Una sesión ya cargada (modo sesión): con los ids de sus ejercicios y bloques.
+  const loadSession = useCallback(
+    (session: SessionDetail) => {
+      setName(session.name);
+      setStructure(structureFromSession(session, makeKey));
+      baseline.current = structureSignature(session.name, structureFromSession(session, () => "x"));
+      setError(null);
     },
     [makeKey],
   );
@@ -81,6 +94,7 @@ export function useStructureDraft(initial: RoutineDetail | null = null) {
       baseline.current = structureSignature(name, structure);
     },
     load,
+    loadSession,
 
     addExercise: (exercise: Exercise, blockKey: string | null): string => {
       const key = makeKey();
@@ -89,7 +103,11 @@ export function useStructureDraft(initial: RoutineDetail | null = null) {
     },
     updateRow: (key: string, patch: Partial<Row>) => setStructure((s) => ({ ...s, rows: updateRowIn(s.rows, key, patch) })),
     duplicateRow: (key: string) => edit((s) => ({ ...s, rows: duplicateRowIn(s.rows, s.rows.findIndex((r) => r.key === key), makeKey()) })),
-    removeRow: (key: string) => editWithUndo("Ejercicio quitado.", (s) => ({ ...s, rows: removeRowFrom(s.rows, key) })),
+    removeRow: (key: string) => {
+      // Un ejercicio con series registradas no se quita (la API tampoco lo deja).
+      if (structure.rows.some((r) => r.key === key && (r.loggedCount ?? 0) > 0)) return setError(SESSION_MESSAGES.removeLogged);
+      editWithUndo("Ejercicio quitado.", (s) => ({ ...s, rows: removeRowFrom(s.rows, key) }));
+    },
     moveRowInBlock: (key: string, direction: -1 | 1) => edit((s) => moveRowInBlock(s, key, direction)),
     canMoveRow: (key: string, direction: -1 | 1) => canMoveInBlock(structure, key, direction),
     moveRowToBlock: (key: string, blockKey: string | null) => edit((s) => moveRowToBlock(s, key, blockKey)),
@@ -104,7 +122,10 @@ export function useStructureDraft(initial: RoutineDetail | null = null) {
       return key;
     },
     updateBlock: (key: string, patch: Partial<Omit<DraftBlock, "key" | "id">>) => setStructure((s) => updateBlock(s, key, patch)),
-    removeBlock: (key: string, label: string) => editWithUndo(`Bloque «${label}» quitado.`, (s) => removeBlock(s, key)),
+    removeBlock: (key: string, label: string) => {
+      if (hasLoggedRows(structure.rows.filter((r) => r.blockId === key))) return setError(SESSION_MESSAGES.removeBlockLogged);
+      editWithUndo(`Bloque «${label}» quitado.`, (s) => removeBlock(s, key));
+    },
     moveBlock: (key: string, direction: -1 | 1) => edit((s) => moveBlock(s, key, direction)),
     groupLoose: () => edit((s) => groupLoose(s, makeKey())),
 
@@ -112,11 +133,12 @@ export function useStructureDraft(initial: RoutineDetail | null = null) {
     check: (): boolean => {
       setError(null);
       setAttempted(true);
-      const problem = validateStructure(name, structure);
+      const problem = mode === "session" ? validateSessionStructure(name, structure) : validateStructure(name, structure);
       if (problem) setError(problem);
       return problem === null;
     },
     payload: () => structurePayload(name, structure),
+    sessionPayload: () => sessionPayload(structure),
     stats: structureStats(structure),
   };
 }

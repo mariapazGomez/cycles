@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { formatInteger } from "../../lib/format";
 import type { RoutineStats } from "../../lib/routineStats";
 
@@ -15,6 +16,13 @@ export function BuilderSidePanel({
   onCancel,
   onStay,
   onLeave,
+  nameLabel = "Nombre de la rutina",
+  saveLabel = "Guardar rutina",
+  footNote = "Editar la rutina no cambia las sesiones que ya tienes asignadas. Volumen = series × reps × carga; duración = 40 s de trabajo por serie más el descanso.",
+  fields,
+  extra,
+  tour = true,
+  locked = false,
 }: {
   name: string;
   onName: (value: string) => void;
@@ -28,14 +36,25 @@ export function BuilderSidePanel({
   onCancel: () => void;
   onStay: () => void;
   onLeave: () => void;
+  nameLabel?: string;
+  saveLabel?: string;
+  footNote?: string;
+  // Campos extra bajo el nombre (en la sesión: fecha y estado).
+  fields?: ReactNode;
+  // Acciones extra al final (en la sesión: borrar).
+  extra?: ReactNode;
+  // Anclas de la guía de la coach (solo en la rutina).
+  tour?: boolean;
+  locked?: boolean;
 }) {
   return (
-    <aside className="bld-side" aria-label="Resumen de la rutina">
+    <aside className="bld-side" aria-label="Resumen">
       <div>
         <label className="bld-lbl" htmlFor="bd-r-name">
-          Nombre de la rutina
+          {nameLabel}
         </label>
-        <input id="bd-r-name" data-autofocus data-tour="drawer-name" className="bld-name" type="text" value={name} onChange={(e) => onName(e.target.value)} />
+        <input id="bd-r-name" data-autofocus data-tour={tour ? "drawer-name" : undefined} className="bld-name" type="text" value={name} disabled={locked} onChange={(e) => onName(e.target.value)} />
+        {fields}
       </div>
       <div className="bld-kpis" aria-live="polite">
         <div>
@@ -55,10 +74,10 @@ export function BuilderSidePanel({
           <b>{formatInteger(stats.volumeKg)} kg</b>
         </div>
       </div>
-      <button type="button" className="bld-btn bld-primary" data-tour="drawer-save" disabled={saving} onClick={onSave}>
-        {saving ? "Guardando…" : "Guardar rutina"}
+      <button type="button" className="bld-btn bld-primary" data-tour={tour ? "drawer-save" : undefined} disabled={saving || locked} onClick={onSave}>
+        {saving ? "Guardando…" : saveLabel}
       </button>
-      {hasLoose && (
+      {hasLoose && !locked && (
         <button type="button" className="bld-btn" onClick={onGroup}>
           Agrupar en bloques
         </button>
@@ -78,7 +97,8 @@ export function BuilderSidePanel({
           Cancelar
         </button>
       )}
-      <p className="bld-foot">Editar la rutina no cambia las sesiones que ya tienes asignadas. Volumen = series × reps × carga; duración = 40 s de trabajo por serie más el descanso.</p>
+      {extra}
+      <p className="bld-foot">{footNote}</p>
     </aside>
   );
 }
