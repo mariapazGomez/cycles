@@ -26,8 +26,8 @@ updated: 2026-09-25
 | `/` | Inicio. Coach: tarjeta oscura con quién necesita atención y por quién empezar, avisos por atleta con ajuste de carga y el panel "Tus atletas" con la semana en curso. Atleta: su próxima sesión, empezarla u omitirla | Autenticado |
 | `/athletes/:athleteId` | Resumen del atleta: avisos, carga semanal, adherencia, fuerza estimada por ejercicio | Autenticado (coach, relación activa) |
 | `/routines` | Biblioteca de rutinas: tarjetas con grupos musculares y totales, editar, borrar con confirmación | Autenticado (coach) |
-| `/routines/new` | Enlace antiguo: redirige a la Biblioteca con el cajón «Crear rutina» abierto (`/biblioteca?tipo=rutinas&rutina=nueva`) | Autenticado (coach) |
-| `/routines/:id` | Enlace antiguo: redirige a la Biblioteca con el cajón «Editar rutina» abierto (`?rutina=<id>`) | Autenticado (coach dueño) |
+| `/routines/new` | Constructor de rutinas por bloques, para crear (bloques a la izquierda, panel fijo con el resumen a la derecha). Con `?volver=<ruta>` regresa a esa pantalla al guardar o cancelar | Autenticado (coach) |
+| `/routines/:id` | El mismo constructor, para editar una rutina existente | Autenticado (coach dueño) |
 | `/sessions/:id/registro` | Registro de una sesión por serie + cierre (esfuerzo, duración, dolor), pensado para el celular | Autenticado (atleta asignado) |
 | `/athletes` | Invitar atletas + lista con su estado | Autenticado (coach) |
 | `/cycles` | Planes: lista de ciclos + crear uno nuevo | Autenticado (coach) |

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { TrainingCycle, TrainingSession } from "@cycles/shared";
 import * as sessionsApi from "../../services/sessionsApi";
@@ -9,6 +10,7 @@ import * as trackingApi from "../../services/trackingApi";
 import { useBoardActions } from "../../hooks/useBoardActions";
 import { buildWeeks, canMove, canRemove, currentDayOf, isTentative, validDaysByWeek, type BoardDay } from "../../lib/board";
 import { toLocalDay } from "../../lib/calendar";
+import { routineBuilderPath } from "../../lib/library";
 import { addDays, dayOfMonth, shortDate, weekRangeLabel, weekdayShort } from "../../lib/weekCalendar";
 import { AttentionList, useDismissedAlerts } from "../AttentionList";
 import { PlanCalendarSkeleton } from "../Skeleton";
@@ -21,7 +23,6 @@ import { SessionCard } from "./SessionCard";
 import { DayCell } from "./DayCell";
 import { SaveIndicator } from "./SaveIndicator";
 import { UndoToast } from "./UndoToast";
-import { RoutineDrawer } from "./RoutineDrawer";
 import { CopyIcon, MoveIcon, TrashIcon } from "./icons";
 
 type Drag = { kind: "routine"; routine: routinesApi.RoutineDetail } | { kind: "session"; session: TrainingSession } | null;
@@ -77,9 +78,23 @@ export function CycleBoard({ cycle, athlete }: { cycle: TrainingCycle; athlete: 
   const [hover, setHover] = useState<string | null>(null);
   const [pop, setPop] = useState<Pop>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
-  // Cajón de crear o editar una rutina; `routine` nulo = crear.
-  const [drawer, setDrawer] = useState<{ routine: routinesApi.RoutineDetail | null } | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Crear o editar una rutina abre su página; `volver` regresa a esta pizarra al terminar.
+  function openBuilder(target: "new" | string) {
+    navigate(routineBuilderPath(target, `${location.pathname}${location.search}`));
+  }
+
+  // Al guardar, el constructor vuelve aquí con su aviso.
+  useEffect(() => {
+    const state = location.state as { notice?: string } | null;
+    if (state?.notice) {
+      setNotice(state.notice);
+      navigate(`${location.pathname}${location.search}`, { replace: true, state: null });
+    }
+  }, [location, navigate]);
   useEffect(() => {
     if (!notice) return;
     const timer = window.setTimeout(() => setNotice(null), 6_000);
@@ -383,7 +398,7 @@ export function CycleBoard({ cycle, athlete }: { cycle: TrainingCycle; athlete: 
                 onRetry={() => routinesQuery.refetch()}
                 onOpenDrawer={(routine) => {
                   setSheetOpen(false);
-                  setDrawer({ routine });
+                  openBuilder(routine?.id ?? "new");
                 }}
                 onActivate={(routine, anchor) => setPop({ kind: "routine", routine, anchor })}
                 onDragStart={(routine) => {
@@ -405,7 +420,7 @@ export function CycleBoard({ cycle, athlete }: { cycle: TrainingCycle; athlete: 
             onPick={(routine) => addRoutineTo(routine, (pop as { day: string }).day)}
             onCreate={() => {
               setPop(null);
-              setDrawer({ routine: null });
+              openBuilder("new");
             }}
           />
         </Popover>
@@ -467,21 +482,6 @@ export function CycleBoard({ cycle, athlete }: { cycle: TrainingCycle; athlete: 
             />
           )}
         </Popover>
-      )}
-
-      {drawer && (
-        <RoutineDrawer
-          routine={drawer.routine}
-          onClose={() => setDrawer(null)}
-          onSaved={(saved, created) => {
-            setDrawer(null);
-            setNotice(
-              created
-                ? `«${saved.name}» guardada. Ya está en el panel: arrástrala a un día.`
-                : `«${saved.name}» actualizada. Vale para las sesiones que agregues desde ahora.`,
-            );
-          }}
-        />
       )}
 
       <UndoToast toast={actions.toast ?? (notice ? { message: notice } : null)} onDismiss={() => (actions.toast ? actions.dismissToast() : setNotice(null))} />

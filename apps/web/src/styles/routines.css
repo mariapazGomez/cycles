@@ -96,34 +96,6 @@
   width: auto;
   padding: 11px 20px;
 }
-
-.rt-step {
-  height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border: 1px solid var(--color-control-border);
-  border-radius: var(--radius-md);
-  background: var(--color-bg);
-}
-
-.rt-step button {
-  width: 36px;
-  height: 40px;
-  border: 0;
-  background: transparent;
-  font-size: 1.1rem;
-  color: var(--color-ink-secondary);
-  cursor: pointer;
-}
-
-.rt-step button:last-child {
-  color: var(--color-blue);
-}
-
-.rt-step output {
-  font-variant-numeric: tabular-nums;
-}
 /* Agregar ejercicio */
 
 .rt-add {

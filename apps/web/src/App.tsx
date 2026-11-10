@@ -1,5 +1,5 @@
 import { ReactNode, useEffect } from "react";
-import { Navigate, Route, Routes, useLocation, useParams, useSearchParams } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useSearchParams } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { PublicOnlyRoute } from "./components/PublicOnlyRoute";
 import { AppLayout } from "./components/AppLayout";
@@ -28,7 +28,8 @@ import { BibliotecaPage } from "./pages/BibliotecaPage";
 import { ExercisesPage } from "./pages/ExercisesPage";
 import { AthletePage } from "./pages/AthletePage";
 import { SessionLogPage } from "./pages/SessionLogPage";
-import { libraryPath, routineDrawerPath } from "./lib/library";
+import { libraryPath } from "./lib/library";
+import { RoutineBuilderPage } from "./pages/RoutineBuilderPage";
 
 // "/" es la landing para quien no tiene sesión y el inicio de la app para quien
 // sí; el resto de rutas bajo "/" siguen exigiendo sesión.
@@ -81,12 +82,6 @@ function RegisterRoute() {
       <RegisterPage accessCode={code} />
     </PublicOnlyRoute>
   );
-}
-
-// Los enlaces antiguos a la página de la rutina abren el cajón sobre la Biblioteca.
-function LegacyRoutineLink() {
-  const { id = "" } = useParams();
-  return <Navigate to={routineDrawerPath({ kind: "edit", id })} replace />;
 }
 
 export function App() {
@@ -148,8 +143,8 @@ export function App() {
         <Route path="account" element={<AccountPage />} />
         <Route path="cycles" element={<CyclesRoute />} />
         <Route path="routines" element={<Navigate to={libraryPath("routine")} replace />} />
-        <Route path="routines/new" element={<Navigate to={routineDrawerPath({ kind: "new" })} replace />} />
-        <Route path="routines/:id" element={<LegacyRoutineLink />} />
+        <Route path="routines/new" element={<CoachOnly><RoutineBuilderPage /></CoachOnly>} />
+        <Route path="routines/:id" element={<CoachOnly><RoutineBuilderPage /></CoachOnly>} />
         <Route path="cycles/:id" element={<CycleDetailPage />} />
         <Route path="sessions/:id" element={<SessionDetailPage />} />
         <Route path="sessions/:id/registro" element={<SessionLogPage />} />
