@@ -29,6 +29,10 @@ La primera vez que entras sin rutinas, atletas ni ciclos, Cycles te muestra una 
 
 En cada globo puedes tocar **Saltar paso** o **Salir de la guía**. **Esc**, con el foco en el globo, la pone en pausa; **Alt + G** lleva el foco al globo. Para volver a verla: tu avatar → **Cómo usar Cycles** → **Volver a ver la guía** (ahí también está **Cómo se piensa un ciclo**).
 
+### Novedades
+
+Cuando Cycles estrena una funcionalidad, la primera vez que entras sale un aviso en el centro de la pantalla, con el fondo borroso y unas slides cortas con una animación. Avanzas con **Siguiente** o las flechas ← →, y lo cierras con **Saltar**, **Entendido**, la X, **Esc** o tocando el fondo; no vuelve a salir solo. Para repasarlo: tu avatar → **Cómo usar Cycles** → pestaña **Novedades** → **Ver de nuevo**. Si ya estás editando una rutina o una sesión, o tienes la guía en curso, el aviso espera.
+
 ## 2. Crea tus rutinas
 
 Una rutina es una sesión de entrenamiento que armas una vez y reutilizas en todos los ciclos que quieras (por ejemplo, "Torso A").

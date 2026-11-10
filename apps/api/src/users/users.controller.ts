@@ -6,6 +6,7 @@ import { UsersService } from "./users.service";
 import { AccountService } from "./account.service";
 import { AcceptPolicyDto } from "./dto/accept-policy.dto";
 import { DataConsentDto } from "./dto/data-consent.dto";
+import { NewsSeenDto } from "./dto/news-seen.dto";
 import { TourStatusDto } from "./dto/tour-status.dto";
 import { DeleteAccountDto } from "./dto/delete-account.dto";
 
@@ -33,6 +34,13 @@ export class UsersController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async setTour(@CurrentUser() user: AuthenticatedUser, @Body() dto: TourStatusDto): Promise<void> {
     await this.usersService.setTourStatus(user.id, dto.status);
+  }
+
+  // Novedad vista (popup de novedades): se guarda en la cuenta, idempotente.
+  @Post("me/news-seen")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async newsSeen(@CurrentUser() user: AuthenticatedUser, @Body() dto: NewsSeenDto): Promise<void> {
+    await this.usersService.markNewsSeen(user.id, dto.key);
   }
 
   // Retirar (o volver a dar) el consentimiento opcional de estadísticas.

@@ -1,3 +1,4 @@
+import { CURRENT_NOVELTY_KEYS } from "../common/novelties";
 import {
   ConflictException,
   ForbiddenException,
@@ -109,6 +110,7 @@ export class AuthService {
         passwordHash,
         role: dto.role,
         authProvider: "local",
+        tourNewsSeen: CURRENT_NOVELTY_KEYS,
         dataConsentAt: dto.dataConsent ? new Date() : null,
         dataConsentVersion: dto.dataConsent ? DATA_CONSENT_VERSION : null,
         policyAcceptances: { create: policyAcceptanceData("register") },
@@ -156,6 +158,7 @@ export class AuthService {
           email,
           name: profile.name,
           authProvider: "google",
+          tourNewsSeen: CURRENT_NOVELTY_KEYS,
           role: null,
           emailVerifiedAt: new Date(),
         },

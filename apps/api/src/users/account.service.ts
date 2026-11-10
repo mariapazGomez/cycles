@@ -182,6 +182,7 @@ export class AccountService {
         dataConsentAt: true,
         phonePlatform: true,
         tourStatus: true,
+        tourNewsSeen: true,
         createdAt: true,
         policyAcceptances: { select: { version: true, source: true, acceptedAt: true } },
         // El correo de su Apple ID es un dato suyo (CYC-194).

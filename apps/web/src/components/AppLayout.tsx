@@ -4,6 +4,7 @@ import logo from "../assets/logo-cycles.png";
 import { NotificationBell } from "./NotificationBell";
 import { UserMenu } from "./UserMenu";
 import { TourLayer } from "./tour/TourLayer";
+import { NoveltyLayer } from "./novelty/NoveltyLayer";
 
 function navLinkClass({ isActive }: { isActive: boolean }): string {
   return isActive ? "app-nav-link app-nav-link-active" : "app-nav-link";
@@ -57,6 +58,7 @@ export function AppLayout() {
         <Outlet />
       </main>
       <TourLayer />
+      <NoveltyLayer />
     </div>
   );
 }

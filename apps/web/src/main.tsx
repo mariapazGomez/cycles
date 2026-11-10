@@ -18,6 +18,7 @@ import "./styles/calendar.css";
 import "./styles/athlete-cycle.css";
 import "./styles/week-views.css";
 import "./styles/tour.css";
+import "./styles/novelty.css";
 import "./styles/board.css";
 import "./styles/athletes.css";
 import "./styles/library.css";

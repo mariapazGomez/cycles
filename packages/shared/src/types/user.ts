@@ -22,6 +22,8 @@ export interface User {
   phonePlatform?: "ios" | "android" | null;
   // Guía de primer uso: una sola marca por cuenta, compartida por web y móvil.
   tourStatus?: TourStatus;
+  // Novedades que la persona ya vio, como `clave@version` (src/novelties.ts).
+  tourNewsSeen?: string[];
   emailVerified: boolean;
   dataConsentAt?: string;
   // Aceptación de los Términos de uso y la Política de privacidad (T-147).
