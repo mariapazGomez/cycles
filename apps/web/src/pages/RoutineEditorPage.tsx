@@ -1,19 +1,19 @@
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { NOTE_MAX_LENGTH } from "../components/ExerciseNote";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Exercise } from "@cycles/shared";
+import { useQuery } from "@tanstack/react-query";
 import * as routinesApi from "../services/routinesApi";
 import * as exercisesApi from "../services/exercisesApi";
-import { ApiError } from "../services/httpClient";
 import { ExercisePicker } from "../components/ExercisePicker";
 import { EmptyState } from "../components/EmptyState";
 import { muscleGroupLabel } from "../lib/muscleGroups";
 import { formatInteger, formatNumber } from "../lib/format";
 import { libraryPath } from "../lib/library";
-import { computeRoutineStats, isRowComplete, parseNumber } from "../lib/routineStats";
-import { DEFAULT_SETS, rowFromRoutine, toInput, toStatsRow, type Row } from "../lib/routineRows";
-import { track } from "../lib/analytics";
+import { isRowComplete } from "../lib/routineStats";
+import { SeriesStepper } from "../components/routine/SeriesStepper";
+import { DRAFT_MESSAGES } from "../lib/routineDraft";
+import { useRoutineDraft } from "../hooks/useRoutineDraft";
+import { useSaveRoutine } from "../hooks/useSaveRoutine";
 
 // Tono de cada cuenta de la cadena; se repite en ciclo.
 const BEAD_TONES = ["var(--color-brand)", "var(--color-blue)", "var(--color-blue-700)"];
@@ -22,14 +22,8 @@ const BAR_TONES = ["var(--color-blue-700)", "var(--color-blue)", "var(--color-br
 export function RoutineEditorPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const keyCounter = useRef(0);
-  const nextKey = () => `row-${++keyCounter.current}`;
-
-  const [name, setName] = useState("");
-  const [rows, setRows] = useState<Row[]>([]);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [attempted, setAttempted] = useState(false);
+  const draft = useRoutineDraft();
+  const { rows, stats, attempted, error: formError } = draft;
   const [focusKey, setFocusKey] = useState<string | null>(null);
   const [loadedId, setLoadedId] = useState<string | null>(null);
 
@@ -44,8 +38,7 @@ export function RoutineEditorPage() {
   useEffect(() => {
     if (routineQuery.data && loadedId !== routineQuery.data.id) {
       setLoadedId(routineQuery.data.id);
-      setName(routineQuery.data.name);
-      setRows(routineQuery.data.routineExercises.map((re) => rowFromRoutine(nextKey(), re)));
+      draft.load(routineQuery.data);
     }
   }, [routineQuery.data, loadedId]);
 
@@ -57,81 +50,17 @@ export function RoutineEditorPage() {
     }
   }, [focusKey, rows]);
 
-  const saveMutation = useMutation({
-    mutationFn: () => {
-      const data = { name: name.trim(), exercises: rows.map(toInput) };
-      return id ? routinesApi.updateRoutine(id, data) : routinesApi.createRoutine(data);
-    },
-    onSuccess: () => {
-      if (!id) track("routine_created", { exercises: rows.length });
-      queryClient.invalidateQueries({ queryKey: ["routines"] });
-      navigate(libraryPath("routine"));
-    },
-    onError: (error: unknown) => {
-      setFormError(error instanceof ApiError ? error.message : "No se pudo guardar la rutina.");
-    },
+  const saveMutation = useSaveRoutine({
+    routineId: id,
+    getPayload: draft.payload,
+    exerciseCount: () => rows.length,
+    onSaved: () => navigate(libraryPath("routine")),
+    onError: draft.setError,
   });
-
-  const stats = computeRoutineStats(rows.map(toStatsRow));
-
-  function updateRow(key: string, patch: Partial<Row>) {
-    setRows((current) => current.map((row) => (row.key === key ? { ...row, ...patch } : row)));
-  }
-
-  function addExercise(exercise: Exercise) {
-    const key = nextKey();
-    setRows((current) => [
-      ...current,
-      {
-        key,
-        exerciseId: exercise.id,
-        name: exercise.name,
-        muscleGroup: exercise.muscleGroup,
-        sets: DEFAULT_SETS,
-        reps: "",
-        weight: "",
-        restSeconds: "",
-        rir: "",
-        note: "",
-      },
-    ]);
-    setFocusKey(key);
-  }
-
-  function duplicateRow(index: number) {
-    setRows((current) => {
-      const copy = { ...current[index], key: nextKey() };
-      return [...current.slice(0, index + 1), copy, ...current.slice(index + 1)];
-    });
-  }
-
-  function moveRow(index: number, direction: -1 | 1) {
-    setRows((current) => {
-      const target = index + direction;
-      if (target < 0 || target >= current.length) return current;
-      const next = [...current];
-      [next[index], next[target]] = [next[target], next[index]];
-      return next;
-    });
-  }
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    setFormError(null);
-    setAttempted(true);
-    if (!name.trim()) {
-      setFormError("Ponle un nombre a la rutina.");
-      return;
-    }
-    if (rows.length === 0) {
-      setFormError("Agrega al menos un ejercicio.");
-      return;
-    }
-    if (stats.incompleteCount > 0) {
-      setFormError("Completa series y reps de todos los ejercicios.");
-      return;
-    }
-    saveMutation.mutate();
+    if (draft.check()) saveMutation.mutate();
   }
 
   if (id && routineQuery.isLoading) return <p>Cargando…</p>;
@@ -148,7 +77,7 @@ export function RoutineEditorPage() {
 
   const statusText =
     rows.length === 0
-      ? "Agrega al menos un ejercicio."
+      ? DRAFT_MESSAGES.empty
       : stats.incompleteCount > 0
         ? `Falta completar ${stats.incompleteCount} ${stats.incompleteCount === 1 ? "ejercicio" : "ejercicios"}.`
         : "Lista para guardar.";
@@ -179,8 +108,8 @@ export function RoutineEditorPage() {
               id="routineName"
               className="rt-input"
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={draft.name}
+              onChange={(e) => draft.setName(e.target.value)}
             />
           </div>
 
@@ -219,7 +148,7 @@ export function RoutineEditorPage() {
                         className="rt-ghost"
                         aria-label={`Subir ${row.name}`}
                         disabled={index === 0}
-                        onClick={() => moveRow(index, -1)}
+                        onClick={() => draft.moveRow(index, -1)}
                       >
                         ↑
                       </button>
@@ -228,45 +157,24 @@ export function RoutineEditorPage() {
                         className="rt-ghost"
                         aria-label={`Bajar ${row.name}`}
                         disabled={index === rows.length - 1}
-                        onClick={() => moveRow(index, 1)}
+                        onClick={() => draft.moveRow(index, 1)}
                       >
                         ↓
                       </button>
-                      <button type="button" className="rt-ghost" onClick={() => duplicateRow(index)}>
+                      <button type="button" className="rt-ghost" onClick={() => draft.duplicateRow(index)}>
                         Duplicar
                       </button>
                       <button
                         type="button"
                         className="rt-ghost"
-                        onClick={() => setRows((current) => current.filter((r) => r.key !== row.key))}
+                        onClick={() => draft.removeRow(row.key)}
                       >
                         Quitar
                       </button>
                     </div>
 
                     <div className="rt-fields">
-                      <div>
-                        <span className="rt-label">Series</span>
-                        <div className="rt-step">
-                          <button
-                            type="button"
-                            aria-label="Quitar una serie"
-                            onClick={() =>
-                              updateRow(row.key, { sets: String(Math.max(1, (parseNumber(row.sets) || 2) - 1)) })
-                            }
-                          >
-                            −
-                          </button>
-                          <output aria-label="Series">{row.sets || "–"}</output>
-                          <button
-                            type="button"
-                            aria-label="Sumar una serie"
-                            onClick={() => updateRow(row.key, { sets: String((parseNumber(row.sets) || 0) + 1) })}
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
+                      <SeriesStepper prefix="rt" value={row.sets} onChange={(sets) => draft.updateRow(row.key, { sets })} />
                       <div>
                         <label className="rt-label" htmlFor={`reps-${row.key}`}>
                           Reps
@@ -276,7 +184,7 @@ export function RoutineEditorPage() {
                           className={showMissing ? "rt-input rt-input-missing" : "rt-input"}
                           inputMode="numeric"
                           value={row.reps}
-                          onChange={(e) => updateRow(row.key, { reps: e.target.value })}
+                          onChange={(e) => draft.updateRow(row.key, { reps: e.target.value })}
                         />
                       </div>
                       <div>
@@ -289,7 +197,7 @@ export function RoutineEditorPage() {
                             className="rt-input"
                             inputMode="decimal"
                             value={row.weight}
-                            onChange={(e) => updateRow(row.key, { weight: e.target.value })}
+                            onChange={(e) => draft.updateRow(row.key, { weight: e.target.value })}
                           />
                           <span>kg</span>
                         </div>
@@ -304,7 +212,7 @@ export function RoutineEditorPage() {
                             className="rt-input"
                             inputMode="numeric"
                             value={row.restSeconds}
-                            onChange={(e) => updateRow(row.key, { restSeconds: e.target.value })}
+                            onChange={(e) => draft.updateRow(row.key, { restSeconds: e.target.value })}
                           />
                           <span>s</span>
                         </div>
@@ -318,7 +226,7 @@ export function RoutineEditorPage() {
                           className="rt-input"
                           aria-label="Reps en reserva objetivo"
                           value={row.rir}
-                          onChange={(e) => updateRow(row.key, { rir: e.target.value })}
+                          onChange={(e) => draft.updateRow(row.key, { rir: e.target.value })}
                         >
                           <option value="">Sin objetivo</option>
                           {[0, 1, 2, 3, 4].map((value) => (
@@ -341,7 +249,7 @@ export function RoutineEditorPage() {
                         maxLength={NOTE_MAX_LENGTH}
                         placeholder="Por ejemplo: baja lento y cuida el hombro"
                         value={row.note}
-                        onChange={(e) => updateRow(row.key, { note: e.target.value })}
+                        onChange={(e) => draft.updateRow(row.key, { note: e.target.value })}
                       />
                       {row.note.length > 400 && (
                         <span className="ex-note-count">
@@ -365,7 +273,7 @@ export function RoutineEditorPage() {
                 exercises={exercisesQuery.data}
                 isLoading={exercisesQuery.isLoading}
                 isError={exercisesQuery.isError}
-                onPick={addExercise}
+                onPick={(exercise) => setFocusKey(draft.addExercise(exercise))}
               />
             </li>
           </ol>

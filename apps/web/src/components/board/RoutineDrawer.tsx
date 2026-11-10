@@ -1,17 +1,17 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Exercise } from "@cycles/shared";
+import { useQuery } from "@tanstack/react-query";
 import * as routinesApi from "../../services/routinesApi";
 import * as exercisesApi from "../../services/exercisesApi";
-import { ApiError } from "../../services/httpClient";
 import { ExercisePicker } from "../ExercisePicker";
+import { SeriesStepper } from "../routine/SeriesStepper";
 import { ExerciseDetailsDialog } from "./ExerciseDetailsDialog";
 import { muscleGroupLabel } from "../../lib/muscleGroups";
-import { isRowComplete, parseNumber } from "../../lib/routineStats";
-import { DEFAULT_SETS, hasDetails, rowFromRoutine, toInput, type Row } from "../../lib/routineRows";
+import { isRowComplete } from "../../lib/routineStats";
+import { hasDetails } from "../../lib/routineRows";
 import { useDialogFocus } from "../../hooks/useDialogFocus";
-import { track } from "../../lib/analytics";
+import { useRoutineDraft } from "../../hooks/useRoutineDraft";
+import { useSaveRoutine } from "../../hooks/useSaveRoutine";
 
 // Cajón lateral para crear (o editar) una rutina sin salir de la pizarra: lo
 // mínimo es nombre, ejercicios, series y reps; el resto va en «Detalles…».
@@ -25,16 +25,9 @@ export function RoutineDrawer({
   onClose: () => void;
   onSaved: (routine: routinesApi.RoutineDetail, created: boolean) => void;
 }) {
-  const queryClient = useQueryClient();
   const ref = useRef<HTMLElement>(null);
-  const keyCounter = useRef(0);
-  const nextKey = () => `drawer-row-${++keyCounter.current}`;
-  const [name, setName] = useState(routine?.name ?? "");
-  const [rows, setRows] = useState<Row[]>(() =>
-    (routine?.routineExercises ?? []).map((re) => rowFromRoutine(`drawer-row-${re.id ?? re.exerciseId}`, re)),
-  );
-  const [error, setError] = useState<string | null>(null);
-  const [attempted, setAttempted] = useState(false);
+  const draft = useRoutineDraft(routine);
+  const { rows, error, attempted } = draft;
   const [detailsKey, setDetailsKey] = useState<string | null>(null);
   const exercisesQuery = useQuery({ queryKey: ["exercises"], queryFn: exercisesApi.listExercises });
 
@@ -45,37 +38,17 @@ export function RoutineDrawer({
     if (!dialogOpen) onClose();
   });
 
-  const saveMutation = useMutation({
-    mutationFn: () => {
-      const data = { name: name.trim(), exercises: rows.map(toInput) };
-      return routine ? routinesApi.updateRoutine(routine.id, data) : routinesApi.createRoutine(data);
-    },
-    onSuccess: (saved) => {
-      if (!routine) track("routine_created", { exercises: rows.length, via: "board" });
-      queryClient.invalidateQueries({ queryKey: ["routines"] });
-      onSaved(saved, !routine);
-    },
-    onError: (e: unknown) => setError(e instanceof ApiError ? e.message : "No se pudo guardar la rutina."),
+  const saveMutation = useSaveRoutine({
+    routineId: routine?.id,
+    via: "board",
+    getPayload: draft.payload,
+    exerciseCount: () => rows.length,
+    onSaved,
+    onError: draft.setError,
   });
 
-  function updateRow(key: string, patch: Partial<Row>) {
-    setRows((current) => current.map((row) => (row.key === key ? { ...row, ...patch } : row)));
-  }
-
-  function addExercise(exercise: Exercise) {
-    setRows((current) => [
-      ...current,
-      { key: nextKey(), exerciseId: exercise.id, name: exercise.name, muscleGroup: exercise.muscleGroup, sets: DEFAULT_SETS, reps: "", weight: "", restSeconds: "", rir: "", note: "" },
-    ]);
-  }
-
   function submit() {
-    setError(null);
-    setAttempted(true);
-    if (!name.trim()) return setError("Ponle un nombre a la rutina.");
-    if (rows.length === 0) return setError("Agrega al menos un ejercicio.");
-    if (rows.some((r) => !isRowComplete(r))) return setError("Completa series y reps de todos los ejercicios.");
-    saveMutation.mutate();
+    if (draft.check()) saveMutation.mutate();
   }
 
   const detailsRow = rows.find((r) => r.key === detailsKey) ?? null;
@@ -111,7 +84,7 @@ export function RoutineDrawer({
             <label className="bd-lbl" htmlFor="bd-r-name">
               Nombre
             </label>
-            <input id="bd-r-name" data-autofocus data-tour="drawer-name" className="bd-inp" type="text" value={name} onChange={(e) => setName(e.target.value)} />
+            <input id="bd-r-name" data-autofocus data-tour="drawer-name" className="bd-inp" type="text" value={draft.name} onChange={(e) => draft.setName(e.target.value)} />
           </div>
 
           <div className="bd-drawer-ex" data-tour="drawer-exercises">
@@ -125,23 +98,12 @@ export function RoutineDrawer({
                     <b>{row.name}</b>
                     <span className="pill">{muscleGroupLabel(row.muscleGroup)}</span>
                     {hasDetails(row) && <span className="pill pill-blue">Con detalles</span>}
-                    <button type="button" className="bd-ghost" onClick={() => setRows((cur) => cur.filter((r) => r.key !== row.key))}>
+                    <button type="button" className="bd-ghost" onClick={() => draft.removeRow(row.key)}>
                       Quitar
                     </button>
                   </div>
                   <div className="bd-xq">
-                    <div>
-                      <span className="bd-lbl">Series</span>
-                      <div className="bd-step">
-                        <button type="button" aria-label={`Quitar una serie de ${row.name}`} onClick={() => updateRow(row.key, { sets: String(Math.max(1, (parseNumber(row.sets) || 2) - 1)) })}>
-                          −
-                        </button>
-                        <output aria-label={`Series de ${row.name}`}>{row.sets || "–"}</output>
-                        <button type="button" aria-label={`Sumar una serie a ${row.name}`} onClick={() => updateRow(row.key, { sets: String((parseNumber(row.sets) || 0) + 1) })}>
-                          +
-                        </button>
-                      </div>
-                    </div>
+                    <SeriesStepper prefix="bd" name={row.name} value={row.sets} onChange={(sets) => draft.updateRow(row.key, { sets })} />
                     <div>
                       <label className="bd-lbl" htmlFor={`bd-reps-${row.key}`}>
                         Reps
@@ -152,7 +114,7 @@ export function RoutineDrawer({
                         inputMode="numeric"
                         aria-invalid={missing || undefined}
                         value={row.reps}
-                        onChange={(e) => updateRow(row.key, { reps: e.target.value })}
+                        onChange={(e) => draft.updateRow(row.key, { reps: e.target.value })}
                       />
                     </div>
                     <button
@@ -175,7 +137,7 @@ export function RoutineDrawer({
               exercises={exercisesQuery.data}
               isLoading={exercisesQuery.isLoading}
               isError={exercisesQuery.isError}
-              onPick={addExercise}
+              onPick={draft.addExercise}
             />
             <button type="button" className="bd-btn bd-btn-sm" disabled title="Superseries y circuitos: pronto (CYC-108, CYC-109)">
               Agrupar en bloque · Pronto
@@ -203,7 +165,7 @@ export function RoutineDrawer({
             setDialogOpen(false);
           }}
           onSave={(patch) => {
-            updateRow(detailsRow.key, patch);
+            draft.updateRow(detailsRow.key, patch);
             setDetailsKey(null);
             setDialogOpen(false);
           }}
