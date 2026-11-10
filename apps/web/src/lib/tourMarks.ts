@@ -24,7 +24,7 @@ export interface Mark {
   id: string;
   // Número que se muestra: «Paso N de 6».
   step: TourStepN;
-  // Pasos de datos en los que esta marca puede salir (el cajón de rutina
+  // Pasos de datos en los que esta marca puede salir (la página de la rutina
   // cubre los pasos 3 y 4: la rutina nace con sus ejercicios).
   during: TourStepN[];
   level?: string;
@@ -118,14 +118,14 @@ export const MARKS: Mark[] = [
     when: (c) => onAthletePage(c) && c.has("new-cycle"),
   },
 
-  // 3 · Rutina (y 4 · Ejercicios, que se hacen dentro del cajón de la rutina)
+  // 3 · Rutina (y 4 · Ejercicios, que se hacen en la página de la rutina)
   {
     id: "4c",
     step: 4,
     during: [3, 4],
     level: "Ejercicios",
     selector: () => tour("drawer-save"),
-    text: () => "Cuando termines, toca Guardar y usar.",
+    text: () => "Cuando termines, toca Guardar rutina.",
     when: (c) => c.has("drawer") && c.count("drawer-row") > 0 && !c.has("exercise-create"),
   },
   {

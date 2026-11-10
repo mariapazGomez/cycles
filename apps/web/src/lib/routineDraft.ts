@@ -1,12 +1,11 @@
 import type { Exercise } from "@cycles/shared";
-import type { RoutineWorkBlock, RoutineStructureInput } from "@cycles/shared";
 import type { RoutineDetail } from "../services/routinesApi";
-import { isRowComplete, type RoutineStats } from "./routineStats";
+import type { RoutineStats } from "./routineStats";
 import { formatInteger } from "./format";
-import { DEFAULT_SETS, rowFromRoutine, toInput, type Row } from "./routineRows";
+import { DEFAULT_SETS, rowFromRoutine, type Row } from "./routineRows";
 
-// Lógica pura del borrador de una rutina (CYC-275): la usan el cajón y el editor de
-// la Biblioteca a través de useRoutineDraft. Sin DOM, para probarla con jest.
+// Operaciones puras sobre las filas de ejercicios de una rutina (CYC-275); el borrador
+// con bloques está en blocksDraft.ts. Sin DOM, para probarlas con jest.
 export type { Row };
 
 export const DRAFT_MESSAGES = {
@@ -63,37 +62,6 @@ export function moveRowIn(rows: Row[], index: number, direction: -1 | 1): Row[] 
   const next = [...rows];
   [next[index], next[target]] = [next[target], next[index]];
   return next;
-}
-
-// El primer problema que impide guardar, o null si la rutina está lista.
-export function validateDraft(name: string, rows: Row[]): string | null {
-  if (!name.trim()) return DRAFT_MESSAGES.name;
-  if (rows.length === 0) return DRAFT_MESSAGES.empty;
-  if (rows.some((row) => !isRowComplete(row))) return DRAFT_MESSAGES.incomplete;
-  return null;
-}
-
-// Lo que se guarda: los bloques de la rutina en orden con sus ejercicios, y los sueltos al
-// final. Una rutina sin bloques manda solo `exercises`, como siempre.
-export function draftPayload(name: string, rows: Row[], blocks: RoutineWorkBlock[] = []): RoutineStructureInput & { name: string } {
-  const inBlock = (id: string) => rows.filter((row) => row.blockId === id).map(toInput);
-  const known = new Set(blocks.map((b) => b.id));
-  const loose = rows.filter((row) => !row.blockId || !known.has(row.blockId)).map(toInput);
-  if (blocks.length === 0) return { name: name.trim(), exercises: loose };
-  return {
-    name: name.trim(),
-    blocks: [...blocks]
-      .sort((a, b) => a.orderIndex - b.orderIndex)
-      .map((b) => ({
-        id: b.id,
-        type: b.type,
-        name: b.name,
-        ...(b.color ? { color: b.color } : {}),
-        ...(b.note ? { note: b.note } : {}),
-        exercises: inBlock(b.id),
-      })),
-    exercises: loose,
-  };
 }
 
 // «7 series · ~24 min · 2.400 kg» (vacío mientras no haya series completas).

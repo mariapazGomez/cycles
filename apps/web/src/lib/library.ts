@@ -137,18 +137,16 @@ export function visibleEntries(entries: LibraryEntry[], filter: LibraryFilter, q
     .sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" }));
 }
 
-// El cajón de rutinas de la Biblioteca vive en la dirección (?rutina=nueva o ?rutina=<id>):
-// así el botón Atrás lo cierra y los enlaces antiguos (/routines/new, /routines/:id) siguen
-// funcionando redirigiendo aquí (CYC-275).
-export type RoutineDrawerTarget = { kind: "new" } | { kind: "edit"; id: string };
-
-export function routineDrawerFromParams(params: URLSearchParams): RoutineDrawerTarget | null {
-  const value = params.get("rutina");
-  if (!value) return null;
-  return value === "nueva" ? { kind: "new" } : { kind: "edit", id: value };
+// La página del constructor de rutinas (CYC-275): /routines/new o /routines/:id. `volver` es
+// la dirección a la que regresar al guardar o cancelar (por ejemplo, la pizarra del ciclo).
+export function routineBuilderPath(target: "new" | string, back?: string): string {
+  const path = target === "new" ? "/routines/new" : `/routines/${encodeURIComponent(target)}`;
+  const safe = safeBackPath(back ?? null);
+  return safe ? `${path}?volver=${encodeURIComponent(safe)}` : path;
 }
 
-export function routineDrawerPath(target: RoutineDrawerTarget): string {
-  const rutina = target.kind === "new" ? "nueva" : target.id;
-  return `/biblioteca?tipo=rutinas&rutina=${encodeURIComponent(rutina)}`;
+// Solo direcciones de esta misma aplicación: empiezan con una sola «/».
+export function safeBackPath(value: string | null): string | null {
+  if (!value || !value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return null;
+  return value;
 }

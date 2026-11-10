@@ -14,7 +14,7 @@ export function RoutinePicker({
 }: {
   routines: RoutineDetail[] | undefined;
   onPick: (routine: RoutineDetail) => void;
-  // Sin rutinas: abre el cajón «Crear rutina» sin salir de la pizarra.
+  // Sin rutinas: abre la página «Nueva rutina» y vuelve a la pizarra al guardar.
   onCreate: () => void;
 }) {
   const [query, setQuery] = useState("");

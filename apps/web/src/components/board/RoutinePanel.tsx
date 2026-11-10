@@ -13,7 +13,7 @@ interface RoutinePanelProps {
   disabled: boolean;
   draggingId: string | null;
   onRetry: () => void;
-  // Abre el cajón para crear (sin rutina) o editar una rutina.
+  // Abre la página del constructor para crear (sin rutina) o editar una rutina.
   onOpenDrawer: (routine: RoutineDetail | null) => void;
   // Elegir una rutina sin arrastrar: abre el selector de día anclado a la fila.
   onActivate: (routine: RoutineDetail, anchor: HTMLElement) => void;
