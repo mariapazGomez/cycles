@@ -161,3 +161,5 @@ Ninguno adicional a los del PRD general.
 - **Armar rutina directo en una celda del grid**: pedido explícitamente para el futuro, no ahora.
 - **Redimensionar el grid** (cambiar `sessionsPerWeek` con sesiones ya asignadas): sin resolver, se deja para cuando haya un caso real.
 - **Validación de fechas hijo-dentro-de-padre en macrociclos**: no implementada todavía.
+
+- **Un solo acceso al constructor (2026-11-10, CYC-275 paso 2):** se retira la página `/routines/new` y `/routines/:id`. Crear y editar una rutina abre el mismo cajón de la pizarra, encima de la Biblioteca (`/biblioteca?tipo=rutinas&rutina=nueva` o `&rutina=<id>`); los enlaces antiguos redirigen. El cajón suma subir, bajar y duplicar ejercicio y una línea de carga («18 series · ~39 min · 6960 kg»); las barras de series por grupo muscular del panel lateral se retiraron. Aviso descartable de una sola vez para quienes editaban en la página. Sin cambios de API.

@@ -136,3 +136,19 @@ export function visibleEntries(entries: LibraryEntry[], filter: LibraryFilter, q
     .filter((entry) => matchesSearch(entry, query))
     .sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" }));
 }
+
+// El cajón de rutinas de la Biblioteca vive en la dirección (?rutina=nueva o ?rutina=<id>):
+// así el botón Atrás lo cierra y los enlaces antiguos (/routines/new, /routines/:id) siguen
+// funcionando redirigiendo aquí (CYC-275).
+export type RoutineDrawerTarget = { kind: "new" } | { kind: "edit"; id: string };
+
+export function routineDrawerFromParams(params: URLSearchParams): RoutineDrawerTarget | null {
+  const value = params.get("rutina");
+  if (!value) return null;
+  return value === "nueva" ? { kind: "new" } : { kind: "edit", id: value };
+}
+
+export function routineDrawerPath(target: RoutineDrawerTarget): string {
+  const rutina = target.kind === "new" ? "nueva" : target.id;
+  return `/biblioteca?tipo=rutinas&rutina=${encodeURIComponent(rutina)}`;
+}
