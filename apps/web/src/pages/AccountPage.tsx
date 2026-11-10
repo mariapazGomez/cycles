@@ -65,7 +65,7 @@ export function AccountPage() {
 
   return (
     <div className="ac-page">
-      <h1>Mi cuenta</h1>
+      <h1 className="page-title">Mi cuenta</h1>
 
       {error && <div className="error-banner">{error}</div>}
       {notice && <div className="ac-notice">{notice}</div>}
