@@ -20,7 +20,23 @@ Cada vez que se entrega una funcionalidad nueva, se genera su **novedad**: un po
 - **Controles:** **Saltar** (a la izquierda; en la última slide dice **Cerrar**), indicador de avance (puntos, el actual alargado, con texto accesible «Slide 2 de 4»), **Atrás** (desde la 2.ª) y **Siguiente** (en la última, **Entendido**). Cierre con la **X**, con **Esc** o tocando el fondo.
 - **Accesibilidad:** `role="dialog"`, `aria-modal`, nombre y descripción por título y texto; **foco atrapado** (Tab y Mayús+Tab no salen; el foco inicial va en **Siguiente**) y devuelto al elemento que lo abrió; flechas ← → cambian de slide; la demostración lleva `role="img"` con su descripción. Contraste del texto ≥ 4,5:1; botones de 40 px o más.
 - **Reducir movimiento:** con `prefers-reduced-motion`, la demostración **no se anima y muestra el resultado final** como imagen fija (la maqueta tiene un interruptor para verlo). Sin parpadeos ni autoavance: las slides solo cambian cuando la persona lo pide.
-- **Responsive:** en pantallas angostas la tarjeta ocupa el ancho disponible y se desplaza si el texto crece.
+- **Responsive:** ver «Reactivo a la pantalla» más abajo; el popup responde al tamaño real de la ventana.
+
+## Reactivo a la pantalla
+
+Decisión de la usuaria: la guía debe ser reactiva a las dimensiones de la pantalla donde se abra. El popup se calcula con el tamaño **real** de la ventana (consultas de contenedor y unidades relativas, no una lista de modelos). La maqueta lo prueba con **ocho ventanas reales** (iframes con ese tamaño) y se verificó que la tarjeta y su pie con botones quedan siempre dentro de la pantalla.
+
+| Tamaño de la ventana | Cómo responde |
+|---|---|
+| **760 px o más de ancho** | Tarjeta de 720 px centrada; demostración al 100 %; controles en una fila. |
+| **480 a 759 px** | Ancho de la ventana menos 32 px; la demostración se escala con el ancho (nunca se recorta); controles en una fila. |
+| **Menos de 480 px** | Margen de 16 px; título de 1,25 rem; puntos arriba; Atrás y Siguiente a ancho completo y Saltar como enlace; botones de 44 px o más. Ancho mínimo admitido: 320 px. |
+| **Horizontal bajo** (alto ≤ 520 y ancho ≥ 560) | Demostración a la izquierda (46 %) y texto con controles a la derecha, sin desplazarse. |
+| **Muy bajo** (alto ≤ 380 y ancho < 560) | Sin demostración (queda disponible en el historial); texto y controles. |
+| **Letra grande** (×1,3, ×1,6, ×2) y zoom del navegador | Texto en rem; el cuerpo se desplaza dentro de la tarjeta y el **pie con botones siempre visible**; la tarjeta no supera el alto de la ventana menos 32 px; con zoom al 200 % se comporta como un teléfono. |
+| **Áreas seguras y rotación** | `env(safe-area-inset-*)` para el notch y la barra inferior; al rotar o redimensionar se reacomoda sin perder la slide actual. |
+
+Tamaños probados: escritorio 1440 × 900, tablet 768 × 1024, teléfono 390 × 844 (también con letra ×1,6), teléfono pequeño 320 × 568, teléfonos horizontales 844 × 390 y 667 × 375, y 360 × 360. En la app, estos mismos criterios aplican a los puntos de corte de la ventana nativa y a `useWindowDimensions()`.
 
 ## 2. Cuándo aparece y cómo se reabre
 
