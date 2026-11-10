@@ -1,6 +1,7 @@
 import type { Exercise } from "@cycles/shared";
 import type { RoutineDetail, RoutineExerciseInput } from "../services/routinesApi";
-import { isRowComplete } from "./routineStats";
+import { isRowComplete, type RoutineStats } from "./routineStats";
+import { formatInteger } from "./format";
 import { DEFAULT_SETS, rowFromRoutine, toInput, type Row } from "./routineRows";
 
 // Lógica pura del borrador de una rutina (CYC-275): la usan el cajón y el editor de
@@ -65,4 +66,10 @@ export function validateDraft(name: string, rows: Row[]): string | null {
 
 export function draftPayload(name: string, rows: Row[]): { name: string; exercises: RoutineExerciseInput[] } {
   return { name: name.trim(), exercises: rows.map(toInput) };
+}
+
+// «7 series · ~24 min · 2.400 kg» (vacío mientras no haya series completas).
+export function routineSummaryLine(stats: Pick<RoutineStats, "sets" | "durationMinutes" | "volumeKg">): string {
+  if (stats.sets <= 0) return "";
+  return `${formatInteger(stats.sets)} ${stats.sets === 1 ? "serie" : "series"} · ~${formatInteger(stats.durationMinutes)} min · ${formatInteger(stats.volumeKg)} kg`;
 }

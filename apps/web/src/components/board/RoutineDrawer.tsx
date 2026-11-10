@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import * as routinesApi from "../../services/routinesApi";
 import * as exercisesApi from "../../services/exercisesApi";
@@ -12,6 +11,8 @@ import { hasDetails } from "../../lib/routineRows";
 import { useDialogFocus } from "../../hooks/useDialogFocus";
 import { useRoutineDraft } from "../../hooks/useRoutineDraft";
 import { useSaveRoutine } from "../../hooks/useSaveRoutine";
+import { routineSummaryLine } from "../../lib/routineDraft";
+import { dismissMovedNotice, shouldShowMovedNotice } from "../../lib/movedNotice";
 
 // Cajón lateral para crear (o editar) una rutina sin salir de la pizarra: lo
 // mínimo es nombre, ejercicios, series y reps; el resto va en «Detalles…».
@@ -19,12 +20,16 @@ export function RoutineDrawer({
   routine,
   onClose,
   onSaved,
+  movedNotice = false,
 }: {
   // Rutina a editar; sin ella, se crea una nueva.
   routine: routinesApi.RoutineDetail | null;
   onClose: () => void;
   onSaved: (routine: routinesApi.RoutineDetail, created: boolean) => void;
+  // Aviso de una sola vez para quienes antes editaban en la página aparte (Biblioteca).
+  movedNotice?: boolean;
 }) {
+  const [showNotice, setShowNotice] = useState(() => movedNotice && shouldShowMovedNotice());
   const ref = useRef<HTMLElement>(null);
   const draft = useRoutineDraft(routine);
   const { rows, error, attempted } = draft;
@@ -52,7 +57,6 @@ export function RoutineDrawer({
   }
 
   const detailsRow = rows.find((r) => r.key === detailsKey) ?? null;
-  const editorPath = routine ? `/routines/${routine.id}` : "/routines/new";
 
   return (
     <>
@@ -77,6 +81,21 @@ export function RoutineDrawer({
               {error}
             </div>
           )}
+          {showNotice && (
+            <div className="bd-notice" role="status">
+              <span>Ahora crear y editar rutinas se hace aquí, sin salir de la Biblioteca.</span>
+              <button
+                type="button"
+                className="bd-ghost"
+                onClick={() => {
+                  dismissMovedNotice();
+                  setShowNotice(false);
+                }}
+              >
+                Entendido
+              </button>
+            </div>
+          )}
           {routine && (
             <p className="bd-hint">Los cambios valen para las sesiones que agregues desde ahora. Las que ya están asignadas no cambian.</p>
           )}
@@ -90,7 +109,7 @@ export function RoutineDrawer({
           <div className="bd-drawer-ex" data-tour="drawer-exercises">
             <h3>Ejercicios</h3>
             {rows.length === 0 && <p className="bd-hint">Agrega el primer ejercicio y define series y reps.</p>}
-            {rows.map((row) => {
+            {rows.map((row, index) => {
               const missing = attempted && !isRowComplete(row);
               return (
                 <div key={row.key} className="bd-xrow" data-tour="drawer-row">
@@ -98,6 +117,15 @@ export function RoutineDrawer({
                     <b>{row.name}</b>
                     <span className="pill">{muscleGroupLabel(row.muscleGroup)}</span>
                     {hasDetails(row) && <span className="pill pill-blue">Con detalles</span>}
+                    <button type="button" className="bd-ghost" aria-label={`Subir ${row.name}`} disabled={index === 0} onClick={() => draft.moveRow(index, -1)}>
+                      ↑
+                    </button>
+                    <button type="button" className="bd-ghost" aria-label={`Bajar ${row.name}`} disabled={index === rows.length - 1} onClick={() => draft.moveRow(index, 1)}>
+                      ↓
+                    </button>
+                    <button type="button" className="bd-ghost" aria-label={`Duplicar ${row.name}`} onClick={() => draft.duplicateRow(index)}>
+                      Duplicar
+                    </button>
                     <button type="button" className="bd-ghost" onClick={() => draft.removeRow(row.key)}>
                       Quitar
                     </button>
@@ -145,15 +173,17 @@ export function RoutineDrawer({
           </div>
         </form>
         <footer>
+          {routineSummaryLine(draft.stats) && (
+            <p className="bd-sum" aria-live="polite">
+              {routineSummaryLine(draft.stats)}
+            </p>
+          )}
           <button type="button" className="bd-btn bd-btn-p" data-tour="drawer-save" disabled={saveMutation.isPending} onClick={submit}>
             {saveMutation.isPending ? "Guardando…" : routine ? "Guardar cambios" : "Guardar y usar"}
           </button>
           <button type="button" className="bd-btn" onClick={onClose}>
             Cancelar
           </button>
-          <Link to={editorPath} className="bd-link">
-            Abrir en el editor completo
-          </Link>
         </footer>
       </section>
 

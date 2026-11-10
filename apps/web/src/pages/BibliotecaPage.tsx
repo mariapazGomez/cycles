@@ -12,6 +12,7 @@ import { Skeleton, SlowNotice } from "../components/Skeleton";
 import { TypeIcon } from "../components/TypeIcon";
 import { CreateCycleForm } from "../components/CreateCycleForm";
 import { CreateTemplateForm } from "../components/CreateTemplateForm";
+import { RoutineDrawer } from "../components/board/RoutineDrawer";
 import { formatInteger } from "../lib/format";
 import {
   CYCLE_STATUS_LABEL,
@@ -25,7 +26,10 @@ import {
   type CycleEntry,
   type LibraryEntry,
   type LibraryFilter,
+  type RoutineDrawerTarget,
   type RoutineEntry,
+  routineDrawerFromParams,
+  routineDrawerPath,
 } from "../lib/library";
 
 const FILTER_LABEL: Record<LibraryFilter, string> = { all: "Todo", routine: "Rutinas", cycle: "Ciclos" };
@@ -87,7 +91,7 @@ function RoutineRow({
           </>
         ) : (
           <>
-            <Link className="rt-ghost" to={`/routines/${entry.id}`}>
+            <Link className="rt-ghost" to={routineDrawerPath({ kind: "edit", id: entry.id })}>
               Editar
             </Link>
             <button type="button" className="rt-ghost" onClick={onAskDelete}>
@@ -346,6 +350,7 @@ export function BibliotecaPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const drawerTarget = routineDrawerFromParams(params);
 
   const routinesQuery = useQuery({ queryKey: ["routines"], queryFn: routinesApi.listRoutines, enabled: isCoach });
   const cyclesQuery = useQuery({ queryKey: ["cycles", "library"], queryFn: cyclesApi.listLibraryCycles, enabled: isCoach });
@@ -429,6 +434,17 @@ export function BibliotecaPage() {
     cyclesQuery.refetch();
   }
 
+  function openRoutineDrawer(target: RoutineDrawerTarget) {
+    setMenuOpen(false);
+    navigate(routineDrawerPath(target));
+  }
+
+  function closeRoutineDrawer() {
+    const next = new URLSearchParams(params);
+    next.delete("rutina");
+    setParams(next, { replace: true });
+  }
+
   function openTemplateForm() {
     setMenuOpen(false);
     setShowTemplateForm(true);
@@ -455,7 +471,7 @@ export function BibliotecaPage() {
           </button>
           {menuOpen && (
             <div className="lb-menu-list" role="menu">
-              <button type="button" role="menuitem" onClick={() => navigate("/routines/new")}>
+              <button type="button" role="menuitem" onClick={() => openRoutineDrawer({ kind: "new" })}>
                 <TypeIcon kind="routine" small />
                 Rutina
               </button>
@@ -537,7 +553,7 @@ export function BibliotecaPage() {
           title="Tu biblioteca está vacía"
           action={
             <div className="lb-empty-actions">
-              <Link className="button-primary rt-cta" to="/routines/new">
+              <Link className="button-primary rt-cta" to={routineDrawerPath({ kind: "new" })}>
                 Crear rutina
               </Link>
               <button type="button" className="button-secondary rt-cta" onClick={openCycleForm}>
@@ -588,6 +604,53 @@ export function BibliotecaPage() {
           )}
         </ul>
       )}
+
+      {isCoach && drawerTarget && (
+        <LibraryRoutineDrawer
+          target={drawerTarget}
+          onClose={closeRoutineDrawer}
+          onSaved={(saved, created) => {
+            closeRoutineDrawer();
+            setDeleteError(null);
+            setNotice(
+              created
+                ? `«${saved.name}» guardada. Ya está en tu biblioteca.`
+                : `«${saved.name}» actualizada. Vale para las sesiones que agregues desde ahora.`,
+            );
+          }}
+          onMissing={() => {
+            closeRoutineDrawer();
+            setNotice(null);
+            setDeleteError("No se encontró esa rutina.");
+          }}
+        />
+      )}
     </div>
   );
+}
+
+// El cajón sobre la Biblioteca: para editar espera a tener la rutina completa.
+function LibraryRoutineDrawer({
+  target,
+  onClose,
+  onSaved,
+  onMissing,
+}: {
+  target: RoutineDrawerTarget;
+  onClose: () => void;
+  onSaved: (routine: routinesApi.RoutineDetail, created: boolean) => void;
+  onMissing: () => void;
+}) {
+  const id = target.kind === "edit" ? target.id : "";
+  const query = useQuery({
+    queryKey: ["routines", id],
+    queryFn: () => routinesApi.getRoutine(id),
+    enabled: target.kind === "edit",
+  });
+  useEffect(() => {
+    if (query.isError) onMissing();
+  }, [query.isError]);
+
+  if (target.kind === "edit" && !query.data) return null;
+  return <RoutineDrawer key={id || "nueva"} routine={target.kind === "edit" ? (query.data ?? null) : null} onClose={onClose} onSaved={onSaved} movedNotice />;
 }
