@@ -2,6 +2,12 @@ import { IsInt, IsOptional, IsPositive, IsString, Max, MaxLength, Min } from "cl
 import { NOTE_MAX_LENGTH } from "../../common/exercise-note";
 
 export class RoutineExerciseInputDto {
+  // Lo manda el cliente al devolver lo que leyó; en rutinas se ignora (los ejercicios se
+  // reescriben completos).
+  @IsOptional()
+  @IsString()
+  id?: string;
+
   @IsString()
   exerciseId!: string;
 

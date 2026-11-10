@@ -19,6 +19,8 @@ export interface Row {
   rir: string;
   // Nota para el atleta ("" = sin nota), hasta 500 caracteres.
   note: string;
+  // Bloque de trabajo al que pertenece; null = suelto (CYC-271).
+  blockId: string | null;
 }
 
 export const DEFAULT_SETS = "3";
@@ -39,6 +41,7 @@ export function rowFromRoutine(key: string, re: RoutineExerciseWithExercise): Ro
     restSeconds: re.defaultRestSeconds ? String(re.defaultRestSeconds) : "",
     rir: re.defaultRir === null || re.defaultRir === undefined ? "" : String(re.defaultRir),
     note: re.note ?? "",
+    blockId: re.blockId ?? null,
   };
 }
 

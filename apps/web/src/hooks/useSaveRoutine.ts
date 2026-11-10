@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { RoutineStructureInput } from "@cycles/shared";
 import * as routinesApi from "../services/routinesApi";
 import { ApiError } from "../services/httpClient";
 import { DRAFT_MESSAGES } from "../lib/routineDraft";
@@ -16,7 +17,7 @@ export function useSaveRoutine({
 }: {
   routineId: string | null | undefined;
   via?: string;
-  getPayload: () => { name: string; exercises: routinesApi.RoutineExerciseInput[] };
+  getPayload: () => RoutineStructureInput & { name: string };
   exerciseCount: () => number;
   onSaved: (saved: routinesApi.RoutineDetail, created: boolean) => void;
   onError: (message: string) => void;

@@ -111,6 +111,9 @@ const rows: Row[] = [
   { method: "get", path: (c) => `/routines/${c.routineA}`, cases: [noSession(), wrongRoleCoachOnly(), notOwnerCoach()] },
   { method: "patch", path: (c) => `/routines/${c.routineA}`, body: () => ({ name: "Otro" }), cases: [noSession(), wrongRoleCoachOnly(), notOwnerCoach()] },
   { method: "delete", path: (c) => `/routines/${c.routineA}`, cases: [noSession(), wrongRoleCoachOnly(), notOwnerCoach()] },
+  // Estructura completa con bloques (CYC-275): la misma propiedad que la rutina y la sesión.
+  { method: "patch", path: (c) => `/routines/${c.routineA}`, body: (c) => ({ blocks: [{ type: "warmup", name: "Calentamiento", exercises: [{ exerciseId: c.globalExercise, defaultSets: 2, defaultReps: 10 }] }] }), cases: [noSession(), wrongRoleCoachOnly(), notOwnerCoach()] },
+  ...coachResource("put", (c) => `/sessions/${c.sA}/structure`, (c) => `/sessions/${c.sC}/structure`, (c) => ({ blocks: [{ type: "warmup", name: "Calentamiento", exercises: [{ exerciseId: c.globalExercise, targetSets: 2, targetReps: 10 }] }] })),
 
   // Ejercicios
   { method: "get", path: () => "/exercises", cases: [noSession()] },
