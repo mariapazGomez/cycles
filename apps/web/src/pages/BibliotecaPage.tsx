@@ -350,7 +350,7 @@ export function BibliotecaPage() {
   const location = useLocation();
 
   // Al guardar una rutina el constructor vuelve aquí con su aviso; y los enlaces antiguos
-  // del cajón (?rutina=) llevan a la página del constructor.
+  // del constructor (?rutina=) llevan a la página del constructor.
   useEffect(() => {
     const state = location.state as { notice?: string } | null;
     if (state?.notice) {

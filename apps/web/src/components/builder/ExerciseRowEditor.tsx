@@ -55,7 +55,7 @@ export function ExerciseRowEditor({
   ];
 
   return (
-    <div className="bld-ex" data-tour="drawer-row">
+    <div className="bld-ex" data-tour="builder-row">
       <span className="bld-grip" {...(handleProps ?? {})} aria-label={`Arrastrar ${row.name}`}>
         ⠿
       </span>

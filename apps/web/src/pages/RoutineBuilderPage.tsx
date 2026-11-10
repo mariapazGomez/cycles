@@ -99,7 +99,7 @@ export function RoutineBuilderPage() {
   const blocks = draft.structure.blocks;
   const exercises = { data: exercisesQuery.data, isLoading: exercisesQuery.isLoading, isError: exercisesQuery.isError };
   return (
-    <div className="bld-page" data-tour="drawer" data-from={location.key}>
+    <div className="bld-page" data-tour="builder" data-from={location.key}>
       <button type="button" className="bld-back" onClick={leave}>
         ← {fromBoard ? "Volver al ciclo" : "Biblioteca"}
       </button>

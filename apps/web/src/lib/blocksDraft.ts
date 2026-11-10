@@ -161,7 +161,7 @@ export function structureView(s: Structure): BlockView[] {
   return views;
 }
 
-export function rowsSets(rows: Row[]): number {
+function rowsSets(rows: Row[]): number {
   return rows.reduce((sum, r) => {
     const n = parseNumber(r.sets);
     return sum + (Number.isInteger(n) && n > 0 ? n : 0);

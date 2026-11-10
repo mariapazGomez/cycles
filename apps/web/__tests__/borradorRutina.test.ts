@@ -11,7 +11,7 @@ import {
   routineSummaryLine,
 } from "../src/lib/routineDraft";
 
-// CYC-275, paso 1: el cajón y el editor de la Biblioteca comparten la lógica del borrador.
+// CYC-275, paso 1: el constructor y la Biblioteca comparten la lógica del borrador.
 const exercise = (id: string, name: string): Exercise => ({ id, name, muscleGroup: "legs", isActive: true, createdAt: "2026-01-01" } as unknown as Exercise);
 const ready = (key: string, name = "Sentadilla") => ({ ...newRow(key, exercise(key, name)), reps: "8" });
 

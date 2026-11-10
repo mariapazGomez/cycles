@@ -45,7 +45,7 @@ Tamaños probados: escritorio 1440 × 900, tablet 768 × 1024, teléfono 390 × 
 | **Usuaria que ya usa Cycles** | Al abrir la web o la app, si hay una novedad de su rol y plataforma sin ver, sale el popup (1,5 s después de cargar). Cerrar, saltar o llegar al final la marca como vista. |
 | **Usuaria nueva** | Al crear la cuenta se marcan como vistas todas las novedades vigentes: lo que ya existe lo aprende con su **guía de primer uso**. Desde ahí ve las novedades futuras, y **nunca mientras la guía esté en curso**. |
 | **Varias sin ver** | Solo la más reciente; las anteriores quedan en el historial. Sin popups encadenados. |
-| **No se muestra** | Con un diálogo, cajón, formulario sin guardar o la guía de primer uso abiertos; ni a un rol o plataforma a los que no corresponde. |
+| **No se muestra** | Con un diálogo, el constructor, un formulario sin guardar o la guía de primer uso abiertos; ni a un rol o plataforma a los que no corresponde. |
 | **Reabrir** | «Cómo usar Cycles» › pestaña **Novedades**: historial con fecha y **Ver de nuevo**. Volver a verla no cambia ningún estado. |
 
 ## 3. Primera novedad: bloques de trabajo (`routine-blocks@1`)

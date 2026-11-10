@@ -124,9 +124,9 @@ export const MARKS: Mark[] = [
     step: 4,
     during: [3, 4],
     level: "Ejercicios",
-    selector: () => tour("drawer-save"),
+    selector: () => tour("builder-save"),
     text: () => "Cuando termines, toca Guardar rutina.",
-    when: (c) => c.has("drawer") && c.count("drawer-row") > 0 && !c.has("exercise-create"),
+    when: (c) => c.has("builder") && c.count("builder-row") > 0 && !c.has("exercise-create"),
   },
   {
     id: "4b",
@@ -135,25 +135,25 @@ export const MARKS: Mark[] = [
     level: "Ejercicios",
     selector: () => tour("exercise-create"),
     text: () => "¿Falta uno? Toca Crear para sumarlo a la rutina.",
-    when: (c) => c.has("drawer") && c.has("exercise-create"),
+    when: (c) => c.has("builder") && c.has("exercise-create"),
   },
   {
     id: "4a",
     step: 4,
     during: [3, 4],
     level: "Ejercicios",
-    selector: () => tour("drawer-exercises"),
-    text: () => "Busca y agrega 2 o 3 ejercicios.",
-    when: (c) => c.has("drawer") && c.value("#bd-r-name") !== "" && c.count("drawer-row") === 0,
+    selector: () => tour("builder-exercises"),
+    text: () => "Agrega 2 o 3 ejercicios. Si quieres, ordénalos en bloques.",
+    when: (c) => c.has("builder") && c.value("#bd-r-name") !== "" && c.count("builder-row") === 0,
   },
   {
     id: "3c",
     step: 3,
     during: [3, 4],
     level: "Rutina",
-    selector: () => tour("drawer-name"),
+    selector: () => tour("builder-name"),
     text: () => "Ponle nombre. Por ejemplo, Torso A.",
-    when: (c) => c.has("drawer") && c.value("#bd-r-name") === "" && c.count("drawer-row") === 0,
+    when: (c) => c.has("builder") && c.value("#bd-r-name") === "" && c.count("builder-row") === 0,
   },
   {
     id: "3b",
@@ -162,7 +162,7 @@ export const MARKS: Mark[] = [
     level: "Rutina",
     selector: (c) => (c.has("new-routine") ? tour("new-routine") : tour("picker-create")),
     text: () => "Crea la rutina de ese día.",
-    when: (c) => onAthletePage(c) && !c.has("drawer") && c.has("routine-picker"),
+    when: (c) => onAthletePage(c) && !c.has("builder") && c.has("routine-picker"),
   },
   {
     id: "3a",
@@ -171,7 +171,7 @@ export const MARKS: Mark[] = [
     level: "Rutina",
     selector: () => tour("day-plus"),
     text: () => "Toca «+» en un día.",
-    when: (c) => onAthletePage(c) && !c.has("drawer") && !c.has("routine-picker") && c.has("day-plus"),
+    when: (c) => onAthletePage(c) && !c.has("builder") && !c.has("routine-picker") && c.has("day-plus"),
   },
 
   // 5 · Ponla en un día
@@ -182,7 +182,7 @@ export const MARKS: Mark[] = [
     level: "Rutina en un día",
     selector: () => tour("picker-item"),
     text: () => "Elige la rutina para ese día.",
-    when: (c) => onAthletePage(c) && !c.has("drawer") && c.has("picker-item"),
+    when: (c) => onAthletePage(c) && !c.has("builder") && c.has("picker-item"),
   },
   {
     id: "5a",
@@ -191,7 +191,7 @@ export const MARKS: Mark[] = [
     level: "Rutina en un día",
     selector: () => tour("day-plus"),
     text: () => "Toca «+» en un día y elige tu rutina.",
-    when: (c) => onAthletePage(c) && !c.has("drawer") && !c.has("routine-picker") && c.has("day-plus"),
+    when: (c) => onAthletePage(c) && !c.has("builder") && !c.has("routine-picker") && c.has("day-plus"),
   },
 
   // 6 · Seguimiento

@@ -64,11 +64,6 @@ export function toInput(row: Row): RoutineExerciseInput {
   };
 }
 
-// «Con detalles»: tiene peso, descanso, reps en reserva o nota más allá de series y reps.
-export function hasDetails(row: Pick<Row, "weight" | "restSeconds" | "rir" | "note">): boolean {
-  return row.weight.trim() !== "" || row.restSeconds.trim() !== "" || row.rir !== "" || row.note.trim() !== "";
-}
-
 export function toStatsRow(row: Row) {
   return { ...row, group: muscleGroupLabel(row.muscleGroup) };
 }

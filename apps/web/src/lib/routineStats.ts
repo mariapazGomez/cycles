@@ -5,7 +5,7 @@
 export const WORK_SECONDS_PER_SET = 40;
 
 // Lo que el coach tiene escrito en una fila. Todo llega como texto de los inputs.
-export interface RowDraft {
+interface RowDraft {
   sets: string;
   reps: string;
   weight: string;

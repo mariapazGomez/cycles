@@ -25,7 +25,7 @@ import {
 } from "../lib/blocksDraft";
 import { duplicateRowIn, newRow, removeRowFrom, updateRowIn, type Row } from "../lib/routineDraft";
 
-export interface UndoState {
+interface UndoState {
   message: string;
   snapshot: Structure;
 }

@@ -7,7 +7,7 @@ import { CHOOSABLE_TYPES, MAX_BLOCKS } from "../../lib/blocksDraft";
 export function AddBlockBar({ count, onAdd }: { count: number; onAdd: (type: WorkBlockType) => void }) {
   const full = count >= MAX_BLOCKS;
   return (
-    <section className="bld-block bld-addblock" aria-label="Agregar bloque" data-tour="drawer-add-block">
+    <section className="bld-block bld-addblock" aria-label="Agregar bloque" data-tour="builder-add-block">
       <h3>Agregar bloque</h3>
       {full ? (
         <p className="bld-empty">Llegaste al máximo de {MAX_BLOCKS} bloques.</p>

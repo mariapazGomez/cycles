@@ -59,7 +59,7 @@ export function groupByBlock<E extends ExerciseLike>(blocks: SessionWorkBlock[] 
   return groups;
 }
 
-export function countLabel(n: number, one: string, many: string): string {
+function countLabel(n: number, one: string, many: string): string {
   return `${n} ${n === 1 ? one : many}`;
 }
 
