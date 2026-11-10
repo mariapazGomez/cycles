@@ -117,10 +117,10 @@ export function RoutineDrawer({
                     <b>{row.name}</b>
                     <span className="pill">{muscleGroupLabel(row.muscleGroup)}</span>
                     {hasDetails(row) && <span className="pill pill-blue">Con detalles</span>}
-                    <button type="button" className="bd-ghost" aria-label={`Subir ${row.name}`} disabled={index === 0} onClick={() => draft.moveRow(index, -1)}>
+                    <button type="button" className="bd-ghost" aria-label={`Subir ${row.name}`} disabled={!draft.canMove(index, -1)} onClick={() => draft.moveRow(index, -1)}>
                       ↑
                     </button>
-                    <button type="button" className="bd-ghost" aria-label={`Bajar ${row.name}`} disabled={index === rows.length - 1} onClick={() => draft.moveRow(index, 1)}>
+                    <button type="button" className="bd-ghost" aria-label={`Bajar ${row.name}`} disabled={!draft.canMove(index, 1)} onClick={() => draft.moveRow(index, 1)}>
                       ↓
                     </button>
                     <button type="button" className="bd-ghost" aria-label={`Duplicar ${row.name}`} onClick={() => draft.duplicateRow(index)}>

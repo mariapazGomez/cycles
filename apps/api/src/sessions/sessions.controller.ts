@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   UseGuards,
 } from "@nestjs/common";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
@@ -18,6 +19,7 @@ import { SessionsService } from "./sessions.service";
 import { CreateSessionDto } from "./dto/create-session.dto";
 import { UpdateSessionDto } from "./dto/update-session.dto";
 import { DuplicateSessionDto } from "./dto/duplicate-session.dto";
+import { SaveSessionStructureDto } from "./dto/save-session-structure.dto";
 import { AddSessionExerciseDto } from "./dto/add-session-exercise.dto";
 import { UpdateSessionExerciseDto } from "./dto/update-session-exercise.dto";
 
@@ -85,6 +87,18 @@ export class SessionsController {
     @Body() dto: DuplicateSessionDto,
   ) {
     return this.sessionsService.duplicateSession(user.id, id, dto);
+  }
+
+  // Guarda la estructura completa de la sesión: bloques y ejercicios en orden (CYC-275).
+  @UseGuards(RolesGuard)
+  @Roles("coach")
+  @Put("sessions/:sessionId/structure")
+  saveStructure(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("sessionId") sessionId: string,
+    @Body() dto: SaveSessionStructureDto,
+  ) {
+    return this.sessionsService.saveStructure(user.id, sessionId, dto);
   }
 
   @UseGuards(RolesGuard)

@@ -18,6 +18,8 @@ import { NotificationsService } from "../notifications/notifications.service";
 import { CreateSessionDto } from "./dto/create-session.dto";
 import { UpdateSessionDto } from "./dto/update-session.dto";
 import { DuplicateSessionDto } from "./dto/duplicate-session.dto";
+import { SaveSessionStructureDto, SessionStructureExerciseDto } from "./dto/save-session-structure.dto";
+import { cleanBlocks } from "../common/work-blocks";
 import { AddSessionExerciseDto } from "./dto/add-session-exercise.dto";
 import { UpdateSessionExerciseDto } from "./dto/update-session-exercise.dto";
 
@@ -485,6 +487,105 @@ export class SessionsService {
     });
     this.notifications.coachEditedSession(session.id, "changed");
     return created;
+  }
+
+  // Guarda la estructura completa de la sesión (CYC-275): los bloques en orden con sus
+  // ejercicios, y los sueltos al final. Lo que ya existe se actualiza por id, así que las
+  // series que el atleta registró no se pierden; un ejercicio con series registradas no se
+  // puede quitar ni cambiar por otro.
+  async saveStructure(coachId: string, sessionId: string, dto: SaveSessionStructureDto) {
+    const session = await this.getSessionForCoach(sessionId, coachId);
+    this.assertCycleActive(session.cycle);
+
+    const blocks = dto.blocks ?? [];
+    const loose = dto.exercises ?? [];
+    const cleaned = cleanBlocks(blocks, loose.length);
+    const incoming = [...blocks.flatMap((b) => b.exercises), ...loose];
+
+    const [existingBlocks, existingExercises] = await Promise.all([
+      this.prisma.sessionBlock.findMany({ where: { sessionId: session.id }, select: { id: true } }),
+      this.prisma.sessionExercise.findMany({
+        where: { sessionId: session.id },
+        select: { id: true, exerciseId: true, _count: { select: { logs: true } } },
+      }),
+    ]);
+    const blockIds = new Set(existingBlocks.map((b) => b.id));
+    for (const b of cleaned) {
+      if (b.id && !blockIds.has(b.id)) throw new BadRequestException("Uno de los bloques no es de esta sesión.");
+    }
+    const byId = new Map(existingExercises.map((e) => [e.id, e]));
+    const keptIds = new Set<string>();
+    for (const ex of incoming) {
+      if (!ex.id) continue;
+      const current = byId.get(ex.id);
+      if (!current) throw new BadRequestException("Uno de los ejercicios no es de esta sesión.");
+      if (keptIds.has(ex.id)) throw new BadRequestException("Un ejercicio aparece repetido.");
+      if (current.exerciseId !== ex.exerciseId && current._count.logs > 0) {
+        throw new ConflictException("No se puede cambiar: el atleta ya registró ejecución de este ejercicio.");
+      }
+      keptIds.add(ex.id);
+    }
+    const removed = existingExercises.filter((e) => !keptIds.has(e.id));
+    if (removed.some((e) => e._count.logs > 0)) {
+      throw new ConflictException("No se puede quitar: el atleta ya registró ejecución de este ejercicio.");
+    }
+    await this.assertExercisesAvailable(coachId, incoming.filter((ex) => !ex.id || byId.get(ex.id)?.exerciseId !== ex.exerciseId));
+
+    const row = (ex: SessionStructureExerciseDto, orderIndex: number, blockId: string | null) => ({
+      exerciseId: ex.exerciseId,
+      orderIndex,
+      targetSets: ex.targetSets,
+      targetReps: ex.targetReps,
+      targetWeight: ex.targetWeight ?? null,
+      targetRestSeconds: ex.targetRestSeconds ?? null,
+      targetRir: ex.targetRir ?? null,
+      note: cleanNote(ex.note) ?? null,
+      blockId,
+    });
+
+    await this.prisma.$transaction(async (tx) => {
+      if (removed.length > 0) await tx.sessionExercise.deleteMany({ where: { id: { in: removed.map((e) => e.id) } } });
+      const keepBlocks = cleaned.map((b) => b.id).filter((x): x is string => Boolean(x));
+      // Sus ejercicios quedan sueltos (ON DELETE SET NULL) y se reubican abajo.
+      await tx.sessionBlock.deleteMany({ where: { sessionId: session.id, id: { notIn: keepBlocks } } });
+
+      let order = 0;
+      const place = async (ex: SessionStructureExerciseDto, blockId: string | null) => {
+        const data = row(ex, ++order, blockId);
+        if (ex.id) await tx.sessionExercise.update({ where: { id: ex.id }, data });
+        else await tx.sessionExercise.create({ data: { ...data, sessionId: session.id } });
+      };
+      for (const [index, b] of cleaned.entries()) {
+        const data = { name: b.name, type: b.type, color: b.color, note: b.note, orderIndex: index + 1 };
+        const saved = b.id
+          ? await tx.sessionBlock.update({ where: { id: b.id }, data })
+          : await tx.sessionBlock.create({ data: { ...data, sessionId: session.id } });
+        for (const ex of blocks[index].exercises) await place(ex, saved.id);
+      }
+      for (const ex of loose) await place(ex, null);
+    });
+
+    this.notifications.coachEditedSession(session.id, "changed");
+    return this.prisma.trainingSession.findUniqueOrThrow({
+      where: { id: session.id },
+      include: {
+        sessionExercises: { include: { exercise: true }, orderBy: { orderIndex: "asc" } },
+        blocks: { orderBy: { orderIndex: "asc" } },
+      },
+    });
+  }
+
+  private async assertExercisesAvailable(coachId: string, exercises: Array<{ exerciseId: string }>) {
+    const ids = [...new Set(exercises.map((e) => e.exerciseId))];
+    if (ids.length === 0) return;
+    const found = await this.prisma.exercise.findMany({ where: { id: { in: ids } } });
+    const byId = new Map(found.map((e) => [e.id, e]));
+    for (const id of ids) {
+      const exercise = byId.get(id);
+      if (!exercise || !exercise.isActive || !(exercise.createdBy === null || exercise.createdBy === coachId)) {
+        throw new BadRequestException("Uno de los ejercicios elegidos no está disponible.");
+      }
+    }
   }
 
   async updateExercise(coachId: string, sessionExerciseId: string, dto: UpdateSessionExerciseDto) {

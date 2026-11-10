@@ -89,6 +89,8 @@ export interface RoutineExercise {
   defaultRir?: number | null;
   // Nota del coach para el atleta (hasta 500 caracteres); null/undefined = sin nota.
   note?: string | null;
+  // Bloque de trabajo al que pertenece (CYC-271); nulo = ejercicio suelto.
+  blockId?: string | null;
 }
 
 export interface Exercise {

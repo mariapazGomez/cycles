@@ -1,9 +1,10 @@
 import { useCallback, useRef, useState } from "react";
-import type { Exercise } from "@cycles/shared";
+import type { Exercise, RoutineWorkBlock } from "@cycles/shared";
 import type { RoutineDetail } from "../services/routinesApi";
 import { computeRoutineStats } from "../lib/routineStats";
 import { toStatsRow } from "../lib/routineRows";
 import {
+  canMoveRow,
   draftPayload,
   duplicateRowIn,
   moveRowIn,
@@ -22,6 +23,8 @@ export function useRoutineDraft(initial: RoutineDetail | null = null) {
   const makeKey = useCallback(() => `row-${++counter.current}`, []);
   const [name, setName] = useState(initial?.name ?? "");
   const [rows, setRows] = useState<Row[]>(() => rowsFromRoutine(initial, makeKey));
+  // Los bloques de la rutina que se edita: se guardan tal cual junto a sus ejercicios.
+  const [blocks, setBlocks] = useState<RoutineWorkBlock[]>(initial?.blocks ?? []);
   const [error, setError] = useState<string | null>(null);
   const [attempted, setAttempted] = useState(false);
 
@@ -29,6 +32,7 @@ export function useRoutineDraft(initial: RoutineDetail | null = null) {
   const load = useCallback(
     (routine: RoutineDetail) => {
       setName(routine.name);
+      setBlocks(routine.blocks ?? []);
       setRows(rowsFromRoutine(routine, makeKey));
     },
     [makeKey],
@@ -69,7 +73,8 @@ export function useRoutineDraft(initial: RoutineDetail | null = null) {
     duplicateRow,
     moveRow,
     check,
-    payload: () => draftPayload(name, rows),
+    canMove: (index: number, direction: -1 | 1) => canMoveRow(rows, index, direction),
+    payload: () => draftPayload(name, rows, blocks),
     stats: computeRoutineStats(rows.map(toStatsRow)),
   };
 }

@@ -4,6 +4,9 @@ import { PrismaService } from "../prisma/prisma.service";
 import { CreateRoutineDto } from "./dto/create-routine.dto";
 import { UpdateRoutineDto } from "./dto/update-routine.dto";
 import { RoutineExerciseInputDto } from "./dto/routine-exercise-input.dto";
+import { RoutineBlockInputDto } from "./dto/routine-block-input.dto";
+import { cleanBlocks } from "../common/work-blocks";
+import { Prisma } from "@prisma/client";
 
 const ROUTINE_INCLUDE = {
   blocks: { orderBy: { orderIndex: "asc" as const } },
@@ -18,15 +21,15 @@ export class RoutinesService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(coachId: string, dto: CreateRoutineDto) {
-    await this.assertExercisesAvailable(coachId, dto.exercises);
+    const blocks = dto.blocks ?? [];
+    const loose = dto.exercises ?? [];
+    const cleaned = cleanBlocks(blocks, loose.length);
+    await this.assertStructureUsable(coachId, blocks, loose);
 
-    return this.prisma.routine.create({
-      data: {
-        coachId,
-        name: dto.name,
-        routineExercises: { create: this.toRoutineExerciseRows(dto.exercises) },
-      },
-      include: ROUTINE_INCLUDE,
+    return this.prisma.$transaction(async (tx) => {
+      const routine = await tx.routine.create({ data: { coachId, name: dto.name } });
+      await this.writeStructure(tx, routine.id, [], cleaned, blocks, loose);
+      return tx.routine.findUniqueOrThrow({ where: { id: routine.id }, include: ROUTINE_INCLUDE });
     });
   }
 
@@ -43,12 +46,10 @@ export class RoutinesService {
   }
 
   async update(coachId: string, id: string, dto: UpdateRoutineDto) {
-    await this.getForCoach(id, coachId);
-    if (dto.exercises) {
-      await this.assertExercisesAvailable(coachId, dto.exercises);
-    }
+    const current = await this.getForCoach(id, coachId);
+    const replacesStructure = dto.exercises !== undefined || dto.blocks !== undefined;
 
-    if (!dto.exercises) {
+    if (!replacesStructure) {
       return this.prisma.routine.update({
         where: { id },
         data: { ...(dto.name !== undefined ? { name: dto.name } : {}) },
@@ -56,19 +57,16 @@ export class RoutinesService {
       });
     }
 
-    const [, updated] = await this.prisma.$transaction([
-      this.prisma.routineExercise.deleteMany({ where: { routineId: id } }),
-      this.prisma.routine.update({
-        where: { id },
-        data: {
-          ...(dto.name !== undefined ? { name: dto.name } : {}),
-          routineExercises: { create: this.toRoutineExerciseRows(dto.exercises) },
-        },
-        include: ROUTINE_INCLUDE,
-      }),
-    ]);
+    const blocks = dto.blocks ?? [];
+    const loose = dto.exercises ?? [];
+    const cleaned = cleanBlocks(blocks, loose.length);
+    await this.assertStructureUsable(coachId, blocks, loose);
 
-    return updated;
+    return this.prisma.$transaction(async (tx) => {
+      if (dto.name !== undefined) await tx.routine.update({ where: { id }, data: { name: dto.name } });
+      await this.writeStructure(tx, id, current.blocks, cleaned, blocks, loose);
+      return tx.routine.findUniqueOrThrow({ where: { id }, include: ROUTINE_INCLUDE });
+    });
   }
 
   async remove(coachId: string, id: string): Promise<void> {
@@ -80,17 +78,51 @@ export class RoutinesService {
     ]);
   }
 
-  private toRoutineExerciseRows(exercises: RoutineExerciseInputDto[]) {
-    return exercises.map((ex, index) => ({
+  private toExerciseRow(ex: RoutineExerciseInputDto, orderIndex: number, blockId: string | null) {
+    return {
       exerciseId: ex.exerciseId,
-      orderIndex: index + 1,
+      orderIndex,
       defaultSets: ex.defaultSets,
       defaultReps: ex.defaultReps,
       defaultWeight: ex.defaultWeight,
       defaultRestSeconds: ex.defaultRestSeconds,
       defaultRir: ex.defaultRir,
       note: cleanNote(ex.note) ?? null,
-    }));
+      blockId,
+    };
+  }
+
+  // Reemplaza la estructura completa: los bloques con id conservan el suyo (y tienen que ser
+  // de esta rutina), los demás se crean; los que no vienen se borran. Los ejercicios se
+  // reescriben en orden: primero los de cada bloque, después los sueltos.
+  private async writeStructure(
+    tx: Prisma.TransactionClient,
+    routineId: string,
+    existing: Array<{ id: string }>,
+    cleaned: ReturnType<typeof cleanBlocks>,
+    blocks: RoutineBlockInputDto[],
+    loose: RoutineExerciseInputDto[],
+  ) {
+    const existingIds = new Set(existing.map((b) => b.id));
+    for (const b of cleaned) {
+      if (b.id && !existingIds.has(b.id)) throw new BadRequestException("Uno de los bloques no es de esta rutina.");
+    }
+    const keep = new Set(cleaned.map((b) => b.id).filter((x): x is string => Boolean(x)));
+
+    await tx.routineExercise.deleteMany({ where: { routineId } });
+    await tx.routineBlock.deleteMany({ where: { routineId, id: { notIn: [...keep] } } });
+
+    const rows: ReturnType<RoutinesService["toExerciseRow"]>[] = [];
+    let order = 0;
+    for (const [index, b] of cleaned.entries()) {
+      const data = { name: b.name, type: b.type, color: b.color, note: b.note, orderIndex: index + 1 };
+      const saved = b.id
+        ? await tx.routineBlock.update({ where: { id: b.id }, data })
+        : await tx.routineBlock.create({ data: { ...data, routineId } });
+      for (const ex of blocks[index].exercises) rows.push(this.toExerciseRow(ex, ++order, saved.id));
+    }
+    for (const ex of loose) rows.push(this.toExerciseRow(ex, ++order, null));
+    await tx.routineExercise.createMany({ data: rows.map((row) => ({ ...row, routineId })) });
   }
 
   private async getForCoach(id: string, coachId: string) {
@@ -107,11 +139,11 @@ export class RoutinesService {
     return routine;
   }
 
-  private async assertExercisesAvailable(
-    coachId: string,
-    exercises: RoutineExerciseInputDto[],
-  ): Promise<void> {
-    const ids = exercises.map((e) => e.exerciseId);
+  // Hace falta al menos un ejercicio y todos deben estar disponibles para este coach.
+  private async assertStructureUsable(coachId: string, blocks: RoutineBlockInputDto[], loose: RoutineExerciseInputDto[]) {
+    const all = [...blocks.flatMap((b) => b.exercises), ...loose];
+    if (all.length === 0) throw new BadRequestException("Agrega al menos un ejercicio.");
+    const ids = all.map((e) => e.exerciseId);
     const found = await this.prisma.exercise.findMany({ where: { id: { in: ids } } });
     const byId = new Map(found.map((e) => [e.id, e]));
     for (const id of ids) {
