@@ -112,8 +112,10 @@ Sin datos de salud ni de rendimiento (R1–R12 de `docs/SEGURIDAD.md`).
 
 ## 6. App móvil
 
-Mismo sistema, en el centro de la pantalla: tarjeta con fondo borroso, demostración arriba y los mismos controles. Las novedades del atleta (por ejemplo, el calendario con eventos) usan su ficha con `roles: ["athlete"]` y `platforms: ["app"]`. Con letra grande el texto crece y la tarjeta se desplaza.
+Mismo sistema, en el centro de la pantalla: tarjeta con fondo borroso, demostración arriba y los mismos controles. Las novedades del atleta (por ejemplo, el calendario con eventos) usan su ficha con `roles: ["athlete"]` y `platforms: ["mobile"]`. Con letra grande el texto crece y la tarjeta se desplaza.
 
 ## Qué queda del diseño anterior
 
 La guía de primer uso (`docs/diseno/tour-primer-uso/`) **no cambia**: sigue siendo el recorrido de la coach nueva. Las novedades son un sistema aparte que no depende de las marcas sobre la interfaz.
+
+> **Construido en la app (CYC-272):** velo oscuro al 38 % sin blur real (evita una librería nativa y una build nueva). Ficha `athlete-blocks@1`; demostraciones de la app en `apps/mobile/src/components/novelty/NoveltyDemo.tsx`.

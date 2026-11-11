@@ -23,6 +23,7 @@ import { PolicyAcceptanceScreen } from '../screens/PolicyAcceptanceScreen';
 import type { AppStackParamList, TabParamList } from './types';
 import { TourProvider } from '../store/TourContext';
 import { TourOverlay } from '../components/tour/TourOverlay';
+import { NoveltyLayer } from '../components/novelty/NoveltyLayer';
 import { colors } from '../theme/colors';
 
 const navigationRef = createNavigationContainerRef<AppStackParamList>();
@@ -112,6 +113,7 @@ export function RootNavigator() {
           )}
         </NavigationContainer>
         <TourOverlay />
+        <NoveltyLayer route={route} />
         {welcome && <WelcomeCurtain onDone={endWelcome} reduceMotion={reduceMotion} />}
       </View>
     </TourProvider>

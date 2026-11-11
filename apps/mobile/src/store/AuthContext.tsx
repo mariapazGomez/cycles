@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { TourStatus, User } from '@cycles/shared';
 import * as authApi from '../services/authApi';
-import { updateTourStatus } from '../services/tourApi';
+import { markNewsSeen as saveNewsSeen, updateTourStatus } from '../services/tourApi';
 import { ApiError, onSessionExpired } from '../services/httpClient';
 import { tokenStore } from '../services/tokenStore';
 
@@ -22,6 +22,8 @@ interface AuthContextValue {
   // Guarda el estado de la guía de primer uso. La pantalla cambia al instante;
   // si la API falla, la guía vuelve a salir en la próxima apertura.
   setTourStatus: (status: TourStatus) => Promise<void>;
+  // Marca una novedad (`clave@version`) como vista: al instante en la app y luego en la cuenta.
+  markNewsSeen: (key: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -124,9 +126,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const markNewsSeen = useCallback(async (key: string) => {
+    setUser(current =>
+      current && !(current.tourNewsSeen ?? []).includes(key) ? { ...current, tourNewsSeen: [...(current.tourNewsSeen ?? []), key] } : current,
+    );
+    try {
+      await saveNewsSeen(key);
+    } catch {
+      // Best-effort: sin red la marca no se guarda y la novedad puede salir una vez más.
+    }
+  }, []);
+
   const value = useMemo(
-    () => ({ status, user, welcome, endWelcome, login, loginWithApple, loginWithGoogle, logout, acceptPolicy, refreshUser, setTourStatus }),
-    [status, user, welcome, endWelcome, setTourStatus],
+    () => ({ status, user, welcome, endWelcome, login, loginWithApple, loginWithGoogle, logout, acceptPolicy, refreshUser, setTourStatus, markNewsSeen }),
+    [status, user, welcome, endWelcome, setTourStatus, markNewsSeen],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
