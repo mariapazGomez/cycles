@@ -2,7 +2,7 @@
 
 ## Phosphor Icons (peso «fill»)
 
-Los pictogramas de las actividades paralelas del atleta (voleibol, fútbol, básquetbol, correr, ciclismo, natación, pesas, yoga, copa, caminata, maleta, venda y puntos) son glifos de [Phosphor Icons](https://phosphoricons.com), incrustados como trazados SVG en `apps/mobile/src/components/pearl/glyphs.ts` (CYC-252, CYC-258) y, para la web del coach, en una copia en `apps/web/src/assets/pearl/glyphs.ts` (CYC-253). No se agrega ningún paquete.
+Los pictogramas de las actividades paralelas del atleta (voleibol, fútbol, básquetbol, correr, ciclismo, natación, pesas, yoga, copa, caminata, maleta, venda, puntos, llama, salto, movilidad, enfriamiento, corazón y estrella) son glifos de [Phosphor Icons](https://phosphoricons.com), incrustados como trazados SVG en `apps/mobile/src/components/pearl/glyphs.ts` (CYC-252, CYC-258) y, para la web del coach, en una copia en `apps/web/src/assets/pearl/glyphs.ts` (CYC-253). No se agrega ningún paquete.
 
 > **VERIFICAR CONTRA EL LICENSE OFICIAL (pendiente, no validado):** el aviso de derechos de autor de abajo está escrito desde el texto estándar de la licencia MIT, no copiado del archivo oficial.
 

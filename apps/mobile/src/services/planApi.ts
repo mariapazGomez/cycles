@@ -5,6 +5,7 @@ import type {
   ExerciseLog,
   SessionExercise,
   SessionFeedback,
+  SessionWorkBlock,
   TrainingCycle,
   TrainingSession,
 } from '@cycles/shared';
@@ -41,6 +42,8 @@ export function fetchCycleSessions(cycleId: string) {
 export interface SessionDetail extends TrainingSession {
   cycle: TrainingCycle;
   sessionExercises: Array<SessionExercise & { exercise: Exercise; logs: ExerciseLog[] }>;
+  // Bloques de trabajo de la sesión (CYC-272), en orden; vacío o ausente = sesión sin bloques.
+  blocks?: SessionWorkBlock[];
   feedback: SessionFeedback[];
 }
 

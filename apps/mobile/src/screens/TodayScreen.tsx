@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import type { TodaySession } from '@cycles/shared';
+import type { SessionWorkBlock, TodaySession } from '@cycles/shared';
 import { fetchToday, startSession } from '../services/executionApi';
 import { fetchCycles } from '../services/planApi';
 import { ApiError } from '../services/httpClient';
@@ -33,6 +33,8 @@ import { NotificationBell } from '../components/NotificationBell';
 import { useTabBarClearance } from '../components/FloatingTabBar';
 import { CoachNote } from '../components/CoachNote';
 import { TourAnchor } from '../components/tour/TourAnchor';
+import { BlockSection } from '../components/session/BlockSection';
+import { sessionSections } from '../utils/sessionBlocks';
 import { CoachNotice } from '../components/today/CoachNotice';
 import { TodayAlso } from '../components/today/TodayAlso';
 import { useTodayExtras } from '../hooks/useTodayExtras';
@@ -55,6 +57,8 @@ export function TodayScreen({ navigation }: Props) {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
+  // Bloques que la persona abrió o plegó a mano; el resto usa su estado inicial (CYC-272).
+  const [blockOpen, setBlockOpen] = useState<Record<string, boolean>>({});
   // Sesión pendiente que el atleta eligió entre las asignadas para hoy; null =
   // la siguiente pendiente del plan.
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -137,10 +141,16 @@ export function TodayScreen({ navigation }: Props) {
   };
 
   const exercises = data?.session.sessionExercises ?? [];
+  // Bloques de la sesión (CYC-272): `blocks` llega con /me/today (CYC-272, API de Desarrollo
+  // general); sin bloques, la sesión se ve como siempre.
+  const blocks = (data?.session as { blocks?: SessionWorkBlock[] } | undefined)?.blocks;
+  const sections = sessionSections(blocks, exercises);
+  // El orden en que se entrena: el de los bloques (en lista plana, el de siempre).
+  const ordered = sections ? sections.flatMap(section => section.items.map(item => item.exercise)) : exercises;
   const isComplete = (e: (typeof exercises)[number]) => e.logs.length >= e.targetSets;
   const doneCount = exercises.filter(isComplete).length;
   const doneExercises = doneCount;
-  const currentIndex = exercises.findIndex(e => !isComplete(e));
+  const currentIndex = ordered.findIndex(e => !isComplete(e));
   const doneSets = exercises.reduce((sum, e) => sum + Math.min(e.logs.length, e.targetSets), 0);
   const plannedSets = exercises.reduce((sum, e) => sum + e.targetSets, 0);
   // La guía de primer uso señala el botón de la sesión (o la tarjeta vacía si no hay sesión).
@@ -195,9 +205,64 @@ export function TodayScreen({ navigation }: Props) {
   const assignedHere = (data?.assignedToday ?? []).some(a => a.id === data?.session.id);
   const otherAssigned = (data?.assignedToday ?? []).filter(a => a.id !== data?.session.id);
 
-  const nextExercise = currentIndex === -1 ? undefined : exercises[currentIndex];
+  const nextExercise = currentIndex === -1 ? undefined : ordered[currentIndex];
   const openExercise = (exercise: (typeof exercises)[number]) =>
     navigation.navigate('ExerciseLog', { sessionExercise: exercise });
+
+  const renderExercise = (sessionExercise: (typeof exercises)[number], index: number) => {
+    const loggedSets = sessionExercise.logs.length;
+    const complete = isComplete(sessionExercise);
+    const current = routineStarted && !complete && index === currentIndex;
+    return (
+      <PressableScale
+        key={sessionExercise.id}
+        style={[
+          styles.card,
+          styles.exerciseCard,
+          current && styles.exerciseCardCurrent,
+          !complete && !current && styles.exerciseCardPending,
+        ]}
+        disabled={!routineStarted}
+        onPress={() => openExercise(sessionExercise)}>
+        <View
+          style={[
+            styles.node,
+            complete && styles.nodeDone,
+            current && styles.nodeCurrent,
+            !complete && !current && styles.nodePending,
+          ]}>
+          {complete ? (
+            <Icon name="check" size={16} color={colors.onBlue} strokeWidth={2.5} />
+          ) : (
+            <Text style={[styles.nodeText, current && styles.nodeTextCurrent]}>{index + 1}</Text>
+          )}
+        </View>
+        <View style={styles.exerciseInfo}>
+          <Text style={styles.exerciseName}>{sessionExercise.exercise.name}</Text>
+          <Text style={styles.exerciseTarget}>
+            {sessionExercise.targetSets} × {sessionExercise.targetReps}
+            {sessionExercise.targetWeight ? ` · ${sessionExercise.targetWeight} kg` : ''}
+          </Text>
+          <CoachNote note={sessionExercise.note} compact />
+        </View>
+        <View
+          style={[
+            styles.progressPill,
+            complete && styles.progressPillDone,
+            current && styles.progressPillCurrent,
+          ]}>
+          <Text
+            style={[
+              styles.progressPillText,
+              complete && styles.progressPillTextDone,
+              current && styles.progressPillTextCurrent,
+            ]}>
+            {loggedSets}/{sessionExercise.targetSets}
+          </Text>
+        </View>
+      </PressableScale>
+    );
+  };
 
   return (
     <ScrollView
@@ -357,60 +422,17 @@ export function TodayScreen({ navigation }: Props) {
             </View>
           )}
 
-          {exercises.map((sessionExercise, index) => {
-            const loggedSets = sessionExercise.logs.length;
-            const complete = isComplete(sessionExercise);
-            const current = routineStarted && !complete && index === currentIndex;
-            return (
-              <PressableScale
-                key={sessionExercise.id}
-                style={[
-                  styles.card,
-                  styles.exerciseCard,
-                  current && styles.exerciseCardCurrent,
-                  !complete && !current && styles.exerciseCardPending,
-                ]}
-                disabled={!routineStarted}
-                onPress={() => openExercise(sessionExercise)}>
-                <View
-                  style={[
-                    styles.node,
-                    complete && styles.nodeDone,
-                    current && styles.nodeCurrent,
-                    !complete && !current && styles.nodePending,
-                  ]}>
-                  {complete ? (
-                    <Icon name="check" size={16} color={colors.onBlue} strokeWidth={2.5} />
-                  ) : (
-                    <Text style={[styles.nodeText, current && styles.nodeTextCurrent]}>{index + 1}</Text>
-                  )}
-                </View>
-                <View style={styles.exerciseInfo}>
-                  <Text style={styles.exerciseName}>{sessionExercise.exercise.name}</Text>
-                  <Text style={styles.exerciseTarget}>
-                    {sessionExercise.targetSets} × {sessionExercise.targetReps}
-                    {sessionExercise.targetWeight ? ` · ${sessionExercise.targetWeight} kg` : ''}
-                  </Text>
-                  <CoachNote note={sessionExercise.note} compact />
-                </View>
-                <View
-                  style={[
-                    styles.progressPill,
-                    complete && styles.progressPillDone,
-                    current && styles.progressPillCurrent,
-                  ]}>
-                  <Text
-                    style={[
-                      styles.progressPillText,
-                      complete && styles.progressPillTextDone,
-                      current && styles.progressPillTextCurrent,
-                    ]}>
-                    {loggedSets}/{sessionExercise.targetSets}
-                  </Text>
-                </View>
-              </PressableScale>
-            );
-          })}
+          {sections
+            ? sections.map(section => (
+                <BlockSection
+                  key={section.key}
+                  section={section}
+                  open={blockOpen[section.key] ?? section.defaultOpen}
+                  onToggle={() => setBlockOpen(prev => ({ ...prev, [section.key]: !(prev[section.key] ?? section.defaultOpen) }))}>
+                  {section.items.map(item => renderExercise(item.exercise, item.index))}
+                </BlockSection>
+              ))
+            : exercises.map((sessionExercise, index) => renderExercise(sessionExercise, index))}
 
           {routineStarted && <RestBar />}
 
