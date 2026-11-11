@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Novedad: Esta semana</title>
+<style>
+:root{--blue:#3080fc;--btn:#1a66dd;--ink:#1f2228;--bg:#eef3fc;--line:#dde2ea;--muted:#5c6068;--ok:#2f9e5f}
+*{box-sizing:border-box;margin:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);padding:24px 16px 64px;line-height:1.45}
+.wrap{max-width:1100px;margin:0 auto}
+h1{font-size:clamp(24px,4vw,34px);line-height:1.15}
+h2{font-size:20px;margin:36px 0 6px}
+p.lead{color:var(--muted);max-width:68ch;margin-top:8px}
+.ctl{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;align-items:center}
+.ctl label{font-size:14px;display:flex;gap:6px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 14px;min-height:44px}
+.row{display:flex;gap:24px;flex-wrap:wrap;margin-top:18px;align-items:flex-start}
+.fr{display:grid;gap:8px;justify-items:start}
+.fr small{font-size:12px;color:var(--muted)}
+.screen{position:relative;overflow:hidden;background:#dbe5f7;border-radius:22px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;container-type:size}
+.scrim{position:absolute;inset:0;background:rgba(31,34,40,.55)}
+.card{position:relative;background:#fff;border-radius:22px;width:calc(100% - 32px);max-height:calc(100% - 32px);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 40px rgba(31,34,40,.3)}
+.dm{background:#f3f6fc;display:grid;place-items:center;padding:14px 0;flex:none}
+.cv{width:300px;height:150px;transform-origin:center;position:relative}
+.pane{padding:16px 18px 14px;display:grid;gap:8px;overflow:auto}
+.lab{font-size:12px;font-weight:600;color:var(--btn);letter-spacing:.06em;text-transform:uppercase}
+.pane h3{font-size:1.25em;line-height:1.2}
+.pane p{font-size:1em}
+.ft{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px 14px;flex:none;flex-wrap:wrap}
+.dots{display:flex;gap:6px}
+.dots i{width:8px;height:8px;border-radius:99px;background:#c9d3e6}
+.dots i.on{width:22px;background:var(--btn)}
+button{font:inherit;min-height:44px;min-width:44px;border:0;border-radius:12px;padding:0 16px;cursor:pointer}
+.sk{background:none;color:var(--btn);font-weight:600}
+.nx{background:var(--btn);color:#fff;font-weight:600}
+.bk{background:#e8effb;color:var(--ink)}
+.btns{display:flex;gap:8px}
+/* demos */
+.tarjeta{position:absolute;left:10px;right:10px;top:10px;bottom:10px;background:#fff;border-radius:22px;box-shadow:0 4px 16px rgba(48,80,160,.15);padding:12px 14px;display:flex;gap:14px;align-items:center}
+.ring{width:76px;height:76px;flex:none;position:relative}
+.ring svg{width:76px;height:76px;transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font-size:16px}
+.tt{display:grid;gap:2px}
+.tt strong{font-size:15px}
+.tt span{font-size:12px}
+.fig{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;position:absolute;left:10px;right:10px;top:12px}
+.tile{background:#fff;border-radius:16px;padding:10px 8px;display:grid;gap:4px;box-shadow:0 4px 16px rgba(48,80,160,.12);transition:box-shadow .3s,transform .3s}
+.tile span{font-size:11px;line-height:1.2}
+.tile b{font-size:16px}
+.tile.hl{box-shadow:0 0 0 3px var(--blue),0 6px 18px rgba(48,128,252,.25);transform:translateY(-3px)}
+.cap{position:absolute;left:10px;right:10px;bottom:6px;font-size:11px;text-align:center}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:14px;margin-top:10px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:#fbfcfe}
+.scroll{overflow-x:auto}
+.rm *{transition:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Novedad de la pestaña Hoy: «Esta semana»</h1>
+<p class="lead">Ficha <b>athlete-weekly@1</b> para la app del atleta: dos slides con su demostración. Pruébala con los controles y mira cómo responde a pantallas pequeñas y a letra grande.</p>
+
+<div class="ctl">
+<label><input type="checkbox" id="rm"> Reducir movimiento (muestra el resultado final)</label>
+</div>
+
+<h2>La ficha, en tres ventanas reales</h2>
+<div class="row" id="frames"></div>
+
+<h2>Guion de cada demostración</h2>
+<div class="scroll"><table>
+<tr><th>Slide</th><th>Fases (cada una 1,8 s, se repiten)</th><th>Resultado final (imagen fija con «reducir movimiento»)</th></tr>
+<tr><td><b>1 · Tu semana de un vistazo</b></td><td>1) tarjeta «Esta semana», «9 al 15 nov», anillo en 0 % y «0 de 3 sesiones». 2) el anillo se llena a 33 % y dice «1 de 3». 3) llega a 67 % y dice «2 de 3».</td><td>Fase 3: anillo en 67 %, «2 de 3 sesiones».</td></tr>
+<tr><td><b>2 · Entiende tus cifras</b></td><td>1) se resalta «Sesiones» con «2 de 3». 2) se resalta «Tiempo entrenado» con «3 h 20 min». 3) se resalta «Esfuerzo medio» con «6,5». 4) las tres cifras sin resaltar.</td><td>Fase 4: las tres cifras visibles, sin resaltado.</td></tr>
+</table></div>
+</div>
+<script>
+const SLIDES=[
+{t:'Tu semana de un vistazo',x:'Arriba de Hoy ves cuántas sesiones llevas esta semana. El anillo se llena a medida que entrenas.',d:0,l:'Una tarjeta «Esta semana» donde un anillo pasa de 0 a 2 sesiones de 3.'},
+{t:'Entiende tus cifras',x:'Sesiones, tiempo entrenado y esfuerzo medio, siempre de la semana en curso. Si no registraste esfuerzo, verás «Sin dato».',d:1,l:'Tres cifras de la semana: sesiones, tiempo entrenado y esfuerzo medio.'}];
+const PH=1800;
+const rmBox=document.getElementById('rm');
+const reduce=()=>rmBox.checked;
+function ringSVG(p){const r=30,c=2*Math.PI*r,th=(p*360-90)*Math.PI/180;
+return `<svg viewBox="0 0 76 76"><circle cx="38" cy="38" r="${r}" fill="none" stroke="#dbe5f7" stroke-width="8"/><circle cx="38" cy="38" r="${r}" fill="none" stroke="#3080fc" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c*p} ${c}"/></svg>`;}
+function demo(d,ph){
+ if(d===0){const k=ph,p=[0,1/3,2/3][k];
+  return `<div class="tarjeta"><div class="ring">${ringSVG(p)}<b>${Math.round(p*100)}%</b></div><div class="tt"><strong>Esta semana</strong><span>9 al 15 nov</span><span>${k} de 3 sesiones</span></div></div>`;}
+ const hl=ph; const t=(i,l,v)=>`<div class="tile ${hl===i?'hl':''}"><span>${l}</span><b>${v}</b></div>`;
+ return `<div class="fig">${t(0,'Sesiones','2 de 3')}${t(1,'Tiempo entrenado','3 h 20 min')}${t(2,'Esfuerzo medio','6,5')}</div>`;}
+function build(el,w,h,fs){
+ const host=document.createElement('div');host.className='screen';host.style.width=w+'px';host.style.height=h+'px';
+ host.innerHTML='<div class="scrim"></div><div class="card" role="dialog" aria-modal="true"><div class="dm"><div class="cv" role="img"></div></div><div class="pane"><div class="lab">Novedad</div><h3></h3><p></p></div><div class="ft"><button class="sk"></button><div class="dots"></div><div class="btns"><button class="bk">Atrás</button><button class="nx"></button></div></div></div>';
+ el.appendChild(host);
+ const card=host.querySelector('.card');card.style.fontSize=(16*fs)+'px';
+ const cv=host.querySelector('.cv');
+ let i=0,ph=0,timer;
+ const frames=[2,4];
+ function scale(){const cw=card.clientWidth;const s=Math.min(1,(cw-8)/300);cv.style.transform='scale('+s+')';cv.parentElement.style.height=(150*s+28)+'px';
+  const hideDemo=(h<=380&&w<560);host.querySelector('.dm').style.display=hideDemo?'none':'grid';}
+ function paint(){const S=SLIDES[i];card.querySelector('h3').textContent=S.t;card.querySelector('p').textContent=S.x;cv.setAttribute('aria-label',S.l);
+  const last=i===SLIDES.length-1;
+  host.querySelector('.sk').textContent=last?'Cerrar':'Saltar';
+  host.querySelector('.nx').textContent=last?'Entendido':'Siguiente';
+  host.querySelector('.bk').style.display=i?'':'none';
+  host.querySelector('.dots').innerHTML=SLIDES.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('');
+  const n=frames[i];const f=reduce()?n-1:ph%n;cv.innerHTML=demo(S.d,f);scale();}
+ host.querySelector('.nx').onclick=()=>{if(i<SLIDES.length-1){i++;ph=0;paint();}else{host.querySelector('.card').style.opacity=.4;setTimeout(()=>{host.querySelector('.card').style.opacity=1;i=0;ph=0;paint();},800);}};
+ host.querySelector('.bk').onclick=()=>{i=Math.max(0,i-1);ph=0;paint();};
+ host.querySelector('.sk').onclick=host.querySelector('.nx').onclick;
+ timer=setInterval(()=>{if(!reduce()){ph++;paint();}},PH);
+ rmBox.addEventListener('change',paint);
+ paint();
+}
+const box=document.getElementById('frames');
+[[390,640,1,'Teléfono 390 × 640, letra normal'],[320,568,1,'Teléfono pequeño 320 × 568'],[390,700,1.6,'390 × 700, letra ×1,6']].forEach(([w,h,fs,label])=>{
+ const f=document.createElement('div');f.className='fr';box.appendChild(f);build(f,w,h,fs);const s=document.createElement('small');s.textContent=label;f.appendChild(s);});
+</script>
+</body>
+</html>
