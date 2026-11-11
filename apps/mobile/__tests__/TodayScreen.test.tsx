@@ -21,7 +21,6 @@ jest.mock('../src/services/planApi', () => ({ fetchCycles: jest.fn() }));
 jest.mock('../src/services/notificationsApi', () => ({ fetchNotifications: jest.fn(), markNotificationRead: jest.fn() }));
 jest.mock('../src/services/eventsApi', () => ({ fetchEvents: jest.fn() }));
 jest.mock('../src/store/RestTimerContext', () => ({
-  DEFAULT_REST_SECONDS: 90,
   useRestTimer: () => ({ routineStarted: false, setRoutineStarted: jest.fn(), autoRest: true, setAutoRest: jest.fn() }),
 }));
 jest.mock('../src/components/RestTimer', () => ({ RestBar: () => null }));
@@ -338,5 +337,49 @@ describe('tarjeta «Esta semana» (CYC-256)', () => {
     expect(all).toContain('Esta semana');
     expect(all).toContain('Hoy no tienes sesión');
     expect(all.some(t => t.includes('Adelantar'))).toBe(false);
+  });
+});
+
+describe('iniciar la rutina', () => {
+  const withExercises = () => ({
+    ...session('a', 'Full body, día 1', 1),
+    sessionExercises: [
+      { id: 'se-1', sessionId: 'a', exerciseId: 'ex-1', orderIndex: 1, targetSets: 1, targetReps: 8, exercise: { id: 'ex-1', name: 'Sentadilla', equipment: ['barbell'], isActive: true }, logs: [{ id: 'l1' }] },
+      { id: 'se-2', sessionId: 'a', exerciseId: 'ex-2', orderIndex: 2, targetSets: 3, targetReps: 8, exercise: { id: 'ex-2', name: 'Dominadas', equipment: ['bodyweight'], isActive: true }, logs: [] },
+    ],
+  });
+  const pressStart = async (tree: ReactTestRenderer.ReactTestRenderer) =>
+    ReactTestRenderer.act(async () => {
+      tree.root
+        .find(n => typeof n.props.onPress === 'function' && n.findAll(c => c.props.children === 'Iniciar rutina').length > 0)
+        .props.onPress();
+    });
+
+  test('al iniciar pasa directo al primer ejercicio pendiente', async () => {
+    const { startSession } = require('../src/services/executionApi');
+    startSession.mockResolvedValue(undefined);
+    fetchTodayMock.mockResolvedValue(payload(withExercises() as never, []));
+    const tree = await mount();
+    await pressStart(tree);
+    expect(startSession).toHaveBeenCalledWith('a');
+    expect(navigateMock).toHaveBeenCalledWith('ExerciseLog', {
+      sessionExercise: expect.objectContaining({ id: 'se-2' }),
+    });
+  });
+
+  test('si falla el inicio, se queda en Hoy con el aviso', async () => {
+    const { startSession } = require('../src/services/executionApi');
+    startSession.mockRejectedValue(new Error('sin red'));
+    fetchTodayMock.mockResolvedValue(payload(withExercises() as never, []));
+    const tree = await mount();
+    await pressStart(tree);
+    expect(navigateMock).not.toHaveBeenCalled();
+    expect(texts(tree)).toContain('No pudimos iniciar la rutina. Intenta de nuevo.');
+  });
+
+  test('la tarjeta de pausas ya no habla de 90 s por defecto', async () => {
+    fetchTodayMock.mockResolvedValue(payload(withExercises() as never, []));
+    const tree = await mount();
+    expect(texts(tree)).toContain('Usa el descanso que planificó tu coach');
   });
 });

@@ -19,6 +19,7 @@ import { PressableScale } from '../components/PressableScale';
 import { Spinner } from '../components/Spinner';
 import { BlockSection } from '../components/session/BlockSection';
 import { sessionSections } from '../utils/sessionBlocks';
+import { BODYWEIGHT_LABEL, isBodyweight } from '../utils/bodyweight';
 import { reopenSession, submitFeedback } from '../services/executionApi';
 import { fetchSessionDetail, type SessionDetail } from '../services/planApi';
 import type { AppStackParamList } from '../navigation/types';
@@ -171,7 +172,7 @@ export function SessionDetailScreen({ route }: Props) {
           <View style={styles.flex}>
             <Text style={styles.exerciseName}>{item.exercise.name}</Text>
             <Text style={styles.exerciseTarget}>
-              {`${item.targetSets} × ${item.targetReps}${item.targetWeight ? ` · ${item.targetWeight} kg` : ''}`}
+              {`${item.targetSets} × ${item.targetReps}${isBodyweight(item.exercise) ? ` · ${BODYWEIGHT_LABEL}` : item.targetWeight ? ` · ${item.targetWeight} kg` : ''}`}
             </Text>
             <CoachNote note={item.note} compact />
           </View>
@@ -186,7 +187,11 @@ export function SessionDetailScreen({ route }: Props) {
             {logs.map(log => (
               <View key={log.id} style={styles.setChip}>
                 <Text style={styles.setChipText}>
-                  {log.actualWeight != null ? `${log.actualReps} × ${log.actualWeight} kg` : `${log.actualReps} reps`}
+                  {isBodyweight(item.exercise)
+                    ? `${log.actualReps} reps · ${BODYWEIGHT_LABEL}`
+                    : log.actualWeight != null
+                      ? `${log.actualReps} × ${log.actualWeight} kg`
+                      : `${log.actualReps} reps`}
                 </Text>
               </View>
             ))}

@@ -22,6 +22,7 @@ import { CoachNote } from '../components/CoachNote';
 import { FirstSetHint, useFirstSetHint } from '../components/tour/FirstUseHints';
 import { ExerciseVideoButton, VideoHint, playableUrl, useVideoHint } from '../components/ExerciseVideo';
 import { colors } from '../theme/colors';
+import { BODYWEIGHT_LABEL, isBodyweight } from '../utils/bodyweight';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ExerciseLog'>;
 
@@ -76,6 +77,7 @@ export function ExerciseLogScreen({ route }: Props) {
   const videoHint = useVideoHint(Boolean(videoUrl));
   const firstSetHint = useFirstSetHint();
   const { startRest } = useRestTimer();
+  const bodyweight = isBodyweight(sessionExercise.exercise);
   const [rows, setRows] = useState<SetRowState[]>(() =>
     buildInitialRows(
       sessionExercise.targetSets,
@@ -101,7 +103,8 @@ export function ExerciseLogScreen({ route }: Props) {
       return;
     }
     const weightText = row.actualWeight.trim();
-    const weight = weightText === '' ? undefined : Number(weightText);
+    // Peso corporal: no hay carga que registrar.
+    const weight = bodyweight || weightText === '' ? undefined : Number(weightText);
     if (weight !== undefined && !Number.isFinite(weight)) {
       updateRow(index, { error: 'Ingresa un peso válido.' });
       return;
@@ -136,7 +139,11 @@ export function ExerciseLogScreen({ route }: Props) {
         }),
       );
       Vibration.vibrate(15);
-      startRest();
+      // Corregir una serie ya registrada no inicia ni reinicia el descanso; solo una serie nueva.
+      // El descanso es el que planificó el coach: sin dato no hay descanso.
+      if (!row.editing) {
+        startRest(sessionExercise.targetRestSeconds ?? 0);
+      }
     } catch (err) {
       updateRow(index, {
         saving: false,
@@ -204,7 +211,11 @@ export function ExerciseLogScreen({ route }: Props) {
                   <View style={styles.targetPill}>
                     <Text style={styles.targetPillText}>
                       Meta: {sessionExercise.targetReps}
-                      {sessionExercise.targetWeight ? ` × ${sessionExercise.targetWeight} kg` : ' reps'}
+                      {bodyweight
+                        ? ` reps · ${BODYWEIGHT_LABEL}`
+                        : sessionExercise.targetWeight
+                          ? ` × ${sessionExercise.targetWeight} kg`
+                          : ' reps'}
                     </Text>
                   </View>
                 </View>
@@ -217,14 +228,16 @@ export function ExerciseLogScreen({ route }: Props) {
                   onStep={delta => adjustField(index, 'actualReps', delta)}
                   step={1}
                 />
-                <Stepper
-                  label="Peso (kg)"
-                  value={row.actualWeight}
-                  keyboardType="decimal-pad"
-                  onChange={text => updateRow(index, { actualWeight: text })}
-                  onStep={delta => adjustField(index, 'actualWeight', delta)}
-                  step={2.5}
-                />
+                {!bodyweight && (
+                  <Stepper
+                    label="Peso (kg)"
+                    value={row.actualWeight}
+                    keyboardType="decimal-pad"
+                    onChange={text => updateRow(index, { actualWeight: text })}
+                    onStep={delta => adjustField(index, 'actualWeight', delta)}
+                    step={2.5}
+                  />
+                )}
 
                 {isLastSet(index) && (
                   <>
@@ -258,7 +271,11 @@ export function ExerciseLogScreen({ route }: Props) {
                 <Text style={styles.doneLabel}>Serie {index + 1}</Text>
                 <Text style={styles.doneValue}>
                   {row.saved.actualReps} reps
-                  {row.saved.actualWeight != null ? ` · ${row.saved.actualWeight} kg` : ''}
+                  {bodyweight
+                    ? ` · ${BODYWEIGHT_LABEL}`
+                    : row.saved.actualWeight != null
+                      ? ` · ${row.saved.actualWeight} kg`
+                      : ''}
                   {row.saved.rir != null ? ` · RIR ${row.saved.rir}` : ''}
                 </Text>
                 <TouchableOpacity onPress={() => startEditing(index)}>

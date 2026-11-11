@@ -177,3 +177,17 @@ describe('isla dinámica (Live Activity)', () => {
     expect(hideRestActivity).toHaveBeenCalled();
   });
 });
+
+test('sin segundos planificados (0) no hay descanso: no corre ni se guarda', async () => {
+  load.mockResolvedValue(null);
+  await mount();
+  await ReactTestRenderer.act(async () => {
+    latest.setRoutineStarted(true);
+  });
+  (saveRest as jest.Mock).mockClear();
+  await ReactTestRenderer.act(async () => {
+    latest.startRest(0);
+  });
+  expect(latest.remaining).toBeNull();
+  expect(saveRest).not.toHaveBeenCalled();
+});

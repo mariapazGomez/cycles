@@ -19,7 +19,8 @@ import { fetchCycles } from '../services/planApi';
 import { ApiError } from '../services/httpClient';
 import { toLocalDay } from '../utils/planCalendar';
 import { RestBar } from '../components/RestTimer';
-import { DEFAULT_REST_SECONDS, useRestTimer } from '../store/RestTimerContext';
+import { BODYWEIGHT_LABEL, isBodyweight } from '../utils/bodyweight';
+import { useRestTimer } from '../store/RestTimerContext';
 import type { AppStackParamList, TabParamList } from '../navigation/types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PressableScale } from '../components/PressableScale';
@@ -125,6 +126,11 @@ export function TodayScreen({ navigation }: Props) {
     try {
       await startSession(data.session.id);
       await load();
+      // Al iniciar la rutina se pasa directo al primer ejercicio pendiente.
+      const first = ordered.find(e => !isComplete(e));
+      if (first) {
+        openExercise(first);
+      }
     } catch {
       setError('No pudimos iniciar la rutina. Intenta de nuevo.');
     } finally {
@@ -243,7 +249,11 @@ export function TodayScreen({ navigation }: Props) {
           <Text style={styles.exerciseName}>{sessionExercise.exercise.name}</Text>
           <Text style={styles.exerciseTarget}>
             {sessionExercise.targetSets} × {sessionExercise.targetReps}
-            {sessionExercise.targetWeight ? ` · ${sessionExercise.targetWeight} kg` : ''}
+            {isBodyweight(sessionExercise.exercise)
+              ? ` · ${BODYWEIGHT_LABEL}`
+              : sessionExercise.targetWeight
+                ? ` · ${sessionExercise.targetWeight} kg`
+                : ''}
           </Text>
           <CoachNote note={sessionExercise.note} compact />
         </View>
@@ -416,7 +426,7 @@ export function TodayScreen({ navigation }: Props) {
             <View style={[styles.card, styles.restCard]}>
               <View style={styles.restText}>
                 <Text style={styles.restTitle}>Pausas automáticas</Text>
-                <Text style={styles.restHint}>Descanso por defecto: {DEFAULT_REST_SECONDS} s</Text>
+                <Text style={styles.restHint}>Usa el descanso que planificó tu coach</Text>
               </View>
               <Switch
                 value={autoRest}
