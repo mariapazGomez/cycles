@@ -45,6 +45,28 @@ Atleta: **Matías Fuentes**, ciclo «Fuerza base», semana 4 de 6. Sesión del d
 - «Cuéntale a tu coach»: esfuerzo de la sesión en una escala de 1 a 10 (7), campo de nota con una frase («Me sentí fuerte, el hombro bien») y **Enviar**.
 - Al enviar, vuelve a Hoy con los bloques con insignia **Hecho** y la tarjeta «Esta semana» en **67 %, 2 de 3** (A8).
 
+## Maqueta 4: Resumen
+
+Referencia: `../vistas-app/propuestas.html`, pantalla «Resumen».
+
+- Interruptor **Ciclo | Semana** arriba (seleccionado en `#1a66dd`, texto blanco).
+- Anillo de sesiones del período con su porcentaje, y el rango explícito: «Todo el ciclo, Semana 4 de 6».
+- **«Cómo van tus ejercicios»:** una fila por ejercicio (Press de banca con barra, Sentadilla con barra) con el peso y una línea pequeña de su evolución; datos de ejemplo crecientes.
+- **«Qué músculos trabajas»** plegado, con su flecha.
+- Isla con «Resumen» resaltado.
+
+## Maqueta 5: Sesión por bloques
+
+Referencia: `../sesion-por-bloques/propuestas.html`, sección de la app.
+
+- Título «Empuje» y debajo los **bloques como tarjetas plegables**, cada uno con su perla de color y su insignia de avance: **Calentamiento, «Hecho», plegado** · **Fuerza, «1 de 4», abierto** (con sus ejercicios y la fila en curso destacada) · **Core, «0 de 1», plegado**.
+- Botón principal con el ejercicio que sigue: **«Continuar con Press inclinado»**.
+- Si se usa en la historia animada, va entre Serie y Cierre: al guardar la serie, el avance del bloque sube y se pliega el que termina.
+
+## Qué entrega esta guía
+
+Las cinco pantallas están descritas con datos de ejemplo y referencias visuales; la historia animada recorre Hoy, Serie, Cierre y vuelve a Hoy (Resumen y sesión por bloques pueden vivir como maquetas estáticas o como pasos extra). La usuaria eligió maquetas HTML, no capturas del simulador (decisión del 2026-11-11 relayada por Organización).
+
 ## Guion de la animación (el dedo recorre las tres)
 
 1. Hoy: el dedo toca **Iniciar rutina**.
@@ -59,12 +81,6 @@ Se mantiene lo ya decidido: solo el teléfono activo se ve nítido; se anima sol
 
 Colores de la marca (`#3080fc` para fondos y gráficos, `#1a66dd` para botones), sistema de fuente del teléfono y los textos en «tú». No se muestra «Adelantar» (decisión pendiente). Etiqueta bajo cada maqueta: **«Datos de ejemplo»**.
 
-## Capturas reales del simulador (pendiente: esta noche)
+## Capturas reales del simulador (no se hacen por ahora)
 
-La usuaria tiene simulador de iPhone y prefiere hacerlas por la noche. Pantallas: **Hoy** (con «Esta semana»), **Serie**, **Cierre**, **Resumen** y la **sesión por bloques**. Pasos, cuando llegue el momento:
-
-1. Regenerar `cycles_demo` ese día y levantar la API de la demo en el puerto 3000 sin Resend ni Slack (MANUAL-DEMOS §2 y §3); la web no hace falta.
-2. Abrir la app en el simulador (iPhone de 6,1", letra normal, modo claro). La app en desarrollo apunta sola a `localhost:3000`.
-3. **La usuaria inicia sesión** con el atleta de la demo (la contraseña está en `~/.cycles-secretos/demo/DEMO_PASSWORD`; el agente no la escribe).
-4. El agente captura con `xcrun simctl io booted screenshot` cada pantalla; la sesión de ejemplo es una que tenga bloques (de la semana 3 en adelante).
-5. Sin datos reales. Verificar que no sale ningún popup de novedad antes de capturar (saltarlo una vez).
+La usuaria tiene simulador de iPhone, pero eligió las maquetas HTML. Los pasos quedan por si se retoma: regenerar `cycles_demo` y levantar la API en el 3000 sin Resend ni Slack (MANUAL-DEMOS §2 y §3), abrir la app en el simulador (iPhone de 6,1", modo claro), que **la usuaria inicie sesión** (el agente no escribe la contraseña) y capturar con `xcrun simctl io booted screenshot`, saltando antes el popup de novedades.
