@@ -13,7 +13,6 @@ import { hideRestActivity, showRestActivity } from '../services/restActivity';
 import { cancelRestEnd, requestRestPermission, scheduleRestEnd } from '../services/restNotification';
 import { clearRest, loadRest, saveRest } from '../services/restTimerStorage';
 
-export const DEFAULT_REST_SECONDS = 90;
 const ADJUST_STEP_SECONDS = 15;
 
 interface RestTimerValue {
@@ -25,7 +24,8 @@ interface RestTimerValue {
   // Segundos restantes de la pausa en curso, o null si no hay ninguna.
   remaining: number | null;
   total: number;
-  startRest: (seconds?: number) => void;
+  // Sin segundos (0 o menos) no hay descanso: solo corre el que planifica el coach.
+  startRest: (seconds: number) => void;
   adjust: (deltaSeconds: number) => void;
   skip: () => void;
   expanded: boolean;
@@ -40,7 +40,7 @@ export function RestTimerProvider({ children }: { children: React.ReactNode }) {
   // El fin de la pausa se guarda como marca de tiempo, no como contador que
   // decrementa: así la app en segundo plano no se desfasa.
   const [endsAt, setEndsAt] = useState<number | null>(null);
-  const [total, setTotal] = useState(DEFAULT_REST_SECONDS);
+  const [total, setTotal] = useState(0);
   const [now, setNow] = useState(() => Date.now());
   const [expanded, setExpanded] = useState(false);
   const finished = useRef(false);
@@ -116,8 +116,8 @@ export function RestTimerProvider({ children }: { children: React.ReactNode }) {
   }, [endsAt, remaining]);
 
   const startRest = useCallback(
-    (seconds: number = DEFAULT_REST_SECONDS) => {
-      if (!routineStarted || !autoRest) {
+    (seconds: number) => {
+      if (!routineStarted || !autoRest || !(seconds > 0)) {
         return;
       }
       finished.current = false;
