@@ -10,7 +10,7 @@ import {
   calendarWeekStart,
   estimateOneRepMax,
   planWeekAt,
-  planWeekStart,
+  plannedCalendarWeek,
   roundToHalfKg,
 } from "../common/training";
 import {
@@ -218,7 +218,7 @@ export class TrackingService {
 
     for (const cycle of cycles) {
       for (const session of cycle.sessions) {
-        const planned = bucketFor(planWeekStart(cycle.startDate, session.weekNumber));
+        const planned = bucketFor(plannedCalendarWeek(cycle.startDate, session.weekNumber));
         if (planned) {
           planned.assigned += 1;
           if (session.status === "completed") planned.completed += 1;

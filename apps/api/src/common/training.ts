@@ -30,6 +30,12 @@ export function planWeekStart(startDate: Date, weekNumber: number): Date {
   return new Date(startDate.getTime() + (weekNumber - 1) * WEEK_MS);
 }
 
+// Lunes de la semana calendario en la que cae la semana `weekNumber` del plan: la semana
+// en la que cuenta una sesión en los resúmenes (del coach y del atleta, CYC-261).
+export function plannedCalendarWeek(startDate: Date, weekNumber: number): Date {
+  return calendarWeekStart(planWeekStart(startDate, weekNumber));
+}
+
 // 1RM estimado (Epley) ajustado por repeticiones en reserva: una serie de
 // 5 reps con 2 en reserva cuenta como una de 7 al fallo. Sin RIR, se asume 0.
 export function estimateOneRepMax(weight: number, reps: number, rir: number | null): number {
