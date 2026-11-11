@@ -37,6 +37,8 @@ import { BlockSection } from '../components/session/BlockSection';
 import { sessionSections } from '../utils/sessionBlocks';
 import { CoachNotice } from '../components/today/CoachNotice';
 import { TodayAlso } from '../components/today/TodayAlso';
+import { WeekCard } from '../components/today/WeekCard';
+import { useWeeklySummary } from '../hooks/useWeeklySummary';
 import { useTodayExtras } from '../hooks/useTodayExtras';
 import { useTourAnchor } from '../store/TourContext';
 import { colors } from '../theme/colors';
@@ -65,6 +67,8 @@ export function TodayScreen({ navigation }: Props) {
   const { routineStarted, setRoutineStarted, autoRest, setAutoRest } = useRestTimer();
   // Aviso del coach y actividades del día (CYC-256): extras que nunca rompen Hoy.
   const extras = useTodayExtras(toLocalDay(new Date()));
+  // Resumen de la semana (CYC-256): extra que nunca rompe Hoy.
+  const week = useWeeklySummary(toLocalDay(new Date()));
 
   const load = useCallback(async () => {
     setError(null);
@@ -136,7 +140,7 @@ export function TodayScreen({ navigation }: Props) {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await load();
+    await Promise.all([load(), week.reload()]);
     setRefreshing(false);
   };
 
@@ -276,6 +280,8 @@ export function TodayScreen({ navigation }: Props) {
           </>
         }
       />
+
+      <WeekCard summary={week.summary} />
 
       {error && <Text style={styles.error}>{error}</Text>}
 

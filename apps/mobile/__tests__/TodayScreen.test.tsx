@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import { TodayScreen } from '../src/screens/TodayScreen';
-import { fetchToday } from '../src/services/executionApi';
+import { fetchToday, fetchWeeklySummary } from '../src/services/executionApi';
 import { fetchCycles } from '../src/services/planApi';
 import { fetchNotifications, markNotificationRead } from '../src/services/notificationsApi';
 import { fetchEvents } from '../src/services/eventsApi';
@@ -16,7 +16,7 @@ jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
 }));
 jest.mock('../src/services/tokenStore', () => ({ tokenStore: { getAccessToken: jest.fn(), getRefreshToken: jest.fn() } }));
-jest.mock('../src/services/executionApi', () => ({ fetchToday: jest.fn(), startSession: jest.fn() }));
+jest.mock('../src/services/executionApi', () => ({ fetchToday: jest.fn(), startSession: jest.fn(), fetchWeeklySummary: jest.fn() }));
 jest.mock('../src/services/planApi', () => ({ fetchCycles: jest.fn() }));
 jest.mock('../src/services/notificationsApi', () => ({ fetchNotifications: jest.fn(), markNotificationRead: jest.fn() }));
 jest.mock('../src/services/eventsApi', () => ({ fetchEvents: jest.fn() }));
@@ -30,6 +30,8 @@ let mockUser: { email: string; hasActiveCoach?: boolean } = { email: 'v@example.
 jest.mock('../src/store/AuthContext', () => ({ useAuth: () => ({ user: mockUser }) }));
 
 const fetchTodayMock = fetchToday as jest.Mock;
+const weeklyMock = fetchWeeklySummary as jest.Mock;
+const { weeklySummaryFixture } = require('../../../packages/shared/src/fixtures/weeklySummary');
 const fetchCyclesMock = fetchCycles as jest.Mock;
 const notificationsMock = fetchNotifications as jest.Mock;
 const markReadMock = markNotificationRead as jest.Mock;
@@ -60,6 +62,8 @@ const texts = (tree: ReactTestRenderer.ReactTestRenderer) =>
 beforeEach(() => {
   jest.clearAllMocks();
   mockUser = { email: 'v@example.com', hasActiveCoach: true };
+  weeklyMock.mockReset();
+  weeklyMock.mockRejectedValue(new Error('sin red'));
   notificationsMock.mockResolvedValue([]);
   eventsMock.mockResolvedValue([]);
   markReadMock.mockResolvedValue(undefined);
@@ -304,5 +308,35 @@ describe('sesión con bloques de trabajo (CYC-272)', () => {
     const t = texts(await mount());
     expect(t).toContain('Remo');
     expect(t).not.toContain('Fuerza');
+  });
+});
+
+describe('tarjeta «Esta semana» (CYC-256)', () => {
+  test('va primero en Hoy, antes de la sesión, y pide el resumen con el día local', async () => {
+    weeklyMock.mockResolvedValue(weeklySummaryFixture);
+    fetchTodayMock.mockResolvedValue(payload(session('a', 'Full body, día 1', 1), []));
+    const tree = await mount();
+    const all = texts(tree);
+    expect(all).toEqual(expect.arrayContaining(['Esta semana', '9 al 15 nov', '2 de 3']));
+    expect(all.indexOf('Esta semana')).toBeLessThan(all.indexOf('Full body, día 1'));
+    expect(weeklyMock.mock.calls[0][0]).toBe(toLocalDay(new Date()));
+  });
+
+  test('si el resumen falla, Hoy se ve como siempre, sin tarjeta', async () => {
+    fetchTodayMock.mockResolvedValue(payload(session('a', 'Full body, día 1', 1), []));
+    const tree = await mount();
+    expect(texts(tree)).toContain('Full body, día 1');
+    expect(texts(tree)).not.toContain('Esta semana');
+  });
+
+  test('con «Hoy no tienes sesión» la tarjeta sigue arriba, sin botón Adelantar', async () => {
+    weeklyMock.mockResolvedValue(weeklySummaryFixture);
+    fetchTodayMock.mockResolvedValue(null);
+    fetchCyclesMock.mockResolvedValue([{ id: 'c1' }]);
+    const tree = await mount();
+    const all = texts(tree);
+    expect(all).toContain('Esta semana');
+    expect(all).toContain('Hoy no tienes sesión');
+    expect(all.some(t => t.includes('Adelantar'))).toBe(false);
   });
 });

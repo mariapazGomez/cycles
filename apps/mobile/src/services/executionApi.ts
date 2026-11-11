@@ -1,4 +1,4 @@
-import type { SessionFeedback, SessionOutcome, TodaySession, TrainingSession } from '@cycles/shared';
+import type { SessionFeedback, SessionOutcome, TodaySession, TrainingSession, WeeklySummary } from '@cycles/shared';
 import { apiRequest } from './httpClient';
 
 // `date` es el día local del atleta (AAAA-MM-DD): el servidor no conoce su
@@ -62,4 +62,10 @@ export function submitFeedback(sessionId: string, input: SubmitFeedbackInput) {
 // servidor lo deja inactivo (active = 0) para el historial.
 export function reopenSession(sessionId: string) {
   return apiRequest<TrainingSession>(`/sessions/${sessionId}/reopen`, { method: 'POST' });
+}
+
+// Resumen de la semana del atleta (CYC-261): `weekStart` es cualquier día local de esa semana
+// (el servidor no conoce su zona horaria); sin valor, la semana de hoy.
+export function fetchWeeklySummary(day?: string) {
+  return apiRequest<WeeklySummary>(`/me/weekly-summary${day ? `?weekStart=${encodeURIComponent(day)}` : ''}`);
 }
