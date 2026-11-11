@@ -1,11 +1,14 @@
 import React from 'react';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { pearlColors, viewColors } from '../../theme/colors';
-import { GLYPHS, GLYPH_VIEWBOX } from './glyphs';
-import type { PearlKind } from './kinds';
+import { GLYPHS, GLYPH_VIEWBOX, type GlyphName } from './glyphs';
+import type { PearlFamily } from '../../theme/colors';
 
 interface Props {
-  kind: PearlKind;
+  /** Pictograma y familia de color (de `PEARL_KINDS`). */
+  kind: { glyph: GlyphName; family?: PearlFamily };
+  /** Color propio (los bloques de trabajo llevan el de su tipo); manda sobre la familia. */
+  color?: string;
   /** Diámetro de la perla en puntos. */
   size?: number;
   /** Anillo exterior del color de la perla (diseño: hoy o seleccionada). */
@@ -20,8 +23,8 @@ const GLYPH_RATIO = 0.58;
 const RING_WIDTH = 2;
 const RING_GAP = 2;
 
-export function Pearl({ kind, size = 30, ring = false }: Props) {
-  const color = pearlColors[kind.family];
+export function Pearl({ kind, color: own, size = 30, ring = false }: Props) {
+  const color = own ?? pearlColors[kind.family ?? 'gray'];
   const pad = ring ? RING_WIDTH + RING_GAP : 0;
   const total = size + pad * 2;
   const glyphSize = size * GLYPH_RATIO;

@@ -245,3 +245,64 @@ test('si fallan los avisos o las actividades, Hoy se ve igual, sin esos extras',
   expect(t).not.toContain('Tu coach agregó una rutina');
   expect(t.some(x => x.startsWith('Hoy también'))).toBe(false);
 });
+
+describe('sesión con bloques de trabajo (CYC-272)', () => {
+  const ex = (id: string, name: string, orderIndex: number, blockId: string | null, targetSets = 3, logged = 0) => ({
+    id, sessionId: 'a', exerciseId: id, orderIndex, targetSets, targetReps: 8, blockId, note: null,
+    exercise: { id, name, equipment: [], isActive: true },
+    logs: Array.from({ length: logged }, (_, i) => ({ id: `${id}-${i}`, setNumber: i + 1, actualReps: 8, actualWeight: null, rir: null })),
+  });
+  const block = (id: string, name: string, orderIndex: number, type: string) => ({ id, sessionId: 'a', name, type, color: null, orderIndex, note: null });
+  const withBlocks = () => ({
+    ...payload(session('a', 'Torso B', 1), []),
+    session: {
+      ...session('a', 'Torso B', 1),
+      blocks: [block('b1', 'Calentamiento', 1, 'warmup'), block('b2', 'Fuerza', 2, 'strength')],
+      sessionExercises: [
+        ex('e1', 'Movilidad de hombro', 1, 'b1', 2, 2),
+        ex('e2', 'Press de banca', 2, 'b2', 3, 1),
+        ex('e3', 'Remo', 3, 'b2', 3, 0),
+      ],
+    },
+  });
+
+  test('agrupa por bloques: el que sigue se abre solo y el hecho se pliega con «Hecho»', async () => {
+    fetchTodayMock.mockResolvedValue(withBlocks());
+    const t = texts(await mount());
+    expect(t).toContain('Calentamiento');
+    expect(t).toContain('Fuerza');
+    expect(t).toContain('Hecho');
+    expect(t).toContain('0 de 2');
+    // El bloque hecho está plegado; el de fuerza, abierto.
+    expect(t).not.toContain('Movilidad de hombro');
+    expect(t).toContain('Press de banca');
+    expect(t).toContain('Remo');
+  });
+
+  test('tocar el encabezado abre un bloque plegado', async () => {
+    fetchTodayMock.mockResolvedValue(withBlocks());
+    const tree = await mount();
+    await ReactTestRenderer.act(async () => {
+      tree.root.find(n => typeof n.props.accessibilityLabel === 'string' && n.props.accessibilityLabel.startsWith('Calentamiento,') && typeof n.props.onPress === 'function').props.onPress();
+    });
+    expect(texts(tree)).toContain('Movilidad de hombro');
+  });
+
+  test('sin bloques la sesión se ve como siempre (lista plana, sin encabezados)', async () => {
+    const flat = withBlocks();
+    (flat.session as { blocks?: unknown }).blocks = [];
+    fetchTodayMock.mockResolvedValue(flat);
+    const t = texts(await mount());
+    expect(t).toContain('Movilidad de hombro');
+    expect(t).not.toContain('Calentamiento');
+  });
+
+  test('si algo falla con los bloques (ejercicios todos sueltos), tampoco se rompe', async () => {
+    const loose = withBlocks();
+    loose.session.sessionExercises = loose.session.sessionExercises.map(e => ({ ...e, blockId: null }));
+    fetchTodayMock.mockResolvedValue(loose);
+    const t = texts(await mount());
+    expect(t).toContain('Remo');
+    expect(t).not.toContain('Fuerza');
+  });
+});

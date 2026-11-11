@@ -17,6 +17,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PressableScale } from '../components/PressableScale';
 import { Spinner } from '../components/Spinner';
+import { BlockSection } from '../components/session/BlockSection';
+import { sessionSections } from '../utils/sessionBlocks';
 import { reopenSession, submitFeedback } from '../services/executionApi';
 import { fetchSessionDetail, type SessionDetail } from '../services/planApi';
 import type { AppStackParamList } from '../navigation/types';
@@ -157,6 +159,46 @@ export function SessionDetailScreen({ route }: Props) {
   const day = sessionDay(detail);
   const status = detail.status;
 
+  const renderExercise = (item: SessionDetail['sessionExercises'][number], index: number) => {
+    const logs = [...item.logs].sort((a, b) => a.setNumber - b.setNumber);
+    const videoUrl = playableUrl(item.exercise.videoUrl);
+    return (
+      <View key={item.id} style={styles.card}>
+        <View style={styles.exerciseHead}>
+          <View style={styles.exerciseNode}>
+            <Text style={styles.exerciseNodeText}>{index + 1}</Text>
+          </View>
+          <View style={styles.flex}>
+            <Text style={styles.exerciseName}>{item.exercise.name}</Text>
+            <Text style={styles.exerciseTarget}>
+              {`${item.targetSets} × ${item.targetReps}${item.targetWeight ? ` · ${item.targetWeight} kg` : ''}`}
+            </Text>
+            <CoachNote note={item.note} compact />
+          </View>
+          {videoUrl && (
+            <ExerciseVideoButton videoUrl={videoUrl} exerciseName={item.exercise.name} onOpen={videoHint.dismiss} />
+          )}
+          <Text style={styles.exerciseCount}>{`${logs.length}/${item.targetSets}`}</Text>
+        </View>
+        {videoHint.visible && item.id === firstVideoId && <VideoHint onDismiss={videoHint.dismiss} />}
+        {logs.length > 0 ? (
+          <View style={styles.sets}>
+            {logs.map(log => (
+              <View key={log.id} style={styles.setChip}>
+                <Text style={styles.setChipText}>
+                  {log.actualWeight != null ? `${log.actualReps} × ${log.actualWeight} kg` : `${log.actualReps} reps`}
+                </Text>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <Text style={styles.noLogs}>Sin series registradas</Text>
+        )}
+      </View>
+    );
+  };
+  const sections = sessionSections(detail.blocks, detail.sessionExercises);
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}>
@@ -232,44 +274,13 @@ export function SessionDetailScreen({ route }: Props) {
             <Text style={styles.notesText}>Tu coach aún no agregó ejercicios a esta sesión.</Text>
           </View>
         )}
-        {detail.sessionExercises.map((item, index) => {
-          const logs = [...item.logs].sort((a, b) => a.setNumber - b.setNumber);
-          const videoUrl = playableUrl(item.exercise.videoUrl);
-          return (
-            <View key={item.id} style={styles.card}>
-              <View style={styles.exerciseHead}>
-                <View style={styles.exerciseNode}>
-                  <Text style={styles.exerciseNodeText}>{index + 1}</Text>
-                </View>
-                <View style={styles.flex}>
-                  <Text style={styles.exerciseName}>{item.exercise.name}</Text>
-                  <Text style={styles.exerciseTarget}>
-                    {`${item.targetSets} × ${item.targetReps}${item.targetWeight ? ` · ${item.targetWeight} kg` : ''}`}
-                  </Text>
-                  <CoachNote note={item.note} compact />
-                </View>
-                {videoUrl && (
-                  <ExerciseVideoButton videoUrl={videoUrl} exerciseName={item.exercise.name} onOpen={videoHint.dismiss} />
-                )}
-                <Text style={styles.exerciseCount}>{`${logs.length}/${item.targetSets}`}</Text>
-              </View>
-              {videoHint.visible && item.id === firstVideoId && <VideoHint onDismiss={videoHint.dismiss} />}
-              {logs.length > 0 ? (
-                <View style={styles.sets}>
-                  {logs.map(log => (
-                    <View key={log.id} style={styles.setChip}>
-                      <Text style={styles.setChipText}>
-                        {log.actualWeight != null ? `${log.actualReps} × ${log.actualWeight} kg` : `${log.actualReps} reps`}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-              ) : (
-                <Text style={styles.noLogs}>Sin series registradas</Text>
-              )}
-            </View>
-          );
-        })}
+        {sections
+          ? sections.map(section => (
+              <BlockSection key={section.key} section={section} open collapsible={false} onToggle={() => {}}>
+                {section.items.map(entry => renderExercise(entry.exercise, entry.index))}
+              </BlockSection>
+            ))
+          : detail.sessionExercises.map((item, index) => renderExercise(item, index))}
       </ScrollView>
 
       <Modal visible={step !== null} transparent animationType="slide" onRequestClose={closeSheet}>

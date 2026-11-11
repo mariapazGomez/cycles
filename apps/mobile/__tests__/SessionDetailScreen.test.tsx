@@ -165,3 +165,32 @@ test('un ejercicio con video muestra el acceso directo y el aviso de la primera 
   expect(tree.root.findAll(n => n.props.accessibilityLabel === 'Ver ejemplo de Flexiones de brazos')).toHaveLength(0);
   expect(texts(tree)).toContain('Ejemplo en video');
 });
+
+describe('con bloques de trabajo (CYC-272)', () => {
+  const block = (id: string, name: string, orderIndex: number, type: string) => ({ id, sessionId: 's1', name, type, color: null, orderIndex, note: null });
+  const withBlocks = () => ({
+    ...detail('pending'),
+    blocks: [block('b1', 'Calentamiento', 1, 'warmup'), block('b2', 'Fuerza', 2, 'strength')],
+    sessionExercises: [
+      { ...exercises[1], id: 'se2', orderIndex: 1, blockId: 'b1' },
+      { ...exercises[0], id: 'se1', orderIndex: 2, blockId: 'b2' },
+    ],
+  });
+
+  test('agrupa los ejercicios por bloque, todos visibles, con su resumen y su progreso', async () => {
+    detailMock.mockResolvedValue(withBlocks());
+    const t = texts(await mount());
+    expect(t).toContain('Calentamiento');
+    expect(t).toContain('Fuerza');
+    expect(t).toContain('1 ejercicio, 2 series');
+    expect(t).toContain('Flexiones de brazos');
+    expect(t).toContain('Sentadilla con barra');
+  });
+
+  test('sin bloques se ve la lista de siempre', async () => {
+    detailMock.mockResolvedValue({ ...detail('pending'), blocks: [] });
+    const t = texts(await mount());
+    expect(t).toContain('Flexiones de brazos');
+    expect(t).not.toContain('Calentamiento');
+  });
+});
