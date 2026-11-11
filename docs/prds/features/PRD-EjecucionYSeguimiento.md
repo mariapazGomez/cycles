@@ -165,7 +165,7 @@ Reglas del modelo:
 - `PATCH /session-exercises/:id`: acepta `targetRir?`.
 
 **Atleta** (solo el atleta asignado, con relación coach–atleta activa y plan `active`)
-- `GET /me/today` — próxima sesión pendiente del plan activo, con sus ejercicios, objetivos y lo ya registrado.
+- `GET /me/today` — próxima sesión pendiente del plan activo, con sus ejercicios, objetivos y lo ya registrado. Trae también `session.blocks` (CYC-272): los bloques de esa sesión por `orderIndex`, `[]` si no tiene. Cada ejercicio lleva su `blockId`; **un ejercicio puede ir sin bloque (`blockId: null`) aunque la sesión tenga bloques**, y el cliente lo dibuja aparte, sin esconderlo. Contrato en `packages/shared` (`TodaySession`, `fixtures/todaySession.ts`) y prueba `hoy-bloques.e2e-spec.ts`. Sin migración.
   - Query opcional `date=AAAA-MM-DD` (el día local del atleta): la respuesta incluye `assignedToday`, las sesiones pendientes que el atleta asignó para ese día.
   - Query opcional `sessionId`: devuelve esa sesión pendiente (p. ej. la asignada para hoy) en vez de la primera pendiente del plan.
 - `PATCH /sessions/:id/schedule` — el coach define cuántas sesiones por semana; **el atleta elige el día de cada una**. Body `{ date: "AAAA-MM-DD" | null }` (`null` quita el día). Solo sesiones pendientes de un plan activo con relación activa. El día puede ser de cualquier semana, con varias sesiones el mismo día, pero dentro de las fechas del plan. Guarda `scheduledDate` a medianoche UTC.

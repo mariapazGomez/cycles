@@ -1,3 +1,5 @@
+import type { SessionWorkBlock } from "./work-block";
+
 export type CycleStatus = "active" | "completed" | "archived";
 export type SessionStatus = "pending" | "completed" | "skipped";
 export type CycleType = "microcycle" | "mesocycle" | "macrocycle";
@@ -167,6 +169,11 @@ export interface TodaySession {
       exercise: Exercise;
       logs: ExerciseLog[];
     })[];
+    // Bloques de la sesión, por orderIndex (CYC-272). Vacío si no tiene. Un ejercicio con
+    // blockId nulo no pertenece a ningún bloque, y eso es normal aun si hay bloques: la
+    // app lo dibuja aparte (al final), sin esconderlo. Opcional por compatibilidad con
+    // respuestas anteriores.
+    blocks?: SessionWorkBlock[];
   };
   // Sesiones pendientes que el atleta asignó para hoy (solo viene si se
   // pidió con ?date=). Puede incluir la propia `session`.
