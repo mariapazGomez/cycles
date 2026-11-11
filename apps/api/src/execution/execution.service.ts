@@ -57,6 +57,9 @@ export class ExecutionService {
           logs: { where: CURRENT_LOG, orderBy: { setNumber: "asc" as const } },
         },
       },
+      // Bloques de esta sesión (CYC-272), en orden. Un ejercicio puede no tener bloque
+      // (blockId nulo) aunque la sesión tenga bloques; sin bloques, la lista va vacía.
+      blocks: { orderBy: { orderIndex: "asc" as const } },
     };
     const cycleInfo = (cycle: (typeof cycles)[number]) => ({
       id: cycle.id,

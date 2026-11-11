@@ -49,7 +49,7 @@ Sin Swagger/OpenAPI activado todavía (pendiente, ver `docs/prds/PRD-General.md`
 | Sesiones / ejercicios de sesión (celdas del grid) | `/cycles/:id/sessions`, `/sessions*`, `/session-exercises/:id` | [[PRD-RutinasYProgramacion]] |
 | Rutinas (biblioteca del coach) | `/routines*` | [[PRD-RutinasYProgramacion]] |
 | Hijos de un macrociclo | `/cycles/:id/children` | [[PRD-RutinasYProgramacion]] |
-| Registro del atleta | `/me/today`, `/me/weekly-summary` (resumen semanal para Hoy, CYC-261), `/sessions/:id/start`, `/session-exercises/:id/logs`, `/sessions/:id/feedback` | [[PRD-EjecucionYSeguimiento]] |
+| Registro del atleta | `/me/today` (con `blocks`, CYC-272), `/me/weekly-summary` (resumen semanal para Hoy, CYC-261), `/sessions/:id/start`, `/session-exercises/:id/logs`, `/sessions/:id/feedback` | [[PRD-EjecucionYSeguimiento]] |
 | Seguimiento del coach | `/coach/attention`, `/athletes/:id/summary`, `/cycles/:id/progress`, `/cycles/:id/load-adjustments` | [[PRD-EjecucionYSeguimiento]] |
 | Contacto de la landing (público, con límites y filtros anti-bots) | `POST /contact` | [[PRD-LandingContacto]] |
 | Interno: resumen diario de actividad (solo GitHub Actions, con secreto) | `POST /internal/activity/daily-summary` | `docs/deploy/PLAN-Deploy.md`, paso 8 |
