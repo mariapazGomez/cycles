@@ -21,6 +21,10 @@ const BASE = process.env.BASE_URL ?? "http://localhost:5173";
 const PASSWORD = process.env.DEMO_PASSWORD;
 const OUT = process.env.OUT ?? path.resolve("capturas-landing-out");
 const COACH = "coach.demo@example.com";
+// La API limita a 100 peticiones por minuto por IP: una corrida completa puede toparse con
+// el límite (se ve «No se pudo cargar…»). Para repetir solo algunas capturas, tras esperar un
+// minuto: ONLY=sesion-bloques,ejercicios node docs/diseno/landing-vistas/capturar-landing.mjs
+const ONLY = process.env.ONLY ? process.env.ONLY.split(",") : null;
 
 if (!PASSWORD) {
   console.error("Falta DEMO_PASSWORD (ver el encabezado de este archivo).");
@@ -48,11 +52,25 @@ async function session(browser, size) {
   const page = await ctx.newPage();
   await page.goto(`${BASE}/login`, { waitUntil: "networkidle" });
   await page.getByLabel("Email").fill(COACH);
-  await page.getByLabel("Contraseña").fill(PASSWORD);
-  await page.getByRole("button", { name: /iniciar sesión/i }).click();
+  await page.locator("#password").fill(PASSWORD);
+  await page.getByRole("button", { name: /^ingresar$/i }).click();
   await page.waitForURL(`${BASE}/`, { timeout: 30000 });
   await page.waitForLoadState("networkidle");
+  await dismissNovelty(page);
   return { ctx, page };
+}
+
+// El popup de novedades sale 1,5 s después de cargar y taparía las capturas: se salta una vez
+// (queda marcado como visto en la demo) y se espera a que desaparezca.
+async function dismissNovelty(page) {
+  const dialog = page.getByRole("dialog");
+  try {
+    await dialog.waitFor({ state: "visible", timeout: 4000 });
+    await dialog.getByRole("button", { name: /saltar|cerrar/i }).first().click();
+    await dialog.waitFor({ state: "hidden", timeout: 4000 });
+  } catch {
+    // No había novedad pendiente.
+  }
 }
 
 async function settle(page) {
@@ -60,10 +78,10 @@ async function settle(page) {
   await page.waitForTimeout(600);
   // Sin avisos, esqueletos ni el foco de teclado a cuadro.
   await page.evaluate(() => document.activeElement instanceof HTMLElement && document.activeElement.blur());
-  await page.evaluate(() => window.scrollTo(0, 0));
 }
 
 async function shot(page, name, prepare) {
+  if (ONLY && !ONLY.includes(name)) return;
   try {
     if (prepare) await prepare();
     await settle(page);
@@ -72,6 +90,7 @@ async function shot(page, name, prepare) {
     console.log("ok   ", name);
   } catch (error) {
     failed.push(name);
+    await page.screenshot({ path: path.join(OUT, `fallo-${name}.png`) }).catch(() => {});
     console.warn("FALLÓ", name, "-", String(error.message).split("\n")[0]);
   }
 }
@@ -87,6 +106,39 @@ async function showBoard(page, alignTo) {
   const target = alignTo ? page.getByText(alignTo, { exact: false }).first() : page.locator("main").first();
   await target.scrollIntoViewIfNeeded();
   await page.evaluate(() => window.scrollBy(0, -140));
+}
+
+// Espera a que la pizarra del ciclo termine de cargar (sin esqueletos) y la deja arriba.
+async function showCycleBoard(page, anchor = "Calendario del ciclo") {
+  await page.getByRole("button", { name: "Semana", exact: true }).first().click();
+  await page.getByText("Calendario del ciclo").first().scrollIntoViewIfNeeded();
+  await page.locator("a.bd-ses-name").first().waitFor({ timeout: 20000 });
+  await page.getByText(anchor).first().evaluate(el => el.scrollIntoView({ block: "start" }));
+  await page.evaluate(() => window.scrollBy(0, -110));
+}
+
+// Abre el constructor por bloques de una rutina de la Biblioteca (/routines/:id).
+async function openRoutine(page, name) {
+  await page.goto(`${BASE}/biblioteca`, { waitUntil: "networkidle" });
+  const link = page
+    .getByText(name, { exact: true })
+    .first()
+    .locator('xpath=ancestor::*[.//a[starts-with(@href,"/routines/")]][1]//a[starts-with(@href,"/routines/")]')
+    .first();
+  await link.click();
+  await page.getByText("Agregar bloque").first().waitFor();
+}
+
+// Abre la sesión del coach más reciente ya hecha de un atleta (detalle con bloques plegables).
+async function openLatestDoneSession(page, athlete) {
+  await openAthlete(page, athlete);
+  await page.getByText("Calendario del ciclo").first().scrollIntoViewIfNeeded();
+  const links = page.locator('a.bd-ses-name[aria-label*="hecha"]');
+  await links.first().waitFor({ timeout: 20000 });
+  const link = links.last();
+  await link.scrollIntoViewIfNeeded();
+  await link.click();
+  await page.waitForLoadState("networkidle");
 }
 
 const browser = await chromium.launch();
@@ -108,9 +160,10 @@ const browser = await chromium.launch();
     await page.evaluate(() => window.scrollBy(0, -160));
   });
 
+  // Pizarra del ciclo: la semana actual con sus sesiones, hechas y pendientes.
   await shot(page, "coach-ciclo", async () => {
     await openAthlete(page, "Matías Fuentes");
-    await showBoard(page);
+    await showCycleBoard(page);
   });
 
   await shot(page, "resumen", async () => {
@@ -118,24 +171,42 @@ const browser = await chromium.launch();
     await page.getByRole("button", { name: "Resumen" }).click();
   });
 
+  // NUEVO: el coach ve las actividades que el atleta agrega (deportes, partidos, descanso)
+  // junto a su plan, en vista de mes y de semana, con el choque de carga a la vista.
+  await shot(page, "actividades-semana", async () => {
+    await openAthlete(page, "Matías Fuentes");
+    await page.getByRole("button", { name: "Semana", exact: true }).first().click();
+    await page.waitForTimeout(800);
+  });
+
+  await shot(page, "actividades-mes", async () => {
+    await openAthlete(page, "Matías Fuentes");
+    await page.getByRole("button", { name: "Mes", exact: true }).first().click();
+    await page.waitForTimeout(800);
+  });
+
+  // Sesiones omitidas con su nota, en la pizarra del ciclo.
   await shot(page, "plan", async () => {
     await openAthlete(page, "Diego Paredes");
-    await showBoard(page, "Omitida");
+    await showCycleBoard(page, "Esta semana");
   });
 
+  // NUEVO: crear rutinas por bloques (calentamiento, fuerza, core), cada bloque con su color.
   await shot(page, "coach-rutinas", async () => {
-    await page.goto(`${BASE}/biblioteca`, { waitUntil: "networkidle" });
-    await page.getByText("Piernas", { exact: true }).first().click();
-    await page.waitForLoadState("networkidle");
-    // Si la demo no trae nota del coach, se escribe una para la captura (no se guarda).
-    const note = page.locator('textarea[id^="note-"]').first();
-    if (await note.count()) {
-      if (!(await note.inputValue())) await note.fill("Baja lento y cuida la rodilla");
-    }
+    await openRoutine(page, "Empuje");
   });
 
+  // NUEVO: la misma rutina vista como sesión, con los bloques plegables.
+  await shot(page, "sesion-bloques", async () => {
+    await openLatestDoneSession(page, "Matías Fuentes");
+  });
+
+  // NUEVO: catálogo de ejercicios con el filtro del mapa del cuerpo.
   await shot(page, "ejercicios", async () => {
     await page.goto(`${BASE}/ejercicios`, { waitUntil: "networkidle" });
+    await page.getByText(/^Catálogo/).first().click();
+    await page.getByRole("button", { name: /^Pecho/ }).first().click();
+    await page.waitForTimeout(800);
   });
 
   await shot(page, "biblioteca", async () => {
@@ -164,7 +235,7 @@ const browser = await chromium.launch();
 
   await shot(page, "m-plan", async () => {
     await openAthlete(page, "Diego Paredes");
-    await showBoard(page, "Omitida");
+    await showCycleBoard(page, "Esta semana");
   });
 
   await ctx.close();

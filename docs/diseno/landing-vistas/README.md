@@ -153,3 +153,31 @@ La carpeta `content/` (proyecto de video, ~150 MB con `node_modules`, videos y g
 - Actualizar `PhoneScreens.tsx` y `landing.css` con A1 a A4 (y A5 si se aprueba) y revisar que `phoneStory.ts` apunte a los mismos elementos.
 - Probar con CYC-32 (iPhone/Safari y Android) y revisar el peso con Lighthouse.
 - Regrabar `build-in-public` después de este cambio (contenido para redes, no landing).
+
+## Capturas tomadas el 2026-11-11 (CYC-188)
+
+Tomadas con `capturar-landing.mjs` contra la demo local regenerada ese día (`cycles_demo`, con bloques), desde `origin/main` 98633cf (incluye #241 a #245). Los JPG (1440 × 900 a escala 2, y 390 × 844 a escala 2 en celular) están en [`capturas/`](capturas/); los PNG maestros (sin pérdida) quedaron fuera del repositorio, en `~/Proyectos/cycles-capturas-landing/`, por peso. Datos de ejemplo, ninguna cuenta real.
+
+| Archivo | Vista | Qué muestra |
+|---|---|---|
+| `coach-inicio` | Inicio | Tablero de la semana con las actividades de cada atleta (deportes y partidos) |
+| `atencion` | Inicio | Aviso de dolor y choque de carga con su acción |
+| `coach-ciclo` | Atleta › Ciclo | Pizarra del ciclo, semana por semana |
+| `plan` | Atleta › Ciclo | Sesiones omitidas con su nota, en la semana actual |
+| `resumen` | Atleta › Resumen | Pizarra de gráficos del atleta |
+| `actividades-semana` | Atleta › Ciclo | **Nuevo:** actividades que el atleta agrega, junto al plan y con el choque de carga |
+| `actividades-mes` | Atleta › Ciclo | **Nuevo:** lo mismo en vista de mes |
+| `coach-rutinas` | Biblioteca › Editar | **Nuevo:** rutina por bloques (calentamiento, fuerza, core), cada uno con su color |
+| `sesion-bloques` | Sesión | **Nuevo:** la sesión por bloques plegables, con lo que registró el atleta |
+| `ejercicios` | Ejercicios › Catálogo | **Nuevo:** filtro por zona con el mapa del cuerpo |
+| `biblioteca` | Biblioteca | Menú «Crear» |
+| `m-atencion`, `m-resumen`, `m-plan` | Celular (web del coach) | Las tres vistas de siempre, rehechas |
+
+**Pendiente:** las pantallas de la **app del atleta** (Hoy con «Esta semana», Serie, Cierre, Resumen y sesión por bloques). Este guion captura solo la web; esas pantallas salen de un simulador o un iPhone, con la sesión iniciada por la usuaria.
+
+### Notas de la corrida
+
+- El popup de novedades (`routine-blocks@1`) sale 1,5 s después de cargar y tapaba la pantalla: el guion lo salta una vez al iniciar sesión.
+- La API limita a 100 peticiones por minuto por IP: una corrida completa puede llegar al límite y mostrar «No se pudo cargar el calendario». Se repite con `ONLY=nombre1,nombre2` tras esperar un minuto.
+- El guion ya no sube la página al inicio antes de capturar (lo anulaba el desplazamiento de cada vista) y guarda `fallo-<nombre>.png` si una captura falla.
+- Se capturó un miércoles: la sesión del miércoles aparece hecha y «7 de 8 completadas» en Inicio. Lo ideal sigue siendo un jueves o viernes antes de las 18:30.
