@@ -73,3 +73,16 @@ export interface SummaryLayout {
   charts: ChartDefinition[];
   isDefault: boolean;
 }
+
+// GET /me/weekly-summary?weekStart=AAAA-MM-DD (CYC-261): el resumen de la semana del propio
+// atleta para el anillo de Hoy. La semana va de lunes a domingo. Una sesión cuenta en la semana
+// en que estaba planeada (la misma regla que el resumen del coach), con su tiempo y su esfuerzo.
+// `minutesTrained` y `averageSrpe` son null si ninguna sesión hecha de esa semana los registró.
+export interface WeeklySummary {
+  weekStart: string;
+  weekEnd: string;
+  sessionsPlanned: number;
+  sessionsDone: number;
+  minutesTrained: number | null;
+  averageSrpe: number | null;
+}

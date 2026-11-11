@@ -9,6 +9,7 @@ import { SessionFeedbackDto } from "./dto/session-feedback.dto";
 import { ScheduleSessionDto } from "./dto/schedule-session.dto";
 import { TodayQueryDto } from "./dto/today-query.dto";
 import { SummaryQueryDto } from "./dto/summary-query.dto";
+import { WeeklySummaryQueryDto } from "./dto/weekly-summary-query.dto";
 
 // Endpoints del atleta para registrar lo que hizo — ver
 // docs/prds/features/PRD-EjecucionYSeguimiento.md, sección 6.
@@ -28,6 +29,13 @@ export class ExecutionController {
   @Get("me/summary")
   summary(@CurrentUser() user: AuthenticatedUser, @Query() query: SummaryQueryDto) {
     return this.executionService.muscleSummary(user.id, query.cycleId);
+  }
+
+  // Resumen de la semana del propio atleta para Hoy (CYC-261): sesiones hechas y planeadas,
+  // tiempo entrenado y esfuerzo medio.
+  @Get("me/weekly-summary")
+  weeklySummary(@CurrentUser() user: AuthenticatedUser, @Query() query: WeeklySummaryQueryDto) {
+    return this.executionService.weeklySummary(user.id, query.weekStart);
   }
 
   // Historial por ejercicio (cada uno hecho en 2 sesiones o más) para el Resumen

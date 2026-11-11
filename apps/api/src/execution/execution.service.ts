@@ -8,12 +8,13 @@ import {
 import { ActivityNotifier } from "../activity/activity-notifier.service";
 import { NotificationsService } from "../notifications/notifications.service";
 import { PrismaService } from "../prisma/prisma.service";
-import { CURRENT_FEEDBACK, CURRENT_LOG, parseDay, planWeekAt, startOfUtcDay } from "../common/training";
+import { calendarWeekStart, CURRENT_FEEDBACK, CURRENT_LOG, parseDay, planWeekAt, startOfUtcDay } from "../common/training";
 import { LogSetDto } from "./dto/log-set.dto";
 import { SessionFeedbackDto } from "./dto/session-feedback.dto";
 import { ScheduleSessionDto } from "./dto/schedule-session.dto";
 import { buildExerciseProgress, type ExerciseProgressResponse, type RawSessionExercise } from "./exercise-progress";
 import { TodayQueryDto } from "./dto/today-query.dto";
+import { buildWeeklySummary } from "./weekly-summary";
 
 // Registro de ejecución del atleta. ExerciseLog y SessionFeedback son
 // append-only: aquí solo se crean filas, nunca se actualizan ni se borran.
@@ -330,6 +331,46 @@ export class ExecutionService {
       }
     }
     return { cycleId, days };
+  }
+
+  // Resumen de la semana del propio atleta (CYC-261). Solo sus ciclos con coach activo (como
+  // `today`), sin plantillas ni macrociclos, y sin sesiones quitadas. `day` es cualquier día de
+  // la semana pedida; sin él, la de hoy. Una semana sin ciclo da ceros y null, no un error.
+  async weeklySummary(athleteId: string, day?: string) {
+    const parsed = day ? parseDay(day) : null;
+    if (day && !parsed) {
+      throw new BadRequestException("La fecha no es válida.");
+    }
+    const weekStart = calendarWeekStart(parsed ?? new Date());
+    const cycles = await this.prisma.trainingCycle.findMany({
+      where: { athleteId, isTemplate: false, cycleType: { not: "macrocycle" } },
+      select: {
+        coachId: true,
+        startDate: true,
+        sessions: {
+          where: { deletedAt: null },
+          select: {
+            weekNumber: true,
+            status: true,
+            feedback: { where: CURRENT_FEEDBACK, select: { srpe: true, durationMinutes: true, outcome: true } },
+          },
+        },
+      },
+    });
+    const sessions = [];
+    for (const cycle of cycles) {
+      if (!(await this.hasActiveRelation(cycle.coachId, athleteId))) continue;
+      for (const s of cycle.sessions) {
+        const fb = s.feedback[0];
+        sessions.push({
+          cycleStart: cycle.startDate,
+          weekNumber: s.weekNumber,
+          status: s.status,
+          feedback: fb?.outcome === "completed" ? { srpe: fb.srpe, durationMinutes: fb.durationMinutes } : null,
+        });
+      }
+    }
+    return buildWeeklySummary(weekStart, sessions);
   }
 
   // Historial por ejercicio del propio atleta (CYC-239): cada ejercicio hecho en
