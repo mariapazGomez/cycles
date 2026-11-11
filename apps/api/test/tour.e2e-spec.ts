@@ -1,4 +1,5 @@
 import { PASSWORD, PILOT_CODE, resetDatabase, startApp, type TestApp } from "./support/app";
+import { CURRENT_NOVELTY_KEYS } from "../src/common/novelties";
 import { seedScenario, type Scenario } from "./support/seed";
 
 // Guía de primer uso (CYC-191/192): un solo estado por cuenta, compartido por
@@ -99,7 +100,7 @@ describe("Guía de primer uso", () => {
         .send({ name: "Coach Nueva", email, password: PASSWORD, role: "coach", acceptPolicy: true, accessCode: PILOT_CODE });
       expect(res.status).toBe(201);
       const user = await app.prisma.user.findUniqueOrThrow({ where: { email } });
-      expect(user.tourNewsSeen).toEqual(["routine-blocks@1"]);
+      expect(user.tourNewsSeen).toEqual(CURRENT_NOVELTY_KEYS);
     });
 
     it("la exportación de datos incluye las novedades vistas", async () => {
