@@ -10,7 +10,15 @@ export type NoveltyCondition = "hasUngroupedRoutines" | "blocksPageEnabled";
 
 // Ilustraciones animadas hechas en código (la web las dibuja). Una ficha futura puede usar
 // `video` y `poster` en su lugar.
-export type NoveltyDemoId = "blocks-group" | "blocks-move" | "blocks-legacy" | "blocks-page";
+export type NoveltyDemoId =
+  | "blocks-group"
+  | "blocks-move"
+  | "blocks-legacy"
+  | "blocks-page"
+  // App del atleta (la app las dibuja): la sesión por bloques.
+  | "athlete-blocks-group"
+  | "athlete-blocks-fold"
+  | "athlete-blocks-progress";
 
 export interface NoveltySlide {
   title: string;
@@ -72,6 +80,34 @@ export const NOVELTIES: Novelty[] = [
         demoLabel: "Se pulsa «Editar» y se abre la página con los bloques a la izquierda y el panel a la derecha.",
         demo: "blocks-page",
         when: "blocksPageEnabled",
+      },
+    ],
+  },
+  {
+    key: "athlete-blocks",
+    version: 1,
+    since: "2026-11-11",
+    platforms: ["mobile"],
+    roles: ["athlete"],
+    name: "Tu sesión por bloques",
+    slides: [
+      {
+        title: "Tu sesión ahora viene por bloques",
+        text: "Tu coach ordena el entrenamiento en bloques: calentamiento, pliometría, fuerza y más. Cada uno tiene su color y su ícono.",
+        demoLabel: "Una lista de ejercicios se ordena en tres bloques de colores.",
+        demo: "athlete-blocks-group",
+      },
+      {
+        title: "Abre y pliega cada bloque",
+        text: "Toca un bloque para ver sus ejercicios o esconderlos. El que te toca ahora se abre solo.",
+        demoLabel: "Se toca el encabezado de un bloque y sus ejercicios se muestran y se esconden.",
+        demo: "athlete-blocks-fold",
+      },
+      {
+        title: "Mira tu avance en cada bloque",
+        text: "Cada bloque te dice cuántos ejercicios llevas, como «1 de 2», y pasa a «Hecho» cuando lo terminas.",
+        demoLabel: "El avance de un bloque pasa de «0 de 2» a «1 de 2» y luego a «Hecho».",
+        demo: "athlete-blocks-progress",
       },
     ],
   },

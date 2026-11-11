@@ -61,6 +61,35 @@ export function groupByBlock<E extends ExerciseLike>(blocks: SessionWorkBlock[] 
   return groups;
 }
 
+// Los ejercicios en el orden real de la sesión (`orderIndex`), cortados en tramos: cada bloque
+// aparece donde está su primer ejercicio (con todos los suyos) y los ejercicios sin bloque
+// quedan donde el coach los dejó, al inicio, entre bloques o al final, en tramos consecutivos.
+// Un bloque sin ejercicios no aparece. La web y la app usan `groupByBlock`; esta es para la
+// sesión del atleta, que se recorre en orden.
+export function segmentByPosition<E extends ExerciseLike>(blocks: SessionWorkBlock[] | undefined, exercises: E[]): BlockGroup<E>[] {
+  const byId = new Map((blocks ?? []).map((b) => [b.id, b]));
+  const sorted = [...exercises].sort((a, b) => a.orderIndex - b.orderIndex);
+  const groups: BlockGroup<E>[] = [];
+  const seen = new Set<string>();
+  let loose: BlockGroup<E> | null = null;
+  for (const e of sorted) {
+    const block = e.blockId ? byId.get(e.blockId) : undefined;
+    if (!block) {
+      if (!loose) {
+        loose = { block: null, exercises: [] };
+        groups.push(loose);
+      }
+      loose.exercises.push(e);
+      continue;
+    }
+    loose = null;
+    if (seen.has(block.id)) continue;
+    seen.add(block.id);
+    groups.push({ block, exercises: sorted.filter((x) => x.blockId === block.id) });
+  }
+  return groups;
+}
+
 function countLabel(n: number, one: string, many: string): string {
   return `${n} ${n === 1 ? one : many}`;
 }

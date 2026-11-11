@@ -1,4 +1,4 @@
-import { groupByBlock, type SessionWorkBlock } from '@cycles/shared';
+import { segmentByPosition, type SessionWorkBlock } from '@cycles/shared';
 
 // Sesión del atleta agrupada por bloques de trabajo (CYC-272, docs/diseno/sesion-por-bloques).
 // Sin bloques (o con todos los ejercicios sueltos) no hay agrupación: la sesión se ve como siempre.
@@ -13,9 +13,9 @@ interface ExerciseLike {
 export type SectionState = 'done' | 'current' | 'pending';
 
 export interface BlockSectionData<E extends ExerciseLike> {
-  /** Estable entre recargas: el id del bloque, o «sueltos». */
+  /** Estable entre recargas: el id del bloque, o «sueltos-N» (N = posición del tramo). */
   key: string;
-  /** null = ejercicios sin bloque (se dibujan sin encabezado, como la lista de siempre). */
+  /** null = ejercicios sin bloque, donde los dejó el coach (sin encabezado, como la lista de siempre). */
   block: SessionWorkBlock | null;
   /** Cada ejercicio con su posición global en la sesión (el número que ve la persona). */
   items: Array<{ exercise: E; index: number }>;
@@ -38,19 +38,20 @@ export function sessionSections<E extends ExerciseLike>(
   if (!blocks || blocks.length === 0 || exercises.length === 0) {
     return null;
   }
-  // Un bloque sin ejercicios no tiene nada que hacer: no se muestra.
-  const groups = groupByBlock(blocks, exercises).filter(g => g.exercises.length > 0);
+  // En el orden real de la sesión: los sueltos quedan donde el coach los dejó. Un bloque sin
+  // ejercicios no tiene nada que hacer: no se muestra.
+  const groups = segmentByPosition(blocks, exercises).filter(g => g.exercises.length > 0);
   // Si ningún ejercicio pertenece a un bloque, no hay nada que agrupar.
   if (groups.every(g => g.block === null)) {
     return null;
   }
-  // La posición global sigue el orden de los bloques (el orden en que se entrena), no el de la API.
+  // La posición global sigue el orden de la sesión (el orden en que se entrena).
   let next = 0;
-  const sections = groups.map(group => {
+  const sections = groups.map((group, position) => {
     const items = group.exercises.map(exercise => ({ exercise, index: next++ }));
     const doneCount = group.exercises.filter(complete).length;
     return {
-      key: group.block?.id ?? 'sueltos',
+      key: group.block?.id ?? `sueltos-${position}`,
       block: group.block,
       items,
       doneCount,

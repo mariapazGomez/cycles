@@ -5,6 +5,7 @@ import type { SessionWorkBlock } from '@cycles/shared';
 import { BlockSection } from '../src/components/session/BlockSection';
 import { sectionProgress, sessionSections } from '../src/utils/sessionBlocks';
 
+const { todaySessionFixture } = require('../../../packages/shared/src/fixtures/todaySession');
 const { sessionWorkBlockFixture } = require('../../../packages/shared/src/fixtures/workBlocks');
 
 const block = (id: string, orderIndex: number, over: Partial<SessionWorkBlock> = {}): SessionWorkBlock => ({
@@ -27,9 +28,20 @@ describe('sessionSections', () => {
       [block('b2', 2), block('b1', 1)],
       [ex('x', 3, 'b2'), ex('y', 1, 'b1'), ex('z', 2, 'b1'), ex('s', 9, null)],
     )!;
-    expect(sections.map(s => s.key)).toEqual(['b1', 'b2', 'sueltos']);
+    expect(sections.map(s => s.key)).toEqual(['b1', 'b2', 'sueltos-2']);
     expect(sections.flatMap(s => s.items.map(i => `${i.exercise.id}:${i.index}`))).toEqual(['y:0', 'z:1', 'x:2', 's:3']);
     expect(sections[2].block).toBeNull();
+  });
+
+  test('los sueltos quedan donde los dejó el coach: al inicio, entre bloques o al final', () => {
+    const blocks = [block('b1', 1), block('b2', 2)];
+    const keysOf = (exercises: ReturnType<typeof ex>[]) => sessionSections(blocks, exercises)!.map(s => s.key);
+    expect(keysOf([ex('s', 1, null), ex('a', 2, 'b1'), ex('b', 3, 'b2')])).toEqual(['sueltos-0', 'b1', 'b2']);
+    expect(keysOf([ex('a', 1, 'b1'), ex('s', 2, null), ex('b', 3, 'b2')])).toEqual(['b1', 'sueltos-1', 'b2']);
+    expect(keysOf([ex('a', 1, 'b1'), ex('b', 2, 'b2'), ex('s', 3, null)])).toEqual(['b1', 'b2', 'sueltos-2']);
+    const mixed = sessionSections(blocks, [ex('a', 1, 'b1'), ex('s', 2, null), ex('t', 3, null), ex('b', 4, 'b2')])!;
+    expect(mixed[1].items.map(i => `${i.exercise.id}:${i.index}`)).toEqual(['s:1', 't:2']);
+    expect(mixed[2].items.map(i => `${i.exercise.id}:${i.index}`)).toEqual(['b:3']);
   });
 
   test('el primer bloque con algo pendiente es el que sigue y se abre solo; los hechos y los demás, plegados', () => {
@@ -61,12 +73,20 @@ describe('sessionSections', () => {
 
   test('un bloque que ya no existe deja sus ejercicios como sueltos, sin romperse', () => {
     const sections = sessionSections([block('b1', 1)], [ex('a', 1, 'b1'), ex('b', 2, 'borrado')])!;
-    expect(sections.map(s => s.key)).toEqual(['b1', 'sueltos']);
+    expect(sections.map(s => s.key)).toEqual(['b1', 'sueltos-1']);
   });
 
   test('contrato: el bloque de ejemplo de la API (fixture compartido) se agrupa sin errores', () => {
     const sections = sessionSections([sessionWorkBlockFixture], [ex('a', 1, 'blk-1')])!;
     expect(sections[0].block).toMatchObject({ id: 'blk-1', type: 'warmup', name: 'Calentamiento' });
+  });
+});
+
+describe('contrato con GET /me/today', () => {
+  test('la sesión mixta de la API (un bloque y un ejercicio suelto) se agrupa en ese orden', () => {
+    const { blocks, sessionExercises } = todaySessionFixture.session;
+    const sections = sessionSections(blocks, sessionExercises)!;
+    expect(sections.map(s => s.key)).toEqual(['blk-1', 'sueltos-1']);
   });
 });
 

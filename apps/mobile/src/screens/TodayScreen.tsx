@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import type { SessionWorkBlock, TodaySession } from '@cycles/shared';
+import type { TodaySession } from '@cycles/shared';
 import { fetchToday, startSession } from '../services/executionApi';
 import { fetchCycles } from '../services/planApi';
 import { ApiError } from '../services/httpClient';
@@ -141,11 +141,9 @@ export function TodayScreen({ navigation }: Props) {
   };
 
   const exercises = data?.session.sessionExercises ?? [];
-  // Bloques de la sesión (CYC-272): `blocks` llega con /me/today (CYC-272, API de Desarrollo
-  // general); sin bloques, la sesión se ve como siempre.
-  const blocks = (data?.session as { blocks?: SessionWorkBlock[] } | undefined)?.blocks;
-  const sections = sessionSections(blocks, exercises);
-  // El orden en que se entrena: el de los bloques (en lista plana, el de siempre).
+  // Bloques de la sesión (CYC-272): llegan con /me/today; sin bloques, la sesión se ve como siempre.
+  const sections = sessionSections(data?.session.blocks, exercises);
+  // El orden en que se entrena: el de la sesión, con los ejercicios sueltos donde los dejó el coach.
   const ordered = sections ? sections.flatMap(section => section.items.map(item => item.exercise)) : exercises;
   const isComplete = (e: (typeof exercises)[number]) => e.logs.length >= e.targetSets;
   const doneCount = exercises.filter(isComplete).length;
