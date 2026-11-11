@@ -66,6 +66,7 @@ Se mantienen como maquetas porque se animan y pesan casi nada. Lo que cambia res
 | A3 | **Nota del coach en el ejercicio** | En la maqueta Serie, una línea «Nota de tu coach» (por ejemplo, «Baja lento y cuida el hombro»). |
 | A4 | **Barra de estado limpia** | Hora 9:41 (hoy dice 18:40), batería llena. |
 | A5 | **Descanso en pantalla de bloqueo** (nueva, opcional) | Una maqueta estática de la Live Activity del descanso. |
+| A6–A8 | **Esta semana, bloques y el anillo que avanza** (2026-11-11) | Hoy con la tarjeta «Esta semana», sesión por bloques y anillo que sube al cerrar la sesión. Detalle, datos y guion en [`maquetas-telefono.md`](maquetas-telefono.md). |
 
 ## Animaciones
 
