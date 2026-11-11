@@ -5,6 +5,8 @@ import { Pearl } from '../pearl/Pearl';
 import { Icon } from '../Icon';
 import { colors } from '../../theme/colors';
 import { useReduceMotion } from '../../hooks/useReduceMotion';
+import { WeekRing } from '../today/WeekRing';
+import { viewShadow } from '../../theme/elevation';
 
 // Demostraciones de las novedades de la app, dibujadas en código con el aspecto de la interfaz.
 // Cada una tiene fases; la última es el RESULTADO FINAL. Con «reducir movimiento» solo se
@@ -109,10 +111,65 @@ function ProgressDemo() {
   );
 }
 
+// 4. La tarjeta «Esta semana»: el anillo pasa de 0 a 33 y a 67 %, con sus sesiones («0, 1, 2 de 3»).
+const RING_STEPS = [
+  { percent: 0, sessions: '0 de 3' },
+  { percent: 33, sessions: '1 de 3' },
+  { percent: 67, sessions: '2 de 3' },
+];
+function WeeklyRingDemo() {
+  const step = RING_STEPS[usePhase(RING_STEPS.length)];
+  return (
+    <View style={styles.weekCard}>
+      <View style={styles.weekHead}>
+        <Text style={styles.headText}>Esta semana</Text>
+        <Text style={styles.weekRange}>9 al 15 nov</Text>
+      </View>
+      <View style={styles.weekBody}>
+        <View style={styles.weekRing}>
+          <WeekRing percent={step.percent} size={76} />
+          <View style={styles.weekPercentBox}>
+            <Text style={styles.weekPercent}>{`${step.percent}%`}</Text>
+          </View>
+        </View>
+        <View style={styles.weekFigures}>
+          <Text style={styles.weekBig}>{step.sessions}</Text>
+          <Text style={styles.weekLabel}>sesiones</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+// 5. Las tres cifras de la semana: se resalta una a una y al final quedan las tres sin resaltar.
+const FIGURES = [
+  { label: 'Sesiones', value: '2 de 3' },
+  { label: 'Tiempo entrenado', value: '3 h 20 min' },
+  { label: 'Esfuerzo medio', value: '6,5' },
+];
+function WeeklyFiguresDemo() {
+  const phase = usePhase(FIGURES.length + 1);
+  return (
+    <View style={styles.weekCard}>
+      <Text style={styles.headText}>Esta semana</Text>
+      <View style={styles.weekFiguresList}>
+        {FIGURES.map((f, i) => (
+          <View key={f.label} style={[styles.figureRow, phase === i && styles.figureOn]}>
+            <Text style={styles.weekLabel}>{f.label}</Text>
+            <Text style={styles.figureValue}>{f.value}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
 const DEMOS: Partial<Record<NoveltyDemoId, () => React.JSX.Element>> = {
   'athlete-blocks-group': GroupDemo,
   'athlete-blocks-fold': FoldDemo,
   'athlete-blocks-progress': ProgressDemo,
+  'athlete-weekly-ring': WeeklyRingDemo,
+  'athlete-weekly-figures': WeeklyFiguresDemo,
 };
 
 // Escenario fijo con su descripción para el lector de pantalla.
@@ -149,4 +206,29 @@ const styles = StyleSheet.create({
     borderTopColor: colors.grayBorder,
   },
   rowText: { fontSize: 14, color: colors.ink },
+  weekCard: { backgroundColor: colors.bg, borderRadius: 22, padding: 14, gap: 10, ...viewShadow },
+  weekHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap' },
+  weekRange: { fontSize: 13, fontWeight: '600', color: colors.inkSecondary },
+  weekBody: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  weekRing: { width: 76, height: 76, alignItems: 'center', justifyContent: 'center' },
+  weekPercentBox: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' },
+  weekPercent: { fontSize: 18, fontWeight: '800', color: colors.ink },
+  weekFigures: { flex: 1 },
+  weekBig: { fontSize: 22, fontWeight: '800', color: colors.ink },
+  weekLabel: { fontSize: 13, color: colors.inkSecondary },
+  weekFiguresList: { gap: 6 },
+  figureRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    columnGap: 8,
+    borderRadius: 12,
+    borderWidth: 3,
+    borderColor: 'transparent',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  figureOn: { borderColor: colors.brand, backgroundColor: colors.bg, ...viewShadow },
+  figureValue: { fontSize: 16, fontWeight: '800', color: colors.ink },
 });

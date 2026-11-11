@@ -18,7 +18,10 @@ export type NoveltyDemoId =
   // App del atleta (la app las dibuja): la sesión por bloques.
   | "athlete-blocks-group"
   | "athlete-blocks-fold"
-  | "athlete-blocks-progress";
+  | "athlete-blocks-progress"
+  // App del atleta: la tarjeta «Esta semana» de Hoy.
+  | "athlete-weekly-ring"
+  | "athlete-weekly-figures";
 
 export interface NoveltySlide {
   title: string;
@@ -108,6 +111,28 @@ export const NOVELTIES: Novelty[] = [
         text: "Cada bloque te dice cuántos ejercicios llevas, como «1 de 2», y pasa a «Hecho» cuando lo terminas.",
         demoLabel: "El avance de un bloque pasa de «0 de 2» a «1 de 2» y luego a «Hecho».",
         demo: "athlete-blocks-progress",
+      },
+    ],
+  },
+  {
+    key: "athlete-weekly",
+    version: 1,
+    since: "2026-11-11",
+    platforms: ["mobile"],
+    roles: ["athlete"],
+    name: "Tu semana en Hoy",
+    slides: [
+      {
+        title: "Tu semana de un vistazo",
+        text: "Arriba de Hoy ves cuántas sesiones llevas esta semana. El anillo se llena a medida que entrenas.",
+        demoLabel: "Una tarjeta «Esta semana» donde un anillo pasa de 0 a 2 sesiones de 3.",
+        demo: "athlete-weekly-ring",
+      },
+      {
+        title: "Entiende tus cifras",
+        text: "Sesiones, tiempo entrenado y esfuerzo medio, siempre de la semana en curso. Si no registraste esfuerzo, verás «Sin dato».",
+        demoLabel: "Tres cifras de la semana: sesiones, tiempo entrenado y esfuerzo medio.",
+        demo: "athlete-weekly-figures",
       },
     ],
   },
