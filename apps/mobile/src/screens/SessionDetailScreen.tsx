@@ -189,9 +189,7 @@ export function SessionDetailScreen({ route }: Props) {
                 <Text style={styles.setChipText}>
                   {isBodyweight(item.exercise)
                     ? `${log.actualReps} reps · ${BODYWEIGHT_LABEL}`
-                    : log.actualWeight != null
-                      ? `${log.actualReps} × ${log.actualWeight} kg`
-                      : `${log.actualReps} reps`}
+                    : `${log.actualReps} × ${log.actualWeight ?? 0} kg`}
                 </Text>
               </View>
             ))}

@@ -117,3 +117,34 @@ describe('peso corporal', () => {
     expect(joined(tree)).toContain('× 60 kg');
   });
 });
+
+describe('sin peso es 0, nunca «null» (CYC-284)', () => {
+  const weightInput = (tree: ReactTestRenderer.ReactTestRenderer) =>
+    tree.root.findAll(n => (n.type as unknown) === 'TextInput').map(n => n.props.value as string);
+
+  test('con la meta de peso en null el campo parte en 0 y se guarda 0', async () => {
+    const tree = await mount({ equipment: [], targetWeight: null as unknown as undefined });
+    expect(weightInput(tree)).toContain('0');
+    expect(weightInput(tree)).not.toContain('null');
+    await press(tree, 'Guardar serie');
+    expect(logSetMock.mock.calls[0][1].actualWeight).toBe(0);
+    expect(joined(tree)).toContain('0 kg');
+    expect(joined(tree)).not.toContain('null');
+  });
+
+  test('una serie guardada sin peso (null) se muestra como 0 kg', async () => {
+    const tree = await mount({
+      equipment: [],
+      logs: [{ id: 'log-0', sessionExerciseId: 'se-1', setNumber: 1, actualReps: 10, actualWeight: null, rir: null }],
+    });
+    expect(joined(tree)).toContain('0 kg');
+    expect(joined(tree)).not.toContain('null');
+  });
+
+  test('peso corporal con la meta en null: sin campo y sin «null»', async () => {
+    const tree = await mount({ equipment: ['bodyweight'], targetWeight: null as unknown as undefined });
+    expect(joined(tree)).not.toContain('Peso (kg)');
+    expect(joined(tree)).toContain('Peso corporal');
+    expect(joined(tree)).not.toContain('null');
+  });
+});

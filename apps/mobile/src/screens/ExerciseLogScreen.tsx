@@ -56,11 +56,8 @@ function buildInitialRows(
       // El backend serializa "sin valor" como null, no como campo ausente:
       // hay que comparar con == null (cubre null y undefined), no
       // !== undefined, o un peso/RIR realmente vacío se muestra como "null".
-      actualWeight: existing?.actualWeight != null
-        ? String(existing.actualWeight)
-        : targetWeight !== undefined
-          ? String(targetWeight)
-          : '',
+      // Sin peso (registrado ni planificado) el peso es 0.
+      actualWeight: String(existing?.actualWeight ?? targetWeight ?? 0),
       rir: existing?.rir != null ? String(existing.rir) : '',
       saved: existing,
       editing: false,
@@ -104,7 +101,7 @@ export function ExerciseLogScreen({ route }: Props) {
     }
     const weightText = row.actualWeight.trim();
     // Peso corporal: no hay carga que registrar.
-    const weight = bodyweight || weightText === '' ? undefined : Number(weightText);
+    const weight = bodyweight ? undefined : weightText === '' ? 0 : Number(weightText);
     if (weight !== undefined && !Number.isFinite(weight)) {
       updateRow(index, { error: 'Ingresa un peso válido.' });
       return;
@@ -273,9 +270,7 @@ export function ExerciseLogScreen({ route }: Props) {
                   {row.saved.actualReps} reps
                   {bodyweight
                     ? ` · ${BODYWEIGHT_LABEL}`
-                    : row.saved.actualWeight != null
-                      ? ` · ${row.saved.actualWeight} kg`
-                      : ''}
+                    : ` · ${row.saved.actualWeight ?? 0} kg`}
                   {row.saved.rir != null ? ` · RIR ${row.saved.rir}` : ''}
                 </Text>
                 <TouchableOpacity onPress={() => startEditing(index)}>
