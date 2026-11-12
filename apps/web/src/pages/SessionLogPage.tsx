@@ -7,6 +7,7 @@ import * as executionApi from "../services/executionApi";
 import { ApiError } from "../services/httpClient";
 import { LoadingScreen } from "../components/LoadingScreen";
 import { RestTimer } from "../components/RestTimer";
+import { plannedRestSeconds } from "../lib/restPlan";
 import { formatKg, formatNumber, formatRir } from "../lib/format";
 import { newId } from "../lib/uuid";
 import { track } from "../lib/analytics";
@@ -17,9 +18,6 @@ import { track } from "../lib/analytics";
 // docs/prds/features/PRD-EjecucionYSeguimiento.md, §7.1.
 
 const RIR_OPTIONS = [0, 1, 2, 3, 4];
-
-// Descanso por defecto cuando la rutina no define uno para el ejercicio.
-const DEFAULT_REST_SECONDS = 90;
 
 interface Rest {
   endsAt: number;
@@ -486,7 +484,10 @@ export function SessionLogPage() {
             const finalSet = setNumber >= exercise.targetSets;
             // Tras la última serie del último ejercicio no hay descanso: sigue el cierre.
             if (finalSet && !nextExercise) return;
-            const seconds = exercise.targetRestSeconds ?? DEFAULT_REST_SECONDS;
+            // Sin descanso planificado no hay temporizador: al terminar las series queda el
+            // botón «Siguiente ejercicio».
+            const seconds = plannedRestSeconds(exercise.targetRestSeconds);
+            if (seconds === 0) return;
             setRest({
               endsAt: Date.now() + seconds * 1000,
               totalSeconds: seconds,
