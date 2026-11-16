@@ -83,21 +83,30 @@ function finger(dev: HTMLElement, S: Scheduler) {
   };
 }
 
-// Pantalla "Hoy": n = ejercicios completados (1 al inicio, 4 = todos).
+// Pantalla "Hoy": n = ejercicios completados (2 al inicio, 4 = todos). Los dos
+// primeros son el calentamiento y la sentadilla; el actual es la prensa.
 function hoyScreen(dev: HTMLElement) {
-  const NAMES = ["Sentadilla con barra", "Prensa de piernas", "Zancadas con mancuernas", "Peso muerto"];
-  const SETS = [4, 3, 3, 3];
+  const NAMES = ["Puente de glúteos", "Sentadilla con barra", "Prensa de piernas", "Zancadas con mancuernas"];
+  const START = 2;
   const count = q(dev, ".lp-m-count b");
   const segs = qa(dev, ".lp-m-seg i");
   const btn = q(dev, ".lp-m-hbtn");
   const btnText = q(btn, "span");
   const cards = qa(dev, ".lp-m-ex");
+  const blockPill = q(dev, ".lp-m-block.lp-open .lp-bp");
+  const ring = q<SVGCircleElement & HTMLElement>(dev, ".lp-wring-fg");
+  const ringText = q(dev, ".lp-wring b");
+  const ses = q(dev, ".lp-wk-ses");
+  const time = q(dev, ".lp-wk-time");
+  const SETS = [0, 4, 3, 3];
   const progress = (n: number) => {
     count.textContent = String(n);
     segs.forEach((s, i) => s.classList.toggle("lp-on", i < n));
     btn.classList.toggle("lp-finish", n >= 4);
     btnText.textContent = n >= 4 ? "Cerrar sesión" : `Continuar: ${NAMES[n]}`;
-    cards.forEach((card, i) => {
+    // cards: ejercicios de «Fuerza» (índices 1 a 3 de la sesión)
+    cards.forEach((card, k) => {
+      const i = k + 1;
       const state = i < n ? "done" : i === n ? "cur" : "pending";
       const node = q(card, ".lp-node");
       const pill = q(card, ".lp-pill-n");
@@ -107,22 +116,39 @@ function hoyScreen(dev: HTMLElement) {
       pill.className = `lp-pill-n${state === "done" ? " lp-ok" : state === "cur" ? " lp-cur" : ""}`;
       pill.textContent = `${state === "done" ? SETS[i] : 0}/${SETS[i]}`;
     });
+    const doneStr = Math.max(0, n - 1);
+    blockPill.textContent = doneStr >= 3 ? "Hecho" : `${doneStr} de 3`;
+    blockPill.className = `lp-pill-n lp-bp ${doneStr >= 3 ? "lp-ok" : "lp-cur"}`;
+  };
+  // «Esta semana»: antes de la sesión 1 de 3 (33 %); al cerrarla, 2 de 3 (67 %).
+  const week = (sessions: 1 | 2) => {
+    const C = 2 * Math.PI * 34;
+    const pct = sessions === 1 ? 33 : 67;
+    ring.setAttribute("stroke-dashoffset", String(C * (1 - pct / 100)));
+    ringText.textContent = `${pct}%`;
+    ses.textContent = `${sessions} de 3`;
+    time.textContent = sessions === 1 ? "1 h 5 min" : "2 h 10 min";
+    if (sessions === 2) {
+      pop(ringText);
+      pop(ses);
+    }
   };
   return {
     btn,
-    reset: () => progress(1),
+    reset: () => (progress(START), week(1)),
     progress: (n: number) => {
       progress(n);
       pop(count);
     },
+    week,
   };
 }
 
 // Pantalla "Registro de serie".
 function serieScreen(dev: HTMLElement) {
   const steps = qa(dev, ".lp-m-step");
-  const weight = q(steps[0], "strong");
-  const plus = qa(steps[0], ".lp-m-stepbtn")[1];
+  const weight = q(steps[1], "strong");
+  const plus = qa(steps[1], ".lp-m-stepbtn")[1];
   const chips = qa(steps[2], ".lp-chips span");
   const save = q(dev, ".lp-m-fixed .lp-m-btn");
   const pill = q(dev, ".lp-m-set span");
@@ -244,10 +270,8 @@ function story(box: HTMLElement): Player {
     // 3. De vuelta en Hoy: el progreso avanza hasta terminar
     active(0);
     S.wait(700);
-    S.run(() => H.progress(2));
-    S.wait(900);
     S.run(() => H.progress(3));
-    S.wait(550);
+    S.wait(900);
     S.run(() => H.progress(4));
     S.wait(900);
     F[0].go(H.btn);
@@ -265,7 +289,10 @@ function story(box: HTMLElement): Player {
     S.wait(C.text.length * 55 + 300);
     F[2].go(C.send);
     F[2].press(C.send, C.sent);
-    S.wait(2200);
+    S.wait(900);
+    // De vuelta en Hoy: el anillo de la semana sube de 33 % a 67 %
+    S.run(() => H.week(2));
+    S.wait(1800);
     S.run(idle);
     S.wait(900);
     S.run(loop);
@@ -299,7 +326,7 @@ function hero(dev: HTMLElement): Player {
     F.go(H.btn);
     F.press(H.btn);
     S.wait(300);
-    S.run(() => H.progress(2));
+    S.run(() => H.progress(3));
     S.wait(2600);
     S.run(() => F.hide());
     S.wait(700);
