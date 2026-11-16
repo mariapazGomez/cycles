@@ -508,3 +508,24 @@
   .lp-ph { transform: scale(.9); }
   .lp-ov { padding-bottom: 190px; }
 }
+
+/* Portada completa a primera vista (≥1200 px de ancho): el título, la captura y el teléfono se
+   dimensionan con la altura de la ventana para que todo el bloque quepa sin hacer scroll. */
+@media (min-width: 1200px) {
+  .lp-hero { --pb: 150px; --steps: 142px; padding-block: 16px 16px; }
+  .lp-hero-visual { padding-block: 16px; }
+  .lp-ov { padding-top: 44px; padding-bottom: var(--pb); max-width: max(460px, calc(1.5 * (100svh - 214px - var(--pb)))); margin-inline: auto; }
+  :where(.landing) .lp-hero h1 { font-size: min(clamp(3.5rem, 4vw, 4.75rem), max(2.75rem, calc((100svh - 330px - var(--steps)) / 4.2))); }
+}
+@media (min-width: 1600px) { .lp-hero { --pb: 170px; } }
+@media (min-width: 1800px) { .lp-hero { --pb: 190px; } }
+@media (min-width: 1200px) and (max-height: 860px) {
+  .lp-hero { --pb: 120px; }
+  .lp-ph { transform: scale(.62); }
+}
+@media (min-width: 1200px) and (max-height: 760px) {
+  .lp-hero { --pb: 96px; --steps: 0px; }
+  .lp-ph { transform: scale(.5); }
+  .lp-hero-steps { display: none; }
+  .lp-hero .lp-lead { font-size: 1.125rem; margin-bottom: 22px; }
+}
