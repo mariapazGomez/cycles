@@ -439,7 +439,7 @@
 .lp-ov { position: relative; z-index: 1; width: 100%; padding: 48px 0 190px; }
 .lp-coach .lp-browser { max-width: none; width: 100%; margin: 0; }
 .lp-slides { position: relative; aspect-ratio: 1500 / 1000; overflow: hidden; }
-.lp-slides img { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; object-fit: cover; object-position: top left; opacity: 0; transition: opacity .6s ease; }
+.lp-slides img { position: absolute; top: 0; left: 0; width: 112%; height: 112%; max-width: none; aspect-ratio: auto; object-fit: cover; object-position: top left; opacity: 0; transition: opacity .6s ease; }
 .lp-slides img.lp-on { opacity: 1; }
 .lp-tabs { position: absolute; left: 0; top: 0; z-index: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; max-width: calc(100% - 4px); }
 .lp-tabs-l { font: 700 12px/1 var(--text); letter-spacing: .08em; text-transform: uppercase; margin-right: 4px; }
@@ -456,3 +456,34 @@
   .lp-ov { padding: 92px 0 150px; }
   .lp-ph { transform: scale(.56); }
 }
+
+/* Pantallas grandes: el contenedor crece para aprovechar el ancho y las capturas
+   del coach se ven más grandes (a 1040 px fijos, en 1920 sobraba medio costado). */
+@media (min-width: 1200px) {
+  .lp-bar, .lp-wrap, .lp-foot { max-width: 1240px; }
+  .lp-hero-grid { grid-template-columns: .78fr 1.22fr; gap: 56px; }
+  .lp-browser, .lp-shots-one { max-width: 940px; }
+  .lp-coach .lp-browser { max-width: none; }
+  .lp-split { grid-template-columns: .8fr 1.2fr; gap: 64px; }
+  .lp-ph { transform: scale(.84); }
+  .lp-ov { padding-bottom: 210px; }
+}
+@media (min-width: 1600px) {
+  .lp-bar, .lp-wrap, .lp-foot { max-width: 1440px; }
+  .lp-hero-grid { grid-template-columns: .74fr 1.26fr; gap: 72px; }
+  .lp-browser, .lp-shots-one { max-width: 1080px; }
+  .lp-coach .lp-browser { max-width: none; }
+  .lp-ph { transform: scale(.94); }
+  .lp-ov { padding-bottom: 240px; }
+}
+@media (min-width: 1800px) {
+  .lp-bar, .lp-wrap, .lp-foot { max-width: 1560px; }
+  .lp-hero-grid { grid-template-columns: .7fr 1.3fr; gap: 72px; }
+  .lp-browser, .lp-shots-one { max-width: 1200px; }
+  .lp-coach .lp-browser { max-width: none; }
+  .lp-ph { transform: scale(1); }
+  .lp-ov { padding-bottom: 260px; }
+}
+/* Los tres teléfonos de «Tu atleta lo registra» crecen con la pantalla */
+@media (min-width: 1200px) { .lp-phones .lp-device { zoom: 1.2; } }
+@media (min-width: 1600px) { .lp-phones .lp-device { zoom: 1.4; } }

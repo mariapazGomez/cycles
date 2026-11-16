@@ -42,7 +42,7 @@ const VIEWS = [
     alt: "Editor de rutina con nota del coach: ejercicios con series, repeticiones y carga, y carga de la sesión",
   },
 ];
-const SIZES = "(max-width: 820px) 92vw, 640px";
+const SIZES = "(max-width: 820px) 92vw, (min-width: 1800px) 980px, (min-width: 1600px) 880px, 760px";
 const INTERVAL_MS = 4500;
 
 export function CoachShowcase() {
