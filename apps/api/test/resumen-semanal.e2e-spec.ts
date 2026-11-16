@@ -14,6 +14,12 @@ describe("Resumen semanal (GET /me/weekly-summary)", () => {
     app = await startApp();
     await resetDatabase(app.prisma);
     c = await seedScenario(app);
+    // El seed siembra un ciclo por atleta que empieza hace 7 días (relativo a «hoy»): desde el lunes
+    // 16-11-2026 caía en la semana fija de abajo y sumaba una sesión a athleteA y a athleteB. Se mueven
+    // a fechas lejanas para que la prueba no dependa del día en que corre.
+    await app.prisma.trainingCycle.updateMany({
+      data: { startDate: new Date(Date.UTC(2001, 0, 1)), endDate: new Date(Date.UTC(2001, 0, 28)) },
+    });
     // Ciclo propio de athleteA que empieza el lunes 9 de noviembre de 2026, con tres sesiones en
     // la semana 1 (dos hechas y una pendiente) y una en la semana 2.
     const cycle = await app.prisma.trainingCycle.create({
