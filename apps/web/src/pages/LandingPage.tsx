@@ -3,10 +3,8 @@ import { Link } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import logo from "../assets/logo-cycles.png";
 import atencion from "../assets/landing/atencion.jpg";
-import resumen from "../assets/landing/resumen.jpg";
 import plan from "../assets/landing/plan.jpg";
 import mAtencion from "../assets/landing/m-atencion.jpg";
-import mResumen from "../assets/landing/m-resumen.jpg";
 import mPlan from "../assets/landing/m-plan.jpg";
 import { ChainCanvas } from "../components/landing/ChainCanvas";
 import { CoachShowcase } from "../components/landing/CoachShowcase";
@@ -185,7 +183,7 @@ export function LandingPage() {
                 <ul className="lp-pl">
                   <li>Arma rutinas con el catálogo de ejercicios y asígnalas desde un solo lugar.</li>
                   <li>Tu atleta las recibe en su celular, sin Excel ni PDF.</li>
-                  <li>Mira la cadena de semanas de cada ciclo de un vistazo.</li>
+                  <li>Arma el ciclo en un calendario: arrastra una rutina a un día.</li>
                 </ul>
               </div>
               <div className="lp-col">
@@ -306,7 +304,7 @@ export function LandingPage() {
           <div className="lp-wrap">
             <h2>Todos tus atletas, en un solo lugar</h2>
             <p>Abres Cycles y ves quién necesita tu atención, sin un Excel ni un chat por cada atleta.</p>
-            <div className="lp-shots">
+            <div className="lp-shots lp-shots-one">
               <figure className="lp-fig">
                 <div className="lp-browser">
                   <div className="lp-browser-top"><i /><i /><i /></div>
@@ -316,16 +314,6 @@ export function LandingPage() {
                   </picture>
                 </div>
                 <figcaption>Inicio: quién necesita tu atención</figcaption>
-              </figure>
-              <figure className="lp-fig">
-                <div className="lp-browser">
-                  <div className="lp-browser-top"><i /><i /><i /></div>
-                  <picture>
-                    <source media="(max-width: 820px)" srcSet={mResumen} />
-                    <img src={resumen} alt="Resumen de un atleta con carga semanal y adherencia" />
-                  </picture>
-                </div>
-                <figcaption>Un atleta: carga semanal y adherencia</figcaption>
               </figure>
             </div>
             <p className="lp-after-shots">
