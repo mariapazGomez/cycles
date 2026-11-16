@@ -143,6 +143,11 @@ export function LandingPage() {
               <a href="#contacto" className="lp-btn lp-btn-pulse">
                 Quiero acceso anticipado {ARROW}
               </a>
+              <ol className="lp-hero-steps" aria-label="Cómo funciona">
+                <li><span className="lp-stepn">1</span>Planificas en la web</li>
+                <li><span className="lp-stepn">2</span>Tu atleta registra en la app</li>
+                <li><span className="lp-stepn">3</span>Ves qué pasó y ajustas</li>
+              </ol>
             </div>
             <div className="lp-hero-visual">
               <ChainCanvas />
