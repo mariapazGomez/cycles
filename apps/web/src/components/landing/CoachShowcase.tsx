@@ -1,18 +1,48 @@
 import { useEffect, useRef, useState } from "react";
-import inicio from "../../assets/landing/coach-inicio.jpg";
-import rutinas from "../../assets/landing/coach-rutinas.jpg";
-import planes from "../../assets/landing/coach-planes.jpg";
+import inicioW1 from "../../assets/landing/coach-inicio-1440.webp";
+import inicioW2 from "../../assets/landing/coach-inicio-2880.webp";
+import inicioJ1 from "../../assets/landing/coach-inicio-1440.jpg";
+import inicioJ2 from "../../assets/landing/coach-inicio-2880.jpg";
+import cicloW1 from "../../assets/landing/coach-ciclo-1440.webp";
+import cicloW2 from "../../assets/landing/coach-ciclo-2880.webp";
+import cicloJ1 from "../../assets/landing/coach-ciclo-1440.jpg";
+import cicloJ2 from "../../assets/landing/coach-ciclo-2880.jpg";
+import rutinasW1 from "../../assets/landing/coach-rutinas-1440.webp";
+import rutinasW2 from "../../assets/landing/coach-rutinas-2880.webp";
+import rutinasJ1 from "../../assets/landing/coach-rutinas-1440.jpg";
+import rutinasJ2 from "../../assets/landing/coach-rutinas-2880.jpg";
 
 // Marco de navegador de la portada: la plataforma del coach alterna sola entre
-// sus tres vistas (Inicio, Rutinas, Planes) y cada pestaña se puede elegir a
+// sus tres vistas (Inicio, Ciclo, Rutinas) y cada pestaña se puede elegir a
 // mano. Al elegir una, la rotación se detiene. Solo rota mientras está a la
 // vista y no rota con "reducir movimiento". Las capturas salen de la base de
 // demostración (apps/api/scripts/seed-demo.ts), con personas ficticias.
+// Cada vista trae WebP y JPG a 1440 y 2880 px (srcset) con el tamaño real
+// de la captura (2880 × 1800) para que no salte el diseño.
 const VIEWS = [
-  { label: "Inicio", src: inicio, alt: "Inicio del coach: atletas que necesitan atención y lista de atletas" },
-  { label: "Rutinas", src: rutinas, alt: "Editor de rutinas: ejercicios con series, repeticiones y carga, y resumen de la carga de la sesión" },
-  { label: "Ciclos", src: planes, alt: "Visualizador de un ciclo: avance por semanas y sesiones de cada semana" },
+  {
+    label: "Inicio",
+    webp: `${inicioW1} 1440w, ${inicioW2} 2880w`,
+    jpg: `${inicioJ1} 1440w, ${inicioJ2} 2880w`,
+    src: inicioJ1,
+    alt: "Inicio del coach: atletas que necesitan atención, la semana con sus sesiones y la lista de atletas",
+  },
+  {
+    label: "Ciclo",
+    webp: `${cicloW1} 1440w, ${cicloW2} 2880w`,
+    jpg: `${cicloJ1} 1440w, ${cicloJ2} 2880w`,
+    src: cicloJ1,
+    alt: "Pizarra del ciclo: rutinas asignadas a cada día de la semana",
+  },
+  {
+    label: "Rutinas",
+    webp: `${rutinasW1} 1440w, ${rutinasW2} 2880w`,
+    jpg: `${rutinasJ1} 1440w, ${rutinasJ2} 2880w`,
+    src: rutinasJ1,
+    alt: "Editor de rutina con nota del coach: ejercicios con series, repeticiones y carga, y carga de la sesión",
+  },
 ];
+const SIZES = "(max-width: 820px) 92vw, (min-width: 1800px) 980px, (min-width: 1600px) 880px, 760px";
 const INTERVAL_MS = 4500;
 
 export function CoachShowcase() {
@@ -60,15 +90,21 @@ export function CoachShowcase() {
         <div className="lp-browser-top"><i /><i /><i /></div>
         <div className="lp-slides">
           {VIEWS.map((v, i) => (
-            <img
-              key={v.label}
-              src={v.src}
-              alt={v.alt}
-              className={i === index ? "lp-on" : undefined}
-              aria-hidden={i !== index}
-              loading={i === 0 ? "eager" : "lazy"}
-              decoding="async"
-            />
+            <picture key={v.label}>
+              <source type="image/webp" srcSet={v.webp} sizes={SIZES} />
+              <img
+                src={v.src}
+                srcSet={v.jpg}
+                sizes={SIZES}
+                width={2880}
+                height={1800}
+                alt={v.alt}
+                className={i === index ? "lp-on" : undefined}
+                aria-hidden={i !== index}
+                loading={i === 0 ? "eager" : "lazy"}
+                decoding="async"
+              />
+            </picture>
           ))}
         </div>
       </div>

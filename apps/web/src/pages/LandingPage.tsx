@@ -2,12 +2,14 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import logo from "../assets/logo-cycles.png";
-import atencion from "../assets/landing/atencion.jpg";
-import resumen from "../assets/landing/resumen.jpg";
-import plan from "../assets/landing/plan.jpg";
-import mAtencion from "../assets/landing/m-atencion.jpg";
-import mResumen from "../assets/landing/m-resumen.jpg";
-import mPlan from "../assets/landing/m-plan.jpg";
+import atencionJpg from "../assets/landing/atencion.jpg";
+import atencionWebp from "../assets/landing/atencion.webp";
+import planJpg from "../assets/landing/plan.jpg";
+import planWebp from "../assets/landing/plan.webp";
+import mAtencionJpg from "../assets/landing/m-atencion.jpg";
+import mAtencionWebp from "../assets/landing/m-atencion.webp";
+import mPlanJpg from "../assets/landing/m-plan.jpg";
+import mPlanWebp from "../assets/landing/m-plan.webp";
 import { ChainCanvas } from "../components/landing/ChainCanvas";
 import { CoachShowcase } from "../components/landing/CoachShowcase";
 import { CycleRing } from "../components/landing/CycleRing";
@@ -185,7 +187,7 @@ export function LandingPage() {
                 <ul className="lp-pl">
                   <li>Arma rutinas con el catálogo de ejercicios y asígnalas desde un solo lugar.</li>
                   <li>Tu atleta las recibe en su celular, sin Excel ni PDF.</li>
-                  <li>Mira la cadena de semanas de cada ciclo de un vistazo.</li>
+                  <li>Arma el ciclo en un calendario: arrastra una rutina a un día.</li>
                 </ul>
               </div>
               <div className="lp-col">
@@ -306,26 +308,18 @@ export function LandingPage() {
           <div className="lp-wrap">
             <h2>Todos tus atletas, en un solo lugar</h2>
             <p>Abres Cycles y ves quién necesita tu atención, sin un Excel ni un chat por cada atleta.</p>
-            <div className="lp-shots">
+            <div className="lp-shots lp-shots-one">
               <figure className="lp-fig">
                 <div className="lp-browser">
                   <div className="lp-browser-top"><i /><i /><i /></div>
                   <picture>
-                    <source media="(max-width: 820px)" srcSet={mAtencion} />
-                    <img src={atencion} alt="Inicio del coach con la lista Necesitan atención" />
+                    <source media="(max-width: 820px)" type="image/webp" srcSet={mAtencionWebp} />
+                    <source media="(max-width: 820px)" srcSet={mAtencionJpg} />
+                    <source type="image/webp" srcSet={atencionWebp} />
+                    <img src={atencionJpg} width={1440} height={900} loading="lazy" decoding="async" alt="Inicio del coach con la lista Necesitan atención" />
                   </picture>
                 </div>
-                <figcaption>Inicio: quién necesita tu atención</figcaption>
-              </figure>
-              <figure className="lp-fig">
-                <div className="lp-browser">
-                  <div className="lp-browser-top"><i /><i /><i /></div>
-                  <picture>
-                    <source media="(max-width: 820px)" srcSet={mResumen} />
-                    <img src={resumen} alt="Resumen de un atleta con carga semanal y adherencia" />
-                  </picture>
-                </div>
-                <figcaption>Un atleta: carga semanal y adherencia</figcaption>
+                <figcaption>Inicio: quién necesita tu atención<small className="lp-eg">Datos de ejemplo</small></figcaption>
               </figure>
             </div>
             <p className="lp-after-shots">
@@ -345,12 +339,17 @@ export function LandingPage() {
                 fracaso: es un dato más para decidir cómo sigue el ciclo.
               </p>
             </div>
+            <div className="lp-fig">
             <div className="lp-browser">
               <div className="lp-browser-top"><i /><i /><i /></div>
               <picture>
-                    <source media="(max-width: 820px)" srcSet={mPlan} />
-                    <img src={plan} alt="Ciclo por semanas con dos sesiones omitidas y la nota de cada una" />
+                    <source media="(max-width: 820px)" type="image/webp" srcSet={mPlanWebp} />
+                    <source media="(max-width: 820px)" srcSet={mPlanJpg} />
+                    <source type="image/webp" srcSet={planWebp} />
+                    <img src={planJpg} width={1440} height={900} loading="lazy" decoding="async" alt="Pizarra del ciclo con dos sesiones omitidas y la nota de cada una" />
                   </picture>
+            </div>
+            <small className="lp-eg lp-eg-c">Datos de ejemplo</small>
             </div>
           </div>
         </section>
