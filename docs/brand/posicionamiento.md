@@ -4,12 +4,14 @@ parent: "[[brand]]"
 status: draft
 tags: [brand, posicionamiento, frase-eje, escalera-de-mensajes]
 created: 2026-11-10
-updated: 2026-11-10
+updated: 2026-11-17
 ---
 
 > Hijo de [[esencia]]. Nace de la decisión de la fundadora del 2026-11-10 (CYC-266): la frase de abajo es el **eje de identidad, branding y posicionamiento** de Cycles. Este documento dice cómo se usa en cada canal y deja la **escalera de mensajes** que pedía CYC-266 (del speech de hoy al de mañana). Borrador para que la fundadora ajuste: nada de esto cambia la landing publicada hasta que ella apruebe la propuesta de [[landing]].
 
 # Posicionamiento: la comprensión de la élite
+
+> **Actualización 2026-11-17 (CYC-292):** la causa («Queremos poner la ciencia del deporte al alcance de cada coach») se nombra de frente en la landing, **como dirección y no como promesa**. Eso levanta, solo para esa frase, la regla de no decir «ciencia del deporte» en público. La frase-eje de abajo pasa a **cerrar** la sección «Por qué lo hacemos» (la causa dice *hacia dónde*; la frase-eje, *qué comprensión construimos hoy*). Sigue vigente no prometer «mejora el rendimiento».
 
 ## La frase-eje
 
@@ -38,7 +40,7 @@ La frase habla del atleta, pero Cycles le habla **primero al coach** (giro del 2
 - En la élite, la comprensión del atleta la tiene un equipo alrededor de él. Cycles le da al coach independiente esa misma claridad, sobre cada atleta.
 - No sustituye al coach: le devuelve lo que se pierde entre el Excel y el WhatsApp. El coach siempre decide.
 
-Texto de apoyo (para la landing y la presentación): *«En la élite hay un equipo entero que entiende a cada atleta. Cycles le da esa claridad al coach que entrena solo con sus atletas.»* No usar «ciencia del deporte» ni «mejora el rendimiento» (reglas de CYC-262).
+Texto de apoyo (para la landing y la presentación): *«En la élite hay un equipo entero que entiende a cada atleta. Cycles le da esa claridad al coach que entrena solo con sus atletas.»* No usar «mejora el rendimiento» (reglas de CYC-262); «ciencia del deporte» solo como causa, no en este texto de apoyo.
 
 ## Reglas por canal
 
@@ -77,7 +79,7 @@ Qué debe existir antes de decir cada etapa en público. Los umbrales concretos 
 
 **Se siembra hoy y se reutiliza mañana:** ciclo, memoria del ciclo, el ciclo de cada atleta, historial vivo, sugerencia, el coach decide, comprensión, entrenar en serio.
 
-**Hoy conviene evitar** (contradicen el futuro o la visión): «solo planificación», «plantillas», «Excel mejorado», «app de seguimiento», «te motiva», «mejora el rendimiento», «ciencia del deporte», «demostrar resultados» (sin verificar con producto).
+**Hoy conviene evitar** (contradicen el futuro o la visión): «solo planificación», «plantillas», «Excel mejorado», «app de seguimiento», «te motiva», «mejora el rendimiento», «demostrar resultados» (sin verificar con producto).
 
 ## Riesgos y cómo se evitan
 

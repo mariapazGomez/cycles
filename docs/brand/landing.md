@@ -4,7 +4,7 @@ parent: "[[brand]]"
 status: decided
 tags: [brand, landing, copy]
 created: 2026-10-03
-updated: 2026-11-10
+updated: 2026-11-17
 ---
 
 > Hijo de [[speech]]. Texto de la landing para **coaches**, en voz "nosotros" ([[voz-y-tono]]). Vive dentro de `apps/web`, en la ruta `/` para visitantes sin sesión (ver [[PRD-LandingContacto]]). Reescrita el 2026-10-06 tras el feedback de la fundadora: la primera versión no dejaba claro a quién le hablaba ni qué ofrecía, y los ciclos de entrenamiento no tenían protagonismo.
@@ -43,7 +43,32 @@ Reemplaza a la sección "Qué cambia en tu trabajo" y va justo después de la po
 
 Cierre: **No cambia cómo entrenas. Tú sigues diseñando el plan.**
 
-## Propuesta pendiente de aprobación: frase-eje y jerarquía (2026-11-10, CYC-266)
+## 1c. Nuestra causa (aprobada el 2026-11-17, CYC-292)
+
+> **Aprobada por la usuaria, sin aplicar en `apps/web`.** Opción **B** de [`docs/diseno/landing-vision-global/`](../diseno/landing-vision-global/README.md), con el texto **T2** en la portada. Reemplaza la propuesta de «Por qué lo hacemos» de CYC-266 (más abajo) en lo que toca a la causa; la frase-eje pasa a cerrar la sección.
+
+**Decisión:** la causa se ve **en los primeros segundos**, sin competir con el título. El título («Planifica el ciclo. Recibe el feedback. Ajusta el siguiente.») y el botón principal no cambian.
+
+**En la portada (reemplaza la lista «1 Planificas en la web · 2 Tu atleta registra en la app · 3 Ves qué pasó y ajustas»**, que repite el título y la definición):
+
+- **Etiqueta** (con el isotipo): Nuestra causa
+- **Frase:** Queremos poner la ciencia del deporte al alcance de cada coach.
+- **Enlace:** Por qué lo hacemos ↓ (baja a la sección siguiente)
+
+**Sección «Por qué lo hacemos»** (nueva), **después de los tres pilares (1b)** y antes del anillo del ciclo. Fondo tinta `#1f2228`, sin capturas ni subtítulos grises:
+
+- **Titular:** La ciencia del deporte no debería ser cosa de equipos grandes. *(Titular propuesto T1; la usuaria aprobó T2 solo para la portada: confirmar el de la sección al desarrollar.)*
+- **Texto:** Hoy, las herramientas que se apoyan en ella las usan atletas profesionales con equipos enteros detrás. El coach que entrena solo con sus atletas se queda con un Excel y un chat. / Estamos construyendo Cycles para cerrar esa distancia: ponerla al alcance de coaches pequeños e independientes, para que lleven su trabajo más lejos. Es una dirección, no una promesa: recién empezamos, vamos paso a paso y el coach siempre decide.
+- **Cierre:** *Que cualquier atleta que entrene en serio tenga la comprensión que hoy solo tiene la élite.* (la frase-eje; ver [[posicionamiento]]).
+- **Acciones:** botón principal «Quiero acceso anticipado» y enlace «Quiero sumarme a la causa», ambos al formulario (`#contacto`).
+
+**Llamado a la acción:** el botón principal no cambia. En el formulario se propone la línea «¿No eres coach pero quieres sumarte? Cuéntanos igual.» y cambiar el campo a «Cuéntanos quién eres y cómo trabajas».
+
+**Brecha de acceso:** de **tamaño y recursos** (equipos grandes frente a coaches independientes), no de geografía ni de precio.
+
+**Se mantiene:** «Hacia dónde vamos: Cada ciclo deja memoria» (7b) como el *cómo*, y el cierre «Nada se pierde entre tú y tus atletas.»
+
+## Propuesta anterior: frase-eje y jerarquía (2026-11-10, CYC-266; la causa de arriba la reemplaza en parte)
 
 > **No está aplicada.** Es una propuesta de diseño para que la fundadora apruebe antes de tocar `apps/web`. Mockup en `docs/diseno/landing-jerarquia-elite/propuestas.html`. Marco: [[posicionamiento]].
 
@@ -61,7 +86,7 @@ Cierre: **No cambia cómo entrenas. Tú sigues diseñando el plan.**
 
 **Alternativas descartadas:** (A) la frase como título: bonita, pero no dice qué es Cycles ni a quién le habla; (C) la frase bajo el título como subtítulo: compite con la definición y con las reglas de no poner líneas grises bajo los títulos.
 
-**Reglas que siguen:** sin «gemelo digital», sin «agentes de IA», sin fechas, sin «mejora el rendimiento», sin «ciencia del deporte».
+**Reglas que siguen:** sin «gemelo digital», sin «agentes de IA», sin fechas, sin «mejora el rendimiento»; «ciencia del deporte» solo como causa (excepción de 2026-11-17, ver arriba).
 
 ## 2. Cada ciclo construye el siguiente
 
@@ -140,7 +165,7 @@ Todas se apagan con "reducir movimiento" y solo corren cuando están a la vista.
 
 ## Reglas de esta página
 
-- Sin promesas de resultados, ciencia del deporte ni inteligencia artificial (ver [[mensajes]]); la sección «Cada ciclo deja memoria» es dirección, no promesa.
+- Sin promesas de resultados ni inteligencia artificial (ver [[mensajes]]); «ciencia del deporte» solo como causa y dirección, nunca como función de hoy; la sección «Cada ciclo deja memoria» es dirección, no promesa.
 - Sin secciones de precios ni de atletas por ahora.
 - Sin humor explícito: sigue pendiente de definir.
 - Todo en "tú" y sin voseo.
