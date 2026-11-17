@@ -1,5 +1,6 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
 import type { Exercise, ExerciseLog, SessionExercise } from '@cycles/shared';
+import type { ShareData } from '../utils/shareSession';
 
 export type TabParamList = {
   Calendar: undefined;
@@ -24,5 +25,8 @@ export type AppStackParamList = {
     plannedSets: number;
     doneExercises: number;
     totalExercises: number;
+    // Para ofrecer «Compartir» en el cierre de la primera sesión.
+    share?: ShareData;
   };
+  ShareSession: ShareData;
 };

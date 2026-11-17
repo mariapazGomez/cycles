@@ -54,7 +54,7 @@ export async function shouldShowFirstSessionClosing() {
   return !(await hasSeenFirstSessionClosing());
 }
 
-export function FirstSessionClosing({ onDone }: { onDone: () => void }) {
+export function FirstSessionClosing({ onDone, onShare }: { onDone: () => void; onShare?: () => void }) {
   const insets = useSafeAreaInsets();
   const done = () => {
     markFirstSessionClosingSeen();
@@ -71,6 +71,12 @@ export function FirstSessionClosing({ onDone }: { onDone: () => void }) {
         </Text>
         <Text style={styles.closingText}>Tu coach ya puede verla.</Text>
       </View>
+      {onShare && (
+        <TouchableOpacity style={styles.shareButton} onPress={onShare} accessibilityRole="button" accessibilityLabel="Compartir tu sesión">
+          <Icon name="share" size={20} color={colors.ink} />
+          <Text style={styles.shareButtonText}>Compartir</Text>
+        </TouchableOpacity>
+      )}
       <TouchableOpacity style={styles.closingButton} onPress={done} accessibilityRole="button" accessibilityLabel="Volver a Inicio">
         <Text style={styles.closingButtonText}>Volver a Inicio</Text>
       </TouchableOpacity>
@@ -104,5 +110,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  shareButton: {
+    minHeight: 52,
+    borderRadius: 999,
+    backgroundColor: colors.bg,
+    borderWidth: 2,
+    borderColor: colors.grayBorder,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    marginBottom: 10,
+  },
+  shareButtonText: { fontSize: 16, fontWeight: '700', color: colors.ink },
   closingButtonText: { fontSize: 16, fontWeight: '700', color: colors.onBlue },
 });
