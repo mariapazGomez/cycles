@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import Svg, { Defs, G, Image as SvgImage, LinearGradient, Path, Rect, Stop, Text as SvgText, TSpan } from 'react-native-svg';
+import Svg, { ClipPath, Defs, G, Image as SvgImage, LinearGradient, Path, Rect, Stop, Text as SvgText, TSpan } from 'react-native-svg';
 import { intensityRamp, noLoadFill } from '../../theme/colors';
 import { GROUPS, type GroupKey } from '../../utils/muscleSummary';
 import { SHARE_FORMATS, fitTitle, shareAltText, type ShareData, type ShareFormat } from '../../utils/shareSession';
@@ -67,8 +67,15 @@ function Figure({ view, x, y, w, data, theme }: { view: 'front' | 'back'; x: num
   const [vx, vy] = viewBox.split(' ').map(Number);
   const max = Math.max(0, ...GROUPS.map(g => data.groups[g.key]));
   return (
-    <Svg x={x} y={y} width={w} height={(w * 810) / 400} viewBox={viewBox}>
-      <SvgImage x={vx} y={vy} width={400} height={810} href={IMAGES[view]} opacity={theme.figureImageOpacity} />
+    // Un <G> con transform en vez de un <Svg> anidado: el anidado no respeta x/y/tamaño al exportar en iOS.
+    <G transform={`translate(${x} ${y}) scale(${w / 400}) translate(${-vx} ${-vy})`}>
+      {/* back.png trae una línea suelta en sus columnas 8-9 (no es parte del cuerpo): se recorta el borde izquierdo. */}
+      <Defs>
+        <ClipPath id={`clip-${view}`}>
+          <Rect x={vx + (view === 'back' ? 20 : 3)} y={vy + 3} width={view === 'back' ? 377 : 394} height={804} />
+        </ClipPath>
+      </Defs>
+      <SvgImage x={vx} y={vy} width={400} height={810} href={IMAGES[view]} opacity={theme.figureImageOpacity} clipPath={`url(#clip-${view})`} />
       {zones.map((z, i) => {
         const sets = data.groups[z.group as GroupKey];
         const loaded = sets > 0 && max > 0;
@@ -84,16 +91,16 @@ function Figure({ view, x, y, w, data, theme }: { view: 'front' | 'back'; x: num
           />
         );
       })}
-    </Svg>
+    </G>
   );
 }
 
 function Isotype({ x, y, size }: { x: number; y: number; size: number }) {
   return (
-    <Svg x={x} y={y} width={size} height={size} viewBox="0 0 100 100">
+    <G transform={`translate(${x} ${y}) scale(${size / 100})`}>
       <Path d="M17.09 69 A38 38 0 0 1 61.74 13.86" stroke="#3080fc" strokeWidth={20} strokeLinecap="round" fill="none" />
       <Path d="M81.5 28.75 A38 38 0 0 1 35.77 85.23" stroke="#3080fc" strokeWidth={20} strokeLinecap="round" fill="none" />
-    </Svg>
+    </G>
   );
 }
 

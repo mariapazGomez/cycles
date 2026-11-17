@@ -32,8 +32,13 @@ type Item = SessionExercise & { exercise: Exercise; logs: ExerciseLog[] };
 
 const emptyGroups = () => Object.fromEntries(GROUPS.map(g => [g.key, 0])) as Record<GroupKey, number>;
 
-// Series por grupo muscular (el principal de cada ejercicio, como el Resumen del
-// servidor), ejercicios terminados, series y minutos entre el inicio y la última serie.
+// Una serie cuenta 1 para el grupo principal del ejercicio y 0,5 para cada secundario
+// (un press de banca también carga hombros y brazos, pero menos). Solo sirve para pintar
+// la intensidad del mapa; el número de «series» de la imagen no se pondera.
+export const SECONDARY_WEIGHT = 0.5;
+
+// Series por grupo muscular, ejercicios terminados, series y minutos entre el inicio y la última serie.
+// Ejercicios sin grupo (o con uno que el mapa no dibuja, como cardio) se omiten sin romper.
 export function buildShareData(name: string, items: Item[], startedAt?: string | null): ShareData {
   const groups = emptyGroups();
   let sets = 0;
@@ -43,6 +48,11 @@ export function buildShareData(name: string, items: Item[], startedAt?: string |
     const group = item.exercise.muscleGroup as GroupKey | undefined;
     if (group && group in groups) {
       groups[group] += item.logs.length;
+    }
+    for (const secondary of new Set(item.exercise.secondaryMuscleGroups ?? [])) {
+      if (secondary !== group && secondary in groups) {
+        groups[secondary as GroupKey] += item.logs.length * SECONDARY_WEIGHT;
+      }
     }
     sets += Math.min(item.logs.length, item.targetSets);
     if (item.logs.length >= item.targetSets) {

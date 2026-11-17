@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Platform, ScrollView, Share, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { PixelRatio, Platform, ScrollView, Share, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Svg, { Defs, Pattern, Rect } from 'react-native-svg';
@@ -51,6 +51,9 @@ export function ShareSessionScreen({ route, navigation }: Props) {
   const transparent = format === 'sticker' || format === 'bare';
   // Los sin fondo se exportan al doble para que el sticker no salga borroso.
   const exportScale = transparent ? 2 : 1;
+  // toDataURL mide en puntos y multiplica por la densidad de pantalla: se divide para que el PNG salga justo en píxeles (1080 de ancho).
+  const exportW = (spec.width * exportScale) / PixelRatio.get();
+  const exportH = (spec.height * exportScale) / PixelRatio.get();
 
   const handleShare = () => {
     if (busy) {
@@ -72,7 +75,6 @@ export function ShareSessionScreen({ route, navigation }: Props) {
           setBusy(false);
         }
       },
-      { width: spec.width * exportScale, height: spec.height * exportScale },
     );
   };
 
@@ -91,8 +93,13 @@ export function ShareSessionScreen({ route, navigation }: Props) {
         <View style={[styles.stage, { height: boxH + 24 }]}>
           <View style={[styles.preview, { width: previewW, height: previewH }]} accessible accessibilityRole="image" accessibilityLabel={shareAltText(data)}>
             {transparent && <Checker />}
-            <ShareImage ref={svgRef} data={data} format={format} variant={variant} width={previewW} height={previewH} />
+            <ShareImage data={data} format={format} variant={variant} width={previewW} height={previewH} />
           </View>
+        </View>
+
+        {/* Copia a tamaño de exportación, fuera de pantalla: toDataURL exporta el tamaño del propio dibujo. */}
+        <View pointerEvents="none" style={[styles.offscreen, { width: exportW, height: exportH }]} importantForAccessibility="no-hide-descendants" accessibilityElementsHidden>
+          <ShareImage ref={svgRef} data={data} format={format} variant={variant} width={exportW} height={exportH} />
         </View>
 
         <View style={styles.chips}>
@@ -150,6 +157,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
   title: { fontSize: 26, fontWeight: '800', color: colors.ink },
   stage: { alignItems: 'center', justifyContent: 'center' },
+  offscreen: { position: 'absolute', left: -20000, top: 0 },
   preview: { borderRadius: 14, overflow: 'hidden' },
   chips: { flexDirection: 'row', gap: 8, marginTop: 8 },
   chip: { paddingVertical: 11, paddingHorizontal: 13, borderRadius: 22, backgroundColor: colors.bg, borderWidth: 2, borderColor: 'transparent' },

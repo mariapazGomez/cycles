@@ -28,6 +28,29 @@ describe('buildShareData', () => {
     expect(data.minutes).toBe(50);
   });
 
+  it('los grupos secundarios cuentan la mitad y no se repiten con el principal', () => {
+    const bench = item('chest', 2, ['2026-11-16T10:05:00Z', '2026-11-16T10:10:00Z']);
+    (bench.exercise as Exercise).secondaryMuscleGroups = ['shoulders', 'arms', 'chest', 'cardio'] as Exercise['secondaryMuscleGroups'];
+    const data = buildShareData('Empuje', [bench], '2026-11-16T10:00:00Z');
+    expect(data.groups.chest).toBe(2);
+    expect(data.groups.shoulders).toBe(1);
+    expect(data.groups.arms).toBe(1);
+    expect(data.sets).toBe(2);
+  });
+
+  it('sin series registradas no pinta nada y no falla', () => {
+    const data = buildShareData('Vacía', [item('legs', 3, [])], '2026-11-16T10:00:00Z');
+    expect(Object.values(data.groups).every(v => v === 0)).toBe(true);
+    expect(data.exercises).toBe(0);
+    expect(data.minutes).toBeNull();
+  });
+
+  it('un ejercicio sin grupo se omite', () => {
+    const data = buildShareData('X', [item(undefined, 1, ['2026-11-16T10:05:00Z'])], '2026-11-16T10:00:00Z');
+    expect(Object.values(data.groups).every(v => v === 0)).toBe(true);
+    expect(data.sets).toBe(1);
+  });
+
   it('sin hora de inicio no inventa minutos', () => {
     expect(buildShareData('X', [item('legs', 1, ['2026-11-16T10:05:00Z'])], null).minutes).toBeNull();
   });
