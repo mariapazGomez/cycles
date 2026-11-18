@@ -8,7 +8,7 @@ updated: 2026-11-17
 
 # Landing: la causa de Cycles en los primeros segundos (CYC-292)
 
-> Contrastado con la landing en producción (getcycles.app, 2026-11-17) y con `origin/main`. Estado: **aprobada el 2026-11-17: opción B con el texto T2 en la portada** (el titular de la sección «Por qué lo hacemos» queda como T1 propuesto, por confirmar al desarrollar). Pendiente de desarrollo. Sin cambios de código. Maqueta en [`propuestas.html`](propuestas.html); capturas en `capturas/` (escritorio 1440 × 900 y móvil 390 × 844, con la línea roja del borde de la primera pantalla).
+> Contrastado con la landing en producción (getcycles.app, 2026-11-17) y con `origin/main`. Estado: **aprobada el 2026-11-17: opción B con el texto T2 en la portada** (el titular de la sección «Por qué lo hacemos» queda como T1 propuesto, por confirmar al desarrollar). Desarrollada en CYC-293 (pendiente de confirmar tres textos). Sin cambios de código. Maqueta en [`propuestas.html`](propuestas.html); capturas en `capturas/` (escritorio 1440 × 900 y móvil 390 × 844, con la línea roja del borde de la primera pantalla).
 
 ## Qué se decidió (comentarios de la usuaria, 17-11)
 

@@ -45,7 +45,7 @@ Cierre: **No cambia cómo entrenas. Tú sigues diseñando el plan.**
 
 ## 1c. Nuestra causa (aprobada el 2026-11-17, CYC-292)
 
-> **Aprobada por la usuaria, sin aplicar en `apps/web`.** Opción **B** de [`docs/diseno/landing-vision-global/`](../diseno/landing-vision-global/README.md), con el texto **T2** en la portada. Reemplaza la propuesta de «Por qué lo hacemos» de CYC-266 (más abajo) en lo que toca a la causa; la frase-eje pasa a cerrar la sección.
+> **Aprobada por la usuaria y aplicada en `apps/web` (CYC-293).** Quedan **por confirmar** tres textos: el titular de la sección larga (T1), «equipos grandes» y «llevar su trabajo más lejos». Opción **B** de [`docs/diseno/landing-vision-global/`](../diseno/landing-vision-global/README.md), con el texto **T2** en la portada. Reemplaza la propuesta de «Por qué lo hacemos» de CYC-266 (más abajo) en lo que toca a la causa; la frase-eje pasa a cerrar la sección.
 
 **Decisión:** la causa se ve **en los primeros segundos**, sin competir con el título. El título («Planifica el ciclo. Recibe el feedback. Ajusta el siguiente.») y el botón principal no cambian.
 
