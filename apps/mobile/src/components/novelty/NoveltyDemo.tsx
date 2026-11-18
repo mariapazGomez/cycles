@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { BLOCK_TYPE_COLOR, type NoveltyDemoId, type NoveltySlide } from '@cycles/shared';
 import { Pearl } from '../pearl/Pearl';
+import { ShareImage } from '../share/ShareImage';
+import type { ShareData, ShareFormat } from '../../utils/shareSession';
 import { Icon } from '../Icon';
 import { colors } from '../../theme/colors';
 import { useReduceMotion } from '../../hooks/useReduceMotion';
@@ -261,12 +263,118 @@ function WeeklyFiguresDemo() {
   );
 }
 
+// Datos de ejemplo fijos (5 ejercicios, 14 series, 52 min), nada del atleta real.
+const DEMO_SHARE: ShareData = { name: 'Piernas', exercises: 5, sets: 14, minutes: 52, groups: { legs: 9, glutes: 4, core: 1, back: 0, chest: 0, shoulders: 0, arms: 0 } };
+
+// La imagen real de la sesión, en miniatura (la misma que se comparte).
+function MiniShare({ format, variant = 0, w, h }: { format: ShareFormat; variant?: 0 | 1; w: number; h: number }) {
+  return <ShareImage data={DEMO_SHARE} format={format} variant={variant} width={w} height={h} />;
+}
+
+const SHARE_ROWS = ['Ejercicios', 'Series', 'Duración'];
+const SHARE_VALUES = ['5', '14', '52 min'];
+
+// 6. Hoy con el botón «Compartir»: se toca y aparece la imagen de la sesión (resultado final).
+function ShareButtonDemo() {
+  const t = useTimeline();
+  const todayOn = range(t, [[0, 1], [0.4, 1], [0.46, 0], [0.9, 0], [0.98, 1], [1, 1]]);
+  const press = pulse(t, 0.2, 0.26, 0.36, 0.42);
+  const imageOn = range(t, [[0, 0], [0.4, 0], [0.5, 1], [0.9, 1], [0.98, 0], [1, 0]]);
+  return (
+    <View style={styles.shareStage}>
+      <Layer style={styles.overlay} opacity={todayOn}>
+        <View style={styles.weekCard}>
+          <Text style={styles.headText}>Terminaste todos los ejercicios</Text>
+          <View style={styles.shareBtn}>
+            <Layer style={styles.sharePress} opacity={press} testID="share-press" />
+            <Icon name="share" size={16} color={colors.ink} />
+            <Text style={styles.shareBtnText}>Compartir</Text>
+          </View>
+        </View>
+      </Layer>
+      <Layer style={styles.overlay} opacity={imageOn} testID="share-image">
+        <MiniShare format="post" w={96} h={120} />
+      </Layer>
+    </View>
+  );
+}
+
+const SHARE_FORMAT_NAMES = ['Post', 'Historia', 'Sticker', 'Sin fondo'];
+const CHECKER = Array.from({ length: 20 }, (_, i) => i);
+
+// 7. Los cuatro formatos: la vista previa cambia de forma; en los dos últimos hay cuadros de transparencia.
+function ShareFormatsDemo() {
+  const t = useTimeline();
+  const on = [
+    range(t, [[0, 1], [0.24, 1], [0.28, 0], [0.9, 0], [0.98, 1], [1, 1]]),
+    pulse(t, 0.24, 0.28, 0.42, 0.46),
+    pulse(t, 0.42, 0.46, 0.58, 0.62),
+    range(t, [[0, 0], [0.58, 0], [0.62, 1], [0.9, 1], [0.98, 0], [1, 0]]),
+  ];
+  const sizes: Array<[number, number]> = [[92, 115], [66, 118], [150, 81], [150, 81]];
+  const formats: ShareFormat[] = ['post', 'story', 'sticker', 'bare'];
+  return (
+    <View style={styles.formatsCard}>
+      <View style={styles.previewBox}>
+        {on.map((o, i) => (
+          <Layer key={SHARE_FORMAT_NAMES[i]} style={styles.overlay} opacity={o} testID={`format-${i}`}>
+            <View style={[styles.checkerBox, { width: sizes[i][0], height: sizes[i][1] }]}>
+              {i >= 2 && (
+                <View style={styles.checker}>
+                  {CHECKER.map(c => (
+                    <View key={c} style={[styles.checkerCell, ((c % 5) + Math.floor(c / 5)) % 2 === 0 && styles.checkerCellAlt]} />
+                  ))}
+                </View>
+              )}
+              <MiniShare format={formats[i]} variant={i === 1 || i === 2 ? 1 : 0} w={sizes[i][0]} h={sizes[i][1]} />
+            </View>
+          </Layer>
+        ))}
+      </View>
+      <View style={styles.chipsRow}>
+        {SHARE_FORMAT_NAMES.map((name, i) => (
+          <View key={name} style={styles.chipMini}>
+            <Layer style={styles.chipMiniOn} opacity={on[i]} />
+            <Text style={styles.chipMiniText}>{name}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+// 8. Solo tres cifras: el resalte pasa de una a otra; al final se juntan con «Sin pesos, esfuerzo ni notas».
+function ShareDataDemo() {
+  const t = useTimeline();
+  const on = [pulse(t, 0.02, 0.1, 0.22, 0.3), pulse(t, 0.22, 0.3, 0.4, 0.48), pulse(t, 0.4, 0.48, 0.55, 0.6)];
+  const note = range(t, [[0, 0], [0.58, 0], [0.66, 1], [0.9, 1], [0.98, 0], [1, 0]]);
+  return (
+    <View style={styles.weekCard}>
+      <View style={styles.weekFiguresList}>
+        {SHARE_ROWS.map((label, i) => (
+          <View key={label} style={styles.figureRow}>
+            <Layer style={styles.figureOn} opacity={on[i]} testID={`share-figure-${i}`} />
+            <Text style={styles.weekLabel}>{label}</Text>
+            <Text style={styles.figureValue}>{SHARE_VALUES[i]}</Text>
+          </View>
+        ))}
+      </View>
+      <Layer opacity={note} testID="share-note">
+        <Text style={styles.shareNote}>Sin pesos, esfuerzo ni notas</Text>
+      </Layer>
+    </View>
+  );
+}
+
 const DEMOS: Partial<Record<NoveltyDemoId, () => React.JSX.Element>> = {
   'athlete-blocks-group': GroupDemo,
   'athlete-blocks-fold': FoldDemo,
   'athlete-blocks-progress': ProgressDemo,
   'athlete-weekly-ring': WeeklyRingDemo,
   'athlete-weekly-figures': WeeklyFiguresDemo,
+  'athlete-share-button': ShareButtonDemo,
+  'athlete-share-formats': ShareFormatsDemo,
+  'athlete-share-data': ShareDataDemo,
 };
 
 // Escenario con su descripción para el lector de pantalla.
@@ -327,5 +435,20 @@ const styles = StyleSheet.create({
   weekFiguresList: { gap: 6 },
   figureRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', columnGap: 8, paddingHorizontal: 10, paddingVertical: 6 },
   figureOn: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 12, borderWidth: 3, borderColor: colors.brand, backgroundColor: colors.bg },
+  shareStage: { height: 124, justifyContent: 'center' },
+  shareBtn: { minHeight: 40, borderRadius: 999, borderWidth: 2, borderColor: colors.grayBorder, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, overflow: 'hidden' },
+  sharePress: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: colors.blueTint },
+  shareBtnText: { fontSize: 14, fontWeight: '700', color: colors.ink },
+  formatsCard: { gap: 10 },
+  previewBox: { height: 120, alignItems: 'center', justifyContent: 'center' },
+  checkerBox: { borderRadius: 10, overflow: 'hidden' },
+  checker: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, flexDirection: 'row', flexWrap: 'wrap' },
+  checkerCell: { width: '20%', height: '25%', backgroundColor: '#aeb6c1' },
+  checkerCellAlt: { backgroundColor: '#c9cfd8' },
+  chipsRow: { flexDirection: 'row', gap: 6, justifyContent: 'center', flexWrap: 'wrap' },
+  chipMini: { borderRadius: 999, backgroundColor: colors.bg, paddingHorizontal: 10, paddingVertical: 6, overflow: 'hidden' },
+  chipMiniOn: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderWidth: 2, borderColor: colors.blue, borderRadius: 999, backgroundColor: colors.blueTint },
+  chipMiniText: { fontSize: 12, fontWeight: '700', color: colors.ink },
+  shareNote: { fontSize: 13, fontWeight: '600', color: colors.inkSecondary, textAlign: 'center' },
   figureValue: { fontSize: 16, fontWeight: '800', color: colors.ink },
 });

@@ -42,7 +42,7 @@ const RESULT_OPTIONS: Array<{ value: SessionResult; title: string; hint: string 
 ];
 
 export function SessionFeedbackScreen({ route, navigation }: Props) {
-  const { sessionId, doneSets, plannedSets, doneExercises, totalExercises } = route.params;
+  const { sessionId, doneSets, plannedSets, doneExercises, totalExercises, share } = route.params;
   const insets = useSafeAreaInsets();
   const [result, setResult] = useState<SessionResult>(() => deduceResult(doneSets, plannedSets));
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -119,7 +119,12 @@ export function SessionFeedbackScreen({ route, navigation }: Props) {
   };
 
   if (firstClosing) {
-    return <FirstSessionClosing onDone={() => navigation.goBack()} />;
+    return (
+      <FirstSessionClosing
+        onDone={() => navigation.goBack()}
+        onShare={share ? () => navigation.replace('ShareSession', share) : undefined}
+      />
+    );
   }
 
   return (

@@ -8,7 +8,7 @@ let mockReduce = false;
 jest.mock('../src/hooks/useReduceMotion', () => ({ useReduceMotion: () => mockReduce }));
 
 const slideOf = (demo: string) => NOVELTIES.flatMap(n => n.slides).find(s => s.demo === demo)!;
-const DEMOS = ['athlete-blocks-group', 'athlete-blocks-fold', 'athlete-blocks-progress', 'athlete-weekly-ring', 'athlete-weekly-figures'];
+const DEMOS = ['athlete-blocks-group', 'athlete-blocks-fold', 'athlete-blocks-progress', 'athlete-weekly-ring', 'athlete-weekly-figures', 'athlete-share-button', 'athlete-share-formats', 'athlete-share-data'];
 
 type Json = ReactTestRenderer.ReactTestRendererJSON;
 function opacityOf(tree: Json | Json[] | null, id: string): number | undefined {
@@ -92,5 +92,17 @@ describe('demostraciones: movimiento fluido', () => {
     expect(opacityOf(draw('athlete-blocks-progress').toJSON(), 'progress-0')).toBe(0);
     const figures = draw('athlete-weekly-figures').toJSON();
     [0, 1, 2].forEach(i => expect(opacityOf(figures, `figure-${i}`)).toBe(0));
+  });
+
+  test('con «reducir movimiento» compartir queda en su resultado final: la imagen, sin botón ni resalte', () => {
+    mockReduce = true;
+    const button = draw('athlete-share-button').toJSON();
+    expect(opacityOf(button, 'share-image')).toBe(1);
+    const formats = draw('athlete-share-formats').toJSON();
+    expect(opacityOf(formats, 'format-3')).toBe(1);
+    [0, 1, 2].forEach(i => expect(opacityOf(formats, `format-${i}`)).toBe(0));
+    const data = draw('athlete-share-data').toJSON();
+    expect(opacityOf(data, 'share-note')).toBe(1);
+    [0, 1, 2].forEach(i => expect(opacityOf(data, `share-figure-${i}`)).toBe(0));
   });
 });

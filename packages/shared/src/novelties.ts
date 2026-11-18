@@ -21,7 +21,11 @@ export type NoveltyDemoId =
   | "athlete-blocks-progress"
   // App del atleta: la tarjeta «Esta semana» de Hoy.
   | "athlete-weekly-ring"
-  | "athlete-weekly-figures";
+  | "athlete-weekly-figures"
+  // App del atleta: compartir la sesión como imagen.
+  | "athlete-share-button"
+  | "athlete-share-formats"
+  | "athlete-share-data";
 
 export interface NoveltySlide {
   title: string;
@@ -133,6 +137,34 @@ export const NOVELTIES: Novelty[] = [
         text: "Sesiones, tiempo entrenado y esfuerzo medio, siempre de la semana en curso. Si no registraste esfuerzo, verás «Sin dato».",
         demoLabel: "Tres cifras de la semana: sesiones, tiempo entrenado y esfuerzo medio.",
         demo: "athlete-weekly-figures",
+      },
+    ],
+  },
+  {
+    key: "athlete-share-session",
+    version: 1,
+    since: "2026-11-17",
+    platforms: ["mobile"],
+    roles: ["athlete"],
+    name: "Comparte tu sesión",
+    slides: [
+      {
+        title: "Comparte tu sesión",
+        text: "Al terminar, toca Compartir y llévate una imagen con el mapa de los músculos que trabajaste.",
+        demoLabel: "En Hoy se toca Compartir y aparece la imagen de la sesión con el mapa de músculos.",
+        demo: "athlete-share-button",
+      },
+      {
+        title: "Elige el formato de tu foto",
+        text: "Post, Historia, Sticker o Sin fondo. Los dos últimos son transparentes para pegarlos sobre tu foto.",
+        demoLabel: "Se eligen cuatro formatos: Post, Historia, Sticker y Sin fondo; la vista previa cambia de forma.",
+        demo: "athlete-share-formats",
+      },
+      {
+        title: "Solo lo esencial",
+        text: "Muestra ejercicios, series y duración. Nunca tus pesos, esfuerzo, notas ni tu nombre.",
+        demoLabel: "Tres cifras de la sesión: ejercicios, series y duración.",
+        demo: "athlete-share-data",
       },
     ],
   },

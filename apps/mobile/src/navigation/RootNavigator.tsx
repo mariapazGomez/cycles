@@ -16,6 +16,7 @@ import { BrandSplash } from '../components/BrandSplash';
 import { WelcomeCurtain } from '../components/login/WelcomeCurtain';
 import { ExerciseLogScreen } from '../screens/ExerciseLogScreen';
 import { SessionFeedbackScreen } from '../screens/SessionFeedbackScreen';
+import { ShareSessionScreen } from '../screens/ShareSessionScreen';
 import { SessionDetailScreen } from '../screens/SessionDetailScreen';
 import { NotificationsScreen } from '../screens/NotificationsScreen';
 import { AccountScreen } from '../screens/AccountScreen';
@@ -108,6 +109,11 @@ export function RootNavigator() {
                 name="SessionFeedback"
                 component={SessionFeedbackScreen}
                 options={{ title: '', presentation: 'modal' }}
+              />
+              <Stack.Screen
+                name="ShareSession"
+                component={ShareSessionScreen}
+                options={{ headerShown: false, presentation: 'modal' }}
               />
             </Stack.Navigator>
           )}

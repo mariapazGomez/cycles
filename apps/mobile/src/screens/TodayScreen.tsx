@@ -42,6 +42,7 @@ import { WeekCard } from '../components/today/WeekCard';
 import { useWeeklySummary } from '../hooks/useWeeklySummary';
 import { useTodayExtras } from '../hooks/useTodayExtras';
 import { useTourAnchor } from '../store/TourContext';
+import { buildShareData } from '../utils/shareSession';
 import { colors } from '../theme/colors';
 import { cardShadow } from '../theme/elevation';
 
@@ -179,7 +180,14 @@ export function TodayScreen({ navigation }: Props) {
       plannedSets,
       doneExercises,
       totalExercises: exercises.length,
+      share: buildShareData(data.session.name, exercises, data.session.startedAt),
     });
+  };
+  const openShare = () => {
+    if (!data) {
+      return;
+    }
+    navigation.navigate('ShareSession', buildShareData(data.session.name, exercises, data.session.startedAt));
   };
 
   if (data === undefined && !error) {
@@ -391,6 +399,10 @@ export function TodayScreen({ navigation }: Props) {
                 <Icon name="check" size={22} color={colors.okInk} />
                 <Text style={styles.doneMessageText}>Terminaste todos los ejercicios</Text>
               </View>
+              <PressableScale style={styles.shareButton} onPress={openShare} accessibilityRole="button" accessibilityLabel="Compartir tu sesión">
+                <Icon name="share" size={20} color={colors.ink} />
+                <Text style={styles.shareButtonText}>Compartir</Text>
+              </PressableScale>
             </>
           )}
 
@@ -480,6 +492,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.okBg,
     marginBottom: 14,
   },
+  shareButton: {
+    minHeight: 52,
+    borderRadius: 999,
+    backgroundColor: colors.bg,
+    borderWidth: 2,
+    borderColor: colors.grayBorder,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  shareButtonText: { fontSize: 16, fontWeight: '700', color: colors.ink },
   doneMessageText: { color: colors.okInk, fontWeight: '600', fontSize: 14 },
   emptyCard: { minHeight: 380, overflow: 'hidden', justifyContent: 'flex-end', padding: 20 },
   emptyBox: {
