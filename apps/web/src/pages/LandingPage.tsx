@@ -34,6 +34,16 @@ const ARROW = (
   </svg>
 );
 
+// Isotipo de Cycles en línea: toma el color del texto (currentColor).
+function Iso() {
+  return (
+    <svg className="lp-iso" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="20" strokeLinecap="round" aria-hidden="true">
+      <path d="M17.09 69 A38 38 0 0 1 61.74 13.86" />
+      <path d="M81.5 28.75 A38 38 0 0 1 35.77 85.23" />
+    </svg>
+  );
+}
+
 // Barra fija con el llamado a la acción, solo en móvil (la oculta el CSS en
 // escritorio). Aparece cuando el botón de la portada sale de pantalla y se
 // esconde al llegar al formulario, para no tapar los campos.
@@ -143,11 +153,11 @@ export function LandingPage() {
               <a href="#contacto" className="lp-btn lp-btn-pulse">
                 Quiero acceso anticipado {ARROW}
               </a>
-              <ol className="lp-hero-steps" aria-label="Cómo funciona">
-                <li><span className="lp-stepn">1</span>Planificas en la web</li>
-                <li><span className="lp-stepn">2</span>Tu atleta registra en la app</li>
-                <li><span className="lp-stepn">3</span>Ves qué pasó y ajustas</li>
-              </ol>
+              <aside className="lp-cause" aria-label="Nuestra causa">
+                <p className="lp-cause-k"><Iso />Nuestra causa</p>
+                <p className="lp-cause-t">Queremos poner la ciencia del deporte al alcance de cada coach.</p>
+                <a href="#por-que" className="lp-cause-a">Por qué lo hacemos ↓</a>
+              </aside>
             </div>
             <div className="lp-hero-visual">
               <ChainCanvas />
@@ -210,6 +220,37 @@ export function LandingPage() {
               </div>
             </div>
             <p className="lp-after-benefits">No cambia cómo entrenas. Tú sigues diseñando el ciclo.</p>
+          </div>
+        </section>
+
+        <section className="lp-why" id="por-que">
+          <div className="lp-wrap">
+            <p className="lp-why-k"><Iso />Por qué lo hacemos</p>
+            <h2>
+              La ciencia del deporte no debería ser <em>cosa de equipos grandes.</em>
+            </h2>
+            <div className="lp-why-cols">
+              <p>
+                Hoy, las herramientas que se apoyan en ella las usan atletas profesionales con equipos enteros detrás. El
+                coach que entrena solo con sus atletas se queda con un Excel y un chat.
+              </p>
+              <p>
+                Estamos construyendo Cycles para cerrar esa distancia: ponerla al alcance de coaches pequeños e
+                independientes, para que lleven su trabajo más lejos. Es una dirección, no una promesa: recién empezamos,
+                vamos paso a paso y el coach siempre decide.
+              </p>
+            </div>
+            <p className="lp-why-eje">
+              Que cualquier atleta que entrene en serio tenga <span>la comprensión que hoy solo tiene la élite.</span>
+            </p>
+            <div className="lp-why-acts">
+              <a href="#contacto" className="lp-btn">
+                Quiero acceso anticipado {ARROW}
+              </a>
+              <a href="#contacto" className="lp-why-link">
+                Quiero sumarme a la causa
+              </a>
+            </div>
           </div>
         </section>
 
@@ -377,7 +418,8 @@ export function LandingPage() {
               <h2>Acceso anticipado, gratis mientras lo construimos</h2>
               <p className="lp-card-lead">
                 Estamos armando Cycles junto a los primeros coaches. Déjanos tu correo y cuéntanos cómo trabajas: te
-                damos acceso y tu experiencia nos ayuda a decidir qué sigue.
+                damos acceso y tu experiencia nos ayuda a decidir qué sigue. ¿No eres coach pero quieres sumarte a la causa?
+                Cuéntanos igual.
               </p>
 
               {mutation.isSuccess ? (
@@ -404,7 +446,7 @@ export function LandingPage() {
                     />
                   </div>
                   <div className="field">
-                    <label htmlFor="contact-message">Cuéntanos quién eres y cuántos atletas llevas</label>
+                    <label htmlFor="contact-message">Cuéntanos quién eres y cómo trabajas</label>
                     <textarea
                       id="contact-message"
                       required

@@ -489,13 +489,9 @@
 @media (min-width: 1600px) { .lp-phones .lp-device { zoom: 1.4; } }
 
 /* Portada en pantallas anchas: texto más grande, imagen menos alta y tres pasos bajo el botón */
-.lp-hero-steps { list-style: none; margin: 34px 0 0; padding: 0; display: grid; gap: 12px; }
-.lp-hero-steps li { display: flex; align-items: center; gap: 12px; font-weight: 600; color: var(--ink); }
-@media (max-width: 820px) { .lp-hero-steps { display: none; } }
 @media (min-width: 1200px) {
   :where(.landing) .lp-hero h1 { font-size: clamp(3.75rem, 4vw, 4.75rem); }
   .lp-hero .lp-lead { font-size: 1.25rem; max-width: 48ch; }
-  .lp-hero-steps li { font-size: 1.0625rem; }
   .lp-ph { transform: scale(.78); }
   .lp-ov { padding-bottom: 150px; }
 }
@@ -512,7 +508,7 @@
 /* Portada completa a primera vista (≥1200 px de ancho): el título, la captura y el teléfono se
    dimensionan con la altura de la ventana para que todo el bloque quepa sin hacer scroll. */
 @media (min-width: 1200px) {
-  .lp-hero { --pb: 150px; --steps: 142px; padding-block: 16px 16px; }
+  .lp-hero { --pb: 150px; --steps: 150px; padding-block: 16px 16px; }
   .lp-hero-visual { padding-block: 16px; }
   .lp-ov { padding-top: 44px; padding-bottom: var(--pb); max-width: max(460px, calc(1.5 * (100svh - 214px - var(--pb)))); margin-inline: auto; }
   :where(.landing) .lp-hero h1 { font-size: min(clamp(3.5rem, 4vw, 4.75rem), max(2.75rem, calc((100svh - 330px - var(--steps)) / 4.2))); }
@@ -524,8 +520,41 @@
   .lp-ph { transform: scale(.62); }
 }
 @media (min-width: 1200px) and (max-height: 760px) {
-  .lp-hero { --pb: 96px; --steps: 0px; }
+  .lp-hero { --pb: 96px; }
   .lp-ph { transform: scale(.5); }
-  .lp-hero-steps { display: none; }
   .lp-hero .lp-lead { font-size: 1.125rem; margin-bottom: 22px; }
+}
+
+/* Nuestra causa (CYC-293): reemplaza los tres pasos de la portada */
+.lp-iso { width: 1em; height: 1em; flex: none; }
+.lp-cause { margin-top: 34px; display: grid; gap: 10px; max-width: 449px; }
+.lp-cause-k { display: flex; align-items: center; gap: 10px; font: 700 .85rem/1.25 var(--text); letter-spacing: .14em; text-transform: uppercase; color: var(--blue-700); margin: 0; }
+.lp-cause-k .lp-iso { font-size: 22px; color: var(--blue); }
+.lp-cause-t { margin: 0; font: 800 1.5625rem/1.1 var(--display); letter-spacing: -.005em; color: var(--ink); }
+.lp-cause-a { font-weight: 700; color: var(--blue); text-decoration: none; }
+.lp-cause-a:hover { text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 820px) { .lp-cause { margin-top: 28px; max-width: none; } .lp-cause-t { font-size: 1.375rem; } }
+
+/* Sección «Por qué lo hacemos»: fondo tinta, cierra con la frase-eje */
+.lp-why { background: var(--ink); color: #fff; padding-block: 96px 104px; scroll-margin-top: 60px; }
+.lp-why-k { display: flex; align-items: center; gap: 10px; margin: 0 0 18px; font: 700 .85rem/1.25 var(--text); letter-spacing: .14em; text-transform: uppercase; color: #9cc2ff; }
+.lp-why-k .lp-iso { font-size: 24px; }
+:where(.landing) .lp-why h2 { color: #fff; max-width: 18em; margin: 0 0 30px; font-size: clamp(2.125rem, 5vw, 3.75rem); }
+.lp-why h2 em { font-style: normal; color: #7fb0fd; }
+.lp-why-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; max-width: 1000px; }
+.lp-why p { color: #e3e8f2; font-size: 1.1875rem; line-height: 1.6; margin: 0; }
+.lp-why p.lp-why-k { color: #9cc2ff; font-size: .85rem; line-height: 1.25; }
+.lp-why p.lp-why-eje { margin-top: 44px; padding-top: 28px; border-top: 1px solid rgba(255,255,255,.18); max-width: 820px; font: 800 1.625rem/1.2 var(--display); color: #fff; }
+.lp-why-eje span { color: #7fb0fd; }
+.lp-why-acts { display: flex; align-items: center; flex-wrap: wrap; gap: 22px; margin-top: 36px; }
+.lp-why-link { color: #9cc2ff; font-weight: 700; font-size: 1.0625rem; text-decoration: none; }
+.lp-why-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 820px) {
+  .lp-why { padding-block: 56px 64px; }
+  .lp-why-cols { grid-template-columns: 1fr; gap: 16px; }
+  .lp-why p { font-size: 1.03rem; }
+  .lp-why p.lp-why-eje { font-size: 1.3125rem; margin-top: 32px; padding-top: 22px; }
+  .lp-why-acts { flex-direction: column; align-items: stretch; gap: 16px; }
+  .lp-why-acts .lp-btn { display: flex; justify-content: center; width: 100%; }
+  .lp-why-link { text-align: center; }
 }
