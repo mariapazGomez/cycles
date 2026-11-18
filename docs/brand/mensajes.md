@@ -4,7 +4,7 @@ parent: "[[brand]]"
 status: draft
 tags: [brand, mensajes, audiencias]
 created: 2026-10-02
-updated: 2026-11-10
+updated: 2026-11-17
 ---
 
 > Hijo de [[esencia]]. Mensajes para cada audiencia, en la voz de [[voz-y-tono]]. Los borradores de promesa fueron aprobados por la fundadora el 2026-10-02 ("suenan a mí"). Lo que se sabe del coach viene de la experiencia de la fundadora como atleta, **no de conversaciones con coaches**: es una hipótesis hasta validarla.
@@ -36,7 +36,9 @@ updated: 2026-11-10
 
 **Frase-eje (2026-11-10, CYC-266):** debajo de la promesa de hoy está el *por qué*: **«Que cualquier atleta que entrene en serio tenga la comprensión que hoy solo tiene la élite.»** Se usa como propósito (landing, speech en persona, biografías), nunca como título ni como promesa de funciones. El coach es quien la hace posible. Detalle en [[posicionamiento]].
 
-**Reglas:** sin «gemelo digital» ni «agentes de IA» en público; sin fechas ni «mejora el rendimiento»; la visión va como dirección («estamos construyendo hacia»); el coach siempre decide. Cómo conversar con coaches e influencers: [[conversaciones-con-coaches]].
+**Causa (2026-11-17, CYC-292, aprobada):** **«Queremos poner la ciencia del deporte al alcance de cada coach.»** La brecha es de acceso por tamaño y recursos: hoy esas herramientas las tienen atletas profesionales con equipos grandes; Cycles apunta a los coaches pequeños o independientes. Se dice siempre como dirección, nunca como lo que el producto entrega hoy. Va en la portada de la landing y se desarrolla en «Por qué lo hacemos» (ver [[landing]]).
+
+**Reglas:** sin «gemelo digital» ni «agentes de IA» en público; sin fechas ni «mejora el rendimiento»; «ciencia del deporte» solo como causa (ver arriba); la visión va como dirección («estamos construyendo hacia»); el coach siempre decide. Cómo conversar con coaches e influencers: [[conversaciones-con-coaches]].
 
 **Lo que se le promete al coach que ya trabaja bien:** no cambia cómo entrena ("Tú sigues diseñando el plan"); le suma saber qué pasó sin preguntar, a quién mirar primero, ajustar el ciclo con datos y recuperar tiempo.
 
