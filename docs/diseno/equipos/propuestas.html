@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sección Equipos (CYC-308)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--ink:#1f2228;--gray:#5c6068;--blue:#1a66dd;--brand:#3080fc;--soft:#e8effb;--bg:#f3f6fc;--line:#dde4f0;--green:#2f9e5f;--okbg:#e4f4ea;--oktx:#1d6b3f;--warn:#e0752b;--pain:#d64545;--sh:0 6px 20px rgba(48,80,160,.10)}
+*{box-sizing:border-box;margin:0}
+body{font-family:Inter,-apple-system,system-ui,sans-serif;background:#d9e0ee;color:var(--ink);padding:24px}
+.lab{font:700 13px/1 Inter;letter-spacing:.1em;text-transform:uppercase;color:#3f4757;margin:30px 0 12px}
+.row{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+.fr{display:grid;gap:8px;justify-items:start}
+.cap{font:600 13px/1.3 Inter;color:#3f4757;max-width:390px}
+/* ===== marco del teléfono ===== */
+.ph{position:relative;width:390px;height:844px;background:var(--bg);overflow:hidden;border-radius:44px;box-shadow:0 0 0 1px #c9d2e4;flex:none}
+.ph.tall{height:auto}
+.sb{height:54px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 34px 6px 34px;font:600 16px/1 Inter}
+.sb i{position:absolute;left:50%;top:10px;width:118px;height:34px;border-radius:20px;background:#000;transform:translateX(-50%)}
+.sb em{font-style:normal;letter-spacing:.1em;font-size:11px}
+.scr{padding:6px 16px 120px}
+.hd{display:flex;align-items:center;gap:10px;margin:10px 0 14px}
+.hd h1{font:700 32px/1.1 Inter;letter-spacing:-.01em;flex:1}
+.hd svg.iso{width:34px;height:34px;flex:none}
+.av{width:44px;height:44px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font:700 15px/1 Inter;flex:none}
+.bell{width:40px;height:40px;display:grid;place-items:center;flex:none}
+.bell svg{width:26px;height:26px;stroke:var(--ink);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.back{display:flex;align-items:center;gap:6px;color:var(--blue);font:600 17px/1 Inter;margin:6px 0 10px}
+.back svg{width:22px;height:22px;stroke:var(--blue);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.card{background:#fff;border-radius:22px;box-shadow:var(--sh);padding:16px 16px;margin-bottom:12px}
+.card h2{font:700 20px/1.2 Inter}
+.ch{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.ch span{font:500 14px/1 Inter;color:var(--gray)}
+.dark{background:var(--ink);color:#fff;border-radius:22px;padding:18px 18px 18px;margin-bottom:12px;position:relative;overflow:hidden}
+.dark .k{font:500 14px/1 Inter;color:#c9d0dc}
+.dark .t{font:800 28px/1.1 Inter;margin:6px 0 8px;letter-spacing:-.01em}
+.dark .n{font:800 40px/1 Inter}
+.dark .n small{font:500 15px/1 Inter;color:#c9d0dc;margin-left:8px}
+.segs{display:flex;gap:6px;margin-top:14px}
+.segs i{flex:1;height:6px;border-radius:3px;background:#3a414e}
+.segs i.on{background:var(--brand)}
+.segs i.cur{background:#fff}
+.beads{position:absolute;right:-6px;top:6px;width:150px;height:110px;opacity:.95}
+.btnw{display:flex;justify-content:space-between;align-items:center;background:#fff;color:var(--ink);border-radius:999px;padding:0 22px;height:52px;font:700 17px/1 Inter;margin-top:16px}
+.btnw svg{width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 12px;font:700 13px/1 Inter;white-space:nowrap}
+.chip.ok{background:var(--okbg);color:var(--oktx)}
+.chip.nx{background:var(--soft);color:var(--blue)}
+.chip.sk{background:#fdeede;color:#8f4410}
+.chip.pn{background:#fbe7e7;color:#9d2a2a}
+.chip.gr{background:#eceff5;color:#3f4757}
+.seg2{display:flex;background:#dce5f7;border-radius:999px;padding:5px;margin-bottom:12px}
+.seg2 b{flex:1;text-align:center;border-radius:999px;padding:13px 0;font:700 16px/1 Inter;color:var(--gray)}
+.seg2 b.on{background:var(--blue);color:#fff}
+/* ===== isla ===== */
+.isla{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);display:flex;gap:6px;background:rgba(255,255,255,.96);border-radius:999px;padding:7px 8px;box-shadow:0 8px 28px rgba(31,34,40,.18),0 0 0 1px rgba(31,34,40,.04)}
+.isla b{width:76px;height:46px;border-radius:999px;display:grid;place-items:center}
+.isla b.on{background:var(--soft)}
+.isla svg{width:26px;height:26px;fill:none;stroke:var(--gray);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.isla b.on svg{stroke:var(--blue)}
+.home{position:absolute;left:50%;bottom:9px;width:134px;height:5px;border-radius:3px;background:#1f2228;transform:translateX(-50%)}
+/* ===== matriz de la semana ===== */
+.grid{display:grid;grid-template-columns:92px repeat(7,1fr);align-items:center;row-gap:4px}
+.grid .dh{font:600 13px/1 Inter;color:var(--gray);text-align:center;padding:2px 0 8px}
+.grid .dh.hoy{color:var(--blue);font-weight:800}
+.grid .nm{font:700 14px/1.15 Inter;padding-right:6px}
+.grid .c{height:42px;display:grid;place-items:center;border-radius:12px}
+.grid .c.hoy{background:var(--soft)}
+.pe{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;position:relative}
+.pe svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.pe.done{background:var(--green)}
+.pe.pend{background:#fff;border:2.5px solid var(--green)}
+.pe.skip{background:#cfd6e3}
+.pe.skip svg{stroke:#fff}
+.pe.none{width:5px;height:5px;background:#c3cbd9}
+.pe .pdot{position:absolute;right:-5px;top:-5px;width:12px;height:12px;border-radius:50%;background:var(--pain);border:2px solid #fff}
+.leg{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:12px;font:500 13px/1 Inter;color:var(--gray)}
+.leg span{display:inline-flex;align-items:center;gap:6px}
+.leg .pe{width:16px;height:16px}
+.leg .pe svg{width:10px;height:10px}
+.leg .pe.pend{border-width:2px}
+/* ===== filas ===== */
+.rw{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid #edf0f6}
+.rw:first-of-type{border-top:0}
+.rw .av{width:40px;height:40px;font-size:14px}
+.rw .tx{flex:1;min-width:0}
+.rw .tx b{display:block;font:700 17px/1.2 Inter}
+.rw .tx span{display:block;font:400 14px/1.3 Inter;color:var(--gray);margin-top:2px}
+.bd svg.chev,.rw svg.chev{width:20px;height:20px;stroke:var(--gray);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.bd{display:flex;align-items:center;gap:12px;padding:14px 14px;background:#fff;border-radius:22px;box-shadow:var(--sh);margin-bottom:10px}
+.bd .gl{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;flex:none}
+.bd .gl svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bd .tx{flex:1}
+.bd .tx b{display:block;font:700 18px/1.2 Inter}
+.bd .tx span{font:400 14px/1.3 Inter;color:var(--gray)}
+.ex{display:flex;align-items:center;gap:12px;padding:10px 12px;background:#f7f9fd;border-radius:16px;margin:6px 0}
+.ex i{width:32px;height:32px;border-radius:50%;background:#eceff5;display:grid;place-items:center;font:700 14px/1 Inter;font-style:normal;color:var(--gray);flex:none}
+.ex .tx{flex:1}
+.ex .tx b{display:block;font:700 16px/1.2 Inter}
+.ex .tx span{font:400 13px/1.3 Inter;color:var(--gray)}
+.ex em{font:700 15px/1 Inter;font-style:normal;color:var(--gray)}
+.wk{display:flex;gap:8px;margin-bottom:12px}
+.wk b{width:48px;height:48px;border-radius:50%;background:#eceff5;display:grid;place-items:center;font:700 15px/1 Inter;color:var(--gray)}
+.wk b.on{background:var(--ink);color:#fff}
+.note{background:#f7f9fd;border-radius:16px;padding:12px 14px;margin-top:10px;font:400 15px/1.4 Inter}
+.note .more{display:inline-block;margin-top:8px;color:var(--blue);font:700 15px/1 Inter}
+.empty{display:grid;place-items:center;text-align:center;gap:14px;padding:70px 26px 0}
+.empty .ill{width:96px;height:96px;border-radius:50%;background:var(--soft);display:grid;place-items:center}
+.empty .ill svg{width:48px;height:48px;stroke:var(--blue);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.empty h2{font:800 24px/1.15 Inter}
+.empty p{font:400 16px/1.45 Inter;color:#3f4757}
+.empty .b{margin-top:8px;background:var(--blue);color:#fff;border-radius:999px;padding:0 26px;height:52px;display:inline-flex;align-items:center;font:700 17px/1 Inter}
+/* ===== novedad ===== */
+.scrim{position:absolute;inset:0;background:rgba(31,34,40,.55);display:grid;place-items:center}
+.nv{width:calc(100% - 32px);background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 10px 40px rgba(31,34,40,.3)}
+.nv .dm{background:#f3f6fc;height:170px;position:relative}
+.nv .pane{padding:16px 18px 6px;display:grid;gap:8px}
+.nv .lb{font:700 12px/1 Inter;letter-spacing:.06em;text-transform:uppercase;color:var(--blue)}
+.nv h3{font:800 22px/1.15 Inter}
+.nv p{font:400 16px/1.4 Inter}
+.nv .ft{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 14px}
+.nv .ft .sk{color:var(--blue);font:700 16px/1 Inter;padding:0 8px}
+.nv .dots{display:flex;gap:4px}
+.nv .dots i{width:8px;height:8px;border-radius:99px;background:#c9d3e6}
+.nv .dots i.on{width:22px;background:var(--blue)}
+.nv .nx{background:var(--blue);color:#fff;font:700 16px/1 Inter;border-radius:12px;padding:0 20px;height:44px;display:grid;place-items:center}
+.mini{position:absolute;left:12px;right:12px;top:12px;background:#fff;border-radius:16px;box-shadow:var(--sh);padding:8px}
+.mini .g{display:grid;grid-template-columns:54px repeat(7,1fr);align-items:center;row-gap:3px;font:700 11px/1 Inter}
+.mini .g .pe{width:15px;height:15px;margin:auto}
+.mini .g .pe svg{width:9px;height:9px}
+.mini .g .pe.pend{border-width:2px}
+.mini .g .pe.none{width:4px;height:4px}
+.mini .g .pdt{right:-4px;top:-4px;width:8px;height:8px;border-width:1.5px}
+
+/* ===== CYC-296: ejercicios por tiempo ===== */
+.web{position:relative;width:1000px;max-width:100%;background:#fff;border-radius:16px;box-shadow:0 0 0 1px #c9d2e4;padding:18px 20px 22px;flex:none}
+.web.nar{width:560px}
+.web .wt{font:800 18px/1.2 Inter;margin-bottom:10px}
+.wbk{border-radius:18px;box-shadow:0 2px 10px rgba(48,80,160,.12);overflow:hidden;margin-bottom:12px;background:#fff}
+.wbk .bh{display:flex;align-items:center;gap:10px;padding:8px 12px;min-height:46px}
+.wbk .bh i{width:14px;height:14px;border-radius:50%}
+.wbk .bh b{font:700 16px/1.2 Inter}
+.wbk .bh em{margin-left:auto;font:600 13px/1 Inter;font-style:normal;color:#3f4757}
+.wr{display:grid;grid-template-columns:18px minmax(150px,1fr) 56px 128px 76px 64px 64px 28px;gap:8px;align-items:center;padding:8px 12px;border-top:1px solid #e6ebf5;position:relative}
+.wr.h{border-top:0;padding-top:6px;padding-bottom:2px;font:600 12px/1 Inter;color:#3f4757;text-align:center}
+.wr.h span:nth-child(2){text-align:left}
+.wr .gp{color:#8d95a3;font-size:16px;text-align:center}
+.wr .nm b{display:block;font:700 15px/1.2 Inter}
+.wr .nm span{font:400 12px/1.2 Inter;color:#3f4757}
+.f{height:34px;border:1px solid #8d95a3;border-radius:10px;display:grid;place-items:center;font:500 14px/1 Inter;background:#fff}
+.f.off{background:#eceff5;border-color:#c9d2e4;color:#5c6068}
+.f.ph2{color:#5c6068}
+.uf{display:flex;height:34px;border:1px solid #8d95a3;border-radius:10px;overflow:hidden}
+.uf .v{flex:1;display:grid;place-items:center;font:500 14px/1 Inter}
+.uf .u{display:flex;align-items:center;gap:4px;padding:0 8px;background:#e8effb;border-left:1px solid #8d95a3;font:700 12px/1 Inter;color:#134fb0;white-space:nowrap}
+.uf .u svg{width:10px;height:10px;stroke:#134fb0;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.uf .u.st{background:#f3f6fc;color:#3f4757}
+.dots3{font:700 18px/1 Inter;text-align:center;color:#3f4757}
+.pop{position:absolute;z-index:5;background:#fff;border-radius:12px;box-shadow:0 6px 24px rgba(31,34,40,.22);padding:6px;width:210px}
+.pop div{padding:9px 10px;border-radius:8px;font:600 14px/1.2 Inter;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pop div.on{background:#e8effb;color:#134fb0}
+.pop div small{font:400 12px/1.2 Inter;color:#3f4757;display:block}
+.pop svg{width:16px;height:16px;stroke:#134fb0;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.tag{display:inline-block;margin-left:6px;border-radius:999px;background:#e8effb;color:#134fb0;font:700 11px/1 Inter;padding:3px 7px;vertical-align:middle}
+.wnote{margin-top:10px;font:500 13px/1.4 Inter;color:#3f4757;background:#f7f9fd;border-radius:10px;padding:10px 12px}
+.fld{display:grid;gap:6px;margin:12px 0}
+.fld>b{font:700 13px/1 Inter}
+.sg{display:flex;gap:0;border:1px solid #8d95a3;border-radius:10px;overflow:hidden;width:fit-content}
+.sg span{padding:9px 16px;font:600 14px/1 Inter;color:#3f4757;background:#fff}
+.sg span.on{background:#1a66dd;color:#fff}
+/* ---- app atleta ---- */
+.xr{display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border-radius:18px;margin-top:8px;box-shadow:0 2px 10px rgba(48,80,160,.10)}
+.xr .nd{width:34px;height:34px;border-radius:50%;background:#eceff5;display:grid;place-items:center;font:700 15px/1 Inter;color:#5c6068;flex:none}
+.xr .nd.cur{background:#e8effb;color:#1a66dd;box-shadow:0 0 0 2px #1a66dd inset}
+.xr .tx{flex:1;min-width:0}
+.xr .tx b{display:block;font:700 17px/1.2 Inter}
+.xr .tx span{font:500 14px/1.3 Inter;color:#3f4757}
+.pl{border-radius:999px;background:#eef3fc;padding:7px 11px;font:700 13px/1 Inter;color:#3f4757}
+.pl.cur{background:#e8effb;color:#1a66dd}
+.blk{background:#f3f6fc;border-radius:22px;padding:10px;margin-bottom:10px;box-shadow:0 4px 16px rgba(48,80,160,.10)}
+.blk .bh2{display:flex;align-items:center;gap:10px;min-height:46px}
+.blk .pr{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;flex:none}
+.blk .pr svg{width:19px;height:19px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.blk .bh2 .t{flex:1}
+.blk .bh2 .t b{display:block;font:800 16px/1.2 Inter}
+.blk .bh2 .t span{font:500 13px/1.2 Inter;color:#3f4757}
+.xt{font:800 28px/1.15 Inter;margin:6px 0 12px;padding:0 2px}
+.beads2{display:flex;align-items:center;gap:6px;margin-bottom:14px;font:600 14px/1 Inter}
+.beads2 i{width:12px;height:12px;border-radius:50%;background:#c3cbd9}
+.beads2 i.d{background:#3080fc}
+.beads2 i.a{width:18px;height:18px;background:#e8effb;border:2px solid #1a66dd}
+.beads2 span{margin-left:6px}
+.sc{background:#fff;border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(48,80,160,.10)}
+.sc .sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.sc .sh b{font:700 16px/1 Inter}
+.tp{background:#e8effb;color:#134fb0;border-radius:999px;padding:5px 12px;font:700 12px/1 Inter}
+.ringw{position:relative;width:236px;height:236px;margin:6px auto 12px}
+.ringw svg{width:236px;height:236px;transform:rotate(-90deg)}
+.ringw .ct{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.ringw .ct b{font:800 66px/1 Inter;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.ringw .ct span{font:600 14px/1.2 Inter;color:#3f4757;margin-top:6px}
+.bt{display:flex;align-items:center;justify-content:center;gap:8px;height:56px;border-radius:999px;font:700 17px/1 Inter;background:#1a66dd;color:#fff;box-shadow:0 6px 16px rgba(26,102,221,.30)}
+.bt svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.bt.sec{background:#fff;color:#1f2228;border:1.5px solid #8d95a3;box-shadow:none}
+.bt.sec svg{stroke:#1f2228}
+.bt.off{opacity:.45;box-shadow:none}
+.btrow{display:flex;gap:10px}
+.btrow .bt{flex:1}
+.lnk{text-align:center;color:#1a66dd;font:700 15px/1 Inter;margin-top:14px}
+.stp{display:flex;align-items:center;margin-top:6px}
+.stp i{width:56px;height:56px;border-radius:50%;background:#e8effb;color:#1a66dd;display:grid;place-items:center;font:600 28px/1 Inter;font-style:normal}
+.stp b{flex:1;text-align:center;font:800 52px/1 Inter}
+.stp b small{font:700 20px/1 Inter;color:#3f4757;margin-left:4px}
+.flab{font:600 13px/1 Inter;color:#3f4757}
+.pend{display:flex;justify-content:space-between;background:#fff;border-radius:14px;padding:12px 14px;margin-bottom:10px;font:500 13px/1 Inter;color:#3f4757;box-shadow:0 2px 10px rgba(48,80,160,.10)}
+.dn{display:flex;justify-content:space-between;align-items:center;background:#e4f4ea;border-radius:14px;padding:12px 14px;margin-bottom:10px;font:500 13px/1 Inter;color:#1d6b3f}
+.dn b{font:700 13px/1 Inter}
+.dn u{color:#1a66dd;font:600 13px/1 Inter;text-decoration:none}
+.ft{position:absolute;left:0;right:0;bottom:0;padding:10px 16px 34px;background:#eef3fc}
+.hint{font:500 13px/1.3 Inter;color:#3f4757;text-align:center;margin-bottom:8px}
+.rb{background:#1f2228;border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px;color:#fff}
+.rb .x{flex:1}
+.rb .x small{display:block;font:500 11px/1 Inter;color:#c9d0dc}
+.rb .x b{font:700 22px/1.2 Inter;font-variant-numeric:tabular-nums}
+.rb .trk{height:4px;border-radius:2px;background:#3a414e;margin-top:6px;overflow:hidden}
+.rb .trk i{display:block;height:4px;background:#3080fc}
+.rb .sk2{border:1px solid #8d95a3;border-radius:999px;padding:8px 14px;font:700 13px/1 Inter}
+.lg{font:500 14px/1.4 Inter;color:#3f4757;margin:6px 0 0 46px}
+.scr.nopad{padding-bottom:0}
+
+/* ===== CYC-305: RM y % del RM ===== */
+.wbk{overflow:visible}
+.wbk .bh{border-radius:18px 18px 0 0}
+.wh{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.wr2{display:grid;grid-template-columns:18px minmax(130px,1fr) 52px 100px 124px 104px 54px 54px 28px;gap:8px;align-items:center;padding:8px 12px;border-top:1px solid #e6ebf5;position:relative}
+.wr2.h{border-top:0;padding-top:6px;padding-bottom:2px;font:600 12px/1 Inter;color:#3f4757;text-align:center}
+.wr2.h span:nth-child(2){text-align:left}
+.wr2 .gp{color:#8d95a3;font-size:16px;text-align:center}
+.wr2 .nm b{font:700 15px/1.2 Inter}
+.pw{position:relative}
+.kgc{display:inline-flex;align-items:center;gap:4px;border-radius:999px;background:#e4f4ea;color:#1d6b3f;font:700 13px/1 Inter;padding:7px 11px;white-space:nowrap}
+.kgc.no{background:#fdeede;color:#8f4410}
+.kgc svg{width:11px;height:11px;stroke:#8f4410;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.src{font:700 11px/1 Inter;border-radius:999px;padding:4px 8px;white-space:nowrap;display:inline-block}
+.src.co{background:#e8effb;color:#134fb0}
+.src.at{background:#e4f4ea;color:#1d6b3f}
+.src.es{background:#eceff5;color:#3f4757}
+.alr{display:flex;align-items:center;gap:10px;background:#fdeede;border:1px solid #f0c9a0;color:#5b2d0a;border-radius:14px;padding:12px 14px;font:500 14px/1.4 Inter}
+.alr svg{width:20px;height:20px;stroke:#8f4410;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.alr span{flex:1}
+.alr u{color:#134fb0;font:700 14px/1 Inter;text-decoration:none;white-space:nowrap}
+.sec{font:800 16px/1 Inter;margin:18px 0 8px}
+.tbl{border:1px solid #dde4f0;border-radius:14px;overflow:hidden}
+.tr{display:grid;grid-template-columns:1fr 130px 90px 90px 110px;gap:8px;align-items:center;padding:11px 14px;border-top:1px solid #e6ebf5;font:500 14px/1.2 Inter}
+.tr:first-child{border-top:0}
+.tr.h{background:#f3f6fc;font:700 12px/1 Inter;color:#3f4757;padding:9px 14px}
+.tr b{font:700 15px/1.2 Inter}
+.tr .n{font:700 15px/1 Inter}
+.tr.h .n{font:700 12px/1 Inter}
+.tr .d{color:#3f4757}
+.tr u{color:#134fb0;font:700 14px/1 Inter;text-decoration:none;text-align:right}
+.sug{margin-top:10px;background:#e8effb;border-radius:14px;padding:12px 14px;font:500 14px/1.5 Inter;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sug u{color:#134fb0;font:700 14px/1 Inter;text-decoration:none}
+.bn{display:inline-grid;place-items:center;background:#1a66dd;color:#fff;border-radius:999px;height:34px;padding:0 16px;font:700 14px/1 Inter}
+.bn.sec{background:#fff;color:#1f2228;border:1.5px solid #8d95a3}
+.cr{display:grid;grid-template-columns:150px repeat(3,1fr);gap:8px;align-items:center;padding:7px 0;border-top:1px solid #e6ebf5;font:600 14px/1 Inter}
+.cr.h{border-top:0;font:700 12px/1 Inter;color:#3f4757;text-align:center}
+.cr b{font:700 14px/1.2 Inter}
+.cv{border-radius:10px;padding:10px 0;text-align:center;font:700 13px/1 Inter}
+.cv.ok{background:#e4f4ea;color:#1d6b3f}
+.cv.no{background:#fdeede;color:#8f4410}
+.rd{display:flex;gap:10px;align-items:flex-start;margin-top:10px;font:400 13px/1.4 Inter;color:#1f2228}
+.rd i{flex:none;width:18px;height:18px;border-radius:50%;border:2px solid #8d95a3;background:#fff;margin-top:1px}
+.rd i.on{border-color:#1a66dd;background:radial-gradient(#1a66dd 0 45%,#fff 50%)}
+.rd b{display:block;font:700 14px/1.3 Inter}
+.msg{background:#e8effb;border-radius:16px;padding:14px}
+.msg b{font:800 17px/1.25 Inter}
+.msg p{font:400 15px/1.45 Inter;margin:6px 0 12px;color:#1f2228}
+.sheet{background:#fff;border-radius:28px 28px 0 0;padding:10px 18px 34px;width:100%}
+.grab{display:block;width:40px;height:5px;border-radius:3px;background:#c9d2e4;margin:0 auto 14px}
+.nvbox{background:#fff;border-radius:16px;padding:12px 16px;text-align:center;box-shadow:var(--sh)}
+.nvbox b{display:block;font:800 30px/1 Inter}
+.nvbox small{font:500 13px/1.4 Inter;color:#3f4757}
+.nvbox.on{background:#1a66dd}
+.nvbox.on b,.nvbox.on small{color:#fff}
+.pop div.dis{opacity:.6}
+.pop div.dis small{color:#8f4410;opacity:1}
+.pop div.act{color:#134fb0;font-weight:700;border-top:1px solid #e6ebf5;margin-top:4px;border-radius:0 0 8px 8px}
+.bn.off{opacity:.45}
+.rn{font:500 13px/1.35 Inter;color:#3f4757;margin:0 0 12px}
+.cbx{display:grid;place-items:center;width:20px;height:20px;border-radius:6px;border:2px solid #8d95a3;background:#fff;flex:none}
+.cbx.on{background:#1a66dd;border-color:#1a66dd}
+.cbx svg{width:13px;height:13px;stroke:#fff;fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+.cr2{display:grid;grid-template-columns:28px 140px repeat(3,1fr) 90px;gap:8px;align-items:center;padding:7px 0;border-top:1px solid #e6ebf5;font:600 14px/1 Inter}
+.cr2.h{border-top:0;font:700 12px/1 Inter;color:#3f4757;text-align:center}
+.cr2.h span:nth-child(2){text-align:left}
+.cr2 b{font:700 14px/1.2 Inter}
+.stt{font:700 12px/1 Inter;border-radius:999px;padding:6px 8px;text-align:center}
+.stt.ok{background:#e4f4ea;color:#1d6b3f}
+.stt.no{background:#fdeede;color:#8f4410}
+.ntf{display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-top:1px solid #e6ebf5}
+.ntf:first-of-type{border-top:0}
+.ntf .dot{width:10px;height:10px;border-radius:50%;background:#1a66dd;margin-top:6px;flex:none}
+.ntf b{font:700 15px/1.3 Inter;display:block}
+.ntf p{font:400 14px/1.4 Inter;color:#3f4757;margin:4px 0 8px}
+.ntf u{color:#134fb0;font:700 14px/1 Inter;text-decoration:none}
+.calc{background:#f3f6fc;border-radius:14px;padding:14px 16px}
+.calc>b{font:800 14px/1 Inter;display:block;margin-bottom:8px}
+.calc .fm{font:700 18px/1.3 Inter;color:#134fb0;margin-bottom:6px}
+.calc .st{font:500 15px/1.4 Inter}
+.rules{margin:0;padding-left:20px;font:400 14px/1.5 Inter;color:#3f4757}
+
+/* ===== CYC-308: Equipos ===== */
+.nav{display:flex;align-items:center;gap:6px;border-bottom:1px solid #e6ebf5;margin:-18px -20px 16px;padding:12px 20px}
+.nav b{font:800 16px/1 Inter;color:#1a66dd;margin-right:14px}
+.nav span{font:600 14px/1 Inter;color:#3f4757;padding:8px 12px;border-radius:10px}
+.nav span.on{background:#e8effb;color:#134fb0}
+.ph1{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.ph1 h2{font:800 26px/1.1 Inter}
+.ph1 .bn{margin-left:auto}
+.tg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.tc{border-radius:16px;box-shadow:0 0 0 1px #dde4f0;padding:14px;display:grid;gap:12px}
+.tc .t{display:flex;align-items:center;gap:10px}
+.tc .t i{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:#fff;font:800 15px/1 Inter;font-style:normal}
+.tc .t b{font:800 16px/1.2 Inter}
+.tc .t em{margin-left:auto;font:700 13px/1 Inter;font-style:normal;color:#3f4757}
+.stk{display:flex}
+.stk .av{width:30px;height:30px;font-size:11px;margin-left:-4px;box-shadow:0 0 0 2px #fff}
+.stk .av:first-child{margin-left:0}
+.stk .more{width:30px;height:30px;border-radius:50%;background:#eceff5;color:#3f4757;font:700 11px/1 Inter;display:grid;place-items:center;margin-left:-8px;box-shadow:0 0 0 2px #fff}
+.emp{text-align:center;padding:46px 20px 40px;border-radius:16px;background:#f7f9fd}
+.emp b{display:block;font:800 22px/1.2 Inter;margin-bottom:8px}
+.emp p{font:400 15px/1.45 Inter;color:#3f4757;max-width:420px;margin:0 auto 18px}
+.emp .ico{width:64px;height:64px;border-radius:20px;background:#e8effb;display:grid;place-items:center;margin:0 auto 16px}
+.emp .ico svg{width:30px;height:30px;stroke:#1a66dd;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.pk{border:1px solid #dde4f0;border-radius:14px;overflow:hidden;margin-top:6px}
+.pk .r{display:grid;grid-template-columns:28px 36px 1fr auto;gap:10px;align-items:center;padding:9px 12px;border-top:1px solid #e6ebf5;font:600 14px/1.2 Inter}
+.pk .r:first-child{border-top:0}
+.pk .r .av{width:32px;height:32px;font-size:11px}
+.pk .r.sel{background:#f3f6fc}
+.mt{display:grid;grid-template-columns:36px 1fr 150px 130px 90px;gap:10px;align-items:center;padding:11px 14px;border-top:1px solid #e6ebf5;font:500 14px/1.2 Inter}
+.mt.h{border-top:0;background:#f3f6fc;font:700 12px/1 Inter;color:#3f4757;padding:9px 14px}
+.mt .av{width:32px;height:32px;font-size:11px}
+.mt b{font:700 15px/1.2 Inter}
+.mt u{color:#9d2a2a;font:700 14px/1 Inter;text-decoration:none;text-align:right}
+.srch{display:flex;align-items:center;height:40px;border-radius:10px;border:1.5px solid #8d95a3;padding:0 12px;font:500 14px/1 Inter;color:#8d95a3;margin-top:6px}
+.cnt{font:700 13px/1 Inter;color:#134fb0;margin:10px 0 2px}
+.dd{position:absolute;z-index:5;background:#fff;border-radius:12px;box-shadow:0 6px 24px rgba(31,34,40,.22);padding:6px;width:260px}
+.dd div{padding:10px 12px;border-radius:8px;font:600 14px/1.2 Inter;display:flex;align-items:center;gap:8px}
+.dd div.on{background:#e8effb;color:#134fb0}
+.dd div.dg{color:#9d2a2a}
+.sm{display:flex;gap:8px;align-items:center}
+.acard{border-radius:16px;box-shadow:0 0 0 1px #dde4f0;padding:14px;display:grid;gap:8px}
+.acard .t{display:flex;align-items:center;gap:10px}
+.acard .t b{font:800 16px/1.2 Inter}
+
+.bn.sec{margin:0}
+.ph1 .bn,.ph1 .bn.sec{margin-top:0;margin-bottom:0}
+
+</style>
+</head>
+<body>
+<div id="out"></div>
+<script>
+const I={
+ cal:'<path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M4 10h16M8 3v4M16 3v4"/>',
+ dumb:'<path d="M6 8v8M3 10v4M18 8v8M21 10v4M6 12h12"/>',
+ chat:'<path d="M4 5h16v11H9l-5 4z"/>',
+ bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 21h4"/>',
+ left:'<path d="m15 6-6 6 6 6"/>',
+ check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+ fire:'<path d="M12 3c1 3.5 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 2.5 1.5 2.5C11 8 11 5.5 12 3z"/>',
+ play:'<path d="M8 5v14l11-7z"/>',
+ pause:'<path d="M9 5v14M15 5v14"/>',
+ chev:'<path d="m6 9 6 6 6-6"/>',
+ cls:'<path d="M6 6l12 12M18 6 6 18"/>'
+};
+const ic=(n,cls='')=>`<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+const ISO=`<svg class="iso" viewBox="0 0 100 100" fill="none" stroke="#3080fc" stroke-width="20" stroke-linecap="round"><path d="M17.09 69 A38 38 0 0 1 61.74 13.86"/><path d="M81.5 28.75 A38 38 0 0 1 35.77 85.23"/></svg>`;
+const bell=`<div class="bell">${ic('bell')}</div>`;
+function phone(body,{tabs=null,active=0,time='9:41',over=''}={}){
+  const isla=tabs?`<div class="isla">${tabs.map((t,i)=>`<b class="${i===active?'on':''}" aria-label="${t[1]}">${ic(t[0])}</b>`).join('')}</div><div class="home"></div>`:'';
+  return `<div class="ph"><div class="sb"><span>${time}</span><i></i><span><em>•••• ◖◗</em></span></div>${body}${isla}${over}</div>`;
+}
+const TABS=[['cal','Calendario'],['dumb','Inicio'],['chat','Asistente']];
+const back=(t)=>`<div class="back">${ic('left')}${t}</div>`;
+
+const chk=ic('check');
+const inp=(t,w,ph)=>`<div class="f ${ph?'ph2':''}" style="justify-content:start;padding:0 12px;${w?`width:${w}`:''}">${t}</div>`;
+const AVb=(t,c)=>`<div class="av" ${c?`style="background:${c}"`:''}>${t}</div>`;
+const NAV=(on)=>`<div class="nav"><b>Cycles</b>${['Inicio','Atletas','Equipos','Biblioteca','Ejercicios'].map(n=>`<span class="${n===on?'on':''}">${n}</span>`).join('')}</div>`;
+const ppl=[['VS','Valentina Soto'],['CR','Camila Rojas'],['JP','Josefa Pino'],['MV','Matías Vera'],['AD','Antonia Díaz'],['FG','Fernanda Gil'],['IM','Isidora Mena']];
+const stack=(n,total)=>`<div class="stk">${ppl.slice(0,n).map(p=>AVb(p[0])).join('')}${total>n?`<div class="more">+${total-n}</div>`:''}</div>`;
+const tcard=(i,c,n,k,st)=>`<div class="tc"><div class="t"><i style="background:${c}">${i}</i><b>${n}</b><em>${k}</em></div>${st}</div>`;
+const cbx=(on)=>`<i class="cbx ${on?'on':''}">${on?chk:''}</i>`;
+function lista(){
+ return `<div class="web" style="min-height:420px">${NAV('Equipos')}
+ <div class="ph1"><h2>Equipos</h2><span class="bn" style="height:40px">Crear equipo</span></div>
+ <div class="tg">
+  ${tcard('V','#2f9e5f','Voleibol sub-17','12 atletas',stack(5,12))}
+  ${tcard('F','#1a66dd','Fuerza mañana','5 atletas',stack(5,5))}
+  ${tcard('S','#7a4dd8','Selección regional','8 atletas',stack(5,8))}
+ </div>
+ <div class="wnote" style="margin-top:16px">Pestaña nueva, al lado de Atletas. Cada tarjeta muestra el nombre, cuántos atletas tiene y quiénes son. Al tocarla se abre el equipo. Los atletas se siguen invitando desde la pestaña Atletas; aquí solo se agrupan los que ya existen.</div></div>`;
+}
+function vacio(){
+ return `<div class="web" style="min-height:420px">${NAV('Equipos')}
+ <div class="ph1"><h2>Equipos</h2></div>
+ <div class="emp"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5M15 15c3 0 6 1.5 6 4"/></svg></div>
+ <b>Crea tu primer equipo</b><p>Agrupa a tus atletas para darles la misma rutina a todos, cada uno con su propio peso.</p><span class="bn" style="height:44px;padding:0 24px">Crear equipo</span></div>
+ <div class="wnote" style="margin-top:14px">Estado vacío. Si aún no hay atletas, el botón se reemplaza por «Invitar atleta» y lleva a la pestaña Atletas.</div></div>`;
+}
+function crear(){
+ const r=(n,a,sel,tag)=>`<div class="r ${sel?'sel':''}">${cbx(sel)}${AVb(a)}<span>${n}</span>${tag||''}</div>`;
+ return `<div class="web nar" style="min-height:700px"><div class="wt">Crear equipo</div>
+ <div class="fld"><b>Nombre del equipo</b>${inp('Voleibol sub-17','100%')}</div>
+ <div class="fld" style="margin-bottom:0"><b>Atletas</b>
+  <div class="srch">Buscar por nombre o email</div></div>
+ <div class="cnt">3 elegidos</div>
+ <div class="pk">${r('Valentina Soto','VS',1)}${r('Camila Rojas','CR',1)}${r('Josefa Pino','JP',1)}${r('Matías Vera','MV',0)}${r('Antonia Díaz','AD',0,'<span class="chip gr">Invitación pendiente</span>')}${r('Fernanda Gil','FG',0)}</div>
+ <div class="wnote">Aparecen los atletas que ya tienes. Un atleta puede estar en más de un equipo. Si te falta alguien, invítalo desde Atletas y vuelve aquí.</div>
+ <div style="display:flex;gap:10px;margin-top:14px"><span class="bn" style="height:44px;padding:0 22px">Crear equipo</span><span class="bn sec" style="height:44px;padding:0 22px">Cancelar</span></div></div>`;
+}
+function detalle(){
+ const m=(a,n,c,s,cl)=>`<div class="mt">${AVb(a)}<b>${n}</b><span>${c}</span><span class="chip ${cl}">${s}</span><u>Quitar</u></div>`;
+ return `<div class="web" style="min-height:560px">${NAV('Equipos')}
+ <div style="font:600 14px/1 Inter;color:#3f4757;margin-bottom:10px">‹ Equipos</div>
+ <div class="ph1"><h2>Voleibol sub-17</h2><span class="chip gr">12 atletas</span><div style="margin-left:auto;display:flex;gap:10px;align-items:center"><span class="bn sec" style="height:40px">Agregar atletas</span><span class="bn" style="height:40px">Agregar rutina al equipo</span><span class="bn sec" style="height:40px;padding:0 12px">⋯</span></div></div>
+ <div class="dd" style="right:20px;top:150px"><div>Renombrar</div><div class="dg">Eliminar equipo</div></div>
+ <div style="height:96px"></div><div class="tbl"><div class="mt h"><span></span><span>Atleta</span><span>Ciclo</span><span>Estado</span><span></span></div>
+  ${m('VS','Valentina Soto','Fuerza base, sem. 2','Al día','ok')}
+  ${m('CR','Camila Rojas','Fuerza base, sem. 2','Con avisos','sk')}
+  ${m('JP','Josefa Pino','Fuerza base, sem. 2','Al día','ok')}
+  ${m('MV','Matías Vera','Sin ciclo','Sin ciclo','gr')}
+  ${m('AD','Antonia Díaz','—','Invitación pendiente','gr')}</div>
+ <div class="wnote" style="margin-top:12px">Tocar un atleta abre su ficha. «Quitar» lo saca del equipo pero sigue en tu lista de atletas, con su ciclo y sus sesiones. «Agregar rutina al equipo» abre el mismo flujo de CYC-305, ya con todo el equipo elegido.</div></div>`;
+}
+function agregarAtl(){
+ const r=(n,a,sel,tag)=>`<div class="r ${sel?'sel':''}">${cbx(sel)}${AVb(a)}<span>${n}</span>${tag||''}</div>`;
+ return `<div class="web nar" style="min-height:560px"><div class="wt">Agregar atletas a Voleibol sub-17</div>
+ <div class="srch">Buscar por nombre o email</div><div class="cnt">2 elegidos</div>
+ <div class="pk">${r('Fernanda Gil','FG',1)}${r('Isidora Mena','IM',1)}${r('Tomás León','TL',0,'<span class="chip gr">Fuerza mañana</span>')}${r('Rocío Parra','RP',0)}</div>
+ <div class="wnote">Solo aparecen los atletas que aún no están en este equipo. La etiqueta gris muestra en qué otro equipo ya está.</div>
+ <div style="display:flex;gap:10px;margin-top:14px"><span class="bn" style="height:44px;padding:0 22px">Agregar 2 atletas</span><span class="bn sec" style="height:44px;padding:0 22px">Cancelar</span></div></div>`;
+}
+function eliminar(){
+ return `<div class="web nar" style="min-height:300px"><div class="wt">Eliminar «Voleibol sub-17»</div>
+ <div class="msg" style="margin:8px 0"><p style="margin:0;font-size:15px">Los 12 atletas siguen en tu lista, con sus ciclos y sesiones. Solo se elimina el grupo.</p></div>
+ <div style="display:flex;gap:10px;margin-top:14px"><span class="bn" style="height:44px;padding:0 22px;background:#b3261e">Eliminar equipo</span><span class="bn sec" style="height:44px;padding:0 22px">Cancelar</span></div></div>`;
+}
+function usarRutina(){
+ const c=(t,ok)=>`<div class="cv ${ok?'ok':'no'}">${t}</div>`;
+ const r=(n,a,st)=>`<div class="cr2" style="grid-template-columns:140px 1fr 110px"><b>${n}</b><span style="font:500 13px/1.2 Inter;color:#3f4757">${a}</span><span class="stt ${st==='Lista'?'ok':'no'}">${st}</span></div>`;
+ return `<div class="web" style="min-height:560px"><div class="wt">Agregar «Piernas base» a la semana 2, sesión 1</div>
+ <div style="display:flex;gap:10px;align-items:center;margin-bottom:6px"><span class="chip gr">Todos mis atletas</span><span class="chip nx">Equipo: Voleibol sub-17 ${ic('chev')}</span><span class="chip gr">Elegir atletas</span></div>
+ <div class="dd" style="left:300px;top:96px"><div>Fuerza mañana · 5</div><div class="on">Voleibol sub-17 · 12</div><div>Selección regional · 8</div></div>
+ <div style="height:120px"></div>
+ <div class="cr2 h" style="grid-template-columns:140px 1fr 110px"><span>Atleta</span><span>Qué pasa</span><span>Estado</span></div>
+ ${r('Valentina Soto','Recibe la rutina con su peso','Lista')}
+ ${r('Camila Rojas','Recibe la rutina, falta su RM','Falta RM')}
+ ${r('Matías Vera','No tiene ciclo: se omite','Sin ciclo')}
+ ${r('Antonia Díaz','Invitación pendiente: se omite','Pendiente')}
+ <div class="wnote" style="margin-top:12px">Elegir un equipo marca a todos sus atletas. La rutina llega a quienes tienen ciclo; a quienes no, se les avisa aquí mismo y no se les crea nada. Lo de «Falta RM» sigue igual que en CYC-305. Si el equipo cambia después, las sesiones ya creadas no se tocan: no hay vínculo vivo con el equipo.</div></div>`;
+}
+function atletasEq(){
+ const ac=(a,n,tags)=>`<div class="acard"><div class="t">${AVb(a)}<b>${n}</b></div><div style="display:flex;gap:6px;flex-wrap:wrap">${tags}</div></div>`;
+ return `<div class="web" style="min-height:420px">${NAV('Atletas')}
+ <div class="ph1"><h2>Atletas</h2><span class="bn" style="height:40px">Invitar atleta</span></div>
+ <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"><span class="chip gr">Todos 15</span><span class="chip nx">Equipo: Voleibol sub-17 12</span><span class="chip gr">Equipo: Fuerza mañana 5</span><span class="chip gr">Con avisos 3</span></div>
+ <div class="tg">${ac('VS','Valentina Soto','<span class="chip gr">Voleibol sub-17</span>')}${ac('CR','Camila Rojas','<span class="chip gr">Voleibol sub-17</span><span class="chip gr">Fuerza mañana</span>')}${ac('JP','Josefa Pino','<span class="chip gr">Voleibol sub-17</span>')}</div>
+ <div class="wnote" style="margin-top:14px">En Atletas, cada tarjeta muestra a qué equipos pertenece y los equipos se suman a los filtros. Aquí no se crean ni se editan equipos: eso es de la pestaña Equipos.</div></div>`;
+}
+function novEq(){
+ return `<div class="web" style="min-height:520px;background:#cfd8ea;display:grid;place-items:center"><div class="nv" style="width:440px"><div class="dm" style="display:grid;place-items:center;height:190px"><div style="display:flex;align-items:center;gap:10px">${stack(5,12)}</div></div>
+ <div style="padding:18px 22px 20px"><div style="font:800 22px/1.2 Inter;margin-bottom:8px">Ahora puedes crear equipos</div><div style="font:400 15px/1.45 Inter;color:#3f4757;margin-bottom:16px">Agrupa a tus atletas y dales la misma rutina a todos, cada uno con su peso.</div><div style="display:flex;justify-content:space-between;align-items:center"><span style="display:flex;gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:#1a66dd"></i><i style="width:8px;height:8px;border-radius:50%;background:#c9d2e4"></i></span><span class="bn" style="height:40px">Siguiente</span></div></div></div></div>`;
+}
+const out=document.getElementById('out');
+const add=(id,label,items)=>out.insertAdjacentHTML('beforeend',`<div class="lab">${label}</div><div class="row" id="${id}">${items.map(([c,h])=>`<div class="fr">${h}<div class="cap">${c}</div></div>`).join('')}</div>`);
+add('r1','1 · Pestaña Equipos',[['Lista de equipos con el botón «Crear equipo»',lista()],['Estado vacío',vacio()]]);
+add('r2','2 · Crear equipo y agregar atletas ya creados',[['Crear equipo: nombre y atletas existentes',crear()],['Agregar atletas a un equipo que ya existe',agregarAtl()]]);
+add('r3','3 · Detalle del equipo',[['Detalle: atletas, agregar, quitar y menú del equipo',detalle()],['Eliminar un equipo',eliminar()]]);
+add('r4','4 · Usar el equipo',[['Agregar una rutina a todo el equipo (CYC-305)',usarRutina()],['Pestaña Atletas: a qué equipos pertenece cada uno',atletasEq()]]);
+add('r5','5 · Ficha de novedad',[['Coach, slide 1 de 2',novEq()]]);
+
+</script>
+</body>
+</html>
