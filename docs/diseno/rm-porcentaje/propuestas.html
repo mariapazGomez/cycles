@@ -305,6 +305,11 @@ body{font-family:Inter,-apple-system,system-ui,sans-serif;background:#d9e0ee;col
 .ntf b{font:700 15px/1.3 Inter;display:block}
 .ntf p{font:400 14px/1.4 Inter;color:#3f4757;margin:4px 0 8px}
 .ntf u{color:#134fb0;font:700 14px/1 Inter;text-decoration:none}
+.calc{background:#f3f6fc;border-radius:14px;padding:14px 16px}
+.calc>b{font:800 14px/1 Inter;display:block;margin-bottom:8px}
+.calc .fm{font:700 18px/1.3 Inter;color:#134fb0;margin-bottom:6px}
+.calc .st{font:500 15px/1.4 Inter}
+.rules{margin:0;padding-left:20px;font:400 14px/1.5 Inter;color:#3f4757}
 
 </style>
 </head>
@@ -393,7 +398,8 @@ function fichaRM(){
   ${mx('Sentadilla','90 kg','12 nov','Coach','co','80 kg × 5')}
   ${mx('Peso muerto','110 kg','12 nov','Coach','co','100 kg × 3')}
   ${mx('Press de banca','50 kg','5 nov','Coach','co','45 kg × 4')}
-  ${mx('Remo con barra','55 kg','29 oct','Aproximado','es','45 kg × 8')}</div>
+  ${mx('Remo con barra','57 kg','29 oct','Aproximado','es','45 kg × 8')}</div>
+ <div class="sug" style="margin-top:10px"><span><b>Remo con barra: RM aproximado de 57 kg.</b> Calculado el 29 oct con 45 kg × 8 repeticiones (Epley). Actualízalo con una evaluación.</span></div>
  <div class="sec">Sin RM</div>
  <div class="tbl">${h('Ejercicio','RM (1 rep)','','','Máximo levantado')}
   ${no('Hip thrust','60 kg × 10')}
@@ -410,11 +416,15 @@ function modalRM(){
  <div style="display:flex;gap:10px;margin-top:14px"><span class="bn off" style="height:44px;padding:0 22px">Guardar RM</span><span class="bn sec" style="height:44px;padding:0 22px">Cancelar</span></div></div>`;
 }
 function modalCalc(){
- return `<div class="web nar" style="min-height:460px"><div class="wt">Calcular un RM aproximado</div>
- <div class="wnote" style="margin:0 0 10px">Úsalo cuando aún no hay una evaluación. Tú pones los datos y tú confirmas el resultado.</div>
+ return `<div class="web nar" style="min-height:760px"><div class="wt">Calcular un RM aproximado</div>
+ <div class="wnote" style="margin:0 0 10px">Úsalo cuando aún no hay una evaluación. Tú eliges los datos y tú confirmas el resultado.</div>
  <div style="display:flex;gap:12px"><div class="fld" style="flex:1"><b>Peso levantado (kg)</b>${inp('60')}</div><div class="fld" style="flex:1"><b>Repeticiones</b>${inp('10')}</div></div>
- <div style="margin:0 0 10px"><span style="color:#134fb0;font:700 14px/1 Inter">Usar el máximo levantado (60 kg × 10)</span></div>
- <div class="msg" style="margin-bottom:10px"><b>RM aproximado: 80 kg</b><p style="margin:4px 0 0;font-size:14px">Fórmula de Epley: peso × (1 + repeticiones ÷ 30). Es una aproximación; queda marcada como «Aproximado» hasta que la actualices con una evaluación.</p></div>
+ <div style="margin:0 0 12px"><span style="color:#134fb0;font:700 14px/1 Inter">Usar el máximo levantado (60 kg × 10)</span></div>
+ <div class="calc"><b>Cómo se calcula</b>
+  <div class="fm">RM ≈ peso × (1 + repeticiones ÷ 30)</div>
+  <div class="st">Con tus datos: 60 × (1 + 10 ÷ 30) = 60 × 1,33 = <b>80 kg</b></div></div>
+ <div class="msg" style="margin:12px 0"><b style="font-size:20px">RM aproximado: 80 kg</b></div>
+ <ul class="rules"><li>Funciona mejor con series de 2 a 10 repeticiones hechas cerca de la falla.</li><li>Con más de 10 repeticiones avisa que el resultado es poco preciso.</li><li>Se redondea al 0,5 kg más cercano.</li><li>Queda marcado «Aproximado», con los datos usados, hasta que lo reemplaces con una evaluación.</li></ul>
  <div style="display:flex;gap:10px;margin-top:14px"><span class="bn" style="height:44px;padding:0 22px">Usar como RM</span><span class="bn sec" style="height:44px;padding:0 22px">Cancelar</span></div></div>`;
 }
 function modalCambio(){
@@ -502,7 +512,7 @@ const add=(id,label,items)=>out.insertAdjacentHTML('beforeend',`<div class="lab"
 add('r1','1 · Coach en la web: el RM de cada atleta (lo registra solo el coach)',[
  ['Ficha del atleta, sección RM: con RM, sin RM y el máximo levantado como referencia',fichaRM()],
  ['Agregar el RM de un ejercicio',modalRM()],
- ['Calcular un RM aproximado (lo decide el coach)',modalCalc()],
+ ['Calcular un RM aproximado: fórmula, cuenta paso a paso y límites (lo decide el coach)',modalCalc()],
  ['Actualizar un RM tras una evaluación: qué cambia en las sesiones pendientes',modalCambio()],
  ['Historial del RM de un ejercicio',historial()]]);
 add('r2','2 · Coach en la web: elegir «peso fijo» o «% del RM» por fila',[

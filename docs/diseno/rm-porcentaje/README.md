@@ -40,7 +40,7 @@ updated: 2026-11-20
 | 4 | Sesión de una persona | Al editar la sesión de un atleta, «% del RM» se desactiva donde no tiene RM, con la razón y dos salidas: «Ingresar el RM de Valentina» y «Calcular un RM aproximado». |
 | 5 | Agregar la rutina a varios atletas | Se eligen los atletas (o «Todos mis atletas») y una tabla muestra el peso de cada uno por ejercicio. A quien le falta RM se le **agrega igual**, con el % sin peso, y se avisa al coach. |
 | 6 | Aviso al coach | Un aviso por atleta: «Camila Rojas no tiene RM en Peso muerto ni en Hip thrust», con «Agregar RM» y «Calcular aproximado». Sin datos de salud. Desaparece al registrar el RM. |
-| 7 | RM aproximado | Calculadora del coach (fórmula de Epley: peso × (1 + reps ÷ 30)), con «Usar el máximo levantado» como atajo editable. El resultado queda con origen **Aproximado** hasta que una evaluación lo reemplace. |
+| 7 | RM aproximado | Calculadora del coach que muestra la fórmula y la cuenta paso a paso (ver «Cómo se calcula el RM aproximado»). El resultado queda con origen **Aproximado** y con los datos usados, hasta que una evaluación lo reemplace. |
 | 8 | Evaluaciones | Cada RM lleva su «fecha de la evaluación». «Actualizar» agrega un registro y el anterior queda en el **historial** del ejercicio. |
 | 9 | Si cambia el RM después de asignar | El peso es **vivo** mientras el ejercicio no se haya empezado: usa el RM vigente. Al registrar la primera serie se **congela** el RM usado. Lo ya registrado no cambia. |
 | 10 | Ejercicio por tiempo | La carga admite «% del RM» igual que una fila por repeticiones. RIR sigue apagado (CYC-296). |
@@ -59,6 +59,29 @@ updated: 2026-11-20
 | Aviso al coach | — | «Camila Rojas no tiene RM en…» |
 
 Las pantallas cuidan la regla de no poner líneas grises bajo los títulos: el contexto va en columnas, etiquetas o el propio dato. No hay pantallas de Resumen.
+
+## Cómo se calcula el RM aproximado
+
+Se usa solo cuando el coach no tiene una evaluación. Lo decide él, con los datos que él elige, y la pantalla le muestra la cuenta completa antes de guardar.
+
+**Fórmula (Epley):** `RM ≈ peso × (1 + repeticiones ÷ 30)`
+
+Ejemplo de la pantalla: Valentina hizo 60 kg × 10 repeticiones → 60 × (1 + 10 ÷ 30) = 60 × 1,33 = **80 kg**.
+
+Cómo cambia el resultado con el mismo peso de 60 kg:
+
+| Repeticiones | 1 | 3 | 5 | 8 | 10 |
+|---|---|---|---|---|---|
+| RM aproximado | 62 kg | 66 kg | 70 kg | 76 kg | 80 kg |
+
+Reglas:
+
+- **Qué datos entran:** un peso (kg) y unas repeticiones que escribe el coach. «Usar el máximo levantado» solo copia esos dos números al formulario; el coach puede cambiarlos y nada se guarda sin su confirmación.
+- **Rango de repeticiones:** de 1 a 15. Con 1 repetición el RM es el propio peso. Funciona mejor con series de 2 a 10 repeticiones hechas cerca de la falla; con más de 10 la pantalla avisa que el resultado es poco preciso.
+- **Redondeo del resultado:** al 0,5 kg más cercano. Es distinto del redondeo a 2,5 kg del peso que ve el atleta.
+- **Cómo queda guardado:** como un RM más, con origen **Aproximado**, y con los datos usados (peso y repeticiones). En la ficha se ve la marca «Aproximado» y una nota «Calculado el 29 oct con 45 kg × 8 repeticiones (Epley)».
+- **Cuándo deja de valer:** cuando el coach registra una evaluación del mismo ejercicio, que pasa a ser el RM vigente. El aproximado queda en el historial.
+- **Qué ve el atleta:** lo mismo que con cualquier RM («Estás levantando el 80 % de tu RM»); no ve la marca.
 
 ## Cambio de modelo (diagrama)
 
@@ -83,6 +106,8 @@ erDiagram
         enum source "coach | athlete | estimated"
         string recordedById "el coach"
         string basedOnLogId "opcional, solo estimated"
+        float estimatedFromWeightKg "AJUSTE: solo estimated, peso usado"
+        int estimatedFromReps "AJUSTE: solo estimated, repeticiones"
         datetime createdAt "desempata la misma fecha"
     }
     RoutineExercise {
@@ -117,7 +142,7 @@ erDiagram
 Reglas del modelo:
 
 - **Peso fijo o %, no ambos** (CHECK en la base y validación en la API).
-- **AJUSTE: `source = estimated` se construye.** Es siempre una decisión del coach (calculadora con sus datos); `basedOnLogId` es opcional. Nada lo crea solo.
+- **AJUSTE: `source = estimated` se construye.** Es siempre una decisión del coach (calculadora con sus datos); `basedOnLogId` es opcional. Nada lo crea solo. **AJUSTE: dos columnas nulas nuevas en `AthleteMax`, `estimatedFromWeightKg` y `estimatedFromReps`**, solo con `estimated`, para poder mostrar después con qué datos se calculó. La fórmula (Epley) vive en la pantalla, no en la base.
 - **AJUSTE: cualquier ejercicio puede tener RM y llevar %.** Sin restringir por peso corporal ni por `measure`.
 - **AJUSTE: agregar una rutina con % a un atleta sin RM no se bloquea.** Se crea la sesión con el % y sin peso (`rmStatus = missing`), y se genera un aviso `rm_missing` para el coach. Guardar un % directamente en un ejercicio de la sesión de un atleta sin RM sí se rechaza (la pantalla lo desactiva).
 - **`AthleteMax` es solo-agregar.** El RM vigente es el de `measuredAt` más reciente (empate: `createdAt`). Un error se corrige con otro registro. Cada evaluación agrega una fila: eso es el historial.
@@ -148,7 +173,7 @@ CYC-306 (PR #259) se construyó antes de estas respuestas. Lo que cambia:
 |---|---|---|
 | 1 | Agregar rutina con % a un atleta sin RM: **crear la sesión igual**, sin peso, con aviso `rm_missing` al coach (hoy devuelve 422 y no la crea) | Cambia |
 | 2 | Guardar un % directo en la sesión de un atleta sin RM: sigue rechazado | Igual |
-| 3 | `source = estimated` habilitado en `POST /athletes/:id/rm` (lo envía el coach; el cálculo de Epley lo hace la pantalla) | Cambia: estaba reservado |
+| 3 | `source = estimated` habilitado en `POST /athletes/:id/rm` (lo envía el coach; el cálculo de Epley lo hace la pantalla), más `estimatedFromWeightKg` y `estimatedFromReps` (nulos salvo con `estimated`; reps de 1 a 15) y devolverlos en el historial | Cambia: estaba reservado; 2 columnas nuevas |
 | 4 | Quitar cualquier restricción por peso corporal o por `measure` para RM y % | Cambia |
 | 5 | Agregar la misma rutina a varios atletas: una llamada por atleta o un endpoint por lote, con resultado por atleta | Nuevo |
 | 6 | Aviso `rm_missing` (nuevo tipo de notificación para el coach, sin datos de salud) y que se cierre al registrar el RM | Nuevo |
@@ -203,4 +228,4 @@ No hace falta un tour nuevo.
 
 1. **Una contradicción para confirmar:** antes dijo que «% del RM» se desactiva donde el atleta no tiene RM; ahora, que con un plan hecho con RM solo se avisa. El diseño hace las dos cosas por separado: en la **sesión de una persona** se desactiva (con salidas: ingresar o calcular), y al **agregar una rutina** se mantiene el % y se avisa. ¿Está bien así?
 2. ¿Hace falta el **equipo como grupo con nombre** (por ejemplo «Voleibol») para agregar la rutina de una vez, o basta con elegir atletas y «Todos mis atletas»?
-3. ¿El «RM aproximado» usa la fórmula de Epley (peso × (1 + reps ÷ 30)) u otra que prefiera el coach?
+3. ¿Te parece bien la fórmula de Epley y las reglas de «Cómo se calcula el RM aproximado» (1 a 15 repeticiones, aviso sobre 10, redondeo a 0,5 kg), o prefieres otra?
