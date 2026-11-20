@@ -63,7 +63,7 @@ export function RmDialog({ athleteId, athleteName, exerciseId: presetId, maxLift
     mutation.mutate({ weightKg: Math.round(weightNum * 100) / 100, measuredAt: date });
   }
 
-  function useCalculated() {
+  function applyCalculated() {
     setError(null);
     setAttempted(true);
     if (!exerciseId || !calcResult || !dateOk) return;
@@ -83,7 +83,7 @@ export function RmDialog({ athleteId, athleteName, exerciseId: presetId, maxLift
         <header>
           <h2 id="rm-dialog-title">{calc ? "Calcular un RM aproximado" : presetId && !startInCalculator ? "Actualizar RM" : "Agregar RM"}</h2>
         </header>
-        <form className="bd-modal-body" noValidate onSubmit={calc ? (e) => { e.preventDefault(); useCalculated(); } : save}>
+        <form className="bd-modal-body" noValidate onSubmit={calc ? (e) => { e.preventDefault(); applyCalculated(); } : save}>
           {error && (
             <div className="error-banner" role="alert">
               {error}
