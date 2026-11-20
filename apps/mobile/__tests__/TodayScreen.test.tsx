@@ -75,6 +75,25 @@ test('pide Hoy con el día local del atleta', async () => {
   expect(fetchTodayMock.mock.calls[0][0].sessionId).toBeUndefined();
 });
 
+test('la carga como % del RM en Hoy: el peso calculado, o «75 % de tu RM» si falta el RM (CYC-313)', async () => {
+  const exercise = (id: string, name: string, extra: object) => ({
+    id, sessionId: 'a', exerciseId: id, orderIndex: 1, targetSets: 3, targetReps: 10, logs: [], exercise: { id, name, equipment: [], isActive: true }, ...extra,
+  });
+  const current = {
+    ...session('a', 'Piernas A', 1),
+    sessionExercises: [
+      exercise('e1', 'Sentadilla', { targetSets: 4, targetReps: 6, targetPercentRm: 80, rmStatus: 'ok', resolvedWeightKg: 72.5 }),
+      exercise('e2', 'Hip thrust', { targetPercentRm: 75, rmStatus: 'missing', resolvedWeightKg: null }),
+      exercise('e3', 'Press', { targetWeight: null }),
+    ],
+  };
+  fetchTodayMock.mockResolvedValue(payload(current as unknown as ReturnType<typeof session>, []));
+  const t = texts(await mount()).join(' | ');
+  expect(t).toContain('4 × 6 · 72,5 kg');
+  expect(t).toContain('3 × 10 · 75 % de tu RM');
+  expect(t).not.toMatch(/null|undefined/);
+});
+
 test('muestra otra sesión asignada para hoy y permite hacerla', async () => {
   const first = session('a', 'Full body, día 1', 1);
   const other = session('b', 'Full body, día 2', 2);

@@ -28,6 +28,8 @@ const exercises = [
     ],
   },
   { id: 'se2', targetSets: 2, targetReps: 15, exercise: { name: 'Flexiones de brazos' }, logs: [] },
+  { id: 'se3', targetSets: 4, targetReps: 6, targetPercentRm: 80, rmStatus: 'ok', resolvedWeightKg: 72.5, exercise: { name: 'Peso muerto' }, logs: [{ id: 'l3', setNumber: 1, actualReps: 6, actualWeight: 72.5 }] },
+  { id: 'se4', targetSets: 3, targetReps: 10, targetPercentRm: 75, rmStatus: 'missing', resolvedWeightKg: null, exercise: { name: 'Hip thrust' }, logs: [{ id: 'l4', setNumber: 1, actualReps: 10, actualWeight: null }] },
 ];
 const detail = (status: string, feedback: unknown[] = []) => ({
   id: 's1', name: 'Full body, día 1', weekNumber: 1, slotNumber: 1, status,
@@ -69,6 +71,16 @@ test('permite revisar la rutina: ejercicios, metas y series registradas', async 
   expect(t).toContain('2/3');
   expect(t).toContain('8 × 60 kg');
   expect(t).toContain('Sin series registradas');
+});
+
+test('la carga como % del RM: el peso calculado, o «75 % de tu RM» si falta el RM, y nunca «null»', async () => {
+  detailMock.mockResolvedValue(detail('pending'));
+  const t = texts(await mount());
+  expect(t).toContain('4 × 6 · 72,5 kg');
+  expect(t).toContain('6 × 72,5 kg');
+  expect(t).toContain('3 × 10 · 75 % de tu RM');
+  expect(t).toContain('10 × 0 kg');
+  expect(t.join(' ')).not.toMatch(/null|undefined/);
 });
 
 test('marcar como hecha pide el esfuerzo y envía el cierre', async () => {

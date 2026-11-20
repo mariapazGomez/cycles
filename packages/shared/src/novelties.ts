@@ -205,8 +205,8 @@ export const NOVELTIES: Novelty[] = [
     key: "athlete-rm-percent",
     version: 1,
     since: "2026-11-20",
-    // La app del atleta la suma con CYC-313.
-    platforms: ["web"],
+    // Web (CYC-312) y app del atleta (CYC-313): cada una dibuja su propia demostración.
+    platforms: ["web", "mobile"],
     roles: ["athlete"],
     name: "Tu peso, calculado",
     slides: [
