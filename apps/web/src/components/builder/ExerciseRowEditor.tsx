@@ -5,6 +5,7 @@ import { isRowComplete } from "../../lib/routineStats";
 import type { DraftBlock } from "../../lib/blocksDraft";
 import type { Row } from "../../lib/routineDraft";
 import { RowMenu, type MenuItem } from "./RowMenu";
+import { LoadCell } from "./LoadCell";
 
 // Un ejercicio del constructor: series, reps, carga, descanso y RIR se editan directo en
 // la fila; la nota va bajo el nombre (se edita desde el menú ⋯).
@@ -76,10 +77,10 @@ export function ExerciseRowEditor({
         <span>Reps</span>
         <input id={`bld-reps-${row.key}`} className={`bld-f${bad(row.reps)}`} inputMode="numeric" aria-label={`Repeticiones de ${row.name}`} value={row.reps} onChange={(e) => onChange({ reps: e.target.value })} />
       </label>
-      <label className="bld-cell">
+      <div className="bld-cell">
         <span>Carga</span>
-        <input className="bld-f" inputMode="decimal" placeholder="kg" aria-label={`Carga en kg de ${row.name}`} value={row.weight} onChange={(e) => onChange({ weight: e.target.value })} />
-      </label>
+        <LoadCell row={row} bad={false} onChange={onChange} />
+      </div>
       <label className="bld-cell">
         <span>Desc.</span>
         <input className="bld-f" inputMode="numeric" placeholder="s" aria-label={`Descanso en segundos de ${row.name}`} value={row.restSeconds} onChange={(e) => onChange({ restSeconds: e.target.value })} />

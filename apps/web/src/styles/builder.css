@@ -38,7 +38,7 @@
 
 .bld-body { padding: 2px 10px 8px; }
 .bld-bnote { margin: 8px 0 4px; font-size: 0.86rem; color: var(--color-ink-secondary); }
-.bld-cols, .bld-ex { display: grid; grid-template-columns: 20px minmax(0, 1fr) 52px 52px 66px 62px 58px 32px; gap: 6px; align-items: center; }
+.bld-cols, .bld-ex { display: grid; grid-template-columns: 20px minmax(0, 1fr) 52px 52px 112px 62px 58px 32px; gap: 6px; align-items: center; }
 .bld-cols { padding: 6px 0 2px; font-size: 0.72rem; font-weight: 600; color: var(--color-gray-mid); }
 .bld-ex { padding: 8px 0; border-top: 1px solid var(--color-gray-border); }
 .bld-cols + .bld-ex { border-top: 0; }
@@ -117,3 +117,21 @@
 .bld-lock { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border-radius: var(--radius-lg); background: var(--color-ok-bg); color: var(--color-ok-ink); font-size: 0.9rem; font-weight: 600; }
 .bld-field { display: flex; flex-direction: column; gap: 4px; }
 .bld-field input, .bld-field select { width: 100%; height: 38px; padding: 0 10px; border: 1px solid var(--color-control-border); border-radius: var(--radius-md); font: inherit; background: var(--color-bg); }
+
+/* Carga: número + menú «kg / % RM» (CYC-312). */
+.bld-load { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0; align-items: center; }
+.bld-load .bld-f { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.bld-unit { height: 34px; padding: 0 8px; border: 1px solid var(--color-control-border); border-left: 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; background: var(--color-gray-light); font: inherit; font-size: 0.8rem; font-weight: 700; color: var(--color-blue); cursor: pointer; white-space: nowrap; }
+.bld-unit:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 1px; }
+.bld-load-menu { position: absolute; left: 0; top: 100%; z-index: 30; width: 230px; margin-top: 4px; padding: 4px; background: var(--color-bg); border-radius: var(--radius-lg); box-shadow: var(--shadow-e2); display: flex; flex-direction: column; }
+.bld-load-menu button { display: flex; flex-direction: column; gap: 2px; text-align: left; border: 0; background: transparent; padding: 8px 10px; border-radius: var(--radius-sm); font: inherit; cursor: pointer; color: var(--color-ink); }
+.bld-load-menu button b { font-size: 0.9rem; }
+.bld-load-menu button span { font-size: 0.8rem; color: var(--color-ink-secondary); }
+.bld-load-menu button:hover { background: var(--color-gray-light); }
+.bld-load-menu button[aria-checked="true"] { background: var(--color-blue-soft, var(--color-gray-light)); }
+.bld-load-menu button[aria-checked="true"] b { color: var(--color-blue); }
+.bld-load-menu .bld-load-off { cursor: not-allowed; }
+.bld-load-menu .bld-load-off b { color: var(--color-gray-mid); }
+.bld-load-menu .bld-load-off span { color: var(--color-warn-ink, var(--color-ink-secondary)); }
+.bld-weight { grid-column: 1 / -1; justify-self: start; margin-top: 4px; padding: 2px 8px; border-radius: var(--radius-pill); background: var(--color-ok-bg); color: var(--color-ok-ink); font-size: 0.78rem; font-weight: 700; }
+.bld-weight-off { background: var(--color-gray-light); color: var(--color-ink-secondary); }
