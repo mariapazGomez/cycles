@@ -352,7 +352,7 @@ function webB(){
   ${row2('Sentadilla',4,{v:6,u:'r'},{v:80,u:'%'},'',{desc:120,rir:2})}
   ${row2('Hip thrust',3,{v:10,u:'r'},{v:75,u:'%'},'',{desc:90,rir:2})}
  </div>
- <div class="wnote">Una rutina o un ciclo plantilla no tiene atleta: no hay RM contra el cual comprobar, así que «% del RM» se ofrece en cualquier ejercicio con carga y el peso no se muestra. La comprobación llega al asignar (siguiente pantalla) y en la sesión de cada atleta.</div></div>`;
+ <div class="wnote">Una rutina o un ciclo plantilla no tiene atleta: no hay RM contra el cual comprobar, así que «% del RM» se ofrece en cualquier ejercicio con carga y el peso no se muestra. La comprobación llega al agregar la rutina a la sesión de un atleta (pantalla siguiente).</div></div>`;
 }
 function webAT(){
  return `<div class="web" style="min-height:360px"><div class="wt">Rutina «Piernas base»</div>
@@ -398,29 +398,29 @@ function modalCambio(){
 }
 // ---------- WEB: asignar y cobertura ----------
 function asignar(){
- return `<div class="web nar" style="min-height:560px"><div class="wt">Asignar ciclo de la Biblioteca</div>
- <div class="fld"><b>Ciclo</b><div class="uf" style="width:100%"><div class="v" style="justify-content:start;padding:0 12px">Piernas 6 semanas</div><div class="u">${ic('chev')}</div></div></div>
- <div class="fld"><b>Atleta</b><div class="uf" style="width:100%"><div class="v" style="justify-content:start;padding:0 12px">Camila Rojas</div><div class="u">${ic('chev')}</div></div></div>
- <div class="fld"><b>Fecha de inicio</b><div class="f" style="justify-content:start;padding:0 12px;width:200px">24 nov 2026</div></div>
+ return `<div class="web nar" style="min-height:560px"><div class="wt">Agregar rutina a la sesión</div>
+ <div class="fld"><b>Atleta</b><div class="f" style="justify-content:start;padding:0 12px;width:100%">Camila Rojas</div></div>
+ <div class="fld"><b>Rutina</b><div class="uf" style="width:100%"><div class="v" style="justify-content:start;padding:0 12px">Piernas base</div><div class="u">${ic('chev')}</div></div></div>
+ <div class="fld"><b>Celda</b><div class="f" style="justify-content:start;padding:0 12px;width:260px">Semana 2, sesión 1</div></div>
  <div class="alr" style="display:block"><b>Camila no tiene RM en Peso muerto ni en Hip thrust.</b> Sin RM no se puede usar % del RM en esos ejercicios.
-  <div class="rd"><i class="on"></i><span><b>Ingresar su RM ahora</b> Se abre su ficha; al volver, el ciclo se asigna con %.</span></div>
-  <div class="rd"><i></i><span><b>Asignar con peso fijo en esos ejercicios</b></span></div>
+  <div class="rd"><i class="on"></i><span><b>Ingresar su RM ahora</b> Se abre su ficha; al volver, la rutina se agrega con %.</span></div>
+  <div class="rd"><i></i><span><b>Usar peso fijo en esos ejercicios</b></span></div>
   <div style="display:flex;gap:10px;margin:8px 0 0 28px"><div style="flex:1"><div class="flab">Peso muerto</div><div class="f ph2" style="margin-top:4px;justify-content:start;padding:0 10px">kg</div></div><div style="flex:1"><div class="flab">Hip thrust</div><div class="f ph2" style="margin-top:4px;justify-content:start;padding:0 10px">kg</div></div></div></div>
- <span class="bn off" style="height:46px;padding:0 24px;margin-top:12px">Asignar</span>
- <div class="wnote" style="margin-top:12px">«Asignar» se activa cuando cada ejercicio con % tiene RM o un peso fijo. La misma comprobación aparece al agregar una rutina a una celda de la sesión de un atleta.</div></div>`;
+ <span class="bn off" style="height:46px;padding:0 24px;margin-top:12px">Agregar</span>
+ <div class="wnote" style="margin-top:12px">«Agregar» se activa cuando cada ejercicio con % tiene RM o un peso fijo. Asignar el ciclo de la Biblioteca solo copia el ciclo vacío, así que ahí no hay nada que comprobar: el % llega con la rutina.</div></div>`;
 }
 function cobertura(){
  const c=(t,ok)=>`<div class="cv ${ok?'ok':'no'}">${t}</div>`;
  const r=(n,a,b,c3)=>`<div class="cr"><b>${n}</b>${a}${b}${c3}</div>`;
- return `<div class="web" style="min-height:420px"><div class="wt">Ciclo «Piernas 6 semanas». Quién tiene RM</div>
+ return `<div class="web" style="min-height:420px"><div class="wt">Rutina «Piernas base». Quién tiene RM</div>
  <div class="cr h"><span></span><span>Sentadilla 80 %</span><span>Peso muerto 70 %</span><span>Hip thrust 75 %</span></div>
  ${r('Valentina Soto',c('72,5 kg',1),c('77 kg',1),c('Sin RM',0))}
  ${r('Camila Rojas',c('65 kg',1),c('Sin RM',0),c('Sin RM',0))}
  ${r('Josefa Pino',c('80 kg',1),c('85 kg',1),c('90 kg',1))}
  ${r('Matías Vera',c('Sin RM',0),c('Sin RM',0),c('Sin RM',0))}
  ${r('Antonia Díaz',c('60 kg',1),c('70 kg',1),c('Sin RM',0))}
- <div class="alr" style="margin-top:12px">${ic('bell')}<span><b>Solo 1 de 5 atletas</b> tiene RM en los 3 ejercicios con %. A los demás no se les puede asignar con %. Tocar «Sin RM» abre su ficha.</span></div>
- <div class="wnote">Pantalla para el equipo: el mismo ciclo, atleta por atleta, con el peso que le toca. Se abre desde el ciclo en la Biblioteca, con la lista de atletas que ya existe. Es una tarjeta aparte, no bloquea el resto.</div></div>`;
+ <div class="alr" style="margin-top:12px">${ic('bell')}<span><b>Solo 1 de 5 atletas</b> tiene RM en los 3 ejercicios con %. A los demás no se les puede agregar la rutina con %. Tocar «Sin RM» abre su ficha.</span></div>
+ <div class="wnote">Pantalla para el equipo: el mismo ciclo, atleta por atleta, con el peso que le toca. Se abre desde la rutina en la Biblioteca y lista a los atletas activos del coach. Es una tarjeta aparte (CYC-307), no bloquea el resto.</div></div>`;
 }
 // ---------- WEB: atleta ----------
 function webAtleta(){
@@ -480,9 +480,9 @@ add('r2','2 · Coach en la web: elegir «peso fijo» o «% del RM» por fila',[
  ['A · Con un atleta en la vista previa: «% del RM» se desactiva donde no hay RM (recomendada)',webA()],
  ['Rutina o plantilla sin atleta: «% del RM» se ofrece y se comprueba al asignar',webB()],
  ['Ejercicio por tiempo: la carga queda en kg (convive con CYC-296)',webAT()]]);
-add('r3','3 · Coach en la web: asignar con atletas que no tienen todos los RM',[
- ['Asignar un ciclo a un atleta sin RM en algunos ejercicios: ingresar el RM o usar peso fijo',asignar()],
- ['Equipo: quién tiene RM en cada ejercicio con %',cobertura()]]);
+add('r3','3 · Coach en la web: agregar una rutina a atletas que no tienen todos los RM',[
+ ['Agregar una rutina a la sesión de un atleta sin RM en algunos ejercicios: ingresar el RM o usar peso fijo',asignar()],
+ ['Equipo: quién tiene RM en cada ejercicio de una rutina con %',cobertura()]]);
 add('r4','4 · Atleta en la app',[
  ['Hoy: el peso ya calculado',hoy()],
  ['Registro de una serie, con RM',logRM()],
