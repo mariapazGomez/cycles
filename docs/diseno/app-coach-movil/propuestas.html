@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>App móvil con vista de coach</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--ink:#1f2228;--gray:#5c6068;--blue:#1a66dd;--brand:#3080fc;--soft:#e8effb;--bg:#f3f6fc;--line:#dde4f0;--green:#2f9e5f;--okbg:#e4f4ea;--oktx:#1d6b3f;--warn:#e0752b;--pain:#d64545;--sh:0 6px 20px rgba(48,80,160,.10)}
+*{box-sizing:border-box;margin:0}
+body{font-family:Inter,-apple-system,system-ui,sans-serif;background:#d9e0ee;color:var(--ink);padding:24px}
+.lab{font:700 13px/1 Inter;letter-spacing:.1em;text-transform:uppercase;color:#3f4757;margin:30px 0 12px}
+.row{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+.fr{display:grid;gap:8px;justify-items:start}
+.cap{font:600 13px/1.3 Inter;color:#3f4757;max-width:390px}
+/* ===== marco del teléfono ===== */
+.ph{position:relative;width:390px;height:844px;background:var(--bg);overflow:hidden;border-radius:44px;box-shadow:0 0 0 1px #c9d2e4;flex:none}
+.ph.tall{height:auto}
+.sb{height:54px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 34px 6px 34px;font:600 16px/1 Inter}
+.sb i{position:absolute;left:50%;top:10px;width:118px;height:34px;border-radius:20px;background:#000;transform:translateX(-50%)}
+.sb em{font-style:normal;letter-spacing:.1em;font-size:11px}
+.scr{padding:6px 16px 120px}
+.hd{display:flex;align-items:center;gap:10px;margin:10px 0 14px}
+.hd h1{font:700 32px/1.1 Inter;letter-spacing:-.01em;flex:1}
+.hd svg.iso{width:34px;height:34px;flex:none}
+.av{width:44px;height:44px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font:700 15px/1 Inter;flex:none}
+.bell{width:40px;height:40px;display:grid;place-items:center;flex:none}
+.bell svg{width:26px;height:26px;stroke:var(--ink);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.back{display:flex;align-items:center;gap:6px;color:var(--blue);font:600 17px/1 Inter;margin:6px 0 10px}
+.back svg{width:22px;height:22px;stroke:var(--blue);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.card{background:#fff;border-radius:22px;box-shadow:var(--sh);padding:16px 16px;margin-bottom:12px}
+.card h2{font:700 20px/1.2 Inter}
+.ch{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.ch span{font:500 14px/1 Inter;color:var(--gray)}
+.dark{background:var(--ink);color:#fff;border-radius:22px;padding:18px 18px 18px;margin-bottom:12px;position:relative;overflow:hidden}
+.dark .k{font:500 14px/1 Inter;color:#c9d0dc}
+.dark .t{font:800 28px/1.1 Inter;margin:6px 0 8px;letter-spacing:-.01em}
+.dark .n{font:800 40px/1 Inter}
+.dark .n small{font:500 15px/1 Inter;color:#c9d0dc;margin-left:8px}
+.segs{display:flex;gap:6px;margin-top:14px}
+.segs i{flex:1;height:6px;border-radius:3px;background:#3a414e}
+.segs i.on{background:var(--brand)}
+.segs i.cur{background:#fff}
+.beads{position:absolute;right:-6px;top:6px;width:150px;height:110px;opacity:.95}
+.btnw{display:flex;justify-content:space-between;align-items:center;background:#fff;color:var(--ink);border-radius:999px;padding:0 22px;height:52px;font:700 17px/1 Inter;margin-top:16px}
+.btnw svg{width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 12px;font:700 13px/1 Inter;white-space:nowrap}
+.chip.ok{background:var(--okbg);color:var(--oktx)}
+.chip.nx{background:var(--soft);color:var(--blue)}
+.chip.sk{background:#fdeede;color:#8f4410}
+.chip.pn{background:#fbe7e7;color:#9d2a2a}
+.chip.gr{background:#eceff5;color:#3f4757}
+.seg2{display:flex;background:#dce5f7;border-radius:999px;padding:5px;margin-bottom:12px}
+.seg2 b{flex:1;text-align:center;border-radius:999px;padding:13px 0;font:700 16px/1 Inter;color:var(--gray)}
+.seg2 b.on{background:var(--blue);color:#fff}
+/* ===== isla ===== */
+.isla{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);display:flex;gap:6px;background:rgba(255,255,255,.96);border-radius:999px;padding:7px 8px;box-shadow:0 8px 28px rgba(31,34,40,.18),0 0 0 1px rgba(31,34,40,.04)}
+.isla b{width:76px;height:46px;border-radius:999px;display:grid;place-items:center}
+.isla b.on{background:var(--soft)}
+.isla svg{width:26px;height:26px;fill:none;stroke:var(--gray);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.isla b.on svg{stroke:var(--blue)}
+.home{position:absolute;left:50%;bottom:9px;width:134px;height:5px;border-radius:3px;background:#1f2228;transform:translateX(-50%)}
+/* ===== matriz de la semana ===== */
+.grid{display:grid;grid-template-columns:92px repeat(7,1fr);align-items:center;row-gap:4px}
+.grid .dh{font:600 13px/1 Inter;color:var(--gray);text-align:center;padding:2px 0 8px}
+.grid .dh.hoy{color:var(--blue);font-weight:800}
+.grid .nm{font:700 14px/1.15 Inter;padding-right:6px}
+.grid .c{height:42px;display:grid;place-items:center;border-radius:12px}
+.grid .c.hoy{background:var(--soft)}
+.pe{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;position:relative}
+.pe svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.pe.done{background:var(--green)}
+.pe.pend{background:#fff;border:2.5px solid var(--green)}
+.pe.skip{background:#cfd6e3}
+.pe.skip svg{stroke:#fff}
+.pe.none{width:5px;height:5px;background:#c3cbd9}
+.pe .pdot{position:absolute;right:-5px;top:-5px;width:12px;height:12px;border-radius:50%;background:var(--pain);border:2px solid #fff}
+.leg{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:12px;font:500 13px/1 Inter;color:var(--gray)}
+.leg span{display:inline-flex;align-items:center;gap:6px}
+.leg .pe{width:16px;height:16px}
+.leg .pe svg{width:10px;height:10px}
+.leg .pe.pend{border-width:2px}
+/* ===== filas ===== */
+.rw{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid #edf0f6}
+.rw:first-of-type{border-top:0}
+.rw .av{width:40px;height:40px;font-size:14px}
+.rw .tx{flex:1;min-width:0}
+.rw .tx b{display:block;font:700 17px/1.2 Inter}
+.rw .tx span{display:block;font:400 14px/1.3 Inter;color:var(--gray);margin-top:2px}
+.bd svg.chev,.rw svg.chev{width:20px;height:20px;stroke:var(--gray);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.bd{display:flex;align-items:center;gap:12px;padding:14px 14px;background:#fff;border-radius:22px;box-shadow:var(--sh);margin-bottom:10px}
+.bd .gl{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;flex:none}
+.bd .gl svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bd .tx{flex:1}
+.bd .tx b{display:block;font:700 18px/1.2 Inter}
+.bd .tx span{font:400 14px/1.3 Inter;color:var(--gray)}
+.ex{display:flex;align-items:center;gap:12px;padding:10px 12px;background:#f7f9fd;border-radius:16px;margin:6px 0}
+.ex i{width:32px;height:32px;border-radius:50%;background:#eceff5;display:grid;place-items:center;font:700 14px/1 Inter;font-style:normal;color:var(--gray);flex:none}
+.ex .tx{flex:1}
+.ex .tx b{display:block;font:700 16px/1.2 Inter}
+.ex .tx span{font:400 13px/1.3 Inter;color:var(--gray)}
+.ex em{font:700 15px/1 Inter;font-style:normal;color:var(--gray)}
+.wk{display:flex;gap:8px;margin-bottom:12px}
+.wk b{width:48px;height:48px;border-radius:50%;background:#eceff5;display:grid;place-items:center;font:700 15px/1 Inter;color:var(--gray)}
+.wk b.on{background:var(--ink);color:#fff}
+.note{background:#f7f9fd;border-radius:16px;padding:12px 14px;margin-top:10px;font:400 15px/1.4 Inter}
+.note .more{display:inline-block;margin-top:8px;color:var(--blue);font:700 15px/1 Inter}
+.empty{display:grid;place-items:center;text-align:center;gap:14px;padding:70px 26px 0}
+.empty .ill{width:96px;height:96px;border-radius:50%;background:var(--soft);display:grid;place-items:center}
+.empty .ill svg{width:48px;height:48px;stroke:var(--blue);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.empty h2{font:800 24px/1.15 Inter}
+.empty p{font:400 16px/1.45 Inter;color:#3f4757}
+.empty .b{margin-top:8px;background:var(--blue);color:#fff;border-radius:999px;padding:0 26px;height:52px;display:inline-flex;align-items:center;font:700 17px/1 Inter}
+/* ===== novedad ===== */
+.scrim{position:absolute;inset:0;background:rgba(31,34,40,.55);display:grid;place-items:center}
+.nv{width:calc(100% - 32px);background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 10px 40px rgba(31,34,40,.3)}
+.nv .dm{background:#f3f6fc;height:170px;position:relative}
+.nv .pane{padding:16px 18px 6px;display:grid;gap:8px}
+.nv .lb{font:700 12px/1 Inter;letter-spacing:.06em;text-transform:uppercase;color:var(--blue)}
+.nv h3{font:800 22px/1.15 Inter}
+.nv p{font:400 16px/1.4 Inter}
+.nv .ft{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 14px}
+.nv .ft .sk{color:var(--blue);font:700 16px/1 Inter;padding:0 8px}
+.nv .dots{display:flex;gap:4px}
+.nv .dots i{width:8px;height:8px;border-radius:99px;background:#c9d3e6}
+.nv .dots i.on{width:22px;background:var(--blue)}
+.nv .nx{background:var(--blue);color:#fff;font:700 16px/1 Inter;border-radius:12px;padding:0 20px;height:44px;display:grid;place-items:center}
+.mini{position:absolute;left:12px;right:12px;top:12px;background:#fff;border-radius:16px;box-shadow:var(--sh);padding:8px}
+.mini .g{display:grid;grid-template-columns:54px repeat(7,1fr);align-items:center;row-gap:3px;font:700 11px/1 Inter}
+.mini .g .pe{width:15px;height:15px;margin:auto}
+.mini .g .pe svg{width:9px;height:9px}
+.mini .g .pe.pend{border-width:2px}
+.mini .g .pe.none{width:4px;height:4px}
+.mini .g .pdt{right:-4px;top:-4px;width:8px;height:8px;border-width:1.5px}
+</style>
+</head>
+<body>
+<div id="out"></div>
+<script>
+const I={
+ cal:'<path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M4 10h16M8 3v4M16 3v4"/>',
+ users:'<circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.4"/><path d="M16 14.2a5 5 0 0 1 6 5.3"/>',
+ layers:'<path d="M12 3 3 8l9 5 9-5z"/><path d="m3 13 9 5 9-5"/>',
+ sun:'<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/>',
+ bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 21h4"/>',
+ chev:'<path d="m9 6 6 6-6 6"/>',
+ left:'<path d="m15 6-6 6 6 6"/>',
+ check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+ dash:'<path d="M7 12h10"/>',
+ arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+ fire:'<path d="M12 3c1 3.5 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 2.5 1.5 2.5C11 8 11 5.5 12 3z"/>',
+ bolt:'<path d="M13 3 5 14h6l-1 7 8-11h-6z"/>',
+ dumb:'<path d="M6 8v8M3 10v4M18 8v8M21 10v4M6 12h12"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+ book:'<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>'
+};
+const ic=(n,cls='')=>`<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+const ISO=`<svg class="iso" viewBox="0 0 100 100" fill="none" stroke="#3080fc" stroke-width="20" stroke-linecap="round"><path d="M17.09 69 A38 38 0 0 1 61.74 13.86"/><path d="M81.5 28.75 A38 38 0 0 1 35.77 85.23"/></svg>`;
+const BEADS=`<svg class="beads" viewBox="0 0 150 110"><g fill="#2a63d1"><circle cx="118" cy="22" r="11"/><circle cx="84" cy="44" r="9"/><circle cx="138" cy="52" r="7"/><circle cx="104" cy="72" r="6"/><circle cx="60" cy="62" r="5"/><circle cx="130" cy="86" r="9"/><circle cx="88" cy="94" r="4"/><circle cx="68" cy="26" r="4"/></g></svg>`;
+const bell=`<div class="bell">${ic('bell')}</div>`;
+function phone(body,{tabs=null,active=0,time='9:41',tall=false,over=''}={}){
+  const isla=tabs?`<div class="isla">${tabs.map((t,i)=>`<b class="${i===active?'on':''}" aria-label="${t[1]}">${ic(t[0])}</b>`).join('')}</div><div class="home"></div>`:'';
+  return `<div class="ph ${tall?'tall':''}"><div class="sb"><span>${time}</span><i></i><span><em>•••• ◖◗</em></span></div>${body}${isla}${over}</div>`;
+}
+const header=(t)=>`<div class="hd">${ISO}<h1>${t}</h1>${bell}<div class="av">CR</div></div>`;
+const TABS_A=[['cal','Semana'],['users','Atletas'],['layers','Planificaciones']];
+const TABS_B=[['cal','Semana'],['layers','Planificaciones']];
+const TABS_C=[['sun','Hoy'],['cal','Semana'],['layers','Planificaciones']];
+// ----- datos de demo (base de demostración, no personas reales) -----
+const DIAS=['L','M','X','J','V','S','D'];
+const ATL=[
+ ['Valentina S.','VS','Valentina Soto',['done','none','pend','none','pend','none','none']],
+ ['Matías F.','MF','Matías Fuentes',['done','none','done','none','pend','none','none']],
+ ['Javiera M.','JM','Javiera Muñoz',['pain','none','pend','none','pend','none','none']],
+ ['Diego P.','DP','Diego Paredes',['skip','none','pend','none','pend','none','none']],
+ ['Renata A.','RA','Renata Aguirre',['done','none','done','none','pend','none','none']],
+ ['Tomás V.','TV','Tomás Villalobos',['done','none','pend','none','pend','none','none']],
+ ['Antonia C.','AC','Antonia Cárdenas',['done','none','pend','none','pend','none','none']],
+ ['Sebastián R.','SR','Sebastián Rojas',['done','none','pend','none','pend','none','none']]
+];
+const pearl=(s)=>{
+  if(s==='done')return `<span class="pe done">${ic('check')}</span>`;
+  if(s==='pain')return `<span class="pe done">${ic('check')}<i class="pdot"></i></span>`;
+  if(s==='pend')return `<span class="pe pend"></span>`;
+  if(s==='skip')return `<span class="pe skip">${ic('dash')}</span>`;
+  return `<span class="pe none"></span>`;
+};
+function matriz(){
+  const head=`<div></div>`+DIAS.map((d,i)=>`<div class="dh ${i===2?'hoy':''}">${d}<br>${16+i}</div>`).join('');
+  const rows=ATL.map(a=>`<div class="nm">${a[0]}</div>`+a[3].map((s,i)=>`<div class="c ${i===2?'hoy':''}">${pearl(s)}</div>`).join('')).join('');
+  return `<div class="grid">${head}${rows}</div>
+  <div class="leg"><span><i class="pe done">${ic('check')}</i>Hecha</span><span><i class="pe pend"></i>Pendiente</span><span><i class="pe skip">${ic('dash')}</i>Omitida</span><span><i class="pe done" style="position:relative">${ic('check')}<i class="pdot" style="position:absolute;right:-4px;top:-4px;width:9px;height:9px;border-radius:50%;background:var(--pain);border:1.5px solid #fff"></i></i>Dolor</span></div>`;
+}
+const attnChip=`<div class="card" style="display:flex;align-items:center;gap:12px;padding:14px 16px"><span class="chip pn" style="padding:8px 12px">4</span><b style="font:700 17px/1.2 Inter;flex:1">Necesitan atención</b>${ic('chev','chev')}</div>`;
+// ----- pantallas -----
+function pantallaSemana(tabs,active){
+  return phone(`<div class="scr">${header('Semana')}
+  ${attnChip.replace('<svg class="chev"','<svg class="chev" style="width:20px;height:20px;stroke:#5c6068;fill:none;stroke-width:2.2;stroke-linecap:round"')}
+  <div class="card"><div class="ch"><h2>Esta semana</h2><span>16 al 22 nov</span></div>${matriz()}</div>
+  <div class="card"><div class="ch"><h2>Hoy, miércoles 18</h2></div>
+   <div class="rw"><div class="av">VS</div><div class="tx"><b>Valentina Soto</b><span>Empuje, 5 ejercicios</span></div><span class="chip nx">Pendiente</span></div>
+   <div class="rw"><div class="av">MF</div><div class="tx"><b>Matías Fuentes</b><span>Empuje, 5 ejercicios</span></div><span class="chip ok">Hecha</span></div>
+  </div></div>`,{tabs,active});
+}
+function pantallaHoyC(){
+  return phone(`<div class="scr">${header('Hoy')}
+  <div class="dark"><div class="k">Miércoles 18 de noviembre</div><div class="n" style="margin-top:8px">2<small>de 8 sesiones hechas</small></div>${BEADS}<div class="segs">${'<i class="on"></i>'.repeat(2)}${'<i></i>'.repeat(6)}</div></div>
+  ${attnChip}
+  <div class="card">${ATL.slice(0,6).map((a,i)=>`<div class="rw"><div class="av">${a[1]}</div><div class="tx"><b>${a[2]}</b><span>Empuje, 5 ejercicios</span></div><span class="chip ${a[3][2]==='done'?'ok':'nx'}">${a[3][2]==='done'?'Hecha':'Pendiente'}</span></div>`).join('')}</div>
+  </div>`,{tabs:TABS_C,active:0});
+}
+function pantallaAtletas(){
+  const att=[['JM','Javiera Muñoz','Reportó dolor el lunes','pn'],['MF','Matías Fuentes','Carga alta, 2 semanas seguidas','gr'],['DP','Diego Paredes','Omitió Piernas, sesiones sin hacer','sk'],['RA','Renata Aguirre','Carga baja para su ciclo','gr']];
+  return phone(`<div class="scr">${header('Atletas')}
+  <div class="card"><div class="ch"><h2>Necesitan atención</h2><span class="chip pn" style="padding:6px 10px">4</span></div>
+   ${att.map(a=>`<div class="rw"><div class="av">${a[0]}</div><div class="tx"><b>${a[1]}</b><span>${a[2]}</span></div>${ic('chev','chev')}</div>`).join('')}</div>
+  <div class="card"><div class="ch"><h2>Todos tus atletas</h2><span>8</span></div>
+   ${ATL.slice(0,5).map(a=>`<div class="rw"><div class="av">${a[1]}</div><div class="tx"><b>${a[2]}</b><span>Fuerza base, semana 4 de 6</span></div><span class="chip ${a[3][2]==='done'?'ok':'nx'}">${a[3][2]==='done'?'Hecha':'Hoy'}</span></div>`).join('')}</div>
+  </div>`,{tabs:TABS_A,active:1});
+}
+function bloques(done,piernas){
+  const B=[['Calentamiento','fire','#e8a317','1 ejercicio, 2 series',done?'Hecho':'0 de 1',[['1','Movilidad de cadera','2 × 12',done?'2/2':'0/2']]],
+           ['Fuerza','dumb','#2f9e5f','3 ejercicios, 10 series',done?'Hecho':'0 de 3',piernas?[['2','Sentadilla con barra','4 × 6 · 70 kg',done?'4/4':'0/4'],['3','Prensa de piernas','3 × 10 · 120 kg',done?'3/3':'0/3']]:[['2','Press de banca','4 × 6 · 70 kg',done?'4/4':'0/4'],['3','Remo con barra','3 × 8 · 60 kg',done?'3/3':'0/3']]],
+           ['Core','bolt','#8a63d2','1 ejercicio, 3 series',done?'Hecho':'0 de 1',[]]];
+  return B.map((b,i)=>`<div class="bd" style="${i<2?'flex-wrap:wrap':''}"><div class="gl" style="background:${b[2]}">${ic(b[1])}</div><div class="tx"><b>${b[0]}</b><span>${b[3]}</span></div><span class="chip ${done?'ok':'nx'}">${b[4]}</span>${ic('chev','chev')}
+   ${i<2?`<div style="width:100%">${b[5].map(e=>`<div class="ex"><i>${e[0]}</i><div class="tx"><b>${e[1]}</b><span>${e[2]}</span></div><em>${e[3]}</em></div>`).join('')}</div>`:''}</div>`).join('');
+}
+function pantallaFicha(){
+  return phone(`<div class="scr"><div class="back">${ic('left')}Atletas</div>
+  <div class="hd" style="margin-top:0"><div class="av" style="width:56px;height:56px;font-size:19px">MF</div><h1 style="font-size:28px">Matías Fuentes</h1></div>
+  <div class="dark"><div class="k">Fuerza base</div><div class="n" style="margin-top:8px">4<small>de 6 semanas</small></div>${BEADS}<div class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class="cur"></i><i></i><i></i></div></div>
+  <div class="card"><div class="ch"><h2>Hoy, miércoles 18</h2></div>
+   <div class="rw" style="padding-top:0"><div class="bd" style="box-shadow:none;background:#f7f9fd;padding:12px;margin:0;width:100%"><div class="gl" style="background:#2f9e5f;width:44px;height:44px">${ic('dumb')}</div><div class="tx"><b>Empuje</b><span>5 ejercicios, 14 series</span></div><span class="chip ok">Hecha</span></div></div>
+   <div class="btnw" style="background:var(--blue);color:#fff">Ver la sesión ${ic('arrow').replace('<svg ','<svg style="stroke:#fff" ')}</div></div>
+  <div class="card"><div class="ch"><h2>Esta semana</h2><span>16 al 22 nov</span></div>
+   <div class="rw"><div class="pe done">${ic('check')}</div><div class="tx"><b>Piernas</b><span>lunes 16</span></div><span class="chip ok">Hecha</span></div>
+   <div class="rw"><div class="pe done">${ic('check')}</div><div class="tx"><b>Empuje</b><span>miércoles 18</span></div><span class="chip ok">Hecha</span></div>
+   <div class="rw"><div class="pe pend"></div><div class="tx"><b>Tirón</b><span>viernes 20</span></div><span class="chip nx">Siguiente</span></div></div>
+  </div>`,{tabs:TABS_A,active:1});
+}
+function pantallaSesion(estado){
+  const fb=estado==='fb';
+  const quien=fb?'Javiera Muñoz':'Matías Fuentes', ses=fb?'Piernas':'Empuje', dia=fb?'lunes 16':'miércoles 18';
+  return phone(`<div class="scr"><div class="back">${ic('left')}${quien}</div>
+  <div class="dark"><div class="k">Semana 4, ${dia}</div><div class="t" style="font-size:34px">${ses}</div><div class="n" style="font-size:34px">${fb?'5':'2'}<small>de 5 ejercicios</small></div>${BEADS}<div class="segs">${'<i class="on"></i>'.repeat(fb?5:2)}${'<i></i>'.repeat(fb?0:3)}</div>
+   <div style="margin-top:14px"><span class="chip ${fb?'ok':'nx'}" style="background:${fb?'#e4f4ea':'#26406e'};color:${fb?'#1d6b3f':'#cfe0fd'}">${fb?'Con feedback':'En curso'}</span></div></div>
+  ${fb?`<div class="card"><div class="ch"><h2>Cómo le fue</h2></div>
+    <div class="rw" style="padding-top:0;border-top:0"><div class="tx"><b>Esfuerzo</b></div><b style="font:800 22px/1 Inter">7 <small style="font:500 14px/1 Inter;color:var(--gray)">de 10</small></b></div>
+    <div class="rw"><div class="tx"><b>Dolor</b></div><span class="chip pn">Reportó dolor</span></div>
+    <div class="note">La nota de dolor está oculta. <span class="more">Ver nota</span></div></div>`:''}
+  ${bloques(fb,fb)}</div>`,{tabs:TABS_A,active:1});
+}
+function pantallaPlanes(){
+  return phone(`<div class="scr">${header('Planificaciones')}
+  <div class="seg2"><b class="on">Ciclos</b><b>Rutinas</b></div>
+  <div class="card"><div class="ch"><h2>Ciclos activos</h2><span>8</span></div>
+   ${ATL.slice(0,6).map(a=>`<div class="rw"><div class="av">${a[1]}</div><div class="tx"><b>Fuerza base</b><span>${a[2]}, semana 4 de 6</span></div>${ic('chev','chev')}</div>`).join('')}</div>
+  </div>`,{tabs:TABS_A,active:2});
+}
+function pantallaCiclo(){
+  return phone(`<div class="scr"><div class="back">${ic('left')}Planificaciones</div>
+  <div class="hd" style="margin-top:0"><h1 style="font-size:30px">Fuerza base</h1></div>
+  <div class="dark" style="padding-bottom:16px"><div class="k">Matías Fuentes</div><div class="n" style="margin-top:8px">4<small>de 6 semanas</small></div>${BEADS}<div class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class="cur"></i><i></i><i></i></div></div>
+  <div class="card"><div class="wk">${['S1','S2','S3','S4','S5','S6'].map((s,i)=>`<b class="${i===3?'on':''}">${s}</b>`).join('')}</div>
+   <div class="ch" style="margin-bottom:6px"><h2>Semana 4</h2><span>16 al 22 nov</span></div>
+   <div class="rw"><div class="bd" style="box-shadow:none;background:#f7f9fd;padding:12px;margin:0;width:100%"><div class="gl" style="background:#2f9e5f;width:44px;height:44px">${ic('dumb')}</div><div class="tx"><b>Piernas</b><span>lunes 16, 3 bloques</span></div><span class="chip ok">Hecha</span></div></div>
+   <div class="rw"><div class="bd" style="box-shadow:none;background:#f7f9fd;padding:12px;margin:0;width:100%"><div class="gl" style="background:#2f9e5f;width:44px;height:44px">${ic('dumb')}</div><div class="tx"><b>Empuje</b><span>miércoles 18, 3 bloques</span></div><span class="chip ok">Hecha</span></div></div>
+   <div class="rw"><div class="bd" style="box-shadow:none;background:#f7f9fd;padding:12px;margin:0;width:100%"><div class="gl" style="background:#2f9e5f;width:44px;height:44px">${ic('dumb')}</div><div class="tx"><b>Tirón</b><span>viernes 20, 3 bloques</span></div><span class="chip nx">Siguiente</span></div></div>
+  </div></div>`,{tabs:TABS_A,active:2});
+}
+function vacio(titulo,texto,icono,btn,act,tabs){
+  return phone(`<div class="scr">${header(titulo.cab)}<div class="empty"><div class="ill">${ic(icono)}</div><h2>${titulo.t}</h2><p>${texto}</p>${btn?`<span class="b">${btn}</span>`:''}</div></div>`,{tabs,active:act});
+}
+function novedad(){
+  const mini=`<div class="mini"><div class="g">${ATL.slice(0,4).map(a=>`<div style="padding-right:4px">${a[0].split(' ')[0]}</div>`+a[3].map(s=>`<div>${pearl(s).replace('class="pdot"','class="pdt"').replace('<i class="pdot"></i>','<i class="pe-dot" style="position:absolute;right:-4px;top:-4px;width:8px;height:8px;border-radius:50%;background:var(--pain);border:1.5px solid #fff"></i>')}</div>`).join('')).join('')}</div></div>`;
+  const nv=`<div class="scrim"><div class="nv"><div class="dm">${mini}</div><div class="pane"><div class="lb">Novedad</div><h3>Tu semana, en tu bolsillo</h3><p>Mira de un vistazo quién entrena cada día y cómo va su semana. Planificas en la web; aquí solo consultas.</p></div><div class="ft"><span class="sk">Saltar</span><div class="dots"><i class="on"></i><i></i><i></i></div><span class="nx">Siguiente</span></div></div></div>`;
+  return phone(`<div class="scr">${header('Semana')}<div class="card"><div class="ch"><h2>Esta semana</h2><span>16 al 22 nov</span></div>${matriz()}</div></div>`,{tabs:TABS_A,active:0,over:nv});
+}
+const out=document.getElementById('out');
+const add=(id,label,items)=>out.insertAdjacentHTML('beforeend',`<div class="lab">${label}</div><div class="row" id="${id}">${items.map(([c,h])=>`<div class="fr">${h}<div class="cap">${c}</div></div>`).join('')}</div>`);
+add('r-opc','Tres formas de ordenar la app (primera pantalla de cada una)',[
+ ['A · Semana, Atletas, Planificaciones (recomendada)',pantallaSemana(TABS_A,0)],
+ ['B · Semana y Planificaciones (el atleta se abre desde la semana)',pantallaSemana(TABS_B,0)],
+ ['C · Hoy, Semana, Planificaciones',pantallaHoyC()]]);
+add('r-det','Opción A, pantalla por pantalla',[
+ ['Atletas: quién necesita atención y el listado',pantallaAtletas()],
+ ['Ficha del atleta',pantallaFicha()],
+ ['Sesión del día, en curso',pantallaSesion('curso')],
+ ['Sesión con feedback: el dolor llega plegado (Javiera Muñoz)',pantallaSesion('fb')],
+ ['Planificaciones: ciclos',pantallaPlanes()],
+ ['Detalle de un ciclo, solo lectura',pantallaCiclo()]]);
+add('r-vac','Estados vacíos y novedad',[
+ ['Sin atletas todavía',vacio({cab:'Semana',t:'Aún no tienes atletas'},'Invítalos desde la web. Cuando acepten, verás aquí su semana.','users','Copiar enlace de la web',0,TABS_A)],
+ ['Semana sin sesiones',vacio({cab:'Semana',t:'Esta semana no hay sesiones'},'Tus atletas no tienen sesiones planificadas del 23 al 29 nov.','cal','Ver la semana actual',0,TABS_A)],
+ ['Sin ciclos',vacio({cab:'Planificaciones',t:'Aún no hay planificaciones'},'Crea un ciclo en la web y aparecerá aquí para consultarlo.','layers','Copiar enlace de la web',2,TABS_A)],
+ ['Ficha de novedad, slide 1 de 3',novedad()]]);
+</script>
+</body>
+</html>
