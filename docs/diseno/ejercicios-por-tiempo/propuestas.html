@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ejercicios por tiempo (CYC-296)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--ink:#1f2228;--gray:#5c6068;--blue:#1a66dd;--brand:#3080fc;--soft:#e8effb;--bg:#f3f6fc;--line:#dde4f0;--green:#2f9e5f;--okbg:#e4f4ea;--oktx:#1d6b3f;--warn:#e0752b;--pain:#d64545;--sh:0 6px 20px rgba(48,80,160,.10)}
+*{box-sizing:border-box;margin:0}
+body{font-family:Inter,-apple-system,system-ui,sans-serif;background:#d9e0ee;color:var(--ink);padding:24px}
+.lab{font:700 13px/1 Inter;letter-spacing:.1em;text-transform:uppercase;color:#3f4757;margin:30px 0 12px}
+.row{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+.fr{display:grid;gap:8px;justify-items:start}
+.cap{font:600 13px/1.3 Inter;color:#3f4757;max-width:390px}
+/* ===== marco del teléfono ===== */
+.ph{position:relative;width:390px;height:844px;background:var(--bg);overflow:hidden;border-radius:44px;box-shadow:0 0 0 1px #c9d2e4;flex:none}
+.ph.tall{height:auto}
+.sb{height:54px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 34px 6px 34px;font:600 16px/1 Inter}
+.sb i{position:absolute;left:50%;top:10px;width:118px;height:34px;border-radius:20px;background:#000;transform:translateX(-50%)}
+.sb em{font-style:normal;letter-spacing:.1em;font-size:11px}
+.scr{padding:6px 16px 120px}
+.hd{display:flex;align-items:center;gap:10px;margin:10px 0 14px}
+.hd h1{font:700 32px/1.1 Inter;letter-spacing:-.01em;flex:1}
+.hd svg.iso{width:34px;height:34px;flex:none}
+.av{width:44px;height:44px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font:700 15px/1 Inter;flex:none}
+.bell{width:40px;height:40px;display:grid;place-items:center;flex:none}
+.bell svg{width:26px;height:26px;stroke:var(--ink);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.back{display:flex;align-items:center;gap:6px;color:var(--blue);font:600 17px/1 Inter;margin:6px 0 10px}
+.back svg{width:22px;height:22px;stroke:var(--blue);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.card{background:#fff;border-radius:22px;box-shadow:var(--sh);padding:16px 16px;margin-bottom:12px}
+.card h2{font:700 20px/1.2 Inter}
+.ch{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.ch span{font:500 14px/1 Inter;color:var(--gray)}
+.dark{background:var(--ink);color:#fff;border-radius:22px;padding:18px 18px 18px;margin-bottom:12px;position:relative;overflow:hidden}
+.dark .k{font:500 14px/1 Inter;color:#c9d0dc}
+.dark .t{font:800 28px/1.1 Inter;margin:6px 0 8px;letter-spacing:-.01em}
+.dark .n{font:800 40px/1 Inter}
+.dark .n small{font:500 15px/1 Inter;color:#c9d0dc;margin-left:8px}
+.segs{display:flex;gap:6px;margin-top:14px}
+.segs i{flex:1;height:6px;border-radius:3px;background:#3a414e}
+.segs i.on{background:var(--brand)}
+.segs i.cur{background:#fff}
+.beads{position:absolute;right:-6px;top:6px;width:150px;height:110px;opacity:.95}
+.btnw{display:flex;justify-content:space-between;align-items:center;background:#fff;color:var(--ink);border-radius:999px;padding:0 22px;height:52px;font:700 17px/1 Inter;margin-top:16px}
+.btnw svg{width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 12px;font:700 13px/1 Inter;white-space:nowrap}
+.chip.ok{background:var(--okbg);color:var(--oktx)}
+.chip.nx{background:var(--soft);color:var(--blue)}
+.chip.sk{background:#fdeede;color:#8f4410}
+.chip.pn{background:#fbe7e7;color:#9d2a2a}
+.chip.gr{background:#eceff5;color:#3f4757}
+.seg2{display:flex;background:#dce5f7;border-radius:999px;padding:5px;margin-bottom:12px}
+.seg2 b{flex:1;text-align:center;border-radius:999px;padding:13px 0;font:700 16px/1 Inter;color:var(--gray)}
+.seg2 b.on{background:var(--blue);color:#fff}
+/* ===== isla ===== */
+.isla{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);display:flex;gap:6px;background:rgba(255,255,255,.96);border-radius:999px;padding:7px 8px;box-shadow:0 8px 28px rgba(31,34,40,.18),0 0 0 1px rgba(31,34,40,.04)}
+.isla b{width:76px;height:46px;border-radius:999px;display:grid;place-items:center}
+.isla b.on{background:var(--soft)}
+.isla svg{width:26px;height:26px;fill:none;stroke:var(--gray);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.isla b.on svg{stroke:var(--blue)}
+.home{position:absolute;left:50%;bottom:9px;width:134px;height:5px;border-radius:3px;background:#1f2228;transform:translateX(-50%)}
+/* ===== matriz de la semana ===== */
+.grid{display:grid;grid-template-columns:92px repeat(7,1fr);align-items:center;row-gap:4px}
+.grid .dh{font:600 13px/1 Inter;color:var(--gray);text-align:center;padding:2px 0 8px}
+.grid .dh.hoy{color:var(--blue);font-weight:800}
+.grid .nm{font:700 14px/1.15 Inter;padding-right:6px}
+.grid .c{height:42px;display:grid;place-items:center;border-radius:12px}
+.grid .c.hoy{background:var(--soft)}
+.pe{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;position:relative}
+.pe svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.pe.done{background:var(--green)}
+.pe.pend{background:#fff;border:2.5px solid var(--green)}
+.pe.skip{background:#cfd6e3}
+.pe.skip svg{stroke:#fff}
+.pe.none{width:5px;height:5px;background:#c3cbd9}
+.pe .pdot{position:absolute;right:-5px;top:-5px;width:12px;height:12px;border-radius:50%;background:var(--pain);border:2px solid #fff}
+.leg{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:12px;font:500 13px/1 Inter;color:var(--gray)}
+.leg span{display:inline-flex;align-items:center;gap:6px}
+.leg .pe{width:16px;height:16px}
+.leg .pe svg{width:10px;height:10px}
+.leg .pe.pend{border-width:2px}
+/* ===== filas ===== */
+.rw{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid #edf0f6}
+.rw:first-of-type{border-top:0}
+.rw .av{width:40px;height:40px;font-size:14px}
+.rw .tx{flex:1;min-width:0}
+.rw .tx b{display:block;font:700 17px/1.2 Inter}
+.rw .tx span{display:block;font:400 14px/1.3 Inter;color:var(--gray);margin-top:2px}
+.bd svg.chev,.rw svg.chev{width:20px;height:20px;stroke:var(--gray);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.bd{display:flex;align-items:center;gap:12px;padding:14px 14px;background:#fff;border-radius:22px;box-shadow:var(--sh);margin-bottom:10px}
+.bd .gl{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;flex:none}
+.bd .gl svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bd .tx{flex:1}
+.bd .tx b{display:block;font:700 18px/1.2 Inter}
+.bd .tx span{font:400 14px/1.3 Inter;color:var(--gray)}
+.ex{display:flex;align-items:center;gap:12px;padding:10px 12px;background:#f7f9fd;border-radius:16px;margin:6px 0}
+.ex i{width:32px;height:32px;border-radius:50%;background:#eceff5;display:grid;place-items:center;font:700 14px/1 Inter;font-style:normal;color:var(--gray);flex:none}
+.ex .tx{flex:1}
+.ex .tx b{display:block;font:700 16px/1.2 Inter}
+.ex .tx span{font:400 13px/1.3 Inter;color:var(--gray)}
+.ex em{font:700 15px/1 Inter;font-style:normal;color:var(--gray)}
+.wk{display:flex;gap:8px;margin-bottom:12px}
+.wk b{width:48px;height:48px;border-radius:50%;background:#eceff5;display:grid;place-items:center;font:700 15px/1 Inter;color:var(--gray)}
+.wk b.on{background:var(--ink);color:#fff}
+.note{background:#f7f9fd;border-radius:16px;padding:12px 14px;margin-top:10px;font:400 15px/1.4 Inter}
+.note .more{display:inline-block;margin-top:8px;color:var(--blue);font:700 15px/1 Inter}
+.empty{display:grid;place-items:center;text-align:center;gap:14px;padding:70px 26px 0}
+.empty .ill{width:96px;height:96px;border-radius:50%;background:var(--soft);display:grid;place-items:center}
+.empty .ill svg{width:48px;height:48px;stroke:var(--blue);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.empty h2{font:800 24px/1.15 Inter}
+.empty p{font:400 16px/1.45 Inter;color:#3f4757}
+.empty .b{margin-top:8px;background:var(--blue);color:#fff;border-radius:999px;padding:0 26px;height:52px;display:inline-flex;align-items:center;font:700 17px/1 Inter}
+/* ===== novedad ===== */
+.scrim{position:absolute;inset:0;background:rgba(31,34,40,.55);display:grid;place-items:center}
+.nv{width:calc(100% - 32px);background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 10px 40px rgba(31,34,40,.3)}
+.nv .dm{background:#f3f6fc;height:170px;position:relative}
+.nv .pane{padding:16px 18px 6px;display:grid;gap:8px}
+.nv .lb{font:700 12px/1 Inter;letter-spacing:.06em;text-transform:uppercase;color:var(--blue)}
+.nv h3{font:800 22px/1.15 Inter}
+.nv p{font:400 16px/1.4 Inter}
+.nv .ft{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 14px}
+.nv .ft .sk{color:var(--blue);font:700 16px/1 Inter;padding:0 8px}
+.nv .dots{display:flex;gap:4px}
+.nv .dots i{width:8px;height:8px;border-radius:99px;background:#c9d3e6}
+.nv .dots i.on{width:22px;background:var(--blue)}
+.nv .nx{background:var(--blue);color:#fff;font:700 16px/1 Inter;border-radius:12px;padding:0 20px;height:44px;display:grid;place-items:center}
+.mini{position:absolute;left:12px;right:12px;top:12px;background:#fff;border-radius:16px;box-shadow:var(--sh);padding:8px}
+.mini .g{display:grid;grid-template-columns:54px repeat(7,1fr);align-items:center;row-gap:3px;font:700 11px/1 Inter}
+.mini .g .pe{width:15px;height:15px;margin:auto}
+.mini .g .pe svg{width:9px;height:9px}
+.mini .g .pe.pend{border-width:2px}
+.mini .g .pe.none{width:4px;height:4px}
+.mini .g .pdt{right:-4px;top:-4px;width:8px;height:8px;border-width:1.5px}
+
+/* ===== CYC-296: ejercicios por tiempo ===== */
+.web{position:relative;width:1000px;max-width:100%;background:#fff;border-radius:16px;box-shadow:0 0 0 1px #c9d2e4;padding:18px 20px 22px;flex:none}
+.web.nar{width:560px}
+.web .wt{font:800 18px/1.2 Inter;margin-bottom:10px}
+.wbk{border-radius:18px;box-shadow:0 2px 10px rgba(48,80,160,.12);overflow:hidden;margin-bottom:12px;background:#fff}
+.wbk .bh{display:flex;align-items:center;gap:10px;padding:8px 12px;min-height:46px}
+.wbk .bh i{width:14px;height:14px;border-radius:50%}
+.wbk .bh b{font:700 16px/1.2 Inter}
+.wbk .bh em{margin-left:auto;font:600 13px/1 Inter;font-style:normal;color:#3f4757}
+.wr{display:grid;grid-template-columns:18px minmax(150px,1fr) 56px 128px 76px 64px 64px 28px;gap:8px;align-items:center;padding:8px 12px;border-top:1px solid #e6ebf5;position:relative}
+.wr.h{border-top:0;padding-top:6px;padding-bottom:2px;font:600 12px/1 Inter;color:#3f4757;text-align:center}
+.wr.h span:nth-child(2){text-align:left}
+.wr .gp{color:#8d95a3;font-size:16px;text-align:center}
+.wr .nm b{display:block;font:700 15px/1.2 Inter}
+.wr .nm span{font:400 12px/1.2 Inter;color:#3f4757}
+.f{height:34px;border:1px solid #8d95a3;border-radius:10px;display:grid;place-items:center;font:500 14px/1 Inter;background:#fff}
+.f.off{background:#eceff5;border-color:#c9d2e4;color:#5c6068}
+.f.ph2{color:#5c6068}
+.uf{display:flex;height:34px;border:1px solid #8d95a3;border-radius:10px;overflow:hidden}
+.uf .v{flex:1;display:grid;place-items:center;font:500 14px/1 Inter}
+.uf .u{display:flex;align-items:center;gap:4px;padding:0 8px;background:#e8effb;border-left:1px solid #8d95a3;font:700 12px/1 Inter;color:#134fb0;white-space:nowrap}
+.uf .u svg{width:10px;height:10px;stroke:#134fb0;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.uf .u.st{background:#f3f6fc;color:#3f4757}
+.dots3{font:700 18px/1 Inter;text-align:center;color:#3f4757}
+.pop{position:absolute;z-index:5;background:#fff;border-radius:12px;box-shadow:0 6px 24px rgba(31,34,40,.22);padding:6px;width:210px}
+.pop div{padding:9px 10px;border-radius:8px;font:600 14px/1.2 Inter;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pop div.on{background:#e8effb;color:#134fb0}
+.pop div small{font:400 12px/1.2 Inter;color:#3f4757;display:block}
+.pop svg{width:16px;height:16px;stroke:#134fb0;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.tag{display:inline-block;margin-left:6px;border-radius:999px;background:#e8effb;color:#134fb0;font:700 11px/1 Inter;padding:3px 7px;vertical-align:middle}
+.wnote{margin-top:10px;font:500 13px/1.4 Inter;color:#3f4757;background:#f7f9fd;border-radius:10px;padding:10px 12px}
+.fld{display:grid;gap:6px;margin:12px 0}
+.fld>b{font:700 13px/1 Inter}
+.sg{display:flex;gap:0;border:1px solid #8d95a3;border-radius:10px;overflow:hidden;width:fit-content}
+.sg span{padding:9px 16px;font:600 14px/1 Inter;color:#3f4757;background:#fff}
+.sg span.on{background:#1a66dd;color:#fff}
+/* ---- app atleta ---- */
+.xr{display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border-radius:18px;margin-top:8px;box-shadow:0 2px 10px rgba(48,80,160,.10)}
+.xr .nd{width:34px;height:34px;border-radius:50%;background:#eceff5;display:grid;place-items:center;font:700 15px/1 Inter;color:#5c6068;flex:none}
+.xr .nd.cur{background:#e8effb;color:#1a66dd;box-shadow:0 0 0 2px #1a66dd inset}
+.xr .tx{flex:1;min-width:0}
+.xr .tx b{display:block;font:700 17px/1.2 Inter}
+.xr .tx span{font:500 14px/1.3 Inter;color:#3f4757}
+.pl{border-radius:999px;background:#eef3fc;padding:7px 11px;font:700 13px/1 Inter;color:#3f4757}
+.pl.cur{background:#e8effb;color:#1a66dd}
+.blk{background:#f3f6fc;border-radius:22px;padding:10px;margin-bottom:10px;box-shadow:0 4px 16px rgba(48,80,160,.10)}
+.blk .bh2{display:flex;align-items:center;gap:10px;min-height:46px}
+.blk .pr{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;flex:none}
+.blk .pr svg{width:19px;height:19px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.blk .bh2 .t{flex:1}
+.blk .bh2 .t b{display:block;font:800 16px/1.2 Inter}
+.blk .bh2 .t span{font:500 13px/1.2 Inter;color:#3f4757}
+.xt{font:800 28px/1.15 Inter;margin:6px 0 12px;padding:0 2px}
+.beads2{display:flex;align-items:center;gap:6px;margin-bottom:14px;font:600 14px/1 Inter}
+.beads2 i{width:12px;height:12px;border-radius:50%;background:#c3cbd9}
+.beads2 i.d{background:#3080fc}
+.beads2 i.a{width:18px;height:18px;background:#e8effb;border:2px solid #1a66dd}
+.beads2 span{margin-left:6px}
+.sc{background:#fff;border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(48,80,160,.10)}
+.sc .sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.sc .sh b{font:700 16px/1 Inter}
+.tp{background:#e8effb;color:#134fb0;border-radius:999px;padding:5px 12px;font:700 12px/1 Inter}
+.ringw{position:relative;width:236px;height:236px;margin:6px auto 12px}
+.ringw svg{width:236px;height:236px;transform:rotate(-90deg)}
+.ringw .ct{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.ringw .ct b{font:800 66px/1 Inter;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.ringw .ct span{font:600 14px/1.2 Inter;color:#3f4757;margin-top:6px}
+.bt{display:flex;align-items:center;justify-content:center;gap:8px;height:56px;border-radius:999px;font:700 17px/1 Inter;background:#1a66dd;color:#fff;box-shadow:0 6px 16px rgba(26,102,221,.30)}
+.bt svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.bt.sec{background:#fff;color:#1f2228;border:1.5px solid #8d95a3;box-shadow:none}
+.bt.sec svg{stroke:#1f2228}
+.bt.off{opacity:.45;box-shadow:none}
+.btrow{display:flex;gap:10px}
+.btrow .bt{flex:1}
+.lnk{text-align:center;color:#1a66dd;font:700 15px/1 Inter;margin-top:14px}
+.stp{display:flex;align-items:center;margin-top:6px}
+.stp i{width:56px;height:56px;border-radius:50%;background:#e8effb;color:#1a66dd;display:grid;place-items:center;font:600 28px/1 Inter;font-style:normal}
+.stp b{flex:1;text-align:center;font:800 52px/1 Inter}
+.stp b small{font:700 20px/1 Inter;color:#3f4757;margin-left:4px}
+.flab{font:600 13px/1 Inter;color:#3f4757}
+.pend{display:flex;justify-content:space-between;background:#fff;border-radius:14px;padding:12px 14px;margin-bottom:10px;font:500 13px/1 Inter;color:#3f4757;box-shadow:0 2px 10px rgba(48,80,160,.10)}
+.dn{display:flex;justify-content:space-between;align-items:center;background:#e4f4ea;border-radius:14px;padding:12px 14px;margin-bottom:10px;font:500 13px/1 Inter;color:#1d6b3f}
+.dn b{font:700 13px/1 Inter}
+.dn u{color:#1a66dd;font:600 13px/1 Inter;text-decoration:none}
+.ft{position:absolute;left:0;right:0;bottom:0;padding:10px 16px 34px;background:#eef3fc}
+.hint{font:500 13px/1.3 Inter;color:#3f4757;text-align:center;margin-bottom:8px}
+.rb{background:#1f2228;border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px;color:#fff}
+.rb .x{flex:1}
+.rb .x small{display:block;font:500 11px/1 Inter;color:#c9d0dc}
+.rb .x b{font:700 22px/1.2 Inter;font-variant-numeric:tabular-nums}
+.rb .trk{height:4px;border-radius:2px;background:#3a414e;margin-top:6px;overflow:hidden}
+.rb .trk i{display:block;height:4px;background:#3080fc}
+.rb .sk2{border:1px solid #8d95a3;border-radius:999px;padding:8px 14px;font:700 13px/1 Inter}
+.lg{font:500 14px/1.4 Inter;color:#3f4757;margin:6px 0 0 46px}
+.scr.nopad{padding-bottom:0}
+</style>
+</head>
+<body>
+<div id="out"></div>
+<script>
+const I={
+ cal:'<path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M4 10h16M8 3v4M16 3v4"/>',
+ dumb:'<path d="M6 8v8M3 10v4M18 8v8M21 10v4M6 12h12"/>',
+ chat:'<path d="M4 5h16v11H9l-5 4z"/>',
+ bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 21h4"/>',
+ left:'<path d="m15 6-6 6 6 6"/>',
+ check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+ fire:'<path d="M12 3c1 3.5 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 2.5 1.5 2.5C11 8 11 5.5 12 3z"/>',
+ play:'<path d="M8 5v14l11-7z"/>',
+ pause:'<path d="M9 5v14M15 5v14"/>',
+ chev:'<path d="m6 9 6 6 6-6"/>',
+ cls:'<path d="M6 6l12 12M18 6 6 18"/>'
+};
+const ic=(n,cls='')=>`<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+const ISO=`<svg class="iso" viewBox="0 0 100 100" fill="none" stroke="#3080fc" stroke-width="20" stroke-linecap="round"><path d="M17.09 69 A38 38 0 0 1 61.74 13.86"/><path d="M81.5 28.75 A38 38 0 0 1 35.77 85.23"/></svg>`;
+const bell=`<div class="bell">${ic('bell')}</div>`;
+function phone(body,{tabs=null,active=0,time='9:41',over=''}={}){
+  const isla=tabs?`<div class="isla">${tabs.map((t,i)=>`<b class="${i===active?'on':''}" aria-label="${t[1]}">${ic(t[0])}</b>`).join('')}</div><div class="home"></div>`:'';
+  return `<div class="ph"><div class="sb"><span>${time}</span><i></i><span><em>•••• ◖◗</em></span></div>${body}${isla}${over}</div>`;
+}
+const TABS=[['cal','Calendario'],['dumb','Inicio'],['chat','Asistente']];
+const back=(t)=>`<div class="back">${ic('left')}${t}</div>`;
+// ---------- WEB: constructor del coach ----------
+const COLS=`<div class="wr h"><span></span><span>Ejercicio</span><span>Ser.</span><span>Reps o tiempo</span><span>Carga</span><span>Desc.</span><span>RIR</span><span></span></div>`;
+const bh=(c,n,s)=>`<div class="bh" style="background:${c}1c"><i style="background:${c}"></i><b>${n}</b><em>${s}</em></div>`;
+const rowA=(n,sets,val,unit,{carga='',desc='',rir='',pop='',cat=''}={})=>{
+  const t=unit==='s';
+  return `<div class="wr"><span class="gp">⠿</span><div class="nm"><b>${n}${cat}</b></div><div class="f">${sets}</div>
+  <div class="uf"><div class="v">${val}</div><div class="u ${pop==='st'?'st':''}">${unit==='s'?'s':'reps'}${pop==='st'?'':ic('chev')}</div></div>
+  <div class="f ${carga?'':'ph2'}">${carga||'kg'}</div><div class="f ${desc?'':'ph2'}">${desc||'s'}</div>
+  ${t?`<div class="f off" title="No aplica">—</div>`:`<div class="f">${rir||'—'}</div>`}<div class="dots3">⋯</div></div>`;
+};
+const POP_UNIT=`<div class="pop" style="left:493px;top:172px"><div>Repeticiones<small>10 reps</small></div><div class="on"><span>Tiempo<small>30 s</small></span>${ic('check')}</div></div>`;
+function webA(){
+ return `<div class="web"><div class="wt">Rutina «Piernas base»</div>
+ <div class="wbk">${bh('#e8a317','Calentamiento','2 ejercicios, 5 series')}${COLS}
+  ${rowA('Skipping',3,30,'s',{desc:30,cat:'<span class="tag">Tiempo</span>'})}
+  ${rowA('Movilidad de cadera',2,10,'r',{})}
+ </div>
+ <div class="wbk">${bh('#2f9e5f','Fuerza','2 ejercicios, 7 series')}${COLS}
+  ${rowA('Sentadilla',4,6,'r',{carga:60,desc:120,rir:2})}
+  ${rowA('Plancha',3,45,'s',{desc:45,cat:'<span class="tag">Tiempo</span>'})}
+ </div>${POP_UNIT}
+ <div class="wnote">El selector de unidad vive dentro de la celda: se ve de un vistazo y se cambia con dos toques. Al elegir «Tiempo», RIR se apaga en esa fila y la carga sigue opcional.</div></div>`;
+}
+function webB(){
+ const popB=`<div class="pop" style="left:770px;top:150px;width:200px"><div>Subir</div><div>Bajar</div><div class="on"><span>Medir por tiempo</span>${ic('check')}</div><div>Agregar nota</div><div>Duplicar</div></div>`;
+ const rowB=(n,sets,val,t,rest)=>`<div class="wr"><span class="gp">⠿</span><div class="nm"><b>${n}</b></div><div class="f">${sets}</div><div class="uf"><div class="v">${val}</div><div class="u st">${t?'s':'reps'}</div></div><div class="f ph2">kg</div><div class="f ph2">${rest||'s'}</div>${t?'<div class="f off">—</div>':'<div class="f">2</div>'}<div class="dots3">⋯</div></div>`;
+ return `<div class="web" style="min-height:400px"><div class="wt">Rutina «Piernas base»</div>
+ <div class="wbk">${bh('#e8a317','Calentamiento','2 ejercicios, 5 series')}${COLS}${rowB('Skipping',3,30,true,30)}${rowB('Movilidad de cadera',2,10,false)}</div>${popB}
+ <div class="wnote" style="max-width:720px">La unidad es solo un texto («s» o «reps»). Para cambiarla hay que abrir el menú ⋯ de la fila: menos visible, el mismo resultado.</div></div>`;
+}
+function webC(){
+ return `<div class="web"><div class="wt">Crear ejercicio</div>
+ <div class="fld"><b>Nombre</b><div class="f" style="justify-content:start;padding:0 12px;width:320px">Skipping</div></div>
+ <div class="fld"><b>Se mide por</b><div class="sg"><span>Repeticiones</span><span class="on">Tiempo</span></div></div>
+ <div class="wnote" style="margin-bottom:14px">Al agregarlo a una rutina, la fila ya nace en segundos. Quien arma la rutina no elige la unidad.</div>
+ <div class="wbk">${bh('#e8a317','Calentamiento','1 ejercicio, 3 series')}${COLS}
+ <div class="wr"><span class="gp">⠿</span><div class="nm"><b>Skipping</b></div><div class="f">3</div><div class="uf"><div class="v">30</div><div class="u st">s</div></div><div class="f ph2">kg</div><div class="f">30</div><div class="f off">—</div><div class="dots3">⋯</div></div></div></div>`;
+}
+function webPicker(){
+ const it=(n,m,t)=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid #e6ebf5"><div style="flex:1"><b style="font:700 15px/1.2 Inter">${n}</b><div style="font:400 12px/1.3 Inter;color:#3f4757">${m}</div></div>${t?'<span class="tag" style="margin:0">Tiempo</span>':''}<span style="color:#134fb0;font:700 14px/1 Inter">Agregar</span></div>`;
+ return `<div class="web nar"><div class="wt">Agregar ejercicio</div><div class="f" style="justify-content:start;padding:0 12px;margin-bottom:8px;color:#5c6068">Buscar ejercicio</div>
+ <div class="wbk" style="box-shadow:0 0 0 1px #dde4f0">${it('Skipping','Cuerpo completo',true)}${it('Plancha','Core',true)}${it('Sentadilla','Cuádriceps y glúteos',false)}${it('Movilidad de cadera','Cadera',false)}</div>
+ <div class="wnote">En el catálogo, el ejercicio por tiempo lleva una marca «Tiempo», y al agregarlo la fila ya nace en segundos (ejercicio del catálogo con medida por defecto).</div></div>`;
+}
+// ---------- APP: atleta ----------
+function ring(frac,color,txt,cap){
+ const r=104,c=2*Math.PI*r;
+ return `<div class="ringw"><svg viewBox="0 0 236 236"><circle cx="118" cy="118" r="${r}" fill="none" stroke="#dce5f7" stroke-width="16"/><circle cx="118" cy="118" r="${r}" fill="none" stroke="${color}" stroke-width="16" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-frac)).toFixed(1)}"/></svg><div class="ct"><b ${txt.length>4?'style="font-size:46px"':''}>${txt}</b><span>${cap}</span></div></div>`;
+}
+const beads=(d,a,n,txt)=>`<div class="beads2">${Array.from({length:n},(_,i)=>`<i class="${i<d?'d':i===a?'a':''}"></i>`).join('')}<span>${txt}</span></div>`;
+const pend=(n)=>`<div class="pend"><span>Serie ${n}</span><span>Pendiente</span></div>`;
+function logA(state){
+ let card,foot,done='';
+ const head=`<div class="sh"><b>Serie 1</b><span class="tp">Meta: 30 s · peso corporal</span></div>`;
+ if(state==='listo'){
+  card=`${head}${ring(1,'#3080fc','0:30','para empezar')}<div class="bt">${ic('play')}Iniciar</div><div class="lnk">Registrar sin cronómetro</div>`;
+  foot=`<div class="hint">Se activa cuando termine el tiempo</div><div class="bt off">Guardar serie</div>`;
+ }else if(state==='curso'){
+  card=`${head}${ring(.4,'#3080fc','0:12','quedan')}<div class="bt sec">${ic('pause')}Pausar</div>`;
+  foot=`<div class="hint">Se activa cuando termine el tiempo</div><div class="bt off">Guardar serie</div>`;
+ }else if(state==='pausa'){
+  card=`${head}${ring(.4,'#8d95a3','0:12','en pausa')}<div class="btrow"><div class="bt">${ic('play')}Seguir</div><div class="bt sec">Terminar</div></div>`;
+  foot=`<div class="hint">Se activa cuando termine el tiempo</div><div class="bt off">Guardar serie</div>`;
+ }else{
+  card=`${head}${ring(1,'#2f9e5f','¡Listo!','30 s completos')}<div class="flab">Tiempo realizado</div><div class="stp"><i>−</i><b>30<small>s</small></b><i>+</i></div>`;
+  foot=`<div class="bt">Guardar serie</div>`;
+ }
+ return phone(`<div class="scr nopad" style="padding-bottom:170px">${back('Piernas')}
+ <div class="xt">Skipping</div>${beads(0,0,3,'Serie 1 de 3')}
+ <div class="sc">${card}</div>${pend(2)}${pend(3)}</div><div class="ft">${foot}</div>`);
+}
+function logB(){
+ return phone(`<div class="scr nopad" style="padding-bottom:190px">${back('Piernas')}
+ <div class="xt">Skipping</div>${beads(0,0,3,'Serie 1 de 3')}
+ <div class="sc"><div class="sh"><b>Serie 1</b><span class="tp">Meta: 30 s · peso corporal</span></div>
+ <div class="flab">Tiempo (s)</div><div class="stp"><i>−</i><b>30<small>s</small></b><i>+</i></div></div>${pend(2)}${pend(3)}</div>
+ <div class="ft"><div class="rb"><div class="x"><small>Tiempo</small><b>0:12</b><div class="trk"><i style="width:60%"></i></div></div><span class="sk2">Pausar</span></div><div class="bt">Guardar serie</div></div>`);
+}
+function hoy(){
+ const xr=(i,n,t,p,cur)=>`<div class="xr"><div class="nd ${cur?'cur':''}">${i}</div><div class="tx"><b>${n}</b><span>${t}</span></div><span class="pl ${cur?'cur':''}">${p}</span></div>`;
+ return phone(`<div class="scr">${`<div class="hd"><h1>Piernas</h1>${bell}<div class="av">VS</div></div>`}
+ <div class="blk"><div class="bh2"><div class="pr" style="background:#e8a317">${ic('fire')}</div><div class="t"><b>Calentamiento</b><span>2 ejercicios, 5 series</span></div></div>
+  ${xr(1,'Skipping','3 × 30 s · peso corporal','0/3',true)}${xr(2,'Movilidad de cadera','2 × 10 · peso corporal','0/2')}</div>
+ <div class="blk"><div class="bh2"><div class="pr" style="background:#2f9e5f">${ic('dumb')}</div><div class="t"><b>Fuerza</b><span>2 ejercicios, 7 series</span></div></div>
+  ${xr(3,'Sentadilla','4 × 6 · 60 kg','0/4')}${xr(4,'Plancha','3 × 45 s · peso corporal','0/3')}</div></div>`,{tabs:TABS,active:1});
+}
+function detalle(){
+ const it=(n,t,logs)=>`<div class="xr" style="display:block"><b style="font:700 17px/1.2 Inter">${n}</b><div style="font:500 14px/1.3 Inter;color:#3f4757;margin-top:2px">${t}</div>${logs.map(l=>`<div class="lg" style="margin-left:0">${l}</div>`).join('')}</div>`;
+ return phone(`<div class="scr">${back('Atrás')}<div class="xt">Piernas, lunes 16</div>
+ <div class="blk"><div class="bh2"><div class="pr" style="background:#e8a317">${ic('fire')}</div><div class="t"><b>Calentamiento</b><span>2 ejercicios, 5 series</span></div></div>
+  ${it('Skipping','3 × 30 s · peso corporal',['Serie 1 · 30 s','Serie 2 · 30 s','Serie 3 · 24 s'])}
+  ${it('Movilidad de cadera','2 × 10 · peso corporal',['Serie 1 · 10 reps · peso corporal','Serie 2 · 10 reps · peso corporal'])}</div>
+ <div class="blk"><div class="bh2"><div class="pr" style="background:#2f9e5f">${ic('dumb')}</div><div class="t"><b>Fuerza</b><span>2 ejercicios, 7 series</span></div></div>
+  ${it('Plancha','3 × 45 s · peso corporal',['Serie 1 · 45 s','Serie 2 · 40 s'])}</div></div>`,{tabs:TABS,active:1});
+}
+function webAtleta(){
+ return `<div class="web nar"><div style="font:600 14px/1 Inter;color:#3f4757;margin-bottom:10px">‹ Sesión de hoy</div>
+ <div class="wt" style="font-size:24px">Skipping</div>
+ <div style="display:flex;gap:18px;margin-bottom:12px;font:500 14px/1.3 Inter"><div><b style="display:block;font:700 12px/1 Inter;color:#3f4757">Meta</b>3 × 30 s</div><div><b style="display:block;font:700 12px/1 Inter;color:#3f4757">Descanso</b>30 s</div></div>
+ <div class="dn"><b>Serie 1</b><span>30 s · peso corporal</span><u>Editar</u></div>
+ <div class="sc" style="box-shadow:0 0 0 1px #dde4f0"><div class="sh"><b>Serie 2</b><span class="tp">Meta: 30 s</span></div>
+ <div style="transform:scale(.8);margin:-24px auto -24px">${ring(.55,'#3080fc','0:16','quedan')}</div>
+ <div class="btrow"><div class="bt sec">${ic('pause')}Pausar</div></div>
+ <div class="lnk" style="margin-top:12px">Registrar sin cronómetro</div></div>
+ <div class="bt off" style="width:100%">Guardar serie</div>
+ <div class="wnote">Mismo comportamiento que la app. En web no hay vibración: al llegar a cero suena un aviso corto (se puede silenciar) y el tiempo se cuenta por reloj, no por intervalos, así que sigue bien si cambias de pestaña.</div></div>`;
+}
+function novedad(){
+ const nv=`<div class="scrim"><div class="nv"><div class="dm" style="display:grid;place-items:center"><div style="transform:scale(.55);margin:-40px 0">${ring(.65,'#3080fc','0:19','quedan')}</div></div><div class="pane"><div class="lb">Novedad</div><h3>Cuenta regresiva en tu sesión</h3><p>Cuando un ejercicio es por tiempo, toca Iniciar y mira cómo baja. Al llegar a cero, guardas tu serie.</p></div><div class="ft2" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px 14px"><span class="sk" style="color:#1a66dd;font:700 16px/1 Inter;padding:0 8px">Saltar</span><div class="dots"><i class="on"></i><i></i></div><span class="nx">Siguiente</span></div></div></div>`;
+ return phone(`<div class="scr">${`<div class="hd"><h1>Piernas</h1>${bell}<div class="av">VS</div></div>`}<div class="blk" style="height:200px"></div></div>`,{tabs:TABS,active:1,over:nv});
+}
+const out=document.getElementById('out');
+const add=(id,label,items)=>out.insertAdjacentHTML('beforeend',`<div class="lab">${label}</div><div class="row" id="${id}">${items.map(([c,h])=>`<div class="fr">${h}<div class="cap">${c}</div></div>`).join('')}</div>`);
+add('r-w','Coach en la web: cómo elige «repeticiones» o «tiempo»',[
+ ['A · Selector de unidad dentro de la celda (recomendada)',webA()],
+ ['B · Unidad solo desde el menú ⋯ de la fila',webB()]]);
+add('r-c','Coach en la web: lo que trae el catálogo',[
+ ['C · La unidad la fija el ejercicio (alternativa); en la recomendada solo sugiere la unidad por defecto',webC()],
+ ['Selector de ejercicios con la marca «Tiempo»',webPicker()]]);
+add('r-a','Atleta en la app: registro por tiempo, opción A (recomendada, cronómetro en la tarjeta)',[
+ ['A1 · Antes de empezar',logA('listo')],
+ ['A2 · En curso',logA('curso')],
+ ['A3 · En pausa',logA('pausa')],
+ ['A4 · Terminó: confirmas el tiempo y guardas',logA('fin')]]);
+add('r-b','Atleta en la app: opción B (campo de segundos y barra de cronómetro al pie)',[
+ ['B · Igual que repeticiones, más una barra de cronómetro junto al botón Guardar',logB()]]);
+add('r-v','Cómo se ve el resto de la app',[
+ ['Hoy: bloques con ejercicios por tiempo y por repeticiones',hoy()],
+ ['Detalle de una sesión ya registrada',detalle()],
+ ['Ficha de novedad (atleta), slide 1 de 2',novedad()]]);
+add('r-wa','Atleta en la web',[
+ ['Registro por tiempo en la web del atleta',webAtleta()]]);
+</script>
+</body>
+</html>
