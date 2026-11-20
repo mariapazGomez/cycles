@@ -192,3 +192,8 @@ Ya decidido: modelo, % de 1 a 100, «% del RM» desactivado sin RM, máximo leva
 6. ¿Se muestra el «máximo levantado» en la ficha y en el formulario de RM, solo de referencia?
 7. ¿Se avisa al atleta cuando el coach registra o cambia su RM?
 8. ¿Solo los ejercicios que se cargan pueden tener RM (no peso corporal ni por tiempo)?
+9. Al asignar a un atleta sin todos los RM, ¿se **bloquea** «Asignar» (como dibuja el diseño) o se **asigna sin el %** y se avisa qué ejercicios quedaron sin carga? La API de CYC-306 (PR #259) ya hace lo segundo: responde `percentNotApplied` con la lista. Recomendado: asignar sin el %, con el aviso antes de asignar («Camila no tiene RM en…») y un enlace para ingresarlo; no frena al coach y respeta la regla de que no se guarda un % sin RM. Si se aprueba, se ajusta la pantalla de asignar.
+
+## Contrato final de la API (CYC-306, PR #259)
+
+Por ejercicio de sesión: `targetPercentRm` (1 a 100 o nulo), `targetWeight`, `resolvedWeightKg` y `rmStatus` = `ok` | `missing` | `needs_athlete` | nulo (nulo = no lleva %). Guardar un % sin RM responde 400 («Este atleta no tiene RM en «X»…»). RM: coach `GET /athletes/:id/rm` → `{withMax, withoutMax}`; `GET /athletes/:id/rm/:exerciseId` → `{exercise, current, history, maxLiftedKg}`; `POST` con `{weightKg, measuredAt?}`; atleta `GET /me/rm[/:exerciseId]`. **Por ahora el atleta no escribe RM** (equivale a la opción B). Poner un peso fijo quita el %. Sin cobertura por plantilla (CYC-307).
