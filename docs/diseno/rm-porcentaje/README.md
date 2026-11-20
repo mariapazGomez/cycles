@@ -105,6 +105,7 @@ Reglas del modelo:
 - **`AthleteMax` es solo-agregar.** El RM vigente de un atleta y un ejercicio es el de `measuredAt` más reciente (empate: el último creado). Un error se corrige con otro registro.
 - **Índice** por `(athleteId, exerciseId, measuredAt)`. Lectura y escritura: control R5 coach–atleta; el atleta solo escribe los suyos.
 - **El peso no se guarda: se calcula al leer.** La API lo devuelve en la estructura de la sesión.
+- **Contrato acordado con CYC-306 (Desarrollo general):** por ejercicio, `targetPercentRm`, `resolvedWeightKg` (nulo si no hay) y `rmStatus` = `ok` | `missing` | `needs_athlete` (rutina o plantilla sin atleta: en el constructor, sin vista previa, no hay peso). A nivel de ciclo o sesión, `exercisesMissingRm`. `AthleteMax.createdAt` desempata: vigente = `measuredAt` desc, `createdAt` desc. Endpoints: coach `GET/POST /athletes/:athleteId/rm[/:exerciseId]`, atleta `GET /me/rm`.
 
 Cómo se resuelve el peso que ve el atleta:
 
@@ -128,7 +129,7 @@ flowchart TD
 | 2 | Leer, agregar y actualizar el RM de un atleta (coach) y el propio (atleta); historial; lista «con RM / sin RM en su plan» por atleta | `apps/api` |
 | 3 | `percentRm` en rutinas y en agregar o editar ejercicio de sesión; validación (1 a 100, solo con reps, no junto a peso fijo); copia al asignar | `apps/api/src/routines`, `sessions` |
 | 4 | Peso calculado en la estructura de sesión (`resolvedWeight`, `rmKg`, `hasRm`); congelar al primer registro; redondeo a 2,5 kg | `apps/api/src/sessions`, `execution` |
-| 5 | Cobertura de un ciclo: atletas asignados × ejercicios con %, con peso o «Sin RM» | `apps/api/src/cycles` |
+| 5 | Cobertura: la matriz de la Biblioteca muestra, **por ciclo plantilla**, los atletas que ya recibieron una copia × ejercicios con %, con peso o «Sin RM». Cada ciclo asignado es de un solo atleta, así que `GET /cycles/:id/rm-coverage` devuelve uno; la matriz necesita la cobertura agregada por plantilla (los atletas de la lista de impacto que ya existe) | `apps/api/src/cycles` |
 | 6 | Constructor web: selector «kg / % RM» en la celda, vista previa con un atleta, «Sin RM» en la sesión | `apps/web` |
 | 7 | Ficha del atleta: sección RM; aviso al asignar; pantalla de cobertura | `apps/web` |
 | 8 | App del atleta: peso prellenado, «Ingresar mi RM», Cuenta › Mis RM | `apps/mobile` |
