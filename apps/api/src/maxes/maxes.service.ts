@@ -131,7 +131,7 @@ export class MaxesService {
       this.prisma.athleteMax.findMany({
         where: { athleteId, exerciseId },
         orderBy: [{ measuredAt: "desc" }, { createdAt: "desc" }],
-        select: { id: true, weightKg: true, measuredAt: true, createdAt: true, source: true },
+        select: { id: true, weightKg: true, measuredAt: true, createdAt: true, source: true, estimatedFromWeightKg: true, estimatedFromReps: true },
       }),
       this.prisma.exerciseLog.aggregate({
         where: { athleteId, sessionExercise: { exerciseId }, actualWeight: { not: null }, ...CURRENT_LOG },
@@ -166,9 +166,19 @@ export class MaxesService {
         throw new BadRequestException("La serie indicada no es de este atleta y ejercicio.");
       }
     }
+    const hasBase = dto.estimatedFromWeightKg != null || dto.estimatedFromReps != null;
+    if (hasBase) {
+      if (source !== "estimated") throw new BadRequestException("Solo un RM aproximado lleva el peso y las repeticiones del cálculo.");
+      if (dto.estimatedFromWeightKg == null || dto.estimatedFromReps == null) {
+        throw new BadRequestException("Indica el peso y las repeticiones del cálculo, o ninguno de los dos.");
+      }
+    }
     const row = await this.prisma.athleteMax.create({
-      data: { athleteId, exerciseId, weightKg: dto.weightKg, measuredAt, source, recordedById: coachId, basedOnLogId: dto.basedOnLogId },
-      select: { id: true, weightKg: true, measuredAt: true, createdAt: true, source: true },
+      data: {
+        athleteId, exerciseId, weightKg: dto.weightKg, measuredAt, source, recordedById: coachId, basedOnLogId: dto.basedOnLogId,
+        estimatedFromWeightKg: dto.estimatedFromWeightKg, estimatedFromReps: dto.estimatedFromReps,
+      },
+      select: { id: true, weightKg: true, measuredAt: true, createdAt: true, source: true, estimatedFromWeightKg: true, estimatedFromReps: true },
     });
     // Si había un aviso «falta el RM» para este atleta, se cierra o se actualiza.
     this.notifications.syncRmMissing(coachId, athleteId);

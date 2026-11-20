@@ -1,4 +1,4 @@
-import { IsDateString, IsIn, IsNumber, IsOptional, IsString, Max, Min } from "class-validator";
+import { IsDateString, IsIn, IsInt, IsNumber, IsOptional, IsString, Max, Min } from "class-validator";
 
 export class RecordMaxDto {
   // RM en kg (peso máximo a 1 repetición).
@@ -22,4 +22,17 @@ export class RecordMaxDto {
   @IsOptional()
   @IsString()
   basedOnLogId?: string;
+
+  // Solo con «estimated»: peso y repeticiones de la serie en que se basó el cálculo.
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0.01)
+  @Max(1000)
+  estimatedFromWeightKg?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(15)
+  estimatedFromReps?: number;
 }

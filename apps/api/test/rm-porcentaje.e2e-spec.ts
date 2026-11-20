@@ -234,6 +234,31 @@ describe("RM del atleta y % del RM", () => {
       expect((await record(c.token.coachA, c.userId.athleteA, c.globalExercise, other)).status).toBe(400); // serie de otro atleta
       expect((await record(c.token.coachA, c.userId.athleteA, c.globalExercise, { weightKg: 90, basedOnLogId: "x" })).status).toBe(400); // sin estimated
     });
+
+    it("guarda la base del cálculo (peso y reps) y la devuelve en el historial", async () => {
+      const ok = await record(c.token.coachA, c.userId.athleteA, c.globalExercise, { weightKg: 112.5, source: "estimated", estimatedFromWeightKg: 100, estimatedFromReps: 4 });
+      expect(ok.status).toBe(201);
+      expect(ok.body.estimatedFromWeightKg).toBe(100);
+      expect(ok.body.estimatedFromReps).toBe(4);
+      const det = await app.http("get", `/athletes/${c.userId.athleteA}/rm/${c.globalExercise}`, c.token.coachA);
+      expect(det.body.history.some((h: any) => h.estimatedFromReps === 4 && h.estimatedFromWeightKg === 100)).toBe(true);
+    });
+
+    it("rechaza la base fuera de rango, incompleta o sin estimated", async () => {
+      const est = { weightKg: 110, source: "estimated" };
+      const r = (extra: object) => record(c.token.coachA, c.userId.athleteA, c.globalExercise, { ...est, ...extra });
+      expect((await r({ estimatedFromWeightKg: 100, estimatedFromReps: 16 })).status).toBe(400);
+      expect((await r({ estimatedFromWeightKg: 100, estimatedFromReps: 0 })).status).toBe(400);
+      expect((await r({ estimatedFromWeightKg: 0, estimatedFromReps: 5 })).status).toBe(400);
+      expect((await r({ estimatedFromWeightKg: 100 })).status).toBe(400);
+      expect((await record(c.token.coachA, c.userId.athleteA, c.globalExercise, { weightKg: 110, estimatedFromWeightKg: 100, estimatedFromReps: 5 })).status).toBe(400);
+    });
+
+    it("la base viene nula en un RM que no es aproximado", async () => {
+      const res = await record(c.token.coachA, c.userId.athleteA, c.globalExercise, { weightKg: 120 });
+      expect(res.body.estimatedFromWeightKg).toBeNull();
+      expect(res.body.estimatedFromReps).toBeNull();
+    });
   });
 
   describe("borrado de cuenta", () => {
