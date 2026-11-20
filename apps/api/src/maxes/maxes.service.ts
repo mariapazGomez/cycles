@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException, UnprocessableEntityException } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
+import { NotificationsService } from "../notifications/notifications.service";
 import { assertActiveRelation } from "../common/access";
 import { CURRENT_LOG } from "../common/training";
 import { ResolvedLoad, WeightUnitName, resolveLoad } from "../common/max";
@@ -24,7 +25,10 @@ interface PercentItem {
 // se borra una fila (salvo al eliminar la cuenta del atleta).
 @Injectable()
 export class MaxesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   // RM vigente por ejercicio. Sin `exerciseIds`, todos los del atleta.
   async currentMaxes(athleteId: string, exerciseIds?: string[]): Promise<Map<string, CurrentMax>> {
@@ -154,10 +158,20 @@ export class MaxesService {
     if (measuredAt.getTime() > now.getTime() + 24 * 60 * 60 * 1000) {
       throw new BadRequestException("La fecha del RM no puede ser futura.");
     }
+    const source = dto.source ?? "coach";
+    if (dto.basedOnLogId) {
+      if (source !== "estimated") throw new BadRequestException("Solo un RM aproximado se basa en una serie.");
+      const log = await this.prisma.exerciseLog.findUnique({ where: { id: dto.basedOnLogId }, include: { sessionExercise: { select: { exerciseId: true } } } });
+      if (!log || log.athleteId !== athleteId || log.sessionExercise.exerciseId !== exerciseId) {
+        throw new BadRequestException("La serie indicada no es de este atleta y ejercicio.");
+      }
+    }
     const row = await this.prisma.athleteMax.create({
-      data: { athleteId, exerciseId, weightKg: dto.weightKg, measuredAt, source: "coach", recordedById: coachId },
+      data: { athleteId, exerciseId, weightKg: dto.weightKg, measuredAt, source, recordedById: coachId, basedOnLogId: dto.basedOnLogId },
       select: { id: true, weightKg: true, measuredAt: true, createdAt: true, source: true },
     });
+    // Si había un aviso «falta el RM» para este atleta, se cierra o se actualiza.
+    this.notifications.syncRmMissing(coachId, athleteId);
     return { exerciseId, ...row };
   }
 }

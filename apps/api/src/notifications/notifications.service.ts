@@ -251,6 +251,41 @@ export class NotificationsService {
     });
   }
 
+  // Aviso al coach: el atleta tiene sesiones con % del RM en ejercicios donde aún no tiene RM (CYC-306).
+  // Se recalcula con lo que falta ahora: si ya no falta nada, el aviso se cierra (queda leído).
+  // Solo lleva nombres (R7). Se llama al agregar sesiones con % y al registrar un RM.
+  syncRmMissing(coachId: string, athleteId: string): void {
+    this.safely("syncRmMissing", async () => {
+      const groupKey = `rm_missing:${athleteId}`;
+      const planned = await this.prisma.sessionExercise.findMany({
+        where: {
+          targetPercentRm: { not: null },
+          session: { deletedAt: null, status: "pending", cycle: { athleteId, coachId, isTemplate: false, status: "active" } },
+        },
+        select: { exerciseId: true, exercise: { select: { name: true } } },
+      });
+      const withMax = new Set(
+        (await this.prisma.athleteMax.findMany({ where: { athleteId, exerciseId: { in: planned.map((p) => p.exerciseId) } }, select: { exerciseId: true }, distinct: ["exerciseId"] })).map((m) => m.exerciseId),
+      );
+      const missing = new Map(planned.filter((p) => !withMax.has(p.exerciseId)).map((p) => [p.exerciseId, p.exercise.name]));
+      if (missing.size === 0) {
+        await this.prisma.notification.updateMany({ where: { userId: coachId, groupKey, readAt: null }, data: { readAt: new Date() } });
+        return;
+      }
+      const athlete = await this.prisma.user.findUnique({ where: { id: athleteId }, select: { name: true } });
+      await this.upsert(
+        {
+          userId: coachId,
+          type: "rm_missing",
+          groupKey,
+          payload: { athleteId, athleteName: athlete?.name ?? "", exerciseNames: [...missing.values()].slice(0, 5) },
+          delay: false,
+        },
+        1,
+      );
+    });
+  }
+
   // ---- Interno ----
 
   // Crea el aviso o lo fusiona con uno sin leer de la misma clave. Los cambios

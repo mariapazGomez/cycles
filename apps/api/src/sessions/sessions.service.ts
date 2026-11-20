@@ -3,9 +3,9 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  HttpException,
   Injectable,
   NotFoundException,
-  UnprocessableEntityException,
 } from "@nestjs/common";
 import { cleanNote } from "../common/exercise-note";
 import { PrismaService } from "../prisma/prisma.service";
@@ -18,6 +18,7 @@ import { earliestAllowedDay, reassignSlots, weekOfDate } from "./slots";
 import { NotificationsService } from "../notifications/notifications.service";
 import { MaxesService } from "../maxes/maxes.service";
 import { CreateSessionDto } from "./dto/create-session.dto";
+import { CreateSessionsBatchDto } from "./dto/create-sessions-batch.dto";
 import { UpdateSessionDto } from "./dto/update-session.dto";
 import { DuplicateSessionDto } from "./dto/duplicate-session.dto";
 import { SaveSessionStructureDto, SessionStructureExerciseDto } from "./dto/save-session-structure.dto";
@@ -108,31 +109,16 @@ export class SessionsService {
       orderIndex: b.orderIndex,
       note: b.note,
     }));
-    // Los % del RM de la rutina solo se copian si el atleta tiene RM en ese ejercicio. Si falta alguno
-    // no se crea la sesión: se devuelve la lista (422) y el coach resuelve cada uno registrando el RM
-    // o con un peso fijo (`fixedWeights`), según el diseño (CYC-306 / CYC-305).
-    const athleteMaxes = await this.maxes.currentMaxes(
-      cycle.athleteId!,
-      routine.routineExercises.filter((re) => re.defaultPercentRm != null).map((re) => re.exerciseId),
-    );
-    const fixed = new Map((dto.fixedWeights ?? []).map((f) => [f.exerciseId, f.weightKg]));
-    const missingRm = routine.routineExercises.filter((re) => re.defaultPercentRm != null && !athleteMaxes.has(re.exerciseId));
-    const unresolved = missingRm.filter((re) => !fixed.has(re.exerciseId));
-    if (unresolved.length > 0) {
-      throw new UnprocessableEntityException({
-        statusCode: 422,
-        message: "Faltan RM para asignar esta rutina. Registra el RM del atleta o elige un peso fijo.",
-        missing: unresolved.map((re) => ({ exerciseId: re.exerciseId, name: re.exercise.name, percent: re.defaultPercentRm! })),
-      });
-    }
+    // El % de la rutina se copia a la sesión aunque el atleta aún no tenga RM: queda sin peso
+    // (`rmStatus: missing`) y el coach recibe un aviso para agregar o calcular el RM (CYC-306).
     const exercises = routine.routineExercises.map((re) => ({
       blockId: re.blockId ? (blockIdOf.get(re.blockId) ?? null) : null,
       exerciseId: re.exerciseId,
       orderIndex: re.orderIndex,
       targetSets: re.defaultSets,
       targetReps: re.defaultReps,
-      targetWeight: re.defaultPercentRm != null && !athleteMaxes.has(re.exerciseId) ? fixed.get(re.exerciseId) : re.defaultWeight,
-      targetPercentRm: re.defaultPercentRm != null && athleteMaxes.has(re.exerciseId) ? re.defaultPercentRm : null,
+      targetWeight: re.defaultWeight,
+      targetPercentRm: re.defaultPercentRm,
       targetRestSeconds: re.defaultRestSeconds,
       targetRir: re.defaultRir,
       note: re.note,
@@ -210,7 +196,32 @@ export class SessionsService {
       }
     }
     this.notifications.coachEditedSession(created.id, "added");
+    if (routine.routineExercises.some((re) => re.defaultPercentRm != null)) {
+      this.notifications.syncRmMissing(coachId, cycle.athleteId!);
+    }
     return this.resolveSession(created, cycle.athleteId);
+  }
+
+  // La misma rutina para varias personas (un equipo): una sesión por ciclo, cada una con el peso
+  // calculado con el RM de su atleta. Un ciclo que falla no detiene a los demás (CYC-306).
+  async createSessionsBatch(coachId: string, dto: CreateSessionsBatchDto) {
+    const results: Array<{ cycleId: string; ok: boolean; session?: unknown; error?: string }> = [];
+    for (const cycleId of [...new Set(dto.cycleIds)]) {
+      try {
+        const session = await this.createSession(coachId, cycleId, {
+          routineId: dto.routineId,
+          scheduledDate: dto.scheduledDate,
+          today: dto.today,
+        } as CreateSessionDto);
+        results.push({ cycleId, ok: true, session });
+      } catch (error) {
+        if (!(error instanceof HttpException)) throw error;
+        const response = error.getResponse();
+        const message = typeof response === "string" ? response : ((response as { message?: unknown }).message ?? error.message);
+        results.push({ cycleId, ok: false, error: Array.isArray(message) ? message.join(" ") : String(message) });
+      }
+    }
+    return { results };
   }
 
   // La app móvil ordena por (semana, espacio): los espacios de las sesiones con

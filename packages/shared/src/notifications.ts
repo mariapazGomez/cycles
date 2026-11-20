@@ -7,7 +7,8 @@ export type NotificationType =
   | "session_added"
   | "session_changed"
   | "session_scheduled"
-  | "session_logged";
+  | "session_logged"
+  | "rm_missing";
 
 export interface AppNotification {
   id: string;
@@ -115,6 +116,19 @@ export function notificationCopy(n: AppNotification): NotificationCopy {
         icon: "initials",
         initials,
         target: planTarget,
+      };
+    }
+    case "rm_missing": {
+      // Aviso al coach (CYC-306): un atleta tiene un plan con % del RM y aún no tiene RM. Solo nombres.
+      const athleteId = str(p.athleteId);
+      const names = Array.isArray(p.exerciseNames) ? p.exerciseNames.filter((x): x is string => typeof x === "string") : [];
+      const list = names.length > 0 ? ` en ${names.join(", ")}` : "";
+      return {
+        title: "Falta el RM",
+        text: `${athlete} tiene un plan con % del RM y aún no tiene RM${list}. Agrégalo o calcula uno aproximado.`,
+        icon: "initials",
+        initials: initialsOf(athlete),
+        target: athleteId ? { kind: "athlete", athleteId } : { kind: "none" },
       };
     }
     case "session_logged": {

@@ -178,31 +178,61 @@ describe("RM del atleta y % del RM", () => {
       expect(res.body.routineExercises.map((e: { defaultPercentRm: number }) => e.defaultPercentRm)).toEqual([70, 60]);
     });
 
-    it("al asignarla, si falta un RM no se crea la sesión: 422 con la lista de ejercicios sin RM", async () => {
+    const notices = () => app.prisma.notification.findMany({ where: { userId: c.userId.coachA, type: "rm_missing" } });
+    const addRoutine = (cycleId: string) => {
       const today = new Date().toISOString().slice(0, 10);
-      const res = await app.http("post", `/cycles/${c.cycleA}/sessions`, c.token.coachA).send({ routineId, scheduledDate: today, today });
-      expect(res.status).toBe(422);
-      expect(res.body.missing).toEqual([{ exerciseId: c.exerciseA, name: "Ejercicio de A", percent: 60 }]);
-      expect(await app.prisma.trainingSession.count({ where: { cycleId: c.cycleA, routineId } })).toBe(0);
-    });
+      return app.http("post", `/cycles/${cycleId}/sessions`, c.token.coachA).send({ routineId, scheduledDate: today, today });
+    };
 
-    it("se resuelve con un peso fijo para el ejercicio sin RM; el resto conserva su %", async () => {
-      const today = new Date().toISOString().slice(0, 10);
-      const res = await app
-        .http("post", `/cycles/${c.cycleA}/sessions`, c.token.coachA)
-        .send({ routineId, scheduledDate: today, today, fixedWeights: [{ exerciseId: c.exerciseA, weightKg: 40 }] });
+    it("al agregarla a un atleta sin RM en un ejercicio crea la sesión con el % y sin peso, y avisa al coach", async () => {
+      const res = await addRoutine(c.cycleA);
       expect(res.status).toBe(201);
       const [withRm, withoutRm] = res.body.sessionExercises;
       expect(withRm).toMatchObject({ exerciseId: c.globalExercise, targetPercentRm: 70, rmStatus: "ok" });
-      expect(withoutRm).toMatchObject({ exerciseId: c.exerciseA, targetPercentRm: null, targetWeight: 40, rmStatus: null });
+      expect(withoutRm).toMatchObject({ exerciseId: c.exerciseA, targetPercentRm: 60, targetWeight: null, rmStatus: "missing", resolvedWeightKg: null });
+      await new Promise((r) => setTimeout(r, 200));
+      const [notice] = await notices();
+      expect(notice).toMatchObject({ groupKey: `rm_missing:${c.userId.athleteA}`, readAt: null });
+      // Solo nombres: sin pesos ni porcentajes ni salud (R7).
+      expect(notice.payload).toEqual({ athleteId: c.userId.athleteA, athleteName: "Atleta A", exerciseNames: ["Ejercicio de A"] });
     });
 
-    it("o registrando el RM que faltaba", async () => {
-      await record(c.token.coachA, c.userId.athleteA, c.exerciseA, { weightKg: 50 });
+    it("al registrar el RM que faltaba, el aviso se cierra y el peso aparece", async () => {
+      const saved = await record(c.token.coachA, c.userId.athleteA, c.exerciseA, { weightKg: 50 });
+      expect(saved.status).toBe(201);
+      await new Promise((r) => setTimeout(r, 200));
+      expect((await notices())[0].readAt).not.toBeNull();
+      const res = await addRoutine(c.cycleA);
+      expect(res.body.sessionExercises[1]).toMatchObject({ exerciseId: c.exerciseA, targetPercentRm: 60, rmStatus: "ok", resolvedWeightKg: 30 });
+    });
+
+    it("la misma rutina para varios atletas: una sesión por ciclo y el resultado de cada uno", async () => {
       const today = new Date().toISOString().slice(0, 10);
-      const res = await app.http("post", `/cycles/${c.cycleA}/sessions`, c.token.coachA).send({ routineId, scheduledDate: today, today });
+      const res = await app
+        .http("post", "/sessions/batch", c.token.coachA)
+        .send({ routineId, cycleIds: [c.cycleA, c.cycleC, c.cycleB], scheduledDate: today, today });
       expect(res.status).toBe(201);
-      expect(res.body.sessionExercises[1]).toMatchObject({ exerciseId: c.exerciseA, targetPercentRm: 60, resolvedWeightKg: 30 });
+      const byCycle = new Map<string, { ok: boolean; error?: string }>(res.body.results.map((r: { cycleId: string; ok: boolean; error?: string }) => [r.cycleId, r]));
+      expect(byCycle.get(c.cycleA)?.ok).toBe(true);
+      expect(byCycle.get(c.cycleC)?.ok).toBe(false); // relación terminada
+      expect(byCycle.get(c.cycleB)?.ok).toBe(false); // ciclo de otro coach
+      expect((await app.http("post", "/sessions/batch", c.token.athleteA).send({ routineId, cycleIds: [c.cycleA], scheduledDate: today })).status).toBe(403);
+    });
+  });
+
+  describe("RM aproximado (estimated)", () => {
+    it("el coach guarda un RM aproximado como source=estimated; nada más lo crea", async () => {
+      const res = await record(c.token.coachA, c.userId.athleteA, c.globalExercise, { weightKg: 105, source: "estimated", measuredAt: "2026-11-19" });
+      expect(res.status).toBe(201);
+      expect(res.body.source).toBe("estimated");
+      expect((await record(c.token.coachA, c.userId.athleteA, c.globalExercise, { weightKg: 100, source: "athlete" })).status).toBe(400);
+    });
+
+    it("basedOnLogId solo con estimated y de una serie del mismo atleta y ejercicio", async () => {
+      await app.http("post", `/session-exercises/${c.seB}/logs`, c.token.athleteB).send({ id: "00000000-0000-4000-8000-0000000000c1", setNumber: 1, actualReps: 5, actualWeight: 80 });
+      const other = { weightKg: 90, source: "estimated", basedOnLogId: "00000000-0000-4000-8000-0000000000c1" };
+      expect((await record(c.token.coachA, c.userId.athleteA, c.globalExercise, other)).status).toBe(400); // serie de otro atleta
+      expect((await record(c.token.coachA, c.userId.athleteA, c.globalExercise, { weightKg: 90, basedOnLogId: "x" })).status).toBe(400); // sin estimated
     });
   });
 
