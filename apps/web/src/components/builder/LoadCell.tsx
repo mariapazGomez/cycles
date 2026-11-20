@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { formatLoad } from "@cycles/shared";
 import { isValidPercent, rowLoadMode, type LoadMode, type Row } from "../../lib/routineRows";
 import { useRmContext } from "./RmContext";
@@ -68,6 +69,16 @@ export function LoadCell({ row, bad, onChange }: { row: Row; bad: boolean; onCha
             <b>% del RM</b>
             <span>{reason ?? "Cada atleta, según su RM"}</span>
           </button>
+          {percentBlocked && rm && (
+            <>
+              <Link className="bld-load-exit" role="menuitem" to={`/athletes/${rm.athleteId}?vista=rm`}>
+                Ingresar el RM de {rm.athleteName}
+              </Link>
+              <Link className="bld-load-exit" role="menuitem" to={`/athletes/${rm.athleteId}?vista=rm`}>
+                Calcular un RM aproximado
+              </Link>
+            </>
+          )}
         </div>
       )}
       {mode === "percent" && row.resolvedKg != null && <span className="bld-weight">{formatLoad(row.resolvedKg)}</span>}

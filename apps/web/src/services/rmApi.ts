@@ -26,3 +26,38 @@ export interface RmList {
 export function listAthleteRm(athleteId: string) {
   return apiRequest<RmList>(`/athletes/${athleteId}/rm`);
 }
+
+export interface RmHistoryEntry {
+  id: string;
+  weightKg: number;
+  measuredAt: string;
+  createdAt: string;
+  source: MaxSource;
+  // Solo con «estimated»: con qué datos se calculó (Epley).
+  estimatedFromWeightKg: number | null;
+  estimatedFromReps: number | null;
+}
+
+export interface RmDetail {
+  exercise: { id: string; name: string };
+  current: RmHistoryEntry | null;
+  history: RmHistoryEntry[];
+  maxLiftedKg: number | null;
+}
+
+export interface RecordRmInput {
+  weightKg: number;
+  // «AAAA-MM-DD»; sin fecha, hoy.
+  measuredAt?: string;
+  source?: "coach" | "estimated";
+  estimatedFromWeightKg?: number;
+  estimatedFromReps?: number;
+}
+
+export function getAthleteRm(athleteId: string, exerciseId: string) {
+  return apiRequest<RmDetail>(`/athletes/${athleteId}/rm/${exerciseId}`);
+}
+
+export function recordRm(athleteId: string, exerciseId: string, input: RecordRmInput) {
+  return apiRequest<RmHistoryEntry>(`/athletes/${athleteId}/rm/${exerciseId}`, { method: "POST", body: input });
+}

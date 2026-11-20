@@ -32,7 +32,7 @@ export function SessionBuilderPage({ session }: { session: sessionsApi.SessionDe
     if (!rmQuery.data) return null;
     const withRm = new Set(rmQuery.data.withMax.map((m) => m.exerciseId));
     const name = athletesQuery.data?.find((r) => r.athlete.id === athleteId)?.athlete.name.split(" ")[0] ?? "El atleta";
-    return { athleteName: name, hasRm: (exerciseId: string) => withRm.has(exerciseId) };
+    return { athleteId, athleteName: name, hasRm: (exerciseId: string) => withRm.has(exerciseId) };
   }, [rmQuery.data, athletesQuery.data, athleteId]);
   const before = sessionMeta(session);
   const [date, setDate] = useState(before.date);

@@ -37,3 +37,11 @@ export function planWeekOf(startDate: string, now = new Date()): number {
   const elapsed = now.getTime() - new Date(startDate).getTime();
   return elapsed < 0 ? 0 : Math.floor(elapsed / (7 * 24 * 60 * 60 * 1000)) + 1;
 }
+
+// La fecha de la evaluación es un día, no un instante: la API la guarda a medianoche UTC y se
+// muestra en UTC para que la zona horaria no la corra al día anterior.
+const DAY_FORMAT = new Intl.DateTimeFormat("es", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+export function formatDay(iso: string): string {
+  return DAY_FORMAT.format(new Date(iso.length === 10 ? `${iso}T00:00:00Z` : iso)).replace(/\./g, "");
+}
+

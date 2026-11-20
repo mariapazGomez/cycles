@@ -4,6 +4,7 @@ import { createContext, useContext } from "react";
 // qué ejercicios tienen RM, para desactivar «% del RM» donde falta. En la rutina no hay contexto:
 // el % está siempre disponible porque la rutina es para todos.
 export interface RmContextValue {
+  athleteId: string;
   athleteName: string;
   hasRm: (exerciseId: string) => boolean;
 }

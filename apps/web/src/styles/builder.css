@@ -135,3 +135,31 @@
 .bld-load-menu .bld-load-off span { color: var(--color-warn-ink, var(--color-ink-secondary)); }
 .bld-weight { grid-column: 1 / -1; justify-self: start; margin-top: 4px; padding: 2px 8px; border-radius: var(--radius-pill); background: var(--color-ok-bg); color: var(--color-ok-ink); font-size: 0.78rem; font-weight: 700; }
 .bld-weight-off { background: var(--color-gray-light); color: var(--color-ink-secondary); }
+
+/* Ficha del atleta: sección RM, calculadora e historial (CYC-312). */
+.rm-section { display: flex; flex-direction: column; gap: 12px; }
+.rm-h { margin: 8px 0 0; font-size: 1.1rem; }
+.rm-banner { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-radius: var(--radius-lg); background: var(--color-blue-bg, var(--color-gray-light)); font-size: 0.92rem; }
+.rm-table { width: 100%; border-collapse: collapse; background: var(--color-bg); border-radius: var(--radius-lg); box-shadow: var(--shadow-e1); overflow: hidden; }
+.rm-table th { padding: 10px 14px; text-align: left; font-size: 0.78rem; font-weight: 700; color: var(--color-ink-secondary); background: var(--color-gray-light); }
+.rm-table td { padding: 10px 14px; border-top: 1px solid var(--color-gray-border); font-size: 0.92rem; }
+.rm-table .rm-current { background: var(--color-gray-light); }
+.rm-name { border: 0; background: none; padding: 0; font: inherit; font-weight: 700; cursor: pointer; color: var(--color-ink); text-align: left; }
+.rm-name:hover { text-decoration: underline; }
+.rm-actions { display: flex; gap: 14px; justify-content: flex-end; }
+.rm-tag { display: inline-block; padding: 2px 10px; border-radius: var(--radius-pill); background: var(--color-gray-light); font-size: 0.78rem; font-weight: 700; }
+.rm-tag-coach { background: var(--color-blue-bg, var(--color-gray-light)); color: var(--color-blue); }
+.rm-from { font-size: 0.8rem; color: var(--color-ink-secondary); }
+.rm-note, .rm-callout { margin: 0; padding: 10px 14px; border-radius: var(--radius-lg); background: var(--color-gray-light); font-size: 0.88rem; }
+.rm-callout { background: var(--color-blue-bg, var(--color-gray-light)); }
+.rm-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.rm-static { display: flex; align-items: center; }
+.rm-formula { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: var(--radius-lg); background: var(--color-blue-bg, var(--color-gray-light)); font-size: 0.9rem; }
+.rm-formula-eq { font-size: 1.05rem; font-weight: 700; color: var(--color-blue); }
+.rm-result { padding: 12px 14px; border-radius: var(--radius-lg); background: var(--color-blue-bg, var(--color-gray-light)); font-size: 1.2rem; font-weight: 800; }
+.rm-rules { margin: 0; padding-left: 20px; font-size: 0.86rem; color: var(--color-ink-secondary); display: flex; flex-direction: column; gap: 4px; }
+@media (max-width: 640px) { .rm-pair { grid-template-columns: 1fr; } .rm-table { display: block; overflow-x: auto; } .rm-banner { flex-direction: column; align-items: flex-start; } }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.bld-load-menu .bld-load-exit { display: block; padding: 8px 10px; border-radius: var(--radius-sm); font-size: 0.9rem; font-weight: 700; color: var(--color-blue); text-decoration: none; border-top: 1px solid var(--color-gray-border); }
+.bld-load-menu .bld-load-exit:first-of-type { margin-top: 4px; }
+.bld-load-menu .bld-load-exit:hover { background: var(--color-gray-light); }

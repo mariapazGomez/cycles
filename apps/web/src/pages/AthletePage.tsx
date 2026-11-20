@@ -16,9 +16,10 @@ import { orderSections, sectionKind } from "../lib/cycleSections";
 import { suggestStart } from "../lib/newCycle";
 import { toLocalDay } from "../lib/calendar";
 import { AthleteSummaryView } from "./AthleteSummaryView";
+import { RmSection } from "../components/rm/RmSection";
 import { track } from "../lib/analytics";
 
-type View = "ciclo" | "resumen";
+type View = "ciclo" | "resumen" | "rm";
 
 function initials(name: string): string {
   return name
@@ -34,7 +35,7 @@ function initials(name: string): string {
 export function AthletePage() {
   const { athleteId = "" } = useParams();
   const [params, setParams] = useSearchParams();
-  const [view, setView] = useState<View>("ciclo");
+  const [view, setView] = useState<View>(params.get("vista") === "rm" ? "rm" : "ciclo");
   // Lo que la coach abre o cierra a mano; sin tocar nada, solo el ciclo en curso va abierto.
   const [toggled, setToggled] = useState<Record<string, boolean>>({});
   const [showAssign, setShowAssign] = useState(false);
@@ -116,7 +117,7 @@ export function AthletePage() {
       )}
 
       <div className="pl-views" role="group" aria-label="Vista de la ficha">
-        {(["ciclo", "resumen"] as const).map((v) => (
+        {(["ciclo", "rm", "resumen"] as const).map((v) => (
           <button
             key={v}
             type="button"
@@ -125,14 +126,16 @@ export function AthletePage() {
             data-tour={v === "resumen" ? "view-summary" : undefined}
             onClick={() => setView(v)}
           >
-            {v === "ciclo" ? "Ciclo" : "Resumen"}
+            {v === "ciclo" ? "Ciclo" : v === "rm" ? "RM" : "Resumen"}
           </button>
         ))}
       </div>
 
       {view === "ciclo" && <AthleteEventsPanel athleteId={athleteId} athleteName={athlete.name} cycles={cycles} />}
 
-      {view === "resumen" ? (
+      {view === "rm" ? (
+        <RmSection athleteId={athleteId} athleteName={athlete.name} />
+      ) : view === "resumen" ? (
         <AthleteSummaryView athleteId={athleteId} />
       ) : cycles.length === 0 ? (
         <div className="hm-card pl-form">
