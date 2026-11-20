@@ -644,3 +644,17 @@
 .rt-note {
   margin-top: 10px;
 }
+
+/* Comentario del RM en el registro de la serie (CYC-312): texto, sin subtítulos grises. */
+.rm-comment {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--color-gray-light);
+}
+
+.rm-comment span {
+  font-size: 0.8125rem;
+  color: var(--color-ink-secondary);
+}

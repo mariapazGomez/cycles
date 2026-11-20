@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as executionApi from "../services/executionApi";
 import { ApiError } from "../services/httpClient";
 import { EmptyState } from "../components/EmptyState";
-import { formatKg } from "../lib/format";
+import { loadLabel } from "../lib/rmLoad";
 import { track } from "../lib/analytics";
 import { useAuth } from "../hooks/useAuth";
 import * as cyclesApi from "../services/cyclesApi";
@@ -99,7 +99,7 @@ export function TodayPage() {
               <CoachNote note={se.note} />
             </div>
             <span>
-              {se.targetSets} × {se.targetReps} · {formatKg(se.targetWeight)}
+              {se.targetSets} × {se.targetReps} · {loadLabel(se)}
             </span>
           </li>
         ))}

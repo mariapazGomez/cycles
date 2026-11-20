@@ -8,6 +8,7 @@ import { CoachNote } from "../components/ExerciseNote";
 import { SessionBlocks } from "../components/SessionBlocks";
 import { groupByBlock, sessionSummary } from "../lib/workBlocks";
 import { SessionBuilderPage } from "./SessionBuilderPage";
+import { loadLabel } from "../lib/rmLoad";
 
 const SESSION_STATUS_LABEL: Record<SessionStatus, string> = {
   pending: "Pendiente",
@@ -21,7 +22,8 @@ function formatDate(iso: string): string {
 
 function formatTargets(se: sessionsApi.SessionExerciseWithExercise): string {
   const parts = [`${se.targetSets}x${se.targetReps}`];
-  if (se.targetWeight) parts.push(`${se.targetWeight}kg`);
+  if (se.targetPercentRm != null) parts.push(loadLabel(se));
+  else if (se.targetWeight) parts.push(`${se.targetWeight}kg`);
   if (se.targetRestSeconds) parts.push(`${se.targetRestSeconds}s descanso`);
   return parts.join(" · ");
 }
