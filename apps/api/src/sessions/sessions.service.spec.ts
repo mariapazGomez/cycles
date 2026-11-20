@@ -66,11 +66,16 @@ function setup() {
     $transaction: jest.fn((arg: unknown) => (typeof arg === "function" ? arg(tx) : Promise.all(arg as unknown[]))),
   };
   const notifications = { coachEditedSession: jest.fn() };
-  const service = new SessionsService(prisma as never, notifications as never);
+  const maxes = {
+    currentMaxes: jest.fn().mockResolvedValue(new Map()),
+    assertHasMax: jest.fn().mockResolvedValue(undefined),
+    withResolvedLoads: jest.fn(async (items: unknown[]) => items),
+  };
+  const service = new SessionsService(prisma as never, notifications as never, maxes as never);
   prisma.trainingCycle.findUnique.mockResolvedValue(cycle);
   prisma.coachAthlete.findUnique.mockResolvedValue({ status: "active" });
   prisma.routine.findUnique.mockResolvedValue(routine);
-  return { prisma, tx, notifications, service };
+  return { prisma, tx, notifications, maxes, service };
 }
 
 describe("SessionsService.createSession: reglas de acceso", () => {

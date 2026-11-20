@@ -117,6 +117,8 @@ model User {
   cyclesAsCoach           TrainingCycle[]          @relation("CyclesAsCoach")
   cyclesAsAthlete         TrainingCycle[]          @relation("CyclesAsAthlete")
   exerciseLogs            ExerciseLog[]
+  athleteMaxes            AthleteMax[]             @relation("MaxOfAthlete")
+  recordedMaxes           AthleteMax[]             @relation("MaxRecordedBy")
   sessionFeedback         SessionFeedback[]
   loadAdjustments         LoadAdjustment[]
   createdExercises        Exercise[]
@@ -347,6 +349,10 @@ model RoutineExercise {
   // Esfuerzo objetivo en repeticiones en reserva (0–4). Null = sin objetivo:
   // ese ejercicio no genera alertas de carga.
   defaultRir         Int?
+  // Carga como % del RM del atleta (1–100). Excluyente con defaultWeight. Solo se
+  // guarda si el RM existe cuando se asigna a un atleta; en la rutina (sin atleta) se
+  // guarda libre. CYC-306.
+  defaultPercentRm   Int?
   // Nota del coach para el atleta (máx. 500 caracteres); se copia a la sesión al asignar.
   note               String?
   // Bloque al que pertenece. Nulo = ejercicio suelto, sin bloque (rutinas anteriores).
@@ -428,6 +434,7 @@ model Exercise {
   sessionExercises SessionExercise[]
   routineExercises RoutineExercise[]
   loadAdjustments  LoadAdjustment[]
+  athleteMaxes     AthleteMax[]
 }
 
 // Un bloque de la sesión: copia de los de la rutina al asignarla, editable por sesión.
@@ -457,6 +464,12 @@ model SessionExercise {
   targetRestSeconds Int?
   // Copiado de RoutineExercise.defaultRir al asignar; editable por celda.
   targetRir         Int?
+  // Carga como % del RM del atleta (1–100). Excluyente con targetWeight; el peso se
+  // calcula al leer (AthleteMax vigente), no se guarda. CYC-306.
+  targetPercentRm   Int?
+  // RM (kg) usado al registrar la primera serie: congela el peso de la sesión aunque el
+  // coach actualice el RM después. Se fija una sola vez.
+  frozenRmKg        Float?
   // Nota del coach para el atleta, copiada de la rutina y editable por sesión. Texto
   // libre: puede mencionar salud, así que nunca va en los avisos (R7).
   note              String?
@@ -467,6 +480,36 @@ model SessionExercise {
   exercise Exercise        @relation(fields: [exerciseId], references: [id])
   block    SessionBlock?   @relation(fields: [blockId], references: [id], onDelete: SetNull)
   logs     ExerciseLog[]
+}
+
+// Quién anotó un RM. «estimated» queda reservado (CYC-306): no hay cálculo automático.
+enum MaxSource {
+  coach
+  athlete
+  estimated
+}
+
+// RM (peso máximo a 1 repetición) de un atleta en un ejercicio, siempre en kg.
+// Solo se agrega: un RM nuevo es otra fila y el vigente es el de `measuredAt`
+// más reciente (desempate por `createdAt`). Lo levantado en series NO es el RM.
+// Sin notas libres (R7). Dato de rendimiento, como las series. CYC-306.
+model AthleteMax {
+  id           String    @id @default(uuid())
+  athleteId    String
+  exerciseId   String
+  weightKg     Float
+  measuredAt   DateTime
+  createdAt    DateTime  @default(now())
+  source       MaxSource
+  recordedById String
+  // Solo para «estimated» (reservado).
+  basedOnLogId String?
+
+  athlete    User     @relation("MaxOfAthlete", fields: [athleteId], references: [id])
+  recordedBy User     @relation("MaxRecordedBy", fields: [recordedById], references: [id])
+  exercise   Exercise @relation(fields: [exerciseId], references: [id])
+
+  @@index([athleteId, exerciseId, measuredAt])
 }
 
 // Un registro por serie. Append-only: nunca se actualiza ni se borra; una
@@ -578,6 +621,7 @@ enum NotificationType {
   session_changed
   session_scheduled
   session_logged
+  rm_missing
 }
 
 model Notification {

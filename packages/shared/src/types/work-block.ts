@@ -42,6 +42,8 @@ export interface RoutineExerciseStructureInput {
   defaultSets: number;
   defaultReps: number;
   defaultWeight?: number;
+  // % del RM (1–100); excluyente con defaultWeight (CYC-306).
+  defaultPercentRm?: number;
   defaultRestSeconds?: number;
   defaultRir?: number;
   note?: string;
@@ -53,6 +55,8 @@ export interface SessionExerciseStructureInput {
   targetSets: number;
   targetReps: number;
   targetWeight?: number;
+  // % del RM (1–100); solo si el atleta tiene RM en el ejercicio (CYC-306).
+  targetPercentRm?: number;
   targetRestSeconds?: number;
   targetRir?: number;
   note?: string;

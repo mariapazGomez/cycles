@@ -7,7 +7,8 @@ export type NotificationType =
   | "session_added"
   | "session_changed"
   | "session_scheduled"
-  | "session_logged";
+  | "session_logged"
+  | "rm_missing";
 
 export interface AppNotification {
   id: string;
@@ -53,6 +54,14 @@ function initialsOf(name: string): string {
       .map((part) => part[0]?.toUpperCase() ?? "")
       .join("") || "?"
   );
+}
+
+// «A», «A y B», «A, B y C»; con 4 o más, los 3 primeros y «y N más».
+function joinNames(names: string[], total: number): string {
+  if (names.length === 0) return "un ejercicio";
+  if (total > 3 && names.length >= 3) return `${names.slice(0, 3).join(", ")} y ${total - 3} más`;
+  if (names.length === 1) return names[0];
+  return `${names.slice(0, -1).join(", ")} y ${names[names.length - 1]}`;
 }
 
 export function notificationCopy(n: AppNotification): NotificationCopy {
@@ -115,6 +124,20 @@ export function notificationCopy(n: AppNotification): NotificationCopy {
         icon: "initials",
         initials,
         target: planTarget,
+      };
+    }
+    case "rm_missing": {
+      // Aviso al coach (CYC-306): el atleta tiene un plan con % del RM y aún no tiene RM. Solo nombres (R7).
+      // Abre la ficha del atleta (sección RM): ahí el coach agrega el RM o calcula uno aproximado.
+      const athleteId = str(p.athleteId);
+      const names = Array.isArray(p.exerciseNames) ? p.exerciseNames.filter((x): x is string => typeof x === "string") : [];
+      const total = typeof p.missingCount === "number" ? p.missingCount : names.length;
+      return {
+        title: "Falta el RM",
+        text: `${athlete} no tiene RM en ${joinNames(names, total)}. Agrégalo o calcula uno aproximado.`,
+        icon: "initials",
+        initials: initialsOf(athlete),
+        target: athleteId ? { kind: "athlete", athleteId } : { kind: "none" },
       };
     }
     case "session_logged": {

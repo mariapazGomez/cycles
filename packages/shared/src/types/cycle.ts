@@ -118,6 +118,12 @@ export interface SessionExercise {
   targetSets: number;
   targetReps: number;
   targetWeight?: number;
+  // Carga como % del RM del atleta (1–100); excluyente con targetWeight (CYC-306).
+  targetPercentRm?: number | null;
+  // Solo con % del RM: ok (resolvedWeightKg ya redondeado), missing (el atleta no tiene RM) o
+  // needs_athlete (rutina o plantilla sin atleta). Nulo si el ejercicio no lleva %.
+  rmStatus?: "ok" | "missing" | "needs_athlete" | null;
+  resolvedWeightKg?: number | null;
   targetRestSeconds?: number;
   targetRir?: number | null;
   // Nota del coach para el atleta, copiada de la rutina y editable por sesión.

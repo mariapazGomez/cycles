@@ -16,6 +16,7 @@ import { RolesGuard } from "../common/guards/roles.guard";
 import { Roles } from "../common/decorators/roles.decorator";
 import { CurrentUser, AuthenticatedUser } from "../common/decorators/current-user.decorator";
 import { SessionsService } from "./sessions.service";
+import { CreateSessionsBatchDto } from "./dto/create-sessions-batch.dto";
 import { CreateSessionDto } from "./dto/create-session.dto";
 import { UpdateSessionDto } from "./dto/update-session.dto";
 import { DuplicateSessionDto } from "./dto/duplicate-session.dto";
@@ -40,6 +41,13 @@ export class SessionsController {
     @Body() dto: CreateSessionDto,
   ) {
     return this.sessionsService.createSession(user.id, cycleId, dto);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles("coach")
+  @Post("sessions/batch")
+  createSessionsBatch(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateSessionsBatchDto) {
+    return this.sessionsService.createSessionsBatch(user.id, dto);
   }
 
   @Get("cycles/:cycleId/sessions")

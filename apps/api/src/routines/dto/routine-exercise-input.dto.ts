@@ -23,6 +23,14 @@ export class RoutineExerciseInputDto {
   @IsPositive()
   defaultWeight?: number;
 
+  // Carga como % del RM (1–100). No convive con defaultWeight; en la rutina no hay atleta, así que
+  // se guarda sin comprobar el RM (se comprueba al asignarla a un atleta).
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  defaultPercentRm?: number;
+
   @IsOptional()
   @IsInt()
   @Min(0)

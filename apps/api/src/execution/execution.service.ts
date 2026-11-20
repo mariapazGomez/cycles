@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+import { MaxesService } from "../maxes/maxes.service";
 import {
   BadRequestException,
   ConflictException,
@@ -30,6 +32,7 @@ export class ExecutionService {
     private readonly prisma: PrismaService,
     private readonly activity: ActivityNotifier,
     private readonly notifications: NotificationsService,
+    private readonly maxes: MaxesService,
   ) {}
 
   // La próxima sesión pendiente de los planes activos del atleta, con lo que
@@ -91,7 +94,7 @@ export class ExecutionService {
         throw new NotFoundException("Esa sesión no está pendiente en tus ciclos activos.");
       }
       const cycle = usable.find((c) => c.id === chosen.cycleId)!;
-      return { cycle: cycleInfo(cycle), session: chosen, assignedToday };
+      return { cycle: cycleInfo(cycle), session: await this.withLoads(chosen, athleteId), assignedToday };
     }
 
     for (const cycle of usable) {
@@ -101,11 +104,19 @@ export class ExecutionService {
         include,
       });
       if (session) {
-        return { cycle: cycleInfo(cycle), session, assignedToday };
+        return { cycle: cycleInfo(cycle), session: await this.withLoads(session, athleteId), assignedToday };
       }
     }
 
     return null;
+  }
+
+  // Agrega rmStatus y resolvedWeightKg a los ejercicios con carga en % del RM (CYC-306).
+  private async withLoads<T extends { sessionExercises: Array<{ exerciseId: string; targetPercentRm: number | null; frozenRmKg: number | null }> }>(
+    session: T,
+    athleteId: string,
+  ) {
+    return { ...session, sessionExercises: await this.maxes.withResolvedLoads(session.sessionExercises, athleteId) };
   }
 
   // El coach define cuántas sesiones por semana; el atleta elige el día de cada
@@ -198,6 +209,21 @@ export class ExecutionService {
       }
     }
 
+    // La primera serie de un ejercicio con % congela el RM usado: el peso de la sesión no cambia
+    // aunque el coach registre un RM nuevo después. Se fija una sola vez.
+    let freezeRm: Prisma.PrismaPromise<unknown>[] = [];
+    if (sessionExercise.targetPercentRm !== null && sessionExercise.frozenRmKg === null) {
+      const rm = (await this.maxes.currentMaxes(athleteId, [sessionExercise.exerciseId])).get(sessionExercise.exerciseId);
+      if (rm) {
+        freezeRm = [
+          this.prisma.sessionExercise.updateMany({
+            where: { id: sessionExerciseId, frozenRmKg: null },
+            data: { frozenRmKg: rm.weightKg },
+          }),
+        ];
+      }
+    }
+
     const [log] = await this.prisma.$transaction([
       this.prisma.exerciseLog.create({
         data: {
@@ -211,6 +237,7 @@ export class ExecutionService {
           supersedesId: dto.supersedesId,
         },
       }),
+      ...freezeRm,
       // La primera serie registrada también cuenta como inicio de la sesión.
       ...(session.startedAt
         ? []
@@ -444,6 +471,8 @@ export class ExecutionService {
         where: { sessionExercise: { sessionId }, ...CURRENT_LOG },
         data: { active: 0 },
       }),
+      // La sesión vuelve a empezar de cero: el RM de los ejercicios con % se vuelve a fijar en su primera serie.
+      this.prisma.sessionExercise.updateMany({ where: { sessionId }, data: { frozenRmKg: null } }),
     ]);
     return updated;
   }
