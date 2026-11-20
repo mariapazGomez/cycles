@@ -1,4 +1,4 @@
-import { IsInt, IsOptional, IsPositive, IsString, Max, MaxLength, Min } from "class-validator";
+import { ValidateIf, IsInt, IsOptional, IsPositive, IsString, Max, MaxLength, Min } from "class-validator";
 import { NOTE_MAX_LENGTH } from "../../common/exercise-note";
 
 export class UpdateSessionExerciseDto {
@@ -15,6 +15,14 @@ export class UpdateSessionExerciseDto {
   @IsOptional()
   @IsPositive()
   targetWeight?: number;
+
+  // Carga como % del RM (1–100); null la quita. Poner un peso fijo quita el %, y al revés.
+  @IsOptional()
+  @ValidateIf((_, value) => value !== null)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  targetPercentRm?: number | null;
 
   @IsOptional()
   @IsInt()

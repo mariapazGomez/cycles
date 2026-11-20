@@ -23,6 +23,7 @@ import { EventsModule } from "./events/events.module";
 import { NotificationsModule } from "./notifications/notifications.module";
 import { ContactModule } from "./contact/contact.module";
 import { AdminModule } from "./admin/admin.module";
+import { MaxesModule } from "./maxes/maxes.module";
 import { HealthController } from "./health/health.controller";
 
 @Module({
@@ -42,6 +43,7 @@ import { HealthController } from "./health/health.controller";
     ExercisesModule,
     RoutinesModule,
     ExecutionModule,
+    MaxesModule,
     TrackingModule,
     EventsModule,
     ContactModule,

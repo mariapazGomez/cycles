@@ -15,6 +15,7 @@ import { startOfUtcDay } from "../common/training";
 import { Prisma } from "@prisma/client";
 import { earliestAllowedDay, reassignSlots, weekOfDate } from "./slots";
 import { NotificationsService } from "../notifications/notifications.service";
+import { MaxesService } from "../maxes/maxes.service";
 import { CreateSessionDto } from "./dto/create-session.dto";
 import { UpdateSessionDto } from "./dto/update-session.dto";
 import { DuplicateSessionDto } from "./dto/duplicate-session.dto";
@@ -30,7 +31,30 @@ export class SessionsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationsService,
+    private readonly maxes: MaxesService,
   ) {}
+
+  // Carga como % del RM (CYC-306): un ejercicio lleva peso fijo o %, nunca los dos.
+  private assertLoadExclusive(weight: unknown, percent: unknown) {
+    if (weight != null && percent != null) {
+      throw new BadRequestException("Un ejercicio lleva peso fijo o % del RM, no los dos.");
+    }
+  }
+
+  // El % solo se guarda si el atleta tiene RM vigente en ese ejercicio.
+  private async assertPercentHasMax(cycle: { athleteId: string | null }, items: Array<{ exerciseId: string; percent?: number | null }>) {
+    const withPercent = items.filter((i) => i.percent != null).map((i) => i.exerciseId);
+    if (withPercent.length === 0) return;
+    await this.maxes.assertHasMax(athleteIdOf(cycle), withPercent);
+  }
+
+  // Agrega rmStatus y resolvedWeightKg a los ejercicios de la sesión (el peso no se guarda).
+  private async resolveSession<T extends { sessionExercises: Array<{ exerciseId: string; targetPercentRm: number | null; frozenRmKg: number | null }> }>(
+    session: T,
+    athleteId: string | null,
+  ) {
+    return { ...session, sessionExercises: await this.maxes.withResolvedLoads(session.sessionExercises, athleteId) };
+  }
 
   // Instancia una rutina de la biblioteca como una sesión del ciclo. Los
   // SessionExercise se copian de la rutina (editables después sin afectar la
@@ -61,7 +85,7 @@ export class SessionsService {
 
     const routine = await this.prisma.routine.findUnique({
       where: { id: dto.routineId },
-      include: { routineExercises: true, blocks: true },
+      include: { routineExercises: { include: { exercise: { select: { name: true } } } }, blocks: true },
     });
     if (!routine || routine.coachId !== coachId) {
       throw new BadRequestException("La rutina elegida no está disponible.");
@@ -83,6 +107,15 @@ export class SessionsService {
       orderIndex: b.orderIndex,
       note: b.note,
     }));
+    // Los % del RM de la rutina solo se aplican si el atleta tiene RM en ese ejercicio; si no, el
+    // ejercicio queda sin carga y se avisa (percentNotApplied) para que el coach decida (CYC-306).
+    const athleteMaxes = await this.maxes.currentMaxes(
+      cycle.athleteId!,
+      routine.routineExercises.filter((re) => re.defaultPercentRm != null).map((re) => re.exerciseId),
+    );
+    const percentNotApplied = routine.routineExercises
+      .filter((re) => re.defaultPercentRm != null && !athleteMaxes.has(re.exerciseId))
+      .map((re) => ({ exerciseId: re.exerciseId, name: re.exercise.name, percent: re.defaultPercentRm! }));
     const exercises = routine.routineExercises.map((re) => ({
       blockId: re.blockId ? (blockIdOf.get(re.blockId) ?? null) : null,
       exerciseId: re.exerciseId,
@@ -90,6 +123,7 @@ export class SessionsService {
       targetSets: re.defaultSets,
       targetReps: re.defaultReps,
       targetWeight: re.defaultWeight,
+      targetPercentRm: re.defaultPercentRm != null && athleteMaxes.has(re.exerciseId) ? re.defaultPercentRm : null,
       targetRestSeconds: re.defaultRestSeconds,
       targetRir: re.defaultRir,
       note: re.note,
@@ -167,7 +201,7 @@ export class SessionsService {
       }
     }
     this.notifications.coachEditedSession(created.id, "added");
-    return created;
+    return { ...(await this.resolveSession(created, cycle.athleteId)), percentNotApplied };
   }
 
   // La app móvil ordena por (semana, espacio): los espacios de las sesiones con
@@ -222,7 +256,7 @@ export class SessionsService {
     }
     await this.assertCycleAccess(user, session.cycle);
 
-    return session;
+    return this.resolveSession(session, session.cycle.athleteId);
   }
 
   // Los ciclos completados o archivados son de solo lectura: no se agregan,
@@ -404,6 +438,7 @@ export class SessionsService {
                 targetSets: e.targetSets,
                 targetReps: e.targetReps,
                 targetWeight: e.targetWeight,
+                targetPercentRm: e.targetPercentRm,
                 targetRestSeconds: e.targetRestSeconds,
                 targetRir: e.targetRir,
                 note: e.note,
@@ -416,13 +451,14 @@ export class SessionsService {
         return copy.id;
       });
       this.notifications.coachEditedSession(id, "added");
-      return this.prisma.trainingSession.findUniqueOrThrow({
+      const copy = await this.prisma.trainingSession.findUniqueOrThrow({
         where: { id },
         include: {
           sessionExercises: { include: { exercise: true }, orderBy: { orderIndex: "asc" } },
           blocks: { orderBy: { orderIndex: "asc" } },
         },
       });
+      return this.resolveSession(copy, session.cycle.athleteId);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
         throw new ConflictException("Se estaba agregando otra sesión a la vez. Inténtalo de nuevo.");
@@ -464,6 +500,9 @@ export class SessionsService {
       throw new BadRequestException("El ejercicio elegido no está disponible.");
     }
 
+    this.assertLoadExclusive(dto.targetWeight, dto.targetPercentRm);
+    await this.assertPercentHasMax(session.cycle, [{ exerciseId: dto.exerciseId, percent: dto.targetPercentRm }]);
+
     // Mismo criterio que en createSession: máximo histórico + 1, no count().
     const { _max } = await this.prisma.sessionExercise.aggregate({
       where: { sessionId: session.id },
@@ -479,6 +518,7 @@ export class SessionsService {
         targetSets: dto.targetSets,
         targetReps: dto.targetReps,
         targetWeight: dto.targetWeight,
+        targetPercentRm: dto.targetPercentRm,
         targetRestSeconds: dto.targetRestSeconds,
         targetRir: dto.targetRir,
         note: cleanNote(dto.note) ?? null,
@@ -486,7 +526,7 @@ export class SessionsService {
       include: { exercise: true },
     });
     this.notifications.coachEditedSession(session.id, "changed");
-    return created;
+    return (await this.maxes.withResolvedLoads([created], session.cycle.athleteId))[0];
   }
 
   // Guarda la estructura completa de la sesión (CYC-275): los bloques en orden con sus
@@ -529,6 +569,8 @@ export class SessionsService {
     if (removed.some((e) => e._count.logs > 0)) {
       throw new ConflictException("No se puede quitar: el atleta ya registró ejecución de este ejercicio.");
     }
+    for (const ex of incoming) this.assertLoadExclusive(ex.targetWeight, ex.targetPercentRm);
+    await this.assertPercentHasMax(session.cycle, incoming.map((ex) => ({ exerciseId: ex.exerciseId, percent: ex.targetPercentRm })));
     await this.assertExercisesAvailable(coachId, incoming.filter((ex) => !ex.id || byId.get(ex.id)?.exerciseId !== ex.exerciseId));
 
     const row = (ex: SessionStructureExerciseDto, orderIndex: number, blockId: string | null) => ({
@@ -537,6 +579,7 @@ export class SessionsService {
       targetSets: ex.targetSets,
       targetReps: ex.targetReps,
       targetWeight: ex.targetWeight ?? null,
+      targetPercentRm: ex.targetPercentRm ?? null,
       targetRestSeconds: ex.targetRestSeconds ?? null,
       targetRir: ex.targetRir ?? null,
       note: cleanNote(ex.note) ?? null,
@@ -566,13 +609,14 @@ export class SessionsService {
     });
 
     this.notifications.coachEditedSession(session.id, "changed");
-    return this.prisma.trainingSession.findUniqueOrThrow({
+    const saved = await this.prisma.trainingSession.findUniqueOrThrow({
       where: { id: session.id },
       include: {
         sessionExercises: { include: { exercise: true }, orderBy: { orderIndex: "asc" } },
         blocks: { orderBy: { orderIndex: "asc" } },
       },
     });
+    return this.resolveSession(saved, session.cycle.athleteId);
   }
 
   private async assertExercisesAvailable(coachId: string, exercises: Array<{ exerciseId: string }>) {
@@ -591,12 +635,26 @@ export class SessionsService {
   async updateExercise(coachId: string, sessionExerciseId: string, dto: UpdateSessionExerciseDto) {
     const sessionExercise = await this.getSessionExerciseForCoach(sessionExerciseId, coachId);
 
+    // Poner un peso fijo quita el %, y poner un % quita el peso fijo (los dos a la vez no se aceptan).
+    this.assertLoadExclusive(dto.targetWeight, dto.targetPercentRm);
+    if (dto.targetPercentRm != null) {
+      await this.assertPercentHasMax(sessionExercise.session.cycle, [
+        { exerciseId: sessionExercise.exerciseId, percent: dto.targetPercentRm },
+      ]);
+    }
+    const load =
+      dto.targetPercentRm !== undefined
+        ? { targetPercentRm: dto.targetPercentRm, ...(dto.targetPercentRm !== null ? { targetWeight: null } : {}) }
+        : dto.targetWeight !== undefined
+          ? { targetWeight: dto.targetWeight, targetPercentRm: null }
+          : {};
+
     const updated = await this.prisma.sessionExercise.update({
       where: { id: sessionExercise.id },
       data: {
         ...(dto.targetSets !== undefined ? { targetSets: dto.targetSets } : {}),
         ...(dto.targetReps !== undefined ? { targetReps: dto.targetReps } : {}),
-        ...(dto.targetWeight !== undefined ? { targetWeight: dto.targetWeight } : {}),
+        ...load,
         ...(dto.targetRestSeconds !== undefined ? { targetRestSeconds: dto.targetRestSeconds } : {}),
         ...(dto.targetRir !== undefined ? { targetRir: dto.targetRir } : {}),
         ...(dto.note !== undefined ? { note: cleanNote(dto.note) } : {}),
@@ -604,7 +662,7 @@ export class SessionsService {
       include: { exercise: true },
     });
     this.notifications.coachEditedSession(sessionExercise.sessionId, "changed");
-    return updated;
+    return (await this.maxes.withResolvedLoads([updated], sessionExercise.session.cycle.athleteId))[0];
   }
 
   async removeExercise(coachId: string, sessionExerciseId: string): Promise<void> {

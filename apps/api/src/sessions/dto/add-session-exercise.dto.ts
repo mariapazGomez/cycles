@@ -17,6 +17,13 @@ export class AddSessionExerciseDto {
   @IsPositive()
   targetWeight?: number;
 
+  // Carga como % del RM del atleta (1–100). No convive con un peso fijo.
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  targetPercentRm?: number;
+
   @IsOptional()
   @IsInt()
   @Min(0)

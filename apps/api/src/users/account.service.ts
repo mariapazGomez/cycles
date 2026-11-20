@@ -107,6 +107,8 @@ export class AccountService {
     ).map((s) => s.id);
 
     await tx.exerciseLog.deleteMany({ where: { OR: [{ athleteId }, { sessionExerciseId: { in: sessionExerciseIds } }] } });
+    // Sus RM (CYC-306) son dato suyo: se van con la cuenta.
+    await tx.athleteMax.deleteMany({ where: { athleteId } });
     await tx.sessionFeedback.deleteMany({ where: { OR: [{ athleteId }, { sessionId: { in: sessionIds } }] } });
     await tx.sessionExercise.deleteMany({ where: { id: { in: sessionExerciseIds } } });
     await tx.sessionBlock.deleteMany({ where: { sessionId: { in: sessionIds } } });
@@ -195,7 +197,7 @@ export class AccountService {
 
     const exportedAt = new Date().toISOString();
     if (user.role === "athlete") {
-      const [plans, logs, feedback, events] = await Promise.all([
+      const [plans, logs, feedback, events, maxes] = await Promise.all([
         this.prisma.trainingCycle.findMany({
           where: { athleteId: userId },
           include: {
@@ -206,8 +208,9 @@ export class AccountService {
         this.prisma.sessionFeedback.findMany({ where: { athleteId: userId }, orderBy: { submittedAt: "asc" } }),
         // Sus actividades paralelas completas (con las notas, que son suyas) y sus excepciones.
         this.prisma.athleteEvent.findMany({ where: { athleteId: userId }, include: { exceptions: true }, orderBy: { date: "asc" } }),
+        this.prisma.athleteMax.findMany({ where: { athleteId: userId }, orderBy: { measuredAt: "asc" } }),
       ]);
-      return { exportedAt, profile: user, plans, setLogs: logs, sessionFeedback: feedback, athleteEvents: events };
+      return { exportedAt, profile: user, plans, setLogs: logs, sessionFeedback: feedback, athleteEvents: events, maxes };
     }
 
     const [routines, exercises, plans, summaryLayout] = await Promise.all([

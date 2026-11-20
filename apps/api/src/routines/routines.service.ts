@@ -79,12 +79,16 @@ export class RoutinesService {
   }
 
   private toExerciseRow(ex: RoutineExerciseInputDto, orderIndex: number, blockId: string | null) {
+    if (ex.defaultWeight != null && ex.defaultPercentRm != null) {
+      throw new BadRequestException("Un ejercicio lleva peso fijo o % del RM, no los dos.");
+    }
     return {
       exerciseId: ex.exerciseId,
       orderIndex,
       defaultSets: ex.defaultSets,
       defaultReps: ex.defaultReps,
       defaultWeight: ex.defaultWeight,
+      defaultPercentRm: ex.defaultPercentRm,
       defaultRestSeconds: ex.defaultRestSeconds,
       defaultRir: ex.defaultRir,
       note: cleanNote(ex.note) ?? null,

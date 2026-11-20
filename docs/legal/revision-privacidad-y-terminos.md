@@ -56,6 +56,7 @@ Estas brechas son las más importantes. La política dice que se resuelven **por
 | Relación coach–atleta, invitaciones | Supabase | No |
 | Planes, rutinas, sesiones | Supabase | No |
 | Series (reps, peso, RIR), esfuerzo, duración, motivo de omisión | Supabase | Rendimiento |
+| RM por ejercicio (peso máximo a 1 repetición, con historial; CYC-306) | Supabase | Rendimiento (se elimina con la cuenta del atleta) |
 | **Dolor y notas libres** | Supabase | **Salud** |
 | IP | Solo en memoria (límites) y registros de proveedores; no en la base | No |
 | Formulario de contacto (correo + mensaje) | Supabase + Slack privado | No |
