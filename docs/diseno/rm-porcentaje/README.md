@@ -8,7 +8,14 @@ updated: 2026-11-20
 
 # RM del atleta por ejercicio y carga como % del RM (CYC-305)
 
-> Contrastado con `origin/main` (2026-11-20). Estado: **propuesto, a la espera del «apruebo»**. Sin cambios de código. Maquetas en [`propuestas.html`](propuestas.html); capturas en `capturas/`. Origen: un coach nuevo del piloto, con un equipo de voleibol, pidió registrar el RM de cada atleta por ejercicio y planificar la carga como % del RM. Tarjeta hermana de API: CYC-306 (Desarrollo general).
+> Contrastado con `origin/main` (2026-11-20). Estado: **propuesto**; el modelo de datos ya fue aprobado por la usuaria (ver CYC-306) y quedan dos decisiones abiertas. Sin cambios de código. Maquetas en [`propuestas.html`](propuestas.html); capturas en `capturas/`. Origen: un coach nuevo del piloto, con un equipo de voleibol, pidió registrar el RM de cada atleta por ejercicio y planificar la carga como % del RM. Tarjeta hermana de API: CYC-306 (Desarrollo general).
+
+## Reglas ya decididas por la usuaria (20-11)
+
+1. **El RM es el peso máximo a 1 repetición.**
+2. **Sin RM, no hay % del RM.** Si el atleta no tiene RM en un ejercicio, la opción «% del RM» se desactiva para ese ejercicio: no se ofrece ni se puede guardar.
+3. **Lo levantado en las series no es el RM.** Puede mostrarse como «máximo levantado» (peso × repeticiones), aparte y solo de referencia; nunca llena el RM ni se convierte solo. `estimated` queda reservado en el modelo, sin construir.
+4. Modelo aprobado: tabla `AthleteMax`, % de 1 a 100, `frozenRmKg`. Redondeo a 2,5 kg por defecto (sin confirmar).
 
 ## Qué hay hoy
 
@@ -23,36 +30,36 @@ updated: 2026-11-20
 
 | # | Tema | Recomendación | Alternativa |
 |---|---|---|---|
-| 1 | Quién registra el RM | **Ambos.** El coach lo agrega y actualiza desde la ficha del atleta; el atleta, desde su sesión o desde Cuenta › Mis RM. Cada registro guarda fecha, origen (Coach / Atleta / Estimado) y quién lo puso. | Solo el coach (más simple, pero el atleta sin RM queda esperando). |
-| 2 | Cómo se actualiza | Cada cambio es un **registro nuevo**; el vigente es el más reciente y el anterior queda en el historial. Igual que las series (`ExerciseLog`), nunca se pisa. | Un solo valor editable (se pierde el historial). |
-| 3 | Constructor | **A.** La celda de Carga lleva el selector «kg ⌄ / % RM ⌄» (mismo patrón que «reps ⌄ / s ⌄» de CYC-296) y una **vista previa opcional** con el RM de un atleta, que agrega la columna «Peso de Valentina». | B: sin vista previa; el peso solo se ve al asignar. |
-| 4 | Ejercicio por tiempo | La carga queda en **kg**; «% del RM» se apaga (el RM es de una repetición). | Permitir % en tiempo (no tiene sentido). |
-| 5 | Atleta sin RM en un ejercicio | **Nunca bloquea.** En la sesión del atleta la fila dice «Sin RM» y el coach elige: ingresar el RM, usar peso fijo en esa sesión o dejarlo así (el atleta ve el % y puede ingresar su RM). Al asignar el ciclo se ofrece lo mismo, con «Asignar igual y pedirle su RM» como opción por defecto. | Bloquear la asignación hasta tener RM (frena al coach). |
-| 6 | Si cambia el RM después de asignar | El peso es **vivo** mientras el ejercicio no se haya empezado: usa el RM vigente. Al registrar la primera serie del ejercicio, se **congela** el RM usado. Lo ya registrado no cambia. | Foto al asignar y botón «Recalcular» (más control, más trabajo para el coach). |
-| 7 | Redondeo | Al **2,5 kg** más cercano (5 lb si el atleta usa libras): 80 % de 90 kg = 72 → 72,5 kg. | Sin redondeo (72 kg, no hay disco). |
-| 8 | Rango del % | Entero de 1 a 100. | Hasta 120 (excéntricos). |
-| 9 | RM estimado desde las series | Se diseña como **sugerencia** que el coach confirma («Usar 57 kg»); nunca reemplaza un RM solo. Recomiendo **dejarlo para una segunda entrega** y que el modelo ya lo admita (`source = estimated`). | Incluirlo en la primera entrega. |
-| 10 | Avisos al atleta | Notificación breve cuando el coach registra o cambia su RM, y cuando el coach le pide ingresarlo. Sin datos de salud. | Sin avisos. |
-| 11 | Ejercicios con RM | Solo los que se cargan: los de peso corporal no tienen RM. | Cualquiera. |
+| 1 | Constructor con un atleta en la vista previa | **A.** La celda de Carga lleva el selector «kg / % RM» (mismo patrón que «reps / tiempo» de CYC-296). Con un atleta elegido, aparece la columna «Peso de Valentina» y **«% del RM» queda desactivado** en los ejercicios donde no tiene RM, con la razón y la salida: «Ingresar el RM de Valentina». | Sin vista previa del atleta (menos claro). |
+| 2 | Rutinas y ciclos plantilla (sin atleta) | **«% del RM» se ofrece en cualquier ejercicio con carga**, sin peso calculado. La comprobación pasa al asignar y a la sesión de cada atleta. | Exigir un atleta de referencia para poder usar %: frena al coach que arma una plantilla para varios. |
+| 3 | Asignar a un atleta que no tiene todos los RM | **«Asignar» se desactiva** hasta resolver cada ejercicio con %: ingresar el RM (se abre su ficha) o **asignar con peso fijo** en esos ejercicios, con su kg. Misma comprobación al agregar una rutina a una celda de su sesión. | Asignar igual sin peso (contradice la regla 2). |
+| 4 | Ejercicio por tiempo | La carga queda en **kg**; «% del RM» se apaga. | Permitir % en tiempo (no tiene sentido). |
+| 5 | Quién registra el RM | **Coach siempre**, desde la ficha del atleta (sección RM) o desde el constructor. **Decisión abierta: ¿el atleta también?** Opción A: sí, desde Cuenta › Mis RM, con origen «Atleta» visible para el coach. Opción B: solo el coach; el atleta ve una lista de solo lectura. | — |
+| 6 | Cómo se actualiza | Cada cambio es un **registro nuevo**; el vigente es el más reciente y el anterior queda en el historial, como las series. | Un solo valor editable (se pierde el historial). |
+| 7 | Máximo levantado | Se muestra **aparte** y solo de referencia: en la ficha (columna «Máximo levantado», p. ej. «60 kg × 10») y en el formulario de RM («Es solo una referencia»). El campo de RM nunca se prellena con él. | No mostrarlo. |
+| 8 | Si cambia el RM después de asignar | El peso es **vivo** mientras el ejercicio no se haya empezado: usa el RM vigente. Al registrar la primera serie se **congela** el RM usado. Lo ya registrado no cambia. | Foto al asignar y botón «Recalcular». |
+| 9 | Redondeo | Al **2,5 kg** más cercano (5 lb si el atleta usa libras): 80 % de 90 kg = 72 → 72,5 kg. | Sin redondeo, o 1 kg o 5 kg. |
+| 10 | Ejercicios con RM | Solo los que se cargan: ni peso corporal ni los medidos por tiempo. | Cualquiera. |
 
 ## Qué se ve en cada lugar
 
 | Lugar | Con RM | Sin RM |
 |---|---|---|
-| Constructor de rutina (web) | `80 % RM ⌄` y, con vista previa, «72,5 kg» | Con vista previa: «Sin RM» |
-| Sesión de un atleta (web) | `80 % RM` y «72,5 kg» | «Sin RM ⌄» con tres salidas |
-| Hoy (app y web) | `4 × 6 · 72,5 kg` | `3 × 10 · 75 % de tu RM` |
-| Registro de la serie | Meta «6 × 72,5 kg», chip «80 % de tu RM de 90 kg», peso prellenado | «Aún no tienes RM en Hip thrust» con «Ingresar mi RM» y «Registrar sin RM» |
-| Serie guardada | `6 reps · 72,5 kg` | Lo que el atleta registró |
-| Ficha del atleta (web) | Tabla «Con RM»: ejercicio, RM, fecha, origen | Tabla «Sin RM en su plan» primero |
+| Constructor, con un atleta en la vista previa | `80 % RM ⌄` y «72,5 kg» | «% del RM» desactivado con la razón; peso fijo; «Ingresar el RM de…» |
+| Constructor, rutina o plantilla sin atleta | `80 % RM ⌄`, sin peso | No aplica: no hay atleta |
+| Asignar un ciclo a un atleta | Se asigna con % | «Asignar» desactivado hasta ingresar su RM o poner peso fijo |
+| Hoy (app y web) | `4 × 6 · 72,5 kg` | El ejercicio llega con peso fijo (no puede llegar un % sin RM) |
+| Registro de la serie | Meta «6 × 72,5 kg», chip «80 % de tu RM de 90 kg», peso prellenado | Como hoy, con el peso fijo |
+| Serie guardada | `6 reps · 72,5 kg` | Lo que registró el atleta |
+| Ficha del atleta (web) | Tabla «Con RM»: RM, fecha, origen y máximo levantado | Tabla «Sin RM» con «Agregar RM» |
 | Ciclo en la Biblioteca (web) | Matriz atletas × ejercicios con %: «72,5 kg» | «Sin RM» |
-| Cuenta › Mis RM (app) | Lista con origen y fecha | «Sin RM en mi plan» con «Agregar» |
+| Cuenta › Mis RM (app) | Lista con origen y fecha; opción A suma «Agregar RM» | Opción B: solo lectura |
 
 Las pantallas nuevas cuidan la regla de no poner líneas grises bajo los títulos: el contexto va en columnas, etiquetas o el propio dato. No hay pantallas de Resumen.
 
 ## Cambio de modelo (diagrama)
 
-Aditivo: una tabla nueva y columnas nulas. No toca datos existentes.
+Aditivo: una tabla nueva y columnas nulas. No toca datos existentes. Nombres acordados con Desarrollo general (CYC-306).
 
 ```mermaid
 erDiagram
@@ -68,12 +75,12 @@ erDiagram
         string id
         string athleteId "NUEVA TABLA"
         string exerciseId
-        float weightKg "siempre en kg"
+        float weightKg "RM a 1 repetición, en kg"
         date measuredAt "fecha de la marca"
-        enum source "coach | athlete | estimated"
+        enum source "coach | athlete | estimated (reservado)"
         string recordedById "quien lo registró"
-        string basedOnLogId "solo si estimated"
-        datetime createdAt
+        string basedOnLogId "reservado, solo estimated"
+        datetime createdAt "desempata la misma fecha"
     }
     RoutineExercise {
         string id
@@ -91,6 +98,7 @@ erDiagram
     ExerciseLog {
         string id
         float actualWeight "lo que levantó"
+        int actualReps
     }
     User ||--o{ AthleteMax : "atleta"
     Exercise ||--o{ AthleteMax : "RM de este ejercicio"
@@ -100,12 +108,14 @@ erDiagram
 
 Reglas del modelo:
 
-- **Peso fijo o %, no ambos.** Si `defaultPercentRm` / `targetPercentRm` tiene valor, el peso fijo va nulo (y al revés). No hace falta un enum.
-- **El % solo con `measure = reps`.** Si CYC-296 aún no se mezcló al construir, la regla se agrega cuando existan ambos.
-- **`AthleteMax` es solo-agregar.** El RM vigente de un atleta y un ejercicio es el de `measuredAt` más reciente (empate: el último creado). Un error se corrige con otro registro.
-- **Índice** por `(athleteId, exerciseId, measuredAt)`. Lectura y escritura: control R5 coach–atleta; el atleta solo escribe los suyos.
-- **El peso no se guarda: se calcula al leer.** La API lo devuelve en la estructura de la sesión.
-- **Contrato acordado con CYC-306 (Desarrollo general):** por ejercicio, `targetPercentRm`, `resolvedWeightKg` (nulo si no hay) y `rmStatus` = `ok` | `missing` | `needs_athlete` (rutina o plantilla sin atleta: en el constructor, sin vista previa, no hay peso). A nivel de ciclo o sesión, `exercisesMissingRm`. `AthleteMax.createdAt` desempata: vigente = `measuredAt` desc, `createdAt` desc. Endpoints: coach `GET/POST /athletes/:athleteId/rm[/:exerciseId]`, atleta `GET /me/rm`.
+- **Peso fijo o %, no ambos** (CHECK en la base y validación en la API).
+- **Sin RM no se guarda un %.** En un `SessionExercise` (que ya tiene atleta), la API rechaza `targetPercentRm` si el atleta no tiene RM en ese ejercicio. En una rutina o ciclo plantilla (sin atleta) sí se guarda, y la respuesta lleva `rmStatus = needs_athlete`.
+- **Al asignar o copiar a una sesión**, la API devuelve la lista de ejercicios con % donde el atleta no tiene RM, y no copia hasta que cada uno traiga un peso fijo (`weightKg` por fila) o el RM exista.
+- **El % solo con `measure = reps`**; la validación se agrega cuando CYC-297 se mezcle.
+- **`AthleteMax` es solo-agregar.** El RM vigente de un atleta y un ejercicio es el de `measuredAt` más reciente (empate: `createdAt` más reciente). Un error se corrige con otro registro. Nunca se borra, así que un % ya guardado no pierde su RM.
+- **Índice** por `(athleteId, exerciseId, measuredAt)`. Lectura y escritura: control R5 coach–atleta; el atleta solo escribe los suyos (si la opción A se aprueba).
+- **El peso no se guarda: se calcula al leer.** Contrato acordado: por ejercicio, `targetPercentRm`, `resolvedWeightKg` (nulo si no hay) y `rmStatus` = `ok` | `missing` | `needs_athlete`; a nivel de ciclo o sesión, `exercisesMissingRm`.
+- **«Máximo levantado»** se calcula de `ExerciseLog` (series vigentes, ejercicios con carga): el mayor peso con sus repeticiones y fecha. Solo se lee; no se guarda ni alimenta el RM.
 
 Cómo se resuelve el peso que ve el atleta:
 
@@ -117,27 +127,29 @@ flowchart TD
   D -- Sí --> E["peso = redondeo(% × frozenRmKg)"]
   D -- No --> F{"¿El atleta tiene RM vigente?"}
   F -- Sí --> G["peso = redondeo(% × RM vigente)"]
-  F -- No --> H["Sin RM: se muestra solo el %<br/>y el atleta puede ingresar su RM"]
-  I["Primera serie registrada"] -.-> J["frozenRmKg = RM vigente, si había"]
+  F -- No --> H["Solo plantillas: needs_athlete, sin peso"]
+  I["Primera serie registrada"] -.-> J["frozenRmKg = RM vigente"]
+  K["Guardar un % en la sesión de un atleta"] --> L{"¿Tiene RM en el ejercicio?"}
+  L -- No --> M["Rechazado: se ofrece ingresar el RM o peso fijo"]
+  L -- Sí --> N["Se guarda"]
 ```
 
 ## Para Desarrollo general (CYC-306) y las tarjetas que salen de este diseño
 
 | # | Trabajo | Dónde |
 |---|---|---|
-| 1 | Migración aditiva: tabla `AthleteMax`, columnas `defaultPercentRm`, `targetPercentRm`, `frozenRmKg` (respaldo antes; aprobación de la usuaria antes de migrar) | `apps/api/prisma` |
-| 2 | Leer, agregar y actualizar el RM de un atleta (coach) y el propio (atleta); historial; lista «con RM / sin RM en su plan» por atleta | `apps/api` |
-| 3 | `percentRm` en rutinas y en agregar o editar ejercicio de sesión; validación (1 a 100, solo con reps, no junto a peso fijo); copia al asignar | `apps/api/src/routines`, `sessions` |
-| 4 | Peso calculado en la estructura de sesión (`resolvedWeight`, `rmKg`, `hasRm`); congelar al primer registro; redondeo a 2,5 kg | `apps/api/src/sessions`, `execution` |
-| 5 | Cobertura: la matriz de la Biblioteca muestra, **por ciclo plantilla**, los atletas que ya recibieron una copia × ejercicios con %, con peso o «Sin RM». Cada ciclo asignado es de un solo atleta, así que `GET /cycles/:id/rm-coverage` devuelve uno; la matriz necesita la cobertura agregada por plantilla (los atletas de la lista de impacto que ya existe) | `apps/api/src/cycles` |
-| 6 | Constructor web: selector «kg / % RM» en la celda, vista previa con un atleta, «Sin RM» en la sesión | `apps/web` |
-| 7 | Ficha del atleta: sección RM; aviso al asignar; pantalla de cobertura | `apps/web` |
-| 8 | App del atleta: peso prellenado, «Ingresar mi RM», Cuenta › Mis RM | `apps/mobile` |
-| 9 | Helper compartido para mostrar «72,5 kg» y «75 % de tu RM» | `packages/shared` |
-| 10 | Dos fichas de novedad | ver abajo |
-| 11 | Política de privacidad: confirmar que el RM entra en los datos de entrenamiento que ya ve el coach | PRD-PrivacidadYTerminos |
-
-El RM es una marca de rendimiento del atleta, no un dato de salud (R7 no aplica), pero conviene dejarlo escrito en la política antes de salir.
+| 1 | Migración aditiva: tabla `AthleteMax`, columnas `defaultPercentRm`, `targetPercentRm`, `frozenRmKg` (respaldo antes) | `apps/api/prisma` |
+| 2 | Leer, agregar y actualizar el RM de un atleta (coach) y el propio (atleta, si se aprueba la opción A); historial; lista «con RM / sin RM» con el máximo levantado de referencia | `apps/api` |
+| 3 | `percentRm` en rutinas y en agregar o editar ejercicio de sesión; validación (1 a 100, no junto a peso fijo, **rechazar si el atleta no tiene RM**) | `apps/api/src/routines`, `sessions` |
+| 4 | Asignar ciclo y agregar rutina a una celda: detectar ejercicios con % sin RM y aceptar un peso fijo por fila como alternativa | `apps/api/src/cycles`, `sessions` |
+| 5 | Peso calculado en la estructura de sesión (`resolvedWeightKg`, `rmStatus`, `exercisesMissingRm`); congelar al primer registro; redondeo a 2,5 kg | `apps/api/src/sessions`, `execution` |
+| 6 | Cobertura por ciclo plantilla (atletas con copia × ejercicios con %): tarjeta aparte | `apps/api/src/cycles` |
+| 7 | Constructor web: selector «kg / % RM», vista previa con un atleta, «% del RM» desactivado con razón y «Ingresar el RM de…» | `apps/web` |
+| 8 | Ficha del atleta: sección RM con máximo levantado; formulario de RM; bloqueo y alternativas al asignar | `apps/web` |
+| 9 | App del atleta: peso prellenado, Cuenta › Mis RM (y «Ingresar mi RM» si se aprueba la opción A) | `apps/mobile` |
+| 10 | Helper compartido para «72,5 kg» y «80 % de tu RM de 90 kg» | `packages/shared` |
+| 11 | Dos fichas de novedad | ver abajo |
+| 12 | Política de privacidad: dato de rendimiento (no de salud); confirmar el borrado de cuenta | PRD-PrivacidadYTerminos |
 
 ## Fichas de novedad (popup)
 
@@ -149,32 +161,34 @@ Dos fichas: cada rol la ve en su plataforma. Textos de hasta 140 caracteres (mid
   3. «Revisa antes de asignar»: «Al asignar un ciclo, ves en qué ejercicios el atleta no tiene RM y decides qué hacer.» Demo `rm-assign-check`.
 - `athlete-rm-percent@1` (app y web, atleta), 2 slides:
   1. «Tu peso, calculado»: «Tu coach puede indicar un % de tu RM. Verás el peso en kg ya calculado para cada serie.» Demo `athlete-rm-percent`.
-  2. «Guarda tu RM»: «Si falta tu RM, ingrésalo desde la sesión o desde Cuenta › Mis RM.» Demo `athlete-rm-enter`.
+  2. «Guarda tu RM»: «Si falta tu RM, ingrésalo desde la sesión o desde Cuenta › Mis RM.» Demo `athlete-rm-enter`. **Solo con la opción A**; con la opción B esta slide se cambia por «Tu RM, a la vista» y la ficha queda en una sola slide.
 
 No hace falta un tour nuevo.
 
 ## Accesibilidad
 
-- «Sin RM» y los orígenes (Coach, Atleta, Estimado) van en texto, no solo en color. Verde y naranja acompañan a la palabra.
-- Los campos de RM y de % aceptan teclado numérico; el selector «kg / % RM» se abre con el teclado y anuncia la opción elegida.
+- «Sin RM», los orígenes (Coach, Atleta) y la razón de una opción desactivada van en texto, no solo en color.
+- Una opción desactivada del selector sigue siendo enfocable con el teclado y anuncia su razón («Valentina no tiene RM en Hip thrust»).
+- Los campos de RM y de % aceptan teclado numérico.
 - En la app los pasos de peso y repeticiones miden 56 pt.
 - «72,5 kg» usa coma decimal, como el resto de la app.
 
 ## Fuera de alcance
 
 - Asignación masiva a varios atletas a la vez (hoy es de a uno).
-- Estimación automática del RM (queda como sugerencia, segunda entrega).
+- Estimación del RM desde las series (`estimated` queda reservado, sin construir).
 - Ver o editar el RM desde la app del coach (CYC-294 es solo lectura por ahora).
 - Gráficos de evolución del RM.
 
 ## Preguntas para la usuaria
 
-1. ¿El RM lo registran el coach y el atleta, con fecha y origen? (Recomendado: ambos.)
-2. Constructor: ¿A (selector en la celda con vista previa) o B (sin vista previa)?
-3. ¿Sin RM nunca se bloquea, y el coach elige entre ingresar, peso fijo o dejarlo así? ¿Y «Asignar igual y pedirle su RM» como opción por defecto?
-4. ¿El peso se actualiza solo con el RM nuevo hasta que el atleta empieza el ejercicio, y después se congela?
-5. ¿Redondeo al 2,5 kg más cercano?
-6. ¿% de 1 a 100?
-7. ¿La estimación del RM desde las series va en una segunda entrega?
-8. ¿Se avisa al atleta cuando el coach registra, cambia o le pide su RM?
-9. ¿Solo los ejercicios que se cargan pueden tener RM (no los de peso corporal ni los por tiempo)?
+Ya decidido: modelo, % de 1 a 100, «% del RM» desactivado sin RM, máximo levantado aparte.
+
+1. **¿El atleta también registra su propio RM** (opción A, con origen «Atleta» visible para el coach) **o solo el coach** (opción B, el atleta lo ve en solo lectura)? Decisión abierta.
+2. ¿Redondeo al 2,5 kg más cercano? (Quedó por defecto, sin confirmar.)
+3. En rutinas y plantillas sin atleta, ¿se ofrece «% del RM» siempre y se comprueba al asignar? (Recomendado.)
+4. Al asignar un ciclo a un atleta sin todos los RM, ¿«Asignar» se desactiva hasta ingresar el RM o poner un peso fijo?
+5. ¿El peso se actualiza solo con el RM nuevo hasta que el atleta empieza el ejercicio, y después se congela?
+6. ¿Se muestra el «máximo levantado» en la ficha y en el formulario de RM, solo de referencia?
+7. ¿Se avisa al atleta cuando el coach registra o cambia su RM?
+8. ¿Solo los ejercicios que se cargan pueden tener RM (no peso corporal ni por tiempo)?

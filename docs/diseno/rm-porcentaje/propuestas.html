@@ -284,6 +284,10 @@ body{font-family:Inter,-apple-system,system-ui,sans-serif;background:#d9e0ee;col
 .nvbox small{font:500 13px/1.4 Inter;color:#3f4757}
 .nvbox.on{background:#1a66dd}
 .nvbox.on b,.nvbox.on small{color:#fff}
+.pop div.dis{opacity:.6}
+.pop div.dis small{color:#8f4410;opacity:1}
+.pop div.act{color:#134fb0;font-weight:700;border-top:1px solid #e6ebf5;margin-top:4px;border-radius:0 0 8px 8px}
+.bn.off{opacity:.45}
 
 </style>
 </head>
@@ -320,7 +324,6 @@ const AV=(t)=>`<div class="av" style="width:34px;height:34px;font-size:12px">${t
 const chk=ic('check');
 // ---------- WEB: constructor ----------
 const COLS2=(peso)=>`<div class="wr2 h"><span></span><span>Ejercicio</span><span>Ser.</span><span>Reps o tiempo</span><span>Carga</span>${peso?`<span>${peso}</span>`:'<span></span>'}<span>Desc.</span><span>RIR</span><span></span></div>`;
-// carga: {v, u:'kg'|'%'|'st', pop}
 function row2(n,sets,rep,carga,peso,{desc='',rir='',tag='',pop=''}={}){
   const t=rep.u==='s';
   const cu=carga.u==='%'?'% RM':'kg';
@@ -330,82 +333,82 @@ function row2(n,sets,rep,carga,peso,{desc='',rir='',tag='',pop=''}={}){
   <div class="f ${desc?'':'ph2'}">${desc||'s'}</div>${t?'<div class="f off">—</div>':`<div class="f">${rir||'—'}</div>`}<div class="dots3">⋯</div></div>`;
 }
 const kgc=(t)=>`<span class="kgc">${t}</span>`;
-const nor=`<span class="kgc no">Sin RM</span>`;
-const POP_LOAD=`<div class="pop" style="left:0;top:38px;width:236px"><div><span>Peso fijo<small>Un peso en kg igual para todos</small></span></div><div class="on"><span>% del RM<small>Cada atleta, según su RM</small></span>${chk}</div></div>`;
-const POP_LOAD_T=`<div class="pop" style="left:0;top:38px;width:250px"><div class="on"><span>Peso fijo<small>En kg, opcional</small></span>${chk}</div><div style="opacity:.5"><span>% del RM<small>Solo en ejercicios por repeticiones</small></span></div></div>`;
-const prevSel=(txt)=>`<div style="display:flex;align-items:center;gap:8px;margin-left:auto;font:600 13px/1 Inter;color:#3f4757">Vista previa con el RM de<div class="uf" style="width:210px"><div class="v" style="justify-content:start;padding:0 10px">${txt}</div><div class="u">${ic('chev')}</div></div></div>`;
+const POP_OK=`<div class="pop" style="left:0;top:38px;width:236px"><div><span>Peso fijo<small>Un peso en kg igual para todos</small></span></div><div class="on"><span>% del RM<small>Cada atleta, según su RM</small></span>${chk}</div></div>`;
+const POP_NO=`<div class="pop" style="left:0;top:38px;width:290px"><div class="on"><span>Peso fijo<small>Un peso en kg</small></span>${chk}</div><div class="dis"><span>% del RM<small>Valentina no tiene RM en Hip thrust</small></span></div><div class="act"><span>Ingresar el RM de Valentina</span></div></div>`;
+const POP_T=`<div class="pop" style="left:0;top:38px;width:250px"><div class="on"><span>Peso fijo<small>En kg, opcional</small></span>${chk}</div><div class="dis"><span>% del RM<small>Solo en ejercicios por repeticiones</small></span></div></div>`;
+const prevSel=(txt,ph)=>`<div style="display:flex;align-items:center;gap:8px;margin-left:auto;font:600 13px/1 Inter;color:#3f4757">Vista previa con el RM de<div class="uf" style="width:210px"><div class="v ${ph?'ph2':''}" style="justify-content:start;padding:0 10px">${txt}</div><div class="u">${ic('chev')}</div></div></div>`;
 function webA(){
  return `<div class="web" style="min-height:560px"><div class="wh"><div class="wt" style="margin:0">Rutina «Piernas base»</div>${prevSel('Valentina Soto')}</div>
- <div class="wbk">${bh('#e8a317','Calentamiento','1 ejercicio, 3 series')}${COLS2('')}
-  ${row2('Skipping',3,{v:30,u:'s'},{v:'',u:'st'},'',{desc:30})}
- </div>
  <div class="wbk">${bh('#2f9e5f','Fuerza','3 ejercicios, 10 series')}${COLS2('Peso de Valentina')}
+  ${row2('Sentadilla',4,{v:6,u:'r'},{v:80,u:'%'},kgc('72,5 kg'),{desc:120,rir:2})}
   ${row2('Press de banca',3,{v:8,u:'r'},{v:40,u:'kg'},'',{desc:90,rir:2})}
-  ${row2('Hip thrust',3,{v:10,u:'r'},{v:75,u:'%'},nor,{desc:90,rir:2})}
-  ${row2('Sentadilla',4,{v:6,u:'r'},{v:80,u:'%'},kgc('72,5 kg'),{desc:120,rir:2,pop:POP_LOAD})}
+  ${row2('Hip thrust',3,{v:10,u:'r'},{v:'',u:'kg'},'',{desc:90,rir:2,pop:POP_NO})}
  </div>
- <div class="wnote" style="margin-top:130px">La unidad de la carga vive dentro de la celda, igual que «reps | tiempo» (CYC-296). Al elegir «% del RM», el peso se calcula con el RM de la persona elegida en la vista previa. La vista previa es opcional: sin ella la columna de peso no aparece.</div></div>`;
+ <div class="wnote" style="margin-top:150px">Con una vista previa elegida, «% del RM» se desactiva en los ejercicios donde esa persona no tiene RM: no se ofrece ni se puede guardar. La salida está ahí mismo: «Ingresar el RM de Valentina» abre el formulario con el ejercicio ya elegido.</div></div>`;
+}
+function webB(){
+ return `<div class="web" style="min-height:420px"><div class="wh"><div class="wt" style="margin:0">Rutina «Piernas base»</div><span class="chip gr">Plantilla</span>${prevSel('Elegir un atleta',true)}</div>
+ <div class="wbk">${bh('#2f9e5f','Fuerza','2 ejercicios, 7 series')}${COLS2('')}
+  ${row2('Sentadilla',4,{v:6,u:'r'},{v:80,u:'%'},'',{desc:120,rir:2})}
+  ${row2('Hip thrust',3,{v:10,u:'r'},{v:75,u:'%'},'',{desc:90,rir:2})}
+ </div>
+ <div class="wnote">Una rutina o un ciclo plantilla no tiene atleta: no hay RM contra el cual comprobar, así que «% del RM» se ofrece en cualquier ejercicio con carga y el peso no se muestra. La comprobación llega al asignar (siguiente pantalla) y en la sesión de cada atleta.</div></div>`;
 }
 function webAT(){
  return `<div class="web" style="min-height:360px"><div class="wt">Rutina «Piernas base»</div>
  <div class="wbk">${bh('#2f9e5f','Fuerza','2 ejercicios, 7 series')}${COLS2('')}
-  ${row2('Plancha lastrada',3,{v:45,u:'s'},{v:10,u:'st'},'',{desc:45,tag:'<span class="tag">Tiempo</span>',pop:POP_LOAD_T})}
+  ${row2('Plancha lastrada',3,{v:45,u:'s'},{v:10,u:'st'},'',{desc:45,tag:'<span class="tag">Tiempo</span>',pop:POP_T})}
   ${row2('Sentadilla',4,{v:6,u:'r'},{v:80,u:'%'},'',{desc:120,rir:2})}
  </div>
- <div class="wnote" style="margin-top:110px">Cuando la fila es por tiempo, la carga queda en kg: el % del RM no tiene sentido para 45 segundos de plancha. Si una fila con % se pasa a tiempo, la carga vuelve a peso fijo y se avisa.</div></div>`;
-}
-function webB(){
- return `<div class="web" style="min-height:330px"><div class="wt">Rutina «Piernas base»</div>
- <div class="wbk">${bh('#2f9e5f','Fuerza','2 ejercicios, 7 series')}${COLS2('')}
-  ${row2('Sentadilla',4,{v:6,u:'r'},{v:80,u:'%'},'',{desc:120,rir:2})}
-  ${row2('Press de banca',3,{v:8,u:'r'},{v:40,u:'kg'},'',{desc:90,rir:2})}
- </div>
- <div class="wnote">Opción B: la rutina solo guarda el %. El peso en kg aparece recién al asignar el ciclo a un atleta. Más simple de construir, pero el coach arma a ciegas.</div></div>`;
-}
-// ---------- WEB: sesión de un atleta, sin RM ----------
-function webSinRm(){
- const popNo=`<div class="pop" style="left:-190px;top:40px;width:300px"><div><span>Ingresar el RM de Valentina<small>Se guarda en su ficha, con fecha</small></span></div><div><span>Usar peso fijo en esta sesión<small>Solo para este ejercicio de este atleta</small></span></div><div class="on"><span>Dejarlo así<small>Ella verá el 75 % y podrá ingresar su RM</small></span>${chk}</div></div>`;
- return `<div class="web" style="min-height:470px"><div class="wt">Sesión «Piernas A», semana 2. Valentina Soto</div>
- <div class="wnote" style="margin:0 0 12px">En la sesión de un atleta concreto el peso se calcula siempre. Si falta el RM, la fila lo dice y el coach decide ahí mismo. Nunca se bloquea guardar la sesión.</div>
- <div class="wbk">${bh('#2f9e5f','Fuerza','2 ejercicios, 7 series')}${COLS2('Peso')}
-  ${row2('Sentadilla',4,{v:6,u:'r'},{v:80,u:'%'},kgc('72,5 kg'),{desc:120,rir:2})}
-  <div class="wr2" style="position:relative"><span class="gp">⠿</span><div class="nm"><b>Hip thrust</b></div><div class="f">3</div><div class="uf"><div class="v">10</div><div class="u st">reps</div></div><div class="uf"><div class="v">75</div><div class="u st">% RM</div></div><div style="position:relative"><span class="kgc no">Sin RM ${ic('chev')}</span>${popNo}</div><div class="f">90</div><div class="f">2</div><div class="dots3">⋯</div></div>
- </div></div>`;
+ <div class="wnote" style="margin-top:110px">Cuando la fila es por tiempo, la carga queda en kg: el RM es el máximo a una repetición y no aplica a 45 segundos de plancha. Si una fila con % se pasa a tiempo, la carga vuelve a peso fijo y se avisa.</div></div>`;
 }
 // ---------- WEB: ficha del atleta, sección RM ----------
 function fichaRM(){
- const mx=(n,kg,f,src,cls,act)=>`<div class="tr"><b>${n}</b><span class="n">${kg}</span><span class="d">${f}</span><span class="src ${cls}">${src}</span><u>${act}</u></div>`;
+ const g='grid-template-columns:1fr 92px 76px 86px 134px 96px';
+ const mx=(n,kg,f,src,cls,ml)=>`<div class="tr" style="${g}"><b>${n}</b><span class="n">${kg}</span><span class="d">${f}</span><span class="src ${cls}">${src}</span><span class="d">${ml}</span><u>Actualizar</u></div>`;
+ const no=(n,ml)=>`<div class="tr" style="${g}"><b>${n}</b><span class="n">—</span><span class="d"></span><span></span><span class="d">${ml}</span><u>Agregar RM</u></div>`;
+ const h=(a,b,c,d,e)=>`<div class="tr h" style="${g}"><span>${a}</span><span class="n">${b}</span><span class="d">${c}</span><span>${d}</span><span>${e}</span><span></span></div>`;
  return `<div class="web" style="min-height:640px"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">${AV('VS')}<div class="wt" style="margin:0;font-size:24px">Valentina Soto</div><div class="sg" style="margin-left:auto"><span>Planes</span><span class="on">RM</span></div></div>
- <div class="alr">${ic('bell')}<span><b>2 ejercicios de su plan usan % del RM y no tienen RM:</b> Hip thrust y Press militar.</span><u>Agregar RM</u></div>
- <div class="sec">Sin RM en su plan</div>
- <div class="tbl"><div class="tr h"><span>Ejercicio</span><span class="n">Series con %</span><span class="d">Sesiones</span><span></span><span></span></div>
-  <div class="tr"><b>Hip thrust</b><span class="n">3 × 10 al 75 %</span><span class="d">3</span><span></span><u>Agregar RM</u></div>
-  <div class="tr"><b>Press militar</b><span class="n">3 × 8 al 70 %</span><span class="d">2</span><span></span><u>Agregar RM</u></div></div>
+ <div class="alr" style="background:#e8effb;border-color:#b9ccf0;color:#1f2228">${ic('bell').replace('#8f4410','#134fb0')}<span>Para planificar un ejercicio con <b>% del RM</b>, Valentina necesita su RM en ese ejercicio.</span></div>
  <div class="sec">Con RM</div>
- <div class="tbl"><div class="tr h"><span>Ejercicio</span><span class="n">RM</span><span class="d">Fecha</span><span>Origen</span><span></span></div>
-  ${mx('Sentadilla','90 kg','12 nov','Coach','co','Actualizar')}
-  ${mx('Peso muerto','110 kg','12 nov','Coach','co','Actualizar')}
-  ${mx('Press de banca','50 kg','5 nov','Atleta','at','Actualizar')}
-  ${mx('Remo con barra','55 kg','29 oct','Estimado','es','Actualizar')}</div>
- <div class="sug"><b>Sugerencia para Remo con barra.</b> El 14 nov hizo 3 × 8 con 45 kg. Eso estima un RM de 57 kg. <span class="bn">Usar 57 kg</span><u>Descartar</u></div>
- <div class="wnote" style="margin-top:12px">Sección nueva dentro de la ficha. Primero lo que falta (lo que el coach necesita resolver), después lo que ya hay. Cada «Actualizar» agrega un registro nuevo: el anterior queda en el historial, nunca se pisa.</div></div>`;
+ <div class="tbl">${h('Ejercicio','RM (1 rep)','Fecha','Origen','Máximo levantado')}
+  ${mx('Sentadilla','90 kg','12 nov','Coach','co','80 kg × 5')}
+  ${mx('Peso muerto','110 kg','12 nov','Coach','co','100 kg × 3')}
+  ${mx('Press de banca','50 kg','5 nov','Atleta','at','45 kg × 4')}
+  ${mx('Remo con barra','55 kg','29 oct','Coach','co','45 kg × 8')}</div>
+ <div class="sec">Sin RM</div>
+ <div class="tbl">${h('Ejercicio','RM (1 rep)','','','Máximo levantado')}
+  ${no('Hip thrust','60 kg × 10')}
+  ${no('Press militar','30 kg × 8')}</div>
+ <div class="wnote" style="margin-top:12px">Sección nueva dentro de la ficha. «Máximo levantado» es el mayor peso de sus series, con sus repeticiones: es solo una referencia y nunca llena ni reemplaza el RM. Cada «Actualizar» agrega un registro nuevo; el anterior queda en el historial.</div></div>`;
 }
 function modalRM(){
- return `<div class="web nar" style="min-height:420px"><div class="wt">Agregar RM</div>
+ return `<div class="web nar" style="min-height:440px"><div class="wt">Agregar RM</div>
  <div class="fld"><b>Atleta</b><div class="f" style="justify-content:start;padding:0 12px;width:100%">Valentina Soto</div></div>
  <div class="fld"><b>Ejercicio</b><div class="uf" style="width:100%"><div class="v" style="justify-content:start;padding:0 12px">Hip thrust</div><div class="u">${ic('chev')}</div></div></div>
- <div style="display:flex;gap:12px"><div class="fld" style="flex:1"><b>RM (kg)</b><div class="f" style="justify-content:start;padding:0 12px">100</div></div><div class="fld" style="flex:1"><b>Fecha</b><div class="f" style="justify-content:start;padding:0 12px">20 nov 2026</div></div></div>
- <div class="wnote">El RM es el mayor peso con el que hace una repetición bien hecha. Queda registrado como puesto por ti, con la fecha.</div>
- <div style="display:flex;gap:10px;margin-top:14px"><span class="bn" style="height:44px;padding:0 22px">Guardar RM</span><span class="bn sec" style="height:44px;padding:0 22px">Cancelar</span></div></div>`;
+ <div style="display:flex;gap:12px"><div class="fld" style="flex:1"><b>RM (kg)</b><div class="f ph2" style="justify-content:start;padding:0 12px">kg</div></div><div class="fld" style="flex:1"><b>Fecha</b><div class="f" style="justify-content:start;padding:0 12px">20 nov 2026</div></div></div>
+ <div class="wnote"><b>Máximo levantado: 60 kg × 10</b>, el 14 nov. Es solo una referencia. El RM es el mayor peso con el que hace una sola repetición bien hecha, y lo escribes tú.</div>
+ <div style="display:flex;gap:10px;margin-top:14px"><span class="bn off" style="height:44px;padding:0 22px">Guardar RM</span><span class="bn sec" style="height:44px;padding:0 22px">Cancelar</span></div></div>`;
 }
 function modalCambio(){
  return `<div class="web nar" style="min-height:420px"><div class="wt">Actualizar RM de Sentadilla</div>
  <div style="display:flex;gap:12px"><div class="fld" style="flex:1"><b>RM (kg)</b><div class="f" style="justify-content:start;padding:0 12px">100</div></div><div class="fld" style="flex:1"><b>Fecha</b><div class="f" style="justify-content:start;padding:0 12px">20 nov 2026</div></div></div>
  <div class="alr" style="background:#e8effb;border-color:#b9ccf0;color:#1f2228"><span><b>Antes 90 kg, ahora 100 kg.</b> Las sesiones que Valentina aún no empieza usan el RM nuevo: la sentadilla al 80 % pasa de 72,5 kg a 80 kg. Lo que ya registró no cambia.</span></div>
- <div class="wnote">Se avisa a Valentina en la app: «Tu coach actualizó tu RM de Sentadilla».</div>
  <div style="display:flex;gap:10px;margin-top:14px"><span class="bn" style="height:44px;padding:0 22px">Guardar RM</span><span class="bn sec" style="height:44px;padding:0 22px">Cancelar</span></div></div>`;
 }
-// ---------- WEB: cobertura y asignación ----------
+// ---------- WEB: asignar y cobertura ----------
+function asignar(){
+ return `<div class="web nar" style="min-height:560px"><div class="wt">Asignar ciclo de la Biblioteca</div>
+ <div class="fld"><b>Ciclo</b><div class="uf" style="width:100%"><div class="v" style="justify-content:start;padding:0 12px">Piernas 6 semanas</div><div class="u">${ic('chev')}</div></div></div>
+ <div class="fld"><b>Atleta</b><div class="uf" style="width:100%"><div class="v" style="justify-content:start;padding:0 12px">Camila Rojas</div><div class="u">${ic('chev')}</div></div></div>
+ <div class="fld"><b>Fecha de inicio</b><div class="f" style="justify-content:start;padding:0 12px;width:200px">24 nov 2026</div></div>
+ <div class="alr" style="display:block"><b>Camila no tiene RM en Peso muerto ni en Hip thrust.</b> Sin RM no se puede usar % del RM en esos ejercicios.
+  <div class="rd"><i class="on"></i><span><b>Ingresar su RM ahora</b> Se abre su ficha; al volver, el ciclo se asigna con %.</span></div>
+  <div class="rd"><i></i><span><b>Asignar con peso fijo en esos ejercicios</b></span></div>
+  <div style="display:flex;gap:10px;margin:8px 0 0 28px"><div style="flex:1"><div class="flab">Peso muerto</div><div class="f ph2" style="margin-top:4px;justify-content:start;padding:0 10px">kg</div></div><div style="flex:1"><div class="flab">Hip thrust</div><div class="f ph2" style="margin-top:4px;justify-content:start;padding:0 10px">kg</div></div></div></div>
+ <span class="bn off" style="height:46px;padding:0 24px;margin-top:12px">Asignar</span>
+ <div class="wnote" style="margin-top:12px">«Asignar» se activa cuando cada ejercicio con % tiene RM o un peso fijo. La misma comprobación aparece al agregar una rutina a una celda de la sesión de un atleta.</div></div>`;
+}
 function cobertura(){
  const c=(t,ok)=>`<div class="cv ${ok?'ok':'no'}">${t}</div>`;
  const r=(n,a,b,c3)=>`<div class="cr"><b>${n}</b>${a}${b}${c3}</div>`;
@@ -416,19 +419,8 @@ function cobertura(){
  ${r('Josefa Pino',c('80 kg',1),c('85 kg',1),c('90 kg',1))}
  ${r('Matías Vera',c('Sin RM',0),c('Sin RM',0),c('Sin RM',0))}
  ${r('Antonia Díaz',c('60 kg',1),c('70 kg',1),c('Sin RM',0))}
- <div class="alr" style="margin-top:12px">${ic('bell')}<span><b>Solo 1 de 5 atletas</b> tiene RM en los 3 ejercicios con %. Tocar «Sin RM» abre su ficha.</span><u>Pedirles su RM</u></div>
- <div class="wnote">Pantalla para el equipo: el mismo ciclo asignado a cada atleta, con el peso que le toca. Se abre desde el ciclo en la Biblioteca (usa la lista de atletas con el ciclo asignado que ya existe).</div></div>`;
-}
-function asignar(){
- return `<div class="web nar" style="min-height:430px"><div class="wt">Asignar ciclo de la Biblioteca</div>
- <div class="fld"><b>Ciclo</b><div class="uf" style="width:100%"><div class="v" style="justify-content:start;padding:0 12px">Piernas 6 semanas</div><div class="u">${ic('chev')}</div></div></div>
- <div class="fld"><b>Atleta</b><div class="uf" style="width:100%"><div class="v" style="justify-content:start;padding:0 12px">Camila Rojas</div><div class="u">${ic('chev')}</div></div></div>
- <div class="fld"><b>Fecha de inicio</b><div class="f" style="justify-content:start;padding:0 12px;width:200px">24 nov 2026</div></div>
- <div class="alr" style="display:block"><b>Camila no tiene RM en Peso muerto ni en Hip thrust.</b>
-  <div class="rd"><i class="on"></i><span><b>Asignar igual y pedirle su RM</b> Ella verá el % y recibe un aviso para ingresarlo.</span></div>
-  <div class="rd"><i></i><span><b>Ingresar su RM ahora</b> Se abre su ficha.</span></div>
-  <div class="rd"><i></i><span><b>Usar peso fijo</b> Cada fila pasa a kg para este ciclo.</span></div></div>
- <span class="bn" style="height:46px;padding:0 24px;margin-top:12px">Asignar</span></div>`;
+ <div class="alr" style="margin-top:12px">${ic('bell')}<span><b>Solo 1 de 5 atletas</b> tiene RM en los 3 ejercicios con %. A los demás no se les puede asignar con %. Tocar «Sin RM» abre su ficha.</span></div>
+ <div class="wnote">Pantalla para el equipo: el mismo ciclo, atleta por atleta, con el peso que le toca. Se abre desde el ciclo en la Biblioteca, con la lista de atletas que ya existe. Es una tarjeta aparte, no bloquea el resto.</div></div>`;
 }
 // ---------- WEB: atleta ----------
 function webAtleta(){
@@ -440,17 +432,12 @@ function webAtleta(){
  <div style="display:flex;gap:12px"><div style="flex:1"><div class="flab">Repeticiones</div><div class="f" style="margin-top:6px;justify-content:start;padding:0 12px">6</div></div><div style="flex:1"><div class="flab">Peso (kg)</div><div class="f" style="margin-top:6px;justify-content:start;padding:0 12px">72,5</div></div></div></div>
  <div class="bt" style="width:100%">Guardar serie</div></div>`;
 }
-function webAtletaSin(){
- return `<div class="web nar" style="min-height:420px"><div style="font:600 14px/1 Inter;color:#3f4757;margin-bottom:10px">‹ Sesión de hoy</div>
- <div class="wt" style="font-size:24px">Hip thrust</div>
- <div class="msg"><b>Aún no tienes RM en Hip thrust</b><p>Tu coach pidió trabajar al 75 % de tu RM. Ingresa tu RM y calculamos el peso.</p><div class="btrow"><div class="bt">Ingresar mi RM</div><div class="bt sec">Registrar sin RM</div></div></div></div>`;
-}
 // ---------- APP ----------
 function hoy(){
  const xr=(i,n,t,p,cur)=>`<div class="xr"><div class="nd ${cur?'cur':''}">${i}</div><div class="tx"><b>${n}</b><span>${t}</span></div><span class="pl ${cur?'cur':''}">${p}</span></div>`;
  return phone(`<div class="scr"><div class="hd"><h1>Piernas A</h1>${bell}<div class="av">VS</div></div>
  <div class="blk"><div class="bh2"><div class="pr" style="background:#2f9e5f">${ic('dumb')}</div><div class="t"><b>Fuerza</b><span>3 ejercicios, 10 series</span></div></div>
-  ${xr(1,'Sentadilla','4 × 6 · 72,5 kg','0/4',true)}${xr(2,'Press de banca','3 × 8 · 40 kg','0/3')}${xr(3,'Hip thrust','3 × 10 · 75 % de tu RM','0/3')}</div></div>`,{tabs:TABS,active:1});
+  ${xr(1,'Sentadilla','4 × 6 · 72,5 kg','0/4',true)}${xr(2,'Press de banca','3 × 8 · 40 kg','0/3')}${xr(3,'Hip thrust','3 × 10 · 40 kg','0/3')}</div></div>`,{tabs:TABS,active:1});
 }
 function logRM(){
  return phone(`<div class="scr nopad" style="padding-bottom:170px">${back('Piernas A')}
@@ -461,32 +448,20 @@ function logRM(){
  <div class="flab" style="margin-top:14px">Peso</div><div class="stp"><i>−</i><b>72,5<small>kg</small></b><i>+</i></div></div>${pend(2)}${pend(3)}</div>
  <div class="ft"><div class="bt">Guardar serie</div></div>`);
 }
-function logSin(over=''){
- return phone(`<div class="scr nopad" style="padding-bottom:170px">${back('Piernas A')}
- <div class="xt">Hip thrust</div>${beads(0,0,3,'Serie 1 de 3')}
- <div class="sc"><div class="sh"><b>Serie 1</b><span class="tp">Meta: 10 reps al 75 % de tu RM</span></div>
- <div class="msg" style="margin-bottom:14px"><b>Aún no tienes RM en Hip thrust</b><p>Tu coach pidió trabajar al 75 % de tu RM. Ingresa tu RM y calculamos el peso.</p></div>
- <div class="bt" style="margin-bottom:10px">Ingresar mi RM</div><div class="bt sec">Registrar sin RM</div></div>${pend(2)}</div>
- <div class="ft"><div class="bt off">Guardar serie</div></div>`,{over});
-}
-function sheet(){
- const s=`<div class="scrim" style="place-items:end stretch"><div class="sheet"><i class="grab"></i><div style="font:800 24px/1.15 Inter;margin-bottom:12px">Tu RM de Hip thrust</div>
- <div class="flab">RM (kg)</div><div class="stp" style="margin-bottom:12px"><i>−</i><b>100<small>kg</small></b><i>+</i></div>
- <div class="flab">Fecha</div><div class="f" style="margin:6px 0 12px;justify-content:start;padding:0 12px;height:44px;font-size:16px">Hoy, 20 nov</div>
- <div class="chip ok" style="margin-bottom:12px">75 % de 100 kg = 75 kg</div>
- <div style="font:400 14px/1.4 Inter;color:#3f4757;margin-bottom:14px">Tu RM es el mayor peso con el que haces una repetición bien hecha. Tu coach lo verá y podrá actualizarlo.</div>
- <div class="bt">Guardar RM</div><div class="lnk">Cancelar</div></div></div>`;
- return logSin(s);
-}
-function misRM(){
+function misRM(write,over=''){
  const r=(n,kg,src,cls,f)=>`<div class="rw"><div class="tx"><b style="font-size:16px">${n}</b></div><span style="font:800 16px/1 Inter">${kg}</span><span class="src ${cls}">${src}</span><span style="font:500 13px/1 Inter;color:#3f4757;width:44px;text-align:right">${f}</span></div>`;
  return phone(`<div class="scr">${back('Cuenta')}<div class="xt">Mis RM</div>
- <div class="card"><div class="ch"><h2>Sin RM en mi plan</h2></div>
-  <div class="rw"><div class="tx"><b style="font-size:16px">Hip thrust</b></div><span style="color:#1a66dd;font:700 15px/1 Inter">Agregar</span></div>
-  <div class="rw"><div class="tx"><b style="font-size:16px">Press militar</b></div><span style="color:#1a66dd;font:700 15px/1 Inter">Agregar</span></div></div>
  <div class="card"><div class="ch"><h2>Con RM</h2></div>
-  ${r('Sentadilla','90 kg','Coach','co','12 nov')}${r('Peso muerto','110 kg','Coach','co','12 nov')}${r('Press de banca','50 kg','Yo','at','5 nov')}</div>
- <div class="bt sec">Agregar RM de otro ejercicio</div></div>`,{tabs:TABS,active:1});
+  ${r('Sentadilla','90 kg','Coach','co','12 nov')}${r('Peso muerto','110 kg','Coach','co','12 nov')}${r('Press de banca','50 kg',write?'Yo':'Coach',write?'at':'co','5 nov')}</div>
+ ${write?`<div class="bt sec">Agregar RM</div>`:`<div class="msg"><b>Tu coach registra tu RM</b><p style="margin-bottom:0">Si algo no está al día, avísale.</p></div>`}</div>`,{tabs:TABS,active:1,over});
+}
+function sheetRM(){
+ const s=`<div class="scrim" style="place-items:end stretch"><div class="sheet"><i class="grab"></i><div style="font:800 24px/1.15 Inter;margin-bottom:12px">Tu RM de Hip thrust</div>
+ <div class="flab">RM (kg)</div><div class="stp" style="margin-bottom:12px"><i>−</i><b style="color:#8d95a3">—<small>kg</small></b><i>+</i></div>
+ <div class="flab">Fecha</div><div class="f" style="margin:6px 0 12px;justify-content:start;padding:0 12px;height:44px;font-size:16px">Hoy, 20 nov</div>
+ <div class="msg" style="margin-bottom:14px;padding:12px"><b style="font-size:15px">Máximo levantado: 60 kg × 10</b><p style="font-size:14px;margin:4px 0 0">Es solo una referencia. Tu RM es el mayor peso con el que haces una sola repetición bien hecha.</p></div>
+ <div class="bt off">Guardar RM</div><div class="lnk">Cancelar</div></div></div>`;
+ return misRM(true,s);
 }
 function novAtleta(){
  const nv=`<div class="scrim"><div class="nv"><div class="dm" style="display:grid;place-items:center"><div style="display:flex;align-items:center;gap:14px"><div class="nvbox"><b>80 %</b><small>de tu RM</small></div><span style="font:800 30px/1 Inter;color:#1a66dd">→</span><div class="nvbox on"><b>72,5 kg</b><small>tu peso</small></div></div></div><div class="pane"><div class="lb">Novedad</div><h3>Tu peso, calculado</h3><p>Tu coach puede indicar un % de tu RM. Verás el peso en kg ya calculado para cada serie.</p></div><div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px 14px"><span style="color:#1a66dd;font:700 16px/1 Inter;padding:0 8px">Saltar</span><div class="dots"><i class="on"></i><i></i></div><span class="nx">Siguiente</span></div></div></div>`;
@@ -498,26 +473,24 @@ function novCoach(){
 const out=document.getElementById('out');
 const add=(id,label,items)=>out.insertAdjacentHTML('beforeend',`<div class="lab">${label}</div><div class="row" id="${id}">${items.map(([c,h])=>`<div class="fr">${h}<div class="cap">${c}</div></div>`).join('')}</div>`);
 add('r1','1 · Coach en la web: el RM de cada atleta, en su ficha',[
- ['Ficha del atleta, sección RM: primero lo que falta, después lo que hay',fichaRM()],
- ['Agregar el RM de un ejercicio',modalRM()],
+ ['Ficha del atleta, sección RM: con RM, sin RM y el máximo levantado como referencia',fichaRM()],
+ ['Agregar el RM de un ejercicio (también se abre desde el constructor)',modalRM()],
  ['Actualizar un RM: qué cambia en las sesiones pendientes',modalCambio()]]);
 add('r2','2 · Coach en la web: elegir «peso fijo» o «% del RM» por fila',[
- ['A · Selector en la celda de carga y vista previa con el RM de un atleta (recomendada)',webA()],
- ['B · Sin vista previa: el peso solo se ve al asignar',webB()],
+ ['A · Con un atleta en la vista previa: «% del RM» se desactiva donde no hay RM (recomendada)',webA()],
+ ['Rutina o plantilla sin atleta: «% del RM» se ofrece y se comprueba al asignar',webB()],
  ['Ejercicio por tiempo: la carga queda en kg (convive con CYC-296)',webAT()]]);
-add('r3','3 · Coach en la web: atleta sin RM en un ejercicio',[
- ['Sesión de un atleta: la fila dice «Sin RM» y el coach decide ahí',webSinRm()],
- ['Asignar un ciclo a un atleta que no tiene todos los RM',asignar()],
+add('r3','3 · Coach en la web: asignar con atletas que no tienen todos los RM',[
+ ['Asignar un ciclo a un atleta sin RM en algunos ejercicios: ingresar el RM o usar peso fijo',asignar()],
  ['Equipo: quién tiene RM en cada ejercicio con %',cobertura()]]);
 add('r4','4 · Atleta en la app',[
- ['Hoy: el peso ya calculado; sin RM, el %',hoy()],
+ ['Hoy: el peso ya calculado',hoy()],
  ['Registro de una serie, con RM',logRM()],
- ['Registro de una serie, sin RM',logSin()],
- ['Ingresar mi RM, desde la sesión',sheet()],
- ['Cuenta › Mis RM',misRM()]]);
+ ['Cuenta › Mis RM, opción A: el atleta también registra su RM',misRM(true)],
+ ['Ingresar mi RM (opción A)',sheetRM()],
+ ['Cuenta › Mis RM, opción B: solo lectura, el coach lo registra',misRM(false)]]);
 add('r5','5 · Atleta en la web',[
- ['Sesión con RM',webAtleta()],
- ['Sesión sin RM',webAtletaSin()]]);
+ ['Sesión con RM',webAtleta()]]);
 add('r6','6 · Fichas de novedad (popup)',[
  ['Atleta (app y web), slide 1 de 2',novAtleta()],
  ['Coach (web), slide 1 de 3',novCoach()]]);
