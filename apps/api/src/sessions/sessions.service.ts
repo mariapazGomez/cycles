@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  UnprocessableEntityException,
 } from "@nestjs/common";
 import { cleanNote } from "../common/exercise-note";
 import { PrismaService } from "../prisma/prisma.service";
@@ -107,22 +108,30 @@ export class SessionsService {
       orderIndex: b.orderIndex,
       note: b.note,
     }));
-    // Los % del RM de la rutina solo se aplican si el atleta tiene RM en ese ejercicio; si no, el
-    // ejercicio queda sin carga y se avisa (percentNotApplied) para que el coach decida (CYC-306).
+    // Los % del RM de la rutina solo se copian si el atleta tiene RM en ese ejercicio. Si falta alguno
+    // no se crea la sesión: se devuelve la lista (422) y el coach resuelve cada uno registrando el RM
+    // o con un peso fijo (`fixedWeights`), según el diseño (CYC-306 / CYC-305).
     const athleteMaxes = await this.maxes.currentMaxes(
       cycle.athleteId!,
       routine.routineExercises.filter((re) => re.defaultPercentRm != null).map((re) => re.exerciseId),
     );
-    const percentNotApplied = routine.routineExercises
-      .filter((re) => re.defaultPercentRm != null && !athleteMaxes.has(re.exerciseId))
-      .map((re) => ({ exerciseId: re.exerciseId, name: re.exercise.name, percent: re.defaultPercentRm! }));
+    const fixed = new Map((dto.fixedWeights ?? []).map((f) => [f.exerciseId, f.weightKg]));
+    const missingRm = routine.routineExercises.filter((re) => re.defaultPercentRm != null && !athleteMaxes.has(re.exerciseId));
+    const unresolved = missingRm.filter((re) => !fixed.has(re.exerciseId));
+    if (unresolved.length > 0) {
+      throw new UnprocessableEntityException({
+        statusCode: 422,
+        message: "Faltan RM para asignar esta rutina. Registra el RM del atleta o elige un peso fijo.",
+        missing: unresolved.map((re) => ({ exerciseId: re.exerciseId, name: re.exercise.name, percent: re.defaultPercentRm! })),
+      });
+    }
     const exercises = routine.routineExercises.map((re) => ({
       blockId: re.blockId ? (blockIdOf.get(re.blockId) ?? null) : null,
       exerciseId: re.exerciseId,
       orderIndex: re.orderIndex,
       targetSets: re.defaultSets,
       targetReps: re.defaultReps,
-      targetWeight: re.defaultWeight,
+      targetWeight: re.defaultPercentRm != null && !athleteMaxes.has(re.exerciseId) ? fixed.get(re.exerciseId) : re.defaultWeight,
       targetPercentRm: re.defaultPercentRm != null && athleteMaxes.has(re.exerciseId) ? re.defaultPercentRm : null,
       targetRestSeconds: re.defaultRestSeconds,
       targetRir: re.defaultRir,
@@ -201,7 +210,7 @@ export class SessionsService {
       }
     }
     this.notifications.coachEditedSession(created.id, "added");
-    return { ...(await this.resolveSession(created, cycle.athleteId)), percentNotApplied };
+    return this.resolveSession(created, cycle.athleteId);
   }
 
   // La app móvil ordena por (semana, espacio): los espacios de las sesiones con

@@ -68,6 +68,15 @@ describe("RM del atleta y % del RM", () => {
       expect(list.body.withoutMax).toEqual([]);
     });
 
+    it("el máximo levantado en series sale por ejercicio, de solo lectura, y no toca el RM", async () => {
+      await app.http("post", `/session-exercises/${c.seA}/logs`, c.token.athleteA).send({ id: "00000000-0000-4000-8000-0000000000b1", setNumber: 1, actualReps: 3, actualWeight: 125 });
+      const list = await app.http("get", rmPath(c.userId.athleteA), c.token.coachA);
+      expect(list.body.withMax[0].maxLifted).toMatchObject({ weightKg: 125, reps: 3 });
+      expect(list.body.withMax[0].weightKg).toBe(100);
+      await app.prisma.$executeRaw`SELECT set_config('cycles.allow_purge', 'on', false)`;
+      await app.prisma.exerciseLog.deleteMany({ where: { sessionExerciseId: c.seA } });
+    });
+
     it("el atleta ve sus RM y no los de otro", async () => {
       const mine = await app.http("get", "/me/rm", c.token.athleteA);
       expect(mine.body.withMax[0]).toMatchObject({ exerciseId: c.globalExercise, weightKg: 100 });
@@ -93,10 +102,11 @@ describe("RM del atleta y % del RM", () => {
     it("sin RM en ese ejercicio no se puede guardar un %", async () => {
       // athleteB (coachB) no tiene RM en el ejercicio de su sesión.
       const res = await setPercent(c.token.coachB, c.seB, { targetPercentRm: 80 });
-      expect(res.status).toBe(400);
+      expect(res.status).toBe(422);
       expect(res.body.message).toContain("no tiene RM");
+      expect(res.body.missing).toEqual([{ exerciseId: c.globalExercise, name: "Sentadilla e2e" }]);
       const add = await app.http("post", `/sessions/${c.sB}/exercises`, c.token.coachB).send({ exerciseId: c.globalExercise, targetSets: 3, targetReps: 5, targetPercentRm: 70 });
-      expect(add.status).toBe(400);
+      expect(add.status).toBe(422);
     });
 
     it("con RM guarda el % y la API calcula el peso (redondeo a 2,5 kg)", async () => {
@@ -168,14 +178,31 @@ describe("RM del atleta y % del RM", () => {
       expect(res.body.routineExercises.map((e: { defaultPercentRm: number }) => e.defaultPercentRm)).toEqual([70, 60]);
     });
 
-    it("al asignarla, el % se aplica donde hay RM y se avisa donde no (sin aplicar)", async () => {
+    it("al asignarla, si falta un RM no se crea la sesión: 422 con la lista de ejercicios sin RM", async () => {
       const today = new Date().toISOString().slice(0, 10);
       const res = await app.http("post", `/cycles/${c.cycleA}/sessions`, c.token.coachA).send({ routineId, scheduledDate: today, today });
+      expect(res.status).toBe(422);
+      expect(res.body.missing).toEqual([{ exerciseId: c.exerciseA, name: "Ejercicio de A", percent: 60 }]);
+      expect(await app.prisma.trainingSession.count({ where: { cycleId: c.cycleA, routineId } })).toBe(0);
+    });
+
+    it("se resuelve con un peso fijo para el ejercicio sin RM; el resto conserva su %", async () => {
+      const today = new Date().toISOString().slice(0, 10);
+      const res = await app
+        .http("post", `/cycles/${c.cycleA}/sessions`, c.token.coachA)
+        .send({ routineId, scheduledDate: today, today, fixedWeights: [{ exerciseId: c.exerciseA, weightKg: 40 }] });
       expect(res.status).toBe(201);
       const [withRm, withoutRm] = res.body.sessionExercises;
       expect(withRm).toMatchObject({ exerciseId: c.globalExercise, targetPercentRm: 70, rmStatus: "ok" });
-      expect(withoutRm).toMatchObject({ exerciseId: c.exerciseA, targetPercentRm: null, targetWeight: null, rmStatus: null });
-      expect(res.body.percentNotApplied).toEqual([{ exerciseId: c.exerciseA, name: "Ejercicio de A", percent: 60 }]);
+      expect(withoutRm).toMatchObject({ exerciseId: c.exerciseA, targetPercentRm: null, targetWeight: 40, rmStatus: null });
+    });
+
+    it("o registrando el RM que faltaba", async () => {
+      await record(c.token.coachA, c.userId.athleteA, c.exerciseA, { weightKg: 50 });
+      const today = new Date().toISOString().slice(0, 10);
+      const res = await app.http("post", `/cycles/${c.cycleA}/sessions`, c.token.coachA).send({ routineId, scheduledDate: today, today });
+      expect(res.status).toBe(201);
+      expect(res.body.sessionExercises[1]).toMatchObject({ exerciseId: c.exerciseA, targetPercentRm: 60, resolvedWeightKg: 30 });
     });
   });
 

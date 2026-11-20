@@ -1,4 +1,5 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException, UnprocessableEntityException } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { assertActiveRelation } from "../common/access";
 import { CURRENT_LOG } from "../common/training";
@@ -43,10 +44,12 @@ export class MaxesService {
     const maxes = await this.currentMaxes(athleteId, ids);
     const missing = ids.filter((id) => !maxes.has(id));
     if (missing.length === 0) return;
-    const names = (await this.prisma.exercise.findMany({ where: { id: { in: missing } }, select: { name: true } })).map((e) => e.name);
-    throw new BadRequestException(
-      `Este atleta no tiene RM en ${names.map((n) => `«${n}»`).join(", ")}. Registra su RM para planificar con % del RM.`,
-    );
+    const found = await this.prisma.exercise.findMany({ where: { id: { in: missing } }, select: { id: true, name: true } });
+    throw new UnprocessableEntityException({
+      statusCode: 422,
+      message: `Este atleta no tiene RM en ${found.map((e) => `«${e.name}»`).join(", ")}. Registra su RM para planificar con % del RM.`,
+      missing: found.map((e) => ({ exerciseId: e.id, name: e.name })),
+    });
   }
 
   // Agrega `rmStatus` y `resolvedWeightKg` a los ejercicios de una sesión. El peso no se guarda: se resuelve aquí.
@@ -87,7 +90,22 @@ export class MaxesService {
     const ids = [...new Set([...maxes.keys(), ...planned.map((p) => p.exerciseId)])];
     const exercises = await this.prisma.exercise.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, muscleGroup: true } });
     const byId = new Map(exercises.map((e) => [e.id, e]));
-    const shape = (id: string) => ({ exerciseId: id, name: byId.get(id)?.name ?? "", muscleGroup: byId.get(id)?.muscleGroup ?? null });
+    // Máximo levantado en series (referencia de solo lectura; NO es el RM ni lo rellena): el mayor
+    // peso vigente de cada ejercicio, con sus repeticiones y fecha.
+    const lifted = ids.length === 0 ? [] : await this.prisma.$queryRaw<Array<{ exerciseId: string; weightKg: number; reps: number; loggedAt: Date }>>(Prisma.sql`
+      SELECT DISTINCT ON (se."exerciseId") se."exerciseId" AS "exerciseId", l."actualWeight" AS "weightKg", l."actualReps" AS "reps", l."loggedAt" AS "loggedAt"
+      FROM "ExerciseLog" l JOIN "SessionExercise" se ON se.id = l."sessionExerciseId"
+      WHERE l."athleteId" = ${athleteId} AND l.active = 1 AND l."actualWeight" IS NOT NULL
+        AND NOT EXISTS (SELECT 1 FROM "ExerciseLog" n WHERE n."supersedesId" = l.id)
+        AND se."exerciseId" IN (${Prisma.join(ids)})
+      ORDER BY se."exerciseId", l."actualWeight" DESC, l."loggedAt" DESC`);
+    const liftedBy = new Map(lifted.map((l) => [l.exerciseId, { weightKg: l.weightKg, reps: l.reps, loggedAt: l.loggedAt }]));
+    const shape = (id: string) => ({
+      exerciseId: id,
+      name: byId.get(id)?.name ?? "",
+      muscleGroup: byId.get(id)?.muscleGroup ?? null,
+      maxLifted: liftedBy.get(id) ?? null,
+    });
     return {
       withMax: [...maxes.values()]
         .map((m) => ({ ...shape(m.exerciseId), weightKg: m.weightKg, measuredAt: m.measuredAt, source: m.source }))

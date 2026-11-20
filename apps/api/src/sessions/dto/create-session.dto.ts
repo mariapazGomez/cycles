@@ -1,4 +1,16 @@
-import { IsDateString, IsInt, IsOptional, IsPositive, IsString, Matches } from "class-validator";
+import { Type } from "class-transformer";
+import { ArrayMaxSize, IsArray, IsDateString, IsInt, IsNumber, IsOptional, IsPositive, IsString, Matches, Max, Min, ValidateNested } from "class-validator";
+
+// Peso fijo (kg) para un ejercicio de la rutina con % del RM en el que el atleta aún no tiene RM (CYC-306).
+export class FixedWeightDto {
+  @IsString()
+  exerciseId!: string;
+
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0.5)
+  @Max(1000)
+  weightKg!: number;
+}
 
 // Dos formas de ubicar la sesión:
 //  - por día: solo scheduledDate; el servidor calcula la semana y el espacio, y
@@ -18,6 +30,14 @@ export class CreateSessionDto {
 
   @IsString()
   routineId!: string;
+
+  // Alternativa a un RM faltante: peso fijo por ejercicio de la rutina que lleva %.
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(100)
+  @ValidateNested({ each: true })
+  @Type(() => FixedWeightDto)
+  fixedWeights?: FixedWeightDto[];
 
   @IsOptional()
   @IsDateString()
