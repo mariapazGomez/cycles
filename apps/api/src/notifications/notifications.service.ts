@@ -278,7 +278,7 @@ export class NotificationsService {
           userId: coachId,
           type: "rm_missing",
           groupKey,
-          payload: { athleteId, athleteName: athlete?.name ?? "", exerciseNames: [...missing.values()].slice(0, 5) },
+          payload: { athleteId, athleteName: athlete?.name ?? "", exerciseNames: [...missing.values()].slice(0, 5), missingCount: missing.size },
           delay: false,
         },
         1,

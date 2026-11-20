@@ -56,6 +56,14 @@ function initialsOf(name: string): string {
   );
 }
 
+// «A», «A y B», «A, B y C»; con 4 o más, los 3 primeros y «y N más».
+function joinNames(names: string[], total: number): string {
+  if (names.length === 0) return "un ejercicio";
+  if (total > 3 && names.length >= 3) return `${names.slice(0, 3).join(", ")} y ${total - 3} más`;
+  if (names.length === 1) return names[0];
+  return `${names.slice(0, -1).join(", ")} y ${names[names.length - 1]}`;
+}
+
 export function notificationCopy(n: AppNotification): NotificationCopy {
   const p = n.payload;
   const coach = str(p.coachName, "Tu coach");
@@ -119,13 +127,14 @@ export function notificationCopy(n: AppNotification): NotificationCopy {
       };
     }
     case "rm_missing": {
-      // Aviso al coach (CYC-306): un atleta tiene un plan con % del RM y aún no tiene RM. Solo nombres.
+      // Aviso al coach (CYC-306): el atleta tiene un plan con % del RM y aún no tiene RM. Solo nombres (R7).
+      // Abre la ficha del atleta (sección RM): ahí el coach agrega el RM o calcula uno aproximado.
       const athleteId = str(p.athleteId);
       const names = Array.isArray(p.exerciseNames) ? p.exerciseNames.filter((x): x is string => typeof x === "string") : [];
-      const list = names.length > 0 ? ` en ${names.join(", ")}` : "";
+      const total = typeof p.missingCount === "number" ? p.missingCount : names.length;
       return {
         title: "Falta el RM",
-        text: `${athlete} tiene un plan con % del RM y aún no tiene RM${list}. Agrégalo o calcula uno aproximado.`,
+        text: `${athlete} no tiene RM en ${joinNames(names, total)}. Agrégalo o calcula uno aproximado.`,
         icon: "initials",
         initials: initialsOf(athlete),
         target: athleteId ? { kind: "athlete", athleteId } : { kind: "none" },

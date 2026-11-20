@@ -194,7 +194,7 @@ describe("RM del atleta y % del RM", () => {
       const [notice] = await notices();
       expect(notice).toMatchObject({ groupKey: `rm_missing:${c.userId.athleteA}`, readAt: null });
       // Solo nombres: sin pesos ni porcentajes ni salud (R7).
-      expect(notice.payload).toEqual({ athleteId: c.userId.athleteA, athleteName: "Atleta A", exerciseNames: ["Ejercicio de A"] });
+      expect(notice.payload).toEqual({ athleteId: c.userId.athleteA, athleteName: "Atleta A", exerciseNames: ["Ejercicio de A"], missingCount: 1 });
     });
 
     it("al registrar el RM que faltaba, el aviso se cierra y el peso aparece", async () => {
