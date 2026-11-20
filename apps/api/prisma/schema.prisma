@@ -504,6 +504,10 @@ model AthleteMax {
   recordedById String
   // Solo para «estimated» (reservado).
   basedOnLogId String?
+  // Solo para «estimated»: la serie con la que el coach calculó el RM aproximado (Epley).
+  // El RM guardado es weightKg; estos dos solo dejan constancia de la base del cálculo.
+  estimatedFromWeightKg Float?
+  estimatedFromReps     Int?
 
   athlete    User     @relation("MaxOfAthlete", fields: [athleteId], references: [id])
   recordedBy User     @relation("MaxRecordedBy", fields: [recordedById], references: [id])
