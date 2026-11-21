@@ -22,7 +22,9 @@ import { CoachNote } from '../components/CoachNote';
 import { FirstSetHint, useFirstSetHint } from '../components/tour/FirstUseHints';
 import { ExerciseVideoButton, VideoHint, playableUrl, useVideoHint } from '../components/ExerciseVideo';
 import { colors } from '../theme/colors';
-import { BODYWEIGHT_LABEL, isBodyweight } from '../utils/bodyweight';
+import { athleteLoadView, formatLoad, formatPercentOfRm } from '@cycles/shared';
+import { BODYWEIGHT_LABEL } from '../utils/bodyweight';
+import { isBodyweightLoad, percentOf, prefillWeight } from '../utils/load';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ExerciseLog'>;
 
@@ -45,7 +47,7 @@ interface SetRowState {
 function buildInitialRows(
   targetSets: number,
   targetReps: number,
-  targetWeight: number | undefined,
+  targetWeight: number,
   logs: ExerciseLog[],
 ): SetRowState[] {
   return Array.from({ length: targetSets }, (_, index) => {
@@ -56,7 +58,7 @@ function buildInitialRows(
       // El backend serializa "sin valor" como null, no como campo ausente:
       // hay que comparar con == null (cubre null y undefined), no
       // !== undefined, o un peso/RIR realmente vacío se muestra como "null".
-      // Sin peso (registrado ni planificado) el peso es 0.
+      // Sin peso (registrado, calculado ni planificado) el peso es 0.
       actualWeight: String(existing?.actualWeight ?? targetWeight ?? 0),
       rir: existing?.rir != null ? String(existing.rir) : '',
       saved: existing,
@@ -74,12 +76,21 @@ export function ExerciseLogScreen({ route }: Props) {
   const videoHint = useVideoHint(Boolean(videoUrl));
   const firstSetHint = useFirstSetHint();
   const { startRest } = useRestTimer();
-  const bodyweight = isBodyweight(sessionExercise.exercise);
+  const bodyweight = isBodyweightLoad(sessionExercise);
+  const percent = percentOf(sessionExercise);
+  const rmView = percent === null
+    ? null
+    : athleteLoadView({
+        percent,
+        resolvedWeightKg: sessionExercise.resolvedWeightKg ?? null,
+        rmStatus: sessionExercise.rmStatus,
+        reps: sessionExercise.targetReps,
+      });
   const [rows, setRows] = useState<SetRowState[]>(() =>
     buildInitialRows(
       sessionExercise.targetSets,
       sessionExercise.targetReps,
-      sessionExercise.targetWeight,
+      prefillWeight(sessionExercise),
       sessionExercise.logs,
     ),
   );
@@ -207,15 +218,35 @@ export function ExerciseLogScreen({ route }: Props) {
                   <Text style={styles.setLabel}>Serie {index + 1}</Text>
                   <View style={styles.targetPill}>
                     <Text style={styles.targetPillText}>
-                      Meta: {sessionExercise.targetReps}
-                      {bodyweight
-                        ? ` reps · ${BODYWEIGHT_LABEL}`
-                        : sessionExercise.targetWeight
-                          ? ` × ${sessionExercise.targetWeight} kg`
-                          : ' reps'}
+                      Meta: {rmView
+                        ? (rmView.goal ?? `${sessionExercise.targetReps} reps al ${formatPercentOfRm(percent as number)}`)
+                        : `${sessionExercise.targetReps}${
+                            bodyweight
+                              ? ` reps · ${BODYWEIGHT_LABEL}`
+                              : sessionExercise.targetWeight
+                                ? ` × ${formatLoad(sessionExercise.targetWeight)}`
+                                : ' reps'
+                          }`}
                     </Text>
                   </View>
                 </View>
+
+                {rmView?.hasWeight && (
+                  <>
+                    <View style={styles.rmPill}>
+                      <Text style={styles.rmPillText}>{rmView.comment}</Text>
+                    </View>
+                    <Text style={styles.rmNote}>{rmView.note}.</Text>
+                  </>
+                )}
+                {rmView && !rmView.hasWeight && (
+                  <View style={styles.rmBox}>
+                    <Text style={styles.rmBoxTitle}>{rmView.comment}</Text>
+                    <Text style={styles.rmBoxText}>
+                      Tu coach indicó el {formatPercentOfRm(percent as number)}. Registra el peso que uses.
+                    </Text>
+                  </View>
+                )}
 
                 <Stepper
                   label="Repeticiones"
@@ -270,7 +301,7 @@ export function ExerciseLogScreen({ route }: Props) {
                   {row.saved.actualReps} reps
                   {bodyweight
                     ? ` · ${BODYWEIGHT_LABEL}`
-                    : ` · ${row.saved.actualWeight ?? 0} kg`}
+                    : ` · ${formatLoad(row.saved.actualWeight ?? 0)}`}
                   {row.saved.rir != null ? ` · RIR ${row.saved.rir}` : ''}
                 </Text>
                 <TouchableOpacity onPress={() => startEditing(index)}>
@@ -383,6 +414,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   targetPillText: { color: colors.blue, fontSize: 12, fontWeight: '700' },
+  rmPill: { alignSelf: 'flex-start', backgroundColor: colors.blueTint, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6, marginBottom: 8 },
+  rmPillText: { color: colors.blue, fontSize: 14, fontWeight: '700' },
+  rmNote: { color: colors.inkSecondary, fontSize: 14, marginBottom: 8 },
+  rmBox: { backgroundColor: colors.blueTint, borderRadius: 14, padding: 14, marginBottom: 8, gap: 4 },
+  rmBoxTitle: { color: colors.ink, fontSize: 16, fontWeight: '800' },
+  rmBoxText: { color: colors.ink, fontSize: 15 },
   stepperBlock: { marginBottom: 16 },
   fieldLabel: { fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 8 },
   stepper: { flexDirection: 'row', alignItems: 'center' },

@@ -19,7 +19,7 @@ import { fetchCycles } from '../services/planApi';
 import { ApiError } from '../services/httpClient';
 import { toLocalDay } from '../utils/planCalendar';
 import { RestBar } from '../components/RestTimer';
-import { BODYWEIGHT_LABEL, isBodyweight } from '../utils/bodyweight';
+import { targetLine } from '../utils/load';
 import { useRestTimer } from '../store/RestTimerContext';
 import type { AppStackParamList, TabParamList } from '../navigation/types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -256,12 +256,7 @@ export function TodayScreen({ navigation }: Props) {
         <View style={styles.exerciseInfo}>
           <Text style={styles.exerciseName}>{sessionExercise.exercise.name}</Text>
           <Text style={styles.exerciseTarget}>
-            {sessionExercise.targetSets} × {sessionExercise.targetReps}
-            {isBodyweight(sessionExercise.exercise)
-              ? ` · ${BODYWEIGHT_LABEL}`
-              : sessionExercise.targetWeight
-                ? ` · ${sessionExercise.targetWeight} kg`
-                : ''}
+            {targetLine(sessionExercise)}
           </Text>
           <CoachNote note={sessionExercise.note} compact />
         </View>
