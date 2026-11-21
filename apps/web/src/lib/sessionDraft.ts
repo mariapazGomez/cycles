@@ -2,7 +2,7 @@ import type { ExerciseLog, SessionExerciseStructureInput, SessionStructureInput,
 import type { SessionDetail, SessionExerciseWithExercise } from "../services/sessionsApi";
 import { BLOCK_NAME_MAX, MAX_BLOCKS, STRUCTURE_MESSAGES, type DraftBlock, type Structure } from "./blocksDraft";
 import { isRowComplete, parseNumber } from "./routineStats";
-import { toText, type Row } from "./routineRows";
+import { loadPayload, toText, type Row } from "./routineRows";
 
 // La sesión del coach en el constructor (CYC-275, PR 3): conversión entre la sesión que
 // devuelve la API y el borrador, y el cuerpo que se guarda. Lógica pura para probarla con jest.
@@ -27,6 +27,9 @@ function rowFromSessionExercise(key: string, se: SessionExerciseWithExercise, bl
     sets: String(se.targetSets),
     reps: String(se.targetReps),
     weight: se.targetWeight ? toText(se.targetWeight) : "",
+    ...(se.targetPercentRm != null
+      ? { loadMode: "percent" as const, percentRm: String(se.targetPercentRm), resolvedKg: se.rmStatus === "ok" ? (se.resolvedWeightKg ?? null) : null }
+      : {}),
     restSeconds: se.targetRestSeconds ? String(se.targetRestSeconds) : "",
     rir: se.targetRir === null || se.targetRir === undefined ? "" : String(se.targetRir),
     note: se.note ?? "",
@@ -75,7 +78,7 @@ export function validateSessionStructure(name: string, s: Structure): string | n
 }
 
 function toSessionInput(row: Row): SessionExerciseStructureInput {
-  const weight = parseNumber(row.weight);
+  const load = loadPayload(row);
   const rest = parseNumber(row.restSeconds);
   const note = row.note.trim();
   return {
@@ -83,7 +86,8 @@ function toSessionInput(row: Row): SessionExerciseStructureInput {
     exerciseId: row.exerciseId,
     targetSets: parseNumber(row.sets),
     targetReps: parseNumber(row.reps),
-    ...(Number.isFinite(weight) && weight > 0 ? { targetWeight: weight } : {}),
+    ...(load.weight != null ? { targetWeight: load.weight } : {}),
+    ...(load.percent != null ? { targetPercentRm: load.percent } : {}),
     ...(Number.isFinite(rest) && rest >= 0 ? { targetRestSeconds: Math.round(rest) } : {}),
     ...(row.rir !== "" ? { targetRir: Number(row.rir) } : {}),
     ...(note ? { note } : {}),

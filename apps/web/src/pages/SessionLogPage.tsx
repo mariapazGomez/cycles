@@ -9,6 +9,7 @@ import { LoadingScreen } from "../components/LoadingScreen";
 import { RestTimer } from "../components/RestTimer";
 import { plannedRestSeconds } from "../lib/restPlan";
 import { formatKg, formatNumber, formatRir } from "../lib/format";
+import { effectiveTargetWeight, isPercentLoad, loadLabel, percentLoadView } from "../lib/rmLoad";
 import { newId } from "../lib/uuid";
 import { track } from "../lib/analytics";
 
@@ -143,10 +144,14 @@ function ExerciseStep({
   const setNumber = logs.length + 1;
   const done = logs.length >= exercise.targetSets;
   const isFinalSet = setNumber === exercise.targetSets;
-  const hasWeight = exercise.targetWeight !== null && exercise.targetWeight !== undefined;
+  const percentLoad = isPercentLoad(exercise);
+  const prefill = effectiveTargetWeight(exercise);
+  // Con % del RM el peso siempre se registra: se prellena si hay RM y arranca en 0 si no.
+  const hasWeight = percentLoad || (exercise.targetWeight !== null && exercise.targetWeight !== undefined);
+  const rmView = percentLoad ? percentLoadView(exercise, exercise.targetReps) : null;
 
   const [reps, setReps] = useState(lastLog?.actualReps ?? exercise.targetReps);
-  const [weight, setWeight] = useState(lastLog?.actualWeight ?? exercise.targetWeight ?? 0);
+  const [weight, setWeight] = useState(lastLog?.actualWeight ?? prefill ?? 0);
   const [rir, setRir] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -184,6 +189,12 @@ function ExerciseStep({
         {exercise.exercise.name}
       </h1>
       <CoachNote note={exercise.note} />
+      {rmView && (
+        <div className="rm-comment" role="note">
+          <strong>{rmView.comment}</strong>
+          {rmView.note && <span>{rmView.note}</span>}
+        </div>
+      )}
       <dl className="target-values">
         <div>
           <dt>Series</dt>
@@ -193,7 +204,7 @@ function ExerciseStep({
         </div>
         <div>
           <dt>Peso</dt>
-          <dd>{formatKg(exercise.targetWeight)}</dd>
+          <dd>{loadLabel(exercise)}</dd>
         </div>
         <div>
           <dt>En reserva</dt>

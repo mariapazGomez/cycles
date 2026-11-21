@@ -86,6 +86,8 @@ export interface RoutineExercise {
   defaultSets: number;
   defaultReps: number;
   defaultWeight?: number;
+  // % del RM (1–100); excluyente con defaultWeight (CYC-306).
+  defaultPercentRm?: number | null;
   defaultRestSeconds?: number;
   // Repeticiones en reserva objetivo (0–4). Sin valor = sin objetivo de esfuerzo.
   defaultRir?: number | null;

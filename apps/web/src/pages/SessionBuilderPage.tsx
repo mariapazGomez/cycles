@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { SessionStatus } from "@cycles/shared";
@@ -9,6 +9,9 @@ import { useStructureDraft } from "../hooks/useStructureDraft";
 import { looseRows } from "../lib/blocksDraft";
 import { isSessionLocked, metaChanges, sessionMeta } from "../lib/sessionDraft";
 import { BuilderBlocks } from "../components/builder/BuilderBlocks";
+import { RmContext } from "../components/builder/RmContext";
+import * as athletesApi from "../services/athletesApi";
+import * as rmApi from "../services/rmApi";
 import { BuilderSidePanel } from "../components/builder/BuilderSidePanel";
 
 const STATUS_LABEL: Record<SessionStatus, string> = { pending: "Pendiente", completed: "Completada", skipped: "Salteada" };
@@ -21,6 +24,16 @@ export function SessionBuilderPage({ session }: { session: sessionsApi.SessionDe
   const queryClient = useQueryClient();
   const draft = useStructureDraft(null, "session");
   const exercisesQuery = useQuery({ queryKey: ["exercises"], queryFn: exercisesApi.listExercises });
+  // RM de la persona de esta sesión: «% del RM» se desactiva donde no lo tiene (CYC-312).
+  const athleteId = session.cycle.athleteId;
+  const rmQuery = useQuery({ queryKey: ["rm", athleteId], queryFn: () => rmApi.listAthleteRm(athleteId), enabled: !!athleteId });
+  const athletesQuery = useQuery({ queryKey: ["athletes"], queryFn: athletesApi.listAthletes, enabled: !!athleteId });
+  const rmContext = useMemo(() => {
+    if (!rmQuery.data) return null;
+    const withRm = new Set(rmQuery.data.withMax.map((m) => m.exerciseId));
+    const name = athletesQuery.data?.find((r) => r.athlete.id === athleteId)?.athlete.name.split(" ")[0] ?? "El atleta";
+    return { athleteId, athleteName: name, hasRm: (exerciseId: string) => withRm.has(exerciseId) };
+  }, [rmQuery.data, athletesQuery.data, athleteId]);
   const before = sessionMeta(session);
   const [date, setDate] = useState(before.date);
   const [status, setStatus] = useState<SessionStatus>(before.status);
@@ -144,7 +157,9 @@ export function SessionBuilderPage({ session }: { session: sessionsApi.SessionDe
 
       <div className="bld-layout">
         <fieldset className="bld-fieldset" disabled={locked}>
-          <BuilderBlocks draft={draft} exercises={exercises} locked={locked} />
+          <RmContext.Provider value={rmContext}>
+            <BuilderBlocks draft={draft} exercises={exercises} locked={locked} />
+          </RmContext.Provider>
         </fieldset>
 
         <BuilderSidePanel
