@@ -498,6 +498,149 @@
   }
 }
 
+/* RM y carga como % del RM (CYC-312) */
+.nd-rm-row b,
+.nd-rm-sheet b {
+  min-width: 150px;
+}
+
+.nd-rm-field {
+  display: inline-flex;
+  margin-left: 24px;
+  border: 1px solid #aeb5c0;
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.nd-rm-field i {
+  min-width: 64px;
+  padding: 8px 12px;
+  font-style: normal;
+  text-align: center;
+}
+
+.nd-rm-field u {
+  padding: 8px 12px;
+  background: #e8eefb;
+  color: #1a66dd;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.nd-rm-kg,
+.nd-rm-state {
+  margin-left: auto;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: #e3f3e8;
+  color: #1c6b3a;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.nd-rm-row .nd-rm-kg {
+  margin-left: 18px;
+}
+
+.nd-rm-sheet .nd-rm-kg {
+  margin-left: 0;
+  min-width: 96px;
+  text-align: center;
+}
+
+.nd-rm-state {
+  margin-left: 14px;
+  min-width: 84px;
+  text-align: center;
+}
+
+.nd-rm-off {
+  background: #fdeedd;
+  color: #9a4a00;
+}
+
+.nd-rm-col {
+  min-width: 80px;
+  margin-left: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.nd-rm-dim {
+  color: var(--ink2);
+  font-weight: 600;
+}
+
+.nd-rm-tag {
+  margin-left: auto;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #e8eefb;
+  color: #1a66dd;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.nd-rm-tag-g {
+  background: #eceef2;
+  color: var(--ink2);
+}
+
+.nd-rm-alert {
+  position: absolute;
+  left: 36px;
+  right: 36px;
+  bottom: 14px;
+  padding: 9px 14px;
+  border: 1px solid #e8b27a;
+  border-radius: 10px;
+  background: #fdeedd;
+  font-size: 13.4px;
+  font-weight: 700;
+}
+
+.nd-rm-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+}
+
+.nd-rm-box {
+  display: grid;
+  min-width: 140px;
+  padding: 18px 22px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: var(--shadow-e1);
+  text-align: center;
+}
+
+.nd-rm-box b {
+  font-size: 30px;
+}
+
+.nd-rm-on {
+  background: #e3f3e8;
+  color: #1c6b3a;
+}
+
+.nd-rm-on small {
+  color: #1c6b3a;
+}
+
+.nd-rm-arrow {
+  color: #1a66dd;
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.nd-rm-pop {
+  animation: nd-pop 7s infinite both;
+}
+
 /* Reactivo a la pantalla real (contenedor y alto de ventana) */
 @container (max-width: 479px) {
   .nv-body {

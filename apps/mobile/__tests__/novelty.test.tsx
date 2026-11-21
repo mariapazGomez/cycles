@@ -56,7 +56,7 @@ describe('ficha athlete-blocks@1', () => {
   });
   test('la atleta en móvil la ve; la coach en la web no', () => {
     expect(pendingNovelty(['routine-blocks@1', 'athlete-share-session@1'], NOVELTY_VIEWER)?.key).toBe('athlete-blocks');
-    expect(pendingNovelty([], { role: 'coach', platform: 'web' })?.key).toBe('routine-blocks');
+    expect(pendingNovelty(['coach-rm-percent@1'], { role: 'coach', platform: 'web' })?.key).toBe('routine-blocks');
     expect(pendingNovelty(['athlete-blocks@1', 'athlete-weekly@1', 'athlete-share-session@1'], NOVELTY_VIEWER)).toBeNull();
   });
 });

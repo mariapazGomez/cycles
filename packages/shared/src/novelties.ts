@@ -25,7 +25,12 @@ export type NoveltyDemoId =
   // App del atleta: compartir la sesión como imagen.
   | "athlete-share-button"
   | "athlete-share-formats"
-  | "athlete-share-data";
+  | "athlete-share-data"
+  // RM y carga como % del RM (CYC-312): la web del coach y el atleta.
+  | "rm-percent-row"
+  | "rm-athlete-sheet"
+  | "rm-multi-add"
+  | "athlete-rm-percent";
 
 export interface NoveltySlide {
   title: string;
@@ -165,6 +170,51 @@ export const NOVELTIES: Novelty[] = [
         text: "Muestra ejercicios, series y duración. Nunca tus pesos, esfuerzo, notas ni tu nombre.",
         demoLabel: "Tres cifras de la sesión: ejercicios, series y duración.",
         demo: "athlete-share-data",
+      },
+    ],
+  },
+  {
+    key: "coach-rm-percent",
+    version: 1,
+    since: "2026-11-20",
+    platforms: ["web"],
+    roles: ["coach"],
+    name: "Carga como % del RM",
+    slides: [
+      {
+        title: "Carga como % del RM",
+        text: "Elige % del RM en cada fila y Cycles calcula el peso de cada atleta.",
+        demoLabel: "Una fila de Sentadilla con 80 % RM muestra el peso calculado: 72,5 kg.",
+        demo: "rm-percent-row",
+      },
+      {
+        title: "El RM de cada atleta",
+        text: "Regístralo en su ficha con la fecha de evaluación. Si no lo tienes, calcula uno aproximado.",
+        demoLabel: "La ficha de una atleta lista su RM con la fecha de evaluación y el origen: Coach o Aproximado.",
+        demo: "rm-athlete-sheet",
+      },
+      {
+        title: "Una rutina para varios atletas",
+        text: "Cada uno recibe su peso según su RM. Si a alguien le falta, te avisamos.",
+        demoLabel: "La misma rutina para tres atletas: dos con su peso calculado y una con «Sin RM» y un aviso.",
+        demo: "rm-multi-add",
+      },
+    ],
+  },
+  {
+    key: "athlete-rm-percent",
+    version: 1,
+    since: "2026-11-20",
+    // La app del atleta la suma con CYC-313.
+    platforms: ["web"],
+    roles: ["athlete"],
+    name: "Tu peso, calculado",
+    slides: [
+      {
+        title: "Tu peso, calculado",
+        text: "Tu coach puede indicar un % de tu RM. Verás el peso ya calculado y redondeado para que calce con los discos.",
+        demoLabel: "80 % de tu RM se convierte en 72,5 kg, tu peso.",
+        demo: "athlete-rm-percent",
       },
     ],
   },

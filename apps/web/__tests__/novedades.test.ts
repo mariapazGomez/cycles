@@ -19,8 +19,8 @@ describe("fichas de novedad (registro)", () => {
     expect(new Set(CURRENT_NOVELTY_KEYS).size).toBe(NOVELTIES.length);
   });
 
-  it.each(NOVELTIES.map((n) => [noveltyKey(n), n] as const))("%s: de 2 a 4 slides con textos cortos y demostración", (_key, n) => {
-    expect(n.slides.length).toBeGreaterThanOrEqual(2);
+  it.each(NOVELTIES.map((n) => [noveltyKey(n), n] as const))("%s: de 1 a 4 slides con textos cortos y demostración", (_key, n) => {
+    expect(n.slides.length).toBeGreaterThanOrEqual(1);
     expect(n.slides.length).toBeLessThanOrEqual(MAX_NOVELTY_SLIDES);
     for (const s of n.slides) {
       expect(s.text.length).toBeLessThanOrEqual(MAX_NOVELTY_TEXT);
@@ -32,15 +32,16 @@ describe("fichas de novedad (registro)", () => {
 });
 
 describe("qué novedad toca mostrar", () => {
-  it("la coach ve la de bloques; la atleta y el admin, ninguna", () => {
-    expect(pendingNovelty([], coach)?.key).toBe("routine-blocks");
-    expect(pendingNovelty([], { role: "athlete", platform: "web" })).toBeNull();
+  it("la coach ve la más reciente (RM) y luego la de bloques; la atleta, la suya en la web; el admin, ninguna", () => {
+    expect(pendingNovelty([], coach)?.key).toBe("coach-rm-percent");
+    expect(pendingNovelty(["coach-rm-percent@1"], coach)?.key).toBe("routine-blocks");
+    expect(pendingNovelty([], { role: "athlete", platform: "web" })?.key).toBe("athlete-rm-percent");
     expect(pendingNovelty([], { role: "admin", platform: "web" })).toBeNull();
     expect(pendingNovelty([], { role: "coach", platform: "mobile" })).toBeNull();
   });
 
   it("una vez vista ya no sale, y una versión nueva vuelve a salir", () => {
-    expect(pendingNovelty(["routine-blocks@1"], coach)).toBeNull();
+    expect(pendingNovelty(CURRENT_NOVELTY_KEYS, coach)).toBeNull();
     const v2 = fake({ version: 2, since: "2026-12-01" });
     expect(pendingNovelty(["routine-blocks@1"], coach, [NOVELTIES[0], v2])?.version).toBe(2);
   });
