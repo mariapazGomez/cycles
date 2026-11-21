@@ -1,4 +1,4 @@
-import { athleteLoadView, athleteRmComment, formatLoad, formatPercentOfRm, rmStatusLabel, roundingNote } from "@cycles/shared";
+import { athleteLoadView, calcLoadKg, athleteRmComment, formatLoad, formatPercentOfRm, rmStatusLabel, roundingNote } from "@cycles/shared";
 
 describe("textos del RM", () => {
   it("formatea el peso con coma decimal y sin ceros de más", () => {
@@ -28,5 +28,12 @@ describe("textos del RM", () => {
     expect(athleteLoadView({ percent: 80, resolvedWeightKg: null, rmStatus: "missing" })).toEqual({
       goal: null, comment: "Aún no hay peso calculado", note: null, hasWeight: false,
     });
+  });
+  it("calcula el peso de un % del RM, redondeado a 2,5 kg", () => {
+    expect(calcLoadKg(80, 90)).toBe(72.5); // 72
+    expect(calcLoadKg(75, 100)).toBe(75);
+    expect(calcLoadKg(60, 100)).toBe(60);
+    expect(calcLoadKg(82, 90)).toBe(75); // 73,8
+    expect(calcLoadKg(80, 90, "lb")).toBeCloseTo(72.575, 2); // 160 lb
   });
 });

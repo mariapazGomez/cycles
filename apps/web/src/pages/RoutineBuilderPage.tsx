@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import * as athletesApi from "../services/athletesApi";
+import * as rmApi from "../services/rmApi";
+import { RmContext } from "../components/builder/RmContext";
 import * as routinesApi from "../services/routinesApi";
 import * as exercisesApi from "../services/exercisesApi";
 import { useStructureDraft } from "../hooks/useStructureDraft";
@@ -28,6 +32,19 @@ export function RoutineBuilderPage() {
     enabled: Boolean(id),
   });
   const exercisesQuery = useQuery({ queryKey: ["exercises"], queryFn: exercisesApi.listExercises });
+  // Vista previa con el RM de una persona (CYC-312): solo muestra su peso; el % sigue disponible.
+  const [previewId, setPreviewId] = useState("");
+  const athletesQuery = useQuery({ queryKey: ["athletes"], queryFn: athletesApi.listAthletes });
+  const previewRmQuery = useQuery({ queryKey: ["rm", previewId], queryFn: () => rmApi.listAthleteRm(previewId), enabled: previewId !== "" });
+  const activeAthletes = (athletesQuery.data ?? []).filter((r) => r.status === "active");
+  const previewContext = useMemo(() => {
+    const data = previewRmQuery.data;
+    const athlete = activeAthletes.find((r) => r.athlete.id === previewId)?.athlete;
+    if (!data || !athlete) return null;
+    const byId = new Map(data.withMax.map((m) => [m.exerciseId, m.weightKg]));
+    return { athleteId: athlete.id, athleteName: athlete.name.split(" ")[0], preview: true, hasRm: (id: string) => byId.has(id), rmKg: (id: string) => byId.get(id) ?? null };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [previewRmQuery.data, previewId, athletesQuery.data]);
   const draft = useStructureDraft();
   const [loadedId, setLoadedId] = useState<string | null>(null);
   const [confirmingLeave, setConfirmingLeave] = useState(false);
@@ -112,7 +129,24 @@ export function RoutineBuilderPage() {
       )}
 
       <div className="bld-layout">
-        <BuilderBlocks draft={draft} exercises={exercises} tour />
+        <div className="bld-main">
+          {activeAthletes.length > 0 && (
+            <div className="bld-preview">
+              <label htmlFor="bld-preview-athlete">Vista previa con el RM de</label>
+              <select id="bld-preview-athlete" className="bld-f" value={previewId} onChange={(e) => setPreviewId(e.target.value)}>
+                <option value="">Ninguna</option>
+                {activeAthletes.map((r) => (
+                  <option key={r.athlete.id} value={r.athlete.id}>
+                    {r.athlete.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <RmContext.Provider value={previewContext}>
+            <BuilderBlocks draft={draft} exercises={exercises} tour />
+          </RmContext.Provider>
+        </div>
 
         <BuilderSidePanel
           name={draft.name}

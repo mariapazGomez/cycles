@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { formatLoad } from "@cycles/shared";
+import { calcLoadKg, formatLoad } from "@cycles/shared";
 import { isValidPercent, rowLoadMode, type LoadMode, type Row } from "../../lib/routineRows";
 import { useRmContext } from "./RmContext";
 
@@ -12,7 +12,12 @@ export function LoadCell({ row, bad, onChange }: { row: Row; bad: boolean; onCha
   const mode = rowLoadMode(row);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const percentBlocked = rm != null && !rm.hasRm(row.exerciseId) && mode !== "percent";
+  const percentBlocked = rm != null && !rm.preview && !rm.hasRm(row.exerciseId) && mode !== "percent";
+  // Peso que se muestra bajo la carga: el calculado por la API (sesión) o, en la vista previa de una
+  // rutina, el de la persona elegida.
+  const previewRm = rm?.preview ? rm.rmKg(row.exerciseId) : null;
+  const shownKg =
+    mode !== "percent" ? null : rm?.preview ? (previewRm != null && isValidPercent(row.percentRm) ? calcLoadKg(Number(row.percentRm), previewRm) : null) : (row.resolvedKg ?? null);
   const reason = percentBlocked ? `${rm.athleteName} no tiene RM en ${row.name}` : null;
 
   useEffect(() => {
@@ -81,8 +86,8 @@ export function LoadCell({ row, bad, onChange }: { row: Row; bad: boolean; onCha
           )}
         </div>
       )}
-      {mode === "percent" && row.resolvedKg != null && <span className="bld-weight">{formatLoad(row.resolvedKg)}</span>}
-      {mode === "percent" && rm != null && row.resolvedKg == null && !rm.hasRm(row.exerciseId) && <span className="bld-weight bld-weight-off">Sin RM</span>}
+      {shownKg != null && <span className="bld-weight" title={rm?.preview ? `Peso de ${rm.athleteName}` : undefined}>{formatLoad(shownKg)}</span>}
+      {mode === "percent" && rm != null && shownKg == null && !rm.hasRm(row.exerciseId) && <span className="bld-weight bld-weight-off">Sin RM</span>}
     </div>
   );
 }
