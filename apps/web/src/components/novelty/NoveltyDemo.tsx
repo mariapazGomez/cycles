@@ -115,6 +115,78 @@ function Page() {
   );
 }
 
+// RM y carga como % del RM (CYC-312). El estado base es el final; la animación hace entrar el resultado.
+function RmPercentRow() {
+  return (
+    <div className="nd nd-rm">
+      <div className="nd-rw nd-rm-row" style={{ top: 96, height: 60 }}>
+        <b>Sentadilla</b>
+        <span className="nd-rm-field">
+          <i>80</i>
+          <u>% RM</u>
+        </span>
+        <span className="nd-rm-kg nd-rm-pop">72,5 kg</span>
+      </div>
+    </div>
+  );
+}
+
+function RmAthleteSheet() {
+  const rows: [string, string, string, string][] = [
+    ["Sentadilla", "90 kg", "12 nov", "Coach"],
+    ["Peso muerto", "110 kg", "12 nov", "Coach"],
+    ["Remo con barra", "57 kg", "29 oct", "Aproximado"],
+  ];
+  return (
+    <div className="nd nd-rm">
+      {rows.map(([n, kg, d, o], i) => (
+        <div key={n} className={`nd-rw nd-rm-sheet${i === 2 ? " nd-rm-pop" : ""}`} style={{ top: 40 + i * 62, height: 50 }}>
+          <b>{n}</b>
+          <span className="nd-rm-col">{kg}</span>
+          <span className="nd-rm-col nd-rm-dim">{d}</span>
+          <span className={`nd-rm-tag${o === "Aproximado" ? " nd-rm-tag-g" : ""}`}>{o}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function RmMultiAdd() {
+  const rows: [string, string, boolean][] = [
+    ["Valentina Soto", "72,5 kg", true],
+    ["Josefa Pino", "80 kg", true],
+    ["Matías Vera", "Sin RM", false],
+  ];
+  return (
+    <div className="nd nd-rm">
+      {rows.map(([n, kg, ok], i) => (
+        <div key={n} className="nd-rw nd-rm-sheet" style={{ top: 30 + i * 62, height: 50 }}>
+          <b>{n}</b>
+          <span className={ok ? "nd-rm-kg" : "nd-rm-kg nd-rm-off"}>{kg}</span>
+          <span className={ok ? "nd-rm-state" : "nd-rm-state nd-rm-off"}>{ok ? "Lista" : "Falta RM"}</span>
+        </div>
+      ))}
+      <div className="nd-rm-alert nd-rm-pop">Te avisamos para que agregues o calcules su RM</div>
+    </div>
+  );
+}
+
+function AthleteRmPercent() {
+  return (
+    <div className="nd nd-rm nd-rm-center">
+      <div className="nd-rm-box">
+        <b>80 %</b>
+        <small>de tu RM</small>
+      </div>
+      <span className="nd-rm-arrow">→</span>
+      <div className="nd-rm-box nd-rm-on nd-rm-pop">
+        <b>72,5 kg</b>
+        <small>tu peso</small>
+      </div>
+    </div>
+  );
+}
+
 export function NoveltyDemo({ slide }: { slide: NoveltySlide }) {
   const [ref, width] = useElementWidth<HTMLDivElement>();
   if (slide.video) {
@@ -124,7 +196,7 @@ export function NoveltyDemo({ slide }: { slide: NoveltySlide }) {
       </div>
     );
   }
-  const art = slide.demo === "blocks-group" ? <Group /> : slide.demo === "blocks-move" ? <Move /> : slide.demo === "blocks-legacy" ? <Legacy /> : slide.demo === "blocks-page" ? <Page /> : null;
+  const art = slide.demo === "blocks-group" ? <Group /> : slide.demo === "blocks-move" ? <Move /> : slide.demo === "blocks-legacy" ? <Legacy /> : slide.demo === "blocks-page" ? <Page /> : slide.demo === "rm-percent-row" ? <RmPercentRow /> : slide.demo === "rm-athlete-sheet" ? <RmAthleteSheet /> : slide.demo === "rm-multi-add" ? <RmMultiAdd /> : slide.demo === "athlete-rm-percent" ? <AthleteRmPercent /> : null;
   // Escala del escenario al ancho disponible (nunca se agranda ni se recorta).
   const scale = width === 0 ? 1 : Math.min(1, Math.max(0.3, width / STAGE_W));
   return (
