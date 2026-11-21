@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as routinesApi from "../services/routinesApi";
 import * as cyclesApi from "../services/cyclesApi";
 import * as athletesApi from "../services/athletesApi";
+import { AddToManyDialog } from "../components/rm/AddToManyDialog";
 import { ApiError } from "../services/httpClient";
 import { useAuth } from "../hooks/useAuth";
 import { usePageBackground } from "../hooks/usePageBackground";
@@ -48,11 +49,16 @@ function RoutineRow({
   entry,
   confirming,
   busy,
+  canAddToMany,
+  onAddToMany,
   onAskDelete,
   onCancelDelete,
   onDelete,
 }: {
   entry: RoutineEntry;
+  // Hay atletas a quienes agregársela (CYC-312).
+  canAddToMany: boolean;
+  onAddToMany: () => void;
   confirming: boolean;
   busy: boolean;
   onAskDelete: () => void;
@@ -88,6 +94,11 @@ function RoutineRow({
           </>
         ) : (
           <>
+            {canAddToMany && (
+              <button type="button" className="rt-ghost" onClick={onAddToMany}>
+                Agregar a varios atletas
+              </button>
+            )}
             <Link className="rt-ghost" to={routineBuilderPath(entry.id)}>
               Editar
             </Link>
@@ -344,6 +355,7 @@ export function BibliotecaPage() {
   const [showCycleForm, setShowCycleForm] = useState(params.get("crear") === "ciclo");
   const [showTemplateForm, setShowTemplateForm] = useState(false);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
+  const [addToMany, setAddToMany] = useState<{ id: string; name: string } | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -577,6 +589,8 @@ export function BibliotecaPage() {
                 entry={entry}
                 confirming={confirmingId === entry.id}
                 busy={deleteMutation.isPending}
+                canAddToMany={activeAthletes.length > 0}
+                onAddToMany={() => setAddToMany({ id: entry.id, name: entry.name })}
                 onAskDelete={() => {
                   setDeleteError(null);
                   setConfirmingId(entry.id);
@@ -603,6 +617,7 @@ export function BibliotecaPage() {
         </ul>
       )}
 
+      {addToMany && <AddToManyDialog routineId={addToMany.id} routineName={addToMany.name} onClose={() => setAddToMany(null)} />}
     </div>
   );
 }

@@ -172,7 +172,9 @@ export function NotificationBell() {
   }
 
   async function openNotification(item: AppNotification) {
-    const path = pathFor(notificationCopy(item).target);
+    const base = pathFor(notificationCopy(item).target);
+    // «Falta el RM» abre la pestaña RM de la ficha: ahí agrega el RM o calcula uno aproximado.
+    const path = base && item.type === "rm_missing" ? `${base}?vista=rm` : base;
     setOpen(false);
     if (!item.read) {
       setItems((list) => list?.map((n) => (n.id === item.id ? { ...n, read: true } : n)) ?? list);

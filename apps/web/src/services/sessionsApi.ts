@@ -75,3 +75,16 @@ export function duplicateSession(id: string, data: { scheduledDate: string; toda
 export function saveSessionStructure(id: string, data: SessionStructureInput) {
   return apiRequest<SessionDetail>(`/sessions/${id}/structure`, { method: "PUT", body: data });
 }
+
+// La misma rutina en la misma fecha para varios atletas (un ciclo por atleta); el resultado va
+// por ciclo: uno que falla no detiene a los demás (CYC-306).
+export interface BatchSessionResult {
+  cycleId: string;
+  ok: boolean;
+  session?: SessionDetail;
+  error?: string;
+}
+
+export function createSessionsBatch(data: { routineId: string; cycleIds: string[]; scheduledDate: string; today?: string }) {
+  return apiRequest<{ results: BatchSessionResult[] }>("/sessions/batch", { method: "POST", body: data });
+}

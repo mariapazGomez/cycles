@@ -59,3 +59,14 @@ export function athleteLoadView(input: {
     hasWeight: true,
   };
 }
+
+// Peso de un ejercicio con % del RM: % × RM redondeado a 2,5 kg (5 lb si usa libras). Es el mismo
+// cálculo que hace la API; sirve para la vista previa de la rutina, antes de asignarla.
+export function calcLoadKg(percent: number, rmKg: number, unit: RmDisplayUnit = "kg"): number {
+  const raw = (percent / 100) * rmKg;
+  if (unit === "lb") {
+    const lb = Math.round((raw * LB_PER_KG) / RM_ROUND_STEP_LB) * RM_ROUND_STEP_LB;
+    return Math.round((lb / LB_PER_KG) * 1000) / 1000;
+  }
+  return Math.round(raw / RM_ROUND_STEP_KG) * RM_ROUND_STEP_KG;
+}
