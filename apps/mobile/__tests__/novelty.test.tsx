@@ -17,7 +17,7 @@ const athlete = (over: object = {}, userOver: object = {}) => ({
   status: 'signedIn',
   welcome: false,
   markNewsSeen,
-  user: { id: 'u1', role: 'athlete', tourStatus: 'completed', tourNewsSeen: ['routine-blocks@1', 'athlete-share-session@1'], ...userOver },
+  user: { id: 'u1', role: 'athlete', tourStatus: 'completed', tourNewsSeen: ['routine-blocks@1', 'athlete-share-session@1', 'athlete-rm-percent@1'], ...userOver },
   ...over,
 });
 
@@ -55,9 +55,9 @@ describe('ficha athlete-blocks@1', () => {
     });
   });
   test('la atleta en móvil la ve; la coach en la web no', () => {
-    expect(pendingNovelty(['routine-blocks@1', 'athlete-share-session@1'], NOVELTY_VIEWER)?.key).toBe('athlete-blocks');
+    expect(pendingNovelty(['routine-blocks@1', 'athlete-share-session@1', 'athlete-rm-percent@1'], NOVELTY_VIEWER)?.key).toBe('athlete-blocks');
     expect(pendingNovelty(['coach-rm-percent@1'], { role: 'coach', platform: 'web' })?.key).toBe('routine-blocks');
-    expect(pendingNovelty(['athlete-blocks@1', 'athlete-weekly@1', 'athlete-share-session@1'], NOVELTY_VIEWER)).toBeNull();
+    expect(pendingNovelty(['athlete-blocks@1', 'athlete-weekly@1', 'athlete-share-session@1', 'athlete-rm-percent@1'], NOVELTY_VIEWER)).toBeNull();
   });
 });
 
@@ -73,9 +73,9 @@ describe('ficha athlete-weekly@1', () => {
     });
   });
   test('sale cuando ya vio la de bloques, y una sola a la vez', () => {
-    expect(pendingNovelty(['routine-blocks@1', 'athlete-share-session@1'], NOVELTY_VIEWER)?.key).toBe('athlete-blocks');
-    expect(pendingNovelty(['routine-blocks@1', 'athlete-blocks@1', 'athlete-share-session@1'], NOVELTY_VIEWER)?.key).toBe('athlete-weekly');
-    expect(pendingNovelty(['routine-blocks@1', 'athlete-blocks@1', 'athlete-weekly@1', 'athlete-share-session@1'], NOVELTY_VIEWER)).toBeNull();
+    expect(pendingNovelty(['routine-blocks@1', 'athlete-share-session@1', 'athlete-rm-percent@1'], NOVELTY_VIEWER)?.key).toBe('athlete-blocks');
+    expect(pendingNovelty(['routine-blocks@1', 'athlete-blocks@1', 'athlete-share-session@1', 'athlete-rm-percent@1'], NOVELTY_VIEWER)?.key).toBe('athlete-weekly');
+    expect(pendingNovelty(['routine-blocks@1', 'athlete-blocks@1', 'athlete-weekly@1', 'athlete-share-session@1', 'athlete-rm-percent@1'], NOVELTY_VIEWER)).toBeNull();
   });
   test('las dos demostraciones se dibujan con su descripción', () => {
     let r!: ReactTestRenderer.ReactTestRenderer;
@@ -102,8 +102,8 @@ describe('ficha athlete-share-session@1', () => {
       expect(sl.when).toBeUndefined();
     });
   });
-  test('es la más reciente: sale primero a quien aún no la vio, y una cuenta nueva la recibe ya vista', () => {
-    expect(pendingNovelty(['routine-blocks@1', 'athlete-blocks@1', 'athlete-weekly@1'], NOVELTY_VIEWER)?.key).toBe('athlete-share-session');
+  test('sale a quien aún no la vio, y una cuenta nueva la recibe ya vista', () => {
+    expect(pendingNovelty(['routine-blocks@1', 'athlete-blocks@1', 'athlete-weekly@1', 'athlete-rm-percent@1'], NOVELTY_VIEWER)?.key).toBe('athlete-share-session');
     expect(CURRENT_NOVELTY_KEYS).toContain('athlete-share-session@1');
   });
   test('no promete nada que la imagen no lleve: nunca pesos, esfuerzo, notas ni nombre', () => {
@@ -121,6 +121,31 @@ describe('ficha athlete-share-session@1', () => {
     press(r, 'Siguiente');
     expect(texts(r)).toEqual(expect.arrayContaining(['Ejercicios', 'Series', 'Duración', 'Sin pesos, esfuerzo ni notas']));
     expect(r.root.findAll(x => x.props.accessibilityRole === 'image').map(x => x.props.accessibilityLabel)).toContain(n.slides[2].demoLabel);
+  });
+});
+
+describe('ficha athlete-rm-percent@1 (CYC-313)', () => {
+  const n = NOVELTIES.find(x => x.key === 'athlete-rm-percent')!;
+  test('es de la atleta en web y móvil, con 1 slide de texto corto, con demostración y sin condiciones', () => {
+    expect(n).toMatchObject({ platforms: ['web', 'mobile'], roles: ['athlete'], version: 1 });
+    expect(n.slides).toHaveLength(1);
+    expect(n.slides[0].title).toBe('Tu peso, calculado');
+    expect(n.slides[0].text.length).toBeLessThanOrEqual(MAX_NOVELTY_TEXT);
+    expect(n.slides[0].demo).toBe('athlete-rm-percent');
+    expect(n.slides[0].when).toBeUndefined();
+  });
+  test('es la más reciente: sale primero a quien aún no la vio, y una cuenta nueva la recibe ya vista', () => {
+    expect(pendingNovelty(['routine-blocks@1', 'athlete-blocks@1', 'athlete-weekly@1', 'athlete-share-session@1'], NOVELTY_VIEWER)?.key).toBe('athlete-rm-percent');
+    expect(CURRENT_NOVELTY_KEYS).toContain('athlete-rm-percent@1');
+  });
+  test('la demostración se dibuja con su descripción y termina con «72,5 kg»', () => {
+    let r!: ReactTestRenderer.ReactTestRenderer;
+    act(() => {
+      r = ReactTestRenderer.create(<NoveltyDialog novelty={n} slides={n.slides} onClose={() => {}} />);
+    });
+    mounted.push(r);
+    expect(texts(r)).toEqual(expect.arrayContaining(['80 %', 'de tu RM', '72,5 kg', 'tu peso']));
+    expect(r.root.findAll(x => x.props.accessibilityRole === 'image').map(x => x.props.accessibilityLabel)).toContain(n.slides[0].demoLabel);
   });
 });
 
@@ -168,7 +193,7 @@ describe('NoveltyLayer', () => {
     const onExercise = render('ExerciseLog');
     wait();
     expect(texts(onExercise)).toEqual([]);
-    authMock.mockReturnValue(athlete({}, { tourNewsSeen: ['athlete-blocks@1', 'athlete-weekly@1', 'athlete-share-session@1'] }));
+    authMock.mockReturnValue(athlete({}, { tourNewsSeen: ['athlete-blocks@1', 'athlete-weekly@1', 'athlete-share-session@1', 'athlete-rm-percent@1'] }));
     const seen = render();
     wait();
     expect(texts(seen)).toEqual([]);

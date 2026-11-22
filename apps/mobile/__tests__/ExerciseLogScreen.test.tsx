@@ -22,7 +22,15 @@ jest.mock('../src/components/ExerciseVideo', () => ({
 
 const logSetMock = logSet as jest.Mock;
 
-type Overrides = { equipment?: string[]; targetRestSeconds?: number; targetWeight?: number; logs?: unknown[] };
+type Overrides = {
+  equipment?: string[];
+  targetRestSeconds?: number;
+  targetWeight?: number;
+  logs?: unknown[];
+  targetPercentRm?: number | null;
+  rmStatus?: 'ok' | 'missing' | 'needs_athlete' | null;
+  resolvedWeightKg?: number | null;
+};
 const sessionExercise = (o: Overrides = {}) => ({
   id: 'se-1',
   sessionId: 's1',
@@ -31,6 +39,9 @@ const sessionExercise = (o: Overrides = {}) => ({
   targetSets: 2,
   targetReps: 10,
   targetWeight: o.targetWeight,
+  targetPercentRm: o.targetPercentRm,
+  rmStatus: o.rmStatus,
+  resolvedWeightKg: o.resolvedWeightKg,
   targetRestSeconds: o.targetRestSeconds,
   exercise: { id: 'ex-1', name: 'Dominadas', equipment: o.equipment ?? ['barbell'], isActive: true },
   logs: o.logs ?? [],
@@ -146,5 +157,45 @@ describe('sin peso es 0, nunca «null» (CYC-284)', () => {
     expect(joined(tree)).not.toContain('Peso (kg)');
     expect(joined(tree)).toContain('Peso corporal');
     expect(joined(tree)).not.toContain('null');
+  });
+});
+
+describe('carga como % del RM (CYC-313)', () => {
+  const inputValues = (tree: ReactTestRenderer.ReactTestRenderer) =>
+    tree.root.findAll(n => (n.type as unknown) === 'TextInput').map(n => n.props.value as string);
+
+  test('con RM: meta con el peso calculado, comentario, nota del redondeo y peso prellenado', async () => {
+    const tree = await mount({ equipment: [], targetPercentRm: 80, rmStatus: 'ok', resolvedWeightKg: 72.5 });
+    const t = joined(tree);
+    expect(t).toContain('Meta: 10 × 72,5 kg');
+    expect(t).toContain('Estás levantando el 80 % de tu RM');
+    expect(t).toContain('Peso redondeado a 2,5 kg para que calce con los discos.');
+    expect(inputValues(tree)).toContain('72.5');
+    await press(tree, 'Guardar serie');
+    expect(logSetMock.mock.calls[0][1].actualWeight).toBe(72.5);
+    expect(joined(tree)).toContain('10 reps · 72,5 kg');
+  });
+
+  test('sin RM: «Aún no hay peso calculado», el % en la meta y el peso en 0 para que registre el que use', async () => {
+    const tree = await mount({ equipment: [], targetPercentRm: 75, rmStatus: 'missing', resolvedWeightKg: null });
+    const t = joined(tree);
+    expect(t).toContain('Meta: 10 reps al 75 % de tu RM');
+    expect(t).toContain('Aún no hay peso calculado');
+    expect(t).toContain('Tu coach indicó el 75 % de tu RM. Registra el peso que uses.');
+    expect(t).not.toContain('Estás levantando');
+    expect(t).not.toContain('null');
+    expect(inputValues(tree)).toContain('0');
+  });
+
+  test('un ejercicio de peso corporal con % del RM sí pide el peso', async () => {
+    const tree = await mount({ equipment: ['bodyweight'], targetPercentRm: 50, rmStatus: 'ok', resolvedWeightKg: 20 });
+    expect(joined(tree)).toContain('Peso (kg)');
+    expect(joined(tree)).toContain('Meta: 10 × 20 kg');
+  });
+
+  test('sin % la meta sigue como antes', async () => {
+    const tree = await mount({ equipment: [], targetWeight: 60 });
+    expect(joined(tree)).toContain('Meta: 10 × 60 kg');
+    expect(joined(tree)).not.toContain('de tu RM');
   });
 });

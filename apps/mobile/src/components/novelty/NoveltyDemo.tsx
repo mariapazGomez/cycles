@@ -366,6 +366,31 @@ function ShareDataDemo() {
   );
 }
 
+// 9. El % de tu RM se convierte en el peso ya calculado: aparece «80 % de tu RM», la flecha y «72,5 kg».
+function RmPercentDemo() {
+  const t = useTimeline();
+  const arrow = range(t, [[0, 0], [0.22, 0], [0.3, 1], [0.9, 1], [0.98, 0], [1, 0]]);
+  const result = range(t, [[0, 0], [0.34, 0], [0.46, 1], [0.9, 1], [0.98, 0], [1, 0]]);
+  const lift = range(t, [[0, 10], [0.34, 10], [0.46, 0], [1, 0]]);
+  return (
+    <View style={styles.rmRow}>
+      <View style={styles.rmFrom}>
+        <Text style={styles.rmBig}>80 %</Text>
+        <Text style={styles.rmSmall}>de tu RM</Text>
+      </View>
+      <Layer opacity={arrow} testID="rm-arrow">
+        <Text style={styles.rmArrow}>→</Text>
+      </Layer>
+      <Layer opacity={result} translateY={lift} testID="rm-result">
+        <View style={styles.rmTo}>
+          <Text style={styles.rmBigOn}>72,5 kg</Text>
+          <Text style={styles.rmSmallOn}>tu peso</Text>
+        </View>
+      </Layer>
+    </View>
+  );
+}
+
 const DEMOS: Partial<Record<NoveltyDemoId, () => React.JSX.Element>> = {
   'athlete-blocks-group': GroupDemo,
   'athlete-blocks-fold': FoldDemo,
@@ -375,6 +400,7 @@ const DEMOS: Partial<Record<NoveltyDemoId, () => React.JSX.Element>> = {
   'athlete-share-button': ShareButtonDemo,
   'athlete-share-formats': ShareFormatsDemo,
   'athlete-share-data': ShareDataDemo,
+  'athlete-rm-percent': RmPercentDemo,
 };
 
 // Escenario con su descripción para el lector de pantalla.
@@ -451,4 +477,12 @@ const styles = StyleSheet.create({
   chipMiniText: { fontSize: 12, fontWeight: '700', color: colors.ink },
   shareNote: { fontSize: 13, fontWeight: '600', color: colors.inkSecondary, textAlign: 'center' },
   figureValue: { fontSize: 16, fontWeight: '800', color: colors.ink },
+  rmRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, minHeight: 96 },
+  rmFrom: { backgroundColor: colors.bg, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10, alignItems: 'center', ...viewShadow },
+  rmTo: { backgroundColor: colors.blue, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10, alignItems: 'center' },
+  rmBig: { fontSize: 24, fontWeight: '800', color: colors.ink },
+  rmSmall: { fontSize: 12, color: colors.inkSecondary },
+  rmBigOn: { fontSize: 24, fontWeight: '800', color: colors.onBlue },
+  rmSmallOn: { fontSize: 12, color: colors.onBlue },
+  rmArrow: { fontSize: 22, fontWeight: '800', color: colors.blue },
 });
