@@ -12,11 +12,7 @@ import { CreateTemplateDto } from "./dto/create-template.dto";
 import { UpdateTemplateDto } from "./dto/update-template.dto";
 import { AssignCycleDto } from "./dto/assign-cycle.dto";
 import { endDateForWeeks, templateDates } from "./template-dates";
-
-// Semanas del ciclo (bloques de 7 días): la misma cuenta de la web.
-function totalWeeks(startDate: Date, endDate: Date): number {
-  return Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000)));
-}
+import { CYCLE_DATE_MESSAGES, isValidRange, renumberForStart, sessionsOutside, outsideError, startDateError } from "./cycle-dates";
 
 type RemovalResult = "deleted" | "archived";
 
@@ -39,13 +35,16 @@ export class CyclesService {
 
     const startDate = new Date(dto.startDate);
     const endDate = new Date(dto.endDate);
-    if (endDate <= startDate) {
-      throw new BadRequestException("La fecha de fin debe ser posterior a la fecha de inicio.");
+    if (!isValidRange(startDate, endDate)) {
+      throw new BadRequestException(CYCLE_DATE_MESSAGES.endNotAfterStart);
     }
-
-    const isContainer = dto.cycleType === "macrocycle";
-    if (!isContainer && !dto.sessionsPerWeek) {
-      throw new BadRequestException("Define cuántas sesiones por semana tiene este ciclo.");
+    const startError = startDateError(startDate, dto.today);
+    if (startError) {
+      throw new BadRequestException(startError);
+    }
+    // Los macrociclos ya no se crean; los que existen se siguen leyendo.
+    if (dto.cycleType === "macrocycle") {
+      throw new BadRequestException("Ya no se pueden crear macrociclos.");
     }
 
     let parentCycle = null;
@@ -70,8 +69,8 @@ export class CyclesService {
         objective: dto.objective,
         startDate,
         endDate,
-        cycleType: dto.cycleType,
-        sessionsPerWeek: isContainer ? null : dto.sessionsPerWeek,
+        cycleType: dto.cycleType ?? "mesocycle",
+        sessionsPerWeek: dto.sessionsPerWeek ?? null,
         parentCycleId: dto.parentCycleId,
       },
     });
@@ -176,33 +175,53 @@ export class CyclesService {
 
     const startDate = dto.startDate ? new Date(dto.startDate) : cycle.startDate;
     const endDate = dto.endDate ? new Date(dto.endDate) : cycle.endDate;
-    if (endDate <= startDate) {
-      throw new BadRequestException("La fecha de fin debe ser posterior a la fecha de inicio.");
+    const startMoved = startOfUtcDay(startDate).getTime() !== startOfUtcDay(cycle.startDate).getTime();
+    const endMoved = startOfUtcDay(endDate).getTime() !== startOfUtcDay(cycle.endDate).getTime();
+    if ((startMoved || endMoved) && !isValidRange(startDate, endDate)) {
+      throw new BadRequestException(CYCLE_DATE_MESSAGES.endNotAfterStart);
     }
-
-    // Acortar el ciclo no puede dejar sesiones fuera de sus fechas.
-    if (endDate < cycle.endDate) {
-      const orphans = await this.prisma.trainingSession.count({
-        where: {
-          cycleId: id,
-          deletedAt: null,
-          OR: [{ scheduledDate: { gt: endDate } }, { weekNumber: { gt: totalWeeks(startDate, endDate) } }],
-        },
-      });
-      if (orphans > 0) {
-        throw new ConflictException("Hay sesiones después de esa fecha de fin: quítalas o muévelas antes de acortar el ciclo.");
+    // El inicio solo se valida si cambia de día: un ciclo ya empezado se sigue editando.
+    if (startMoved) {
+      const startError = startDateError(startDate, dto.today);
+      if (startError) {
+        throw new BadRequestException(startError);
       }
     }
 
-    return this.prisma.trainingCycle.update({
-      where: { id },
-      data: {
-        ...(dto.name !== undefined ? { name: dto.name } : {}),
-        ...(dto.objective !== undefined ? { objective: dto.objective } : {}),
-        ...(dto.startDate !== undefined ? { startDate } : {}),
-        ...(dto.endDate !== undefined ? { endDate } : {}),
-        ...(dto.status !== undefined ? { status: dto.status } : {}),
-      },
+    const data = {
+      ...(dto.name !== undefined ? { name: dto.name } : {}),
+      ...(dto.objective !== undefined ? { objective: dto.objective } : {}),
+      ...(dto.startDate !== undefined ? { startDate } : {}),
+      ...(dto.endDate !== undefined ? { endDate } : {}),
+      ...(dto.status !== undefined ? { status: dto.status } : {}),
+    };
+    if (!startMoved && !endMoved) {
+      return this.prisma.trainingCycle.update({ where: { id }, data });
+    }
+
+    // Cambiar las fechas no puede dejar sesiones fuera (no se pierden ni se ocultan). Al mover el
+    // inicio, la semana de cada sesión se recalcula en la misma transacción.
+    return this.prisma.$transaction(async (tx) => {
+      const sessions = await tx.trainingSession.findMany({
+        where: { cycleId: id },
+        select: { id: true, weekNumber: true, slotNumber: true, scheduledDate: true, deletedAt: true },
+      });
+      const outside = sessionsOutside(sessions, { startDate, endDate });
+      if (outside.length > 0) {
+        throw new ConflictException(outsideError(outside));
+      }
+      if (startMoved && sessions.length > 0) {
+        const placed = renumberForStart(sessions, startDate);
+        // En dos pasos (primero espacios negativos) para no chocar con el índice único
+        // (ciclo, semana, espacio).
+        for (const [index, session] of sessions.entries()) {
+          await tx.trainingSession.update({ where: { id: session.id }, data: { slotNumber: -(index + 1) } });
+        }
+        for (const session of sessions) {
+          await tx.trainingSession.update({ where: { id: session.id }, data: placed.get(session.id)! });
+        }
+      }
+      return tx.trainingCycle.update({ where: { id }, data });
     });
   }
 
@@ -214,8 +233,8 @@ export class CyclesService {
         coachId,
         name: dto.name,
         objective: dto.objective,
-        cycleType: dto.cycleType,
-        sessionsPerWeek: dto.sessionsPerWeek,
+        cycleType: dto.cycleType ?? "mesocycle",
+        sessionsPerWeek: dto.sessionsPerWeek ?? null,
         isTemplate: true,
         templateWeeks: dto.weeks,
         ...templateDates(dto.weeks),
@@ -234,14 +253,16 @@ export class CyclesService {
     if (cycle.cycleType === "macrocycle" || cycle.parentCycleId) {
       throw new BadRequestException("Solo se guardan como plantilla los mesociclos y microciclos sueltos.");
     }
-    const weeks = Math.min(52, totalWeeks(cycle.startDate, cycle.endDate));
+    // Igual que siempre: bloques de 7 días entre inicio y fin (los ciclos antiguos guardan el fin de
+    // distintas formas y aquí no se cambia cómo se cuentan).
+    const weeks = Math.min(52, Math.max(1, Math.ceil((cycle.endDate.getTime() - cycle.startDate.getTime()) / (7 * 24 * 60 * 60 * 1000))));
     return this.prisma.trainingCycle.create({
       data: {
         coachId,
         name: cycle.name,
         objective: cycle.objective,
         cycleType: cycle.cycleType,
-        sessionsPerWeek: cycle.sessionsPerWeek ?? 3,
+        sessionsPerWeek: cycle.sessionsPerWeek,
         isTemplate: true,
         templateWeeks: weeks,
         ...templateDates(weeks),
@@ -271,6 +292,10 @@ export class CyclesService {
     await assertActiveRelation(this.prisma, coachId, dto.athleteId);
 
     const startDate = startOfUtcDay(new Date(dto.startDate));
+    const startError = startDateError(startDate, dto.today);
+    if (startError) {
+      throw new BadRequestException(startError);
+    }
     const weeks = template.templateWeeks ?? 1;
     const cycle = await this.prisma.trainingCycle.create({
       data: {

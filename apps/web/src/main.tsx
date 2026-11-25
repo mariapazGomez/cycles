@@ -12,6 +12,7 @@ import "./styles/tracking.css";
 import "./styles/routines.css";
 import "./styles/session-blocks.css";
 import "./styles/builder.css";
+import "./styles/cycles.css";
 import "./styles/home.css";
 import "./styles/plan.css";
 import "./styles/calendar.css";

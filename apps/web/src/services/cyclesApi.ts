@@ -1,4 +1,4 @@
-import type { CycleType, TrainingCycle } from "@cycles/shared";
+import type { TrainingCycle } from "@cycles/shared";
 import { apiRequest } from "./httpClient";
 
 export function listCycles() {
@@ -40,9 +40,7 @@ export function removeTemplate(id: string) {
 export function createTemplate(data: {
   name: string;
   objective?: string;
-  cycleType: "microcycle" | "mesocycle";
   weeks: number;
-  sessionsPerWeek: number;
 }) {
   return apiRequest<TrainingCycle>("/cycles/templates", { method: "POST", body: data });
 }
@@ -53,7 +51,7 @@ export function saveAsTemplate(id: string) {
 }
 
 // Copia una plantilla para un atleta, con fechas reales desde startDate.
-export function assignTemplate(templateId: string, data: { athleteId: string; startDate: string }) {
+export function assignTemplate(templateId: string, data: { athleteId: string; startDate: string; today?: string }) {
   return apiRequest<TrainingCycle>(`/cycles/${templateId}/assign`, { method: "POST", body: data });
 }
 
@@ -71,9 +69,9 @@ export function createCycle(data: {
   objective?: string;
   startDate: string;
   endDate: string;
-  cycleType: CycleType;
-  sessionsPerWeek?: number;
   parentCycleId?: string;
+  // Día local del coach: el inicio no puede ser anterior a hoy.
+  today?: string;
 }) {
   return apiRequest<TrainingCycle>("/cycles", {
     method: "POST",
@@ -89,6 +87,7 @@ export function updateCycle(
     startDate: string;
     endDate: string;
     status: TrainingCycle["status"];
+    today: string;
   }>,
 ) {
   return apiRequest<TrainingCycle>(`/cycles/${id}`, {

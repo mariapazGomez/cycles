@@ -12,6 +12,7 @@ import {
 import { canShowNovelty, isBuilderPath, noveltyConditions } from "../src/lib/novelty";
 
 const coach = { role: "coach", platform: "web" } as const;
+const pendientes = (viewer: Parameters<typeof noveltiesFor>[0], n: number) => noveltiesFor(viewer).slice(0, n).map((x) => x.key);
 const fake = (over: Partial<Novelty>): Novelty => ({ ...NOVELTIES[0], ...over });
 
 describe("fichas de novedad (registro)", () => {
@@ -32,10 +33,12 @@ describe("fichas de novedad (registro)", () => {
 });
 
 describe("qué novedad toca mostrar", () => {
-  it("la coach ve la más reciente (Equipos), luego la de RM y luego la de bloques; la atleta, la suya en la web; el admin, ninguna", () => {
-    expect(pendingNovelty([], coach)?.key).toBe("coach-teams");
-    expect(pendingNovelty(["coach-teams@1"], coach)?.key).toBe("coach-rm-percent");
-    expect(pendingNovelty(["coach-teams@1", "coach-rm-percent@1"], coach)?.key).toBe("routine-blocks");
+  it("la coach ve las más recientes (calendario y Equipos), luego la de RM y la de bloques; la atleta, la suya en la web; el admin, ninguna", () => {
+    const recientes = pendientes(coach, 2);
+    expect(recientes.sort()).toEqual(["coach-teams", "cycle-calendar"]);
+    const vistas = ["coach-teams@1", "cycle-calendar@1"];
+    expect(pendingNovelty(vistas, coach)?.key).toBe("coach-rm-percent");
+    expect(pendingNovelty([...vistas, "coach-rm-percent@1"], coach)?.key).toBe("routine-blocks");
     expect(pendingNovelty([], { role: "athlete", platform: "web" })?.key).toBe("athlete-rm-percent");
     expect(pendingNovelty([], { role: "admin", platform: "web" })).toBeNull();
     expect(pendingNovelty([], { role: "coach", platform: "mobile" })).toBeNull();
