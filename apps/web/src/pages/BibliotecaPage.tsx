@@ -11,7 +11,8 @@ import { usePageBackground } from "../hooks/usePageBackground";
 import { EmptyState } from "../components/EmptyState";
 import { Skeleton, SlowNotice } from "../components/Skeleton";
 import { TypeIcon } from "../components/TypeIcon";
-import { CreateCycleForm } from "../components/CreateCycleForm";
+import { NewCycleDialog } from "../components/board/NewCycleDialog";
+import { AssignTemplateDialog } from "../components/cycles/AssignTemplateDialog";
 import { CreateTemplateForm } from "../components/CreateTemplateForm";
 import { formatInteger } from "../lib/format";
 import {
@@ -132,7 +133,8 @@ function CycleRow({
   const [confirming, setConfirming] = useState(false);
   const [assigning, setAssigning] = useState(false);
   const [athleteId, setAthleteId] = useState("");
-  const [startDate, setStartDate] = useState("");
+  // El atleta ya elegido: se abre el calendario para su primer día.
+  const [dating, setDating] = useState(false);
   const impactQuery = useQuery({
     queryKey: ["cycles", "templates", entry.id, "impact"],
     queryFn: () => cyclesApi.getTemplateImpact(entry.id),
@@ -177,19 +179,6 @@ function CycleRow({
     onError: (error: unknown) => onError(error instanceof ApiError ? error.message : "No se pudo guardar el ciclo."),
   });
 
-  const assign = useMutation({
-    mutationFn: () => cyclesApi.assignTemplate(entry.id, { athleteId, startDate }),
-    onSuccess: () => {
-      const who = athletes.find((a) => a.id === athleteId)?.name ?? "el atleta";
-      setAssigning(false);
-      setAthleteId("");
-      setStartDate("");
-      queryClient.invalidateQueries({ queryKey: ["cycles"] });
-      onDone(`Ciclo asignado a ${who}. Arma sus sesiones desde su calendario.`);
-    },
-    onError: (error: unknown) => onError(error instanceof ApiError ? error.message : "No se pudo asignar el ciclo."),
-  });
-
   const impact = impactQuery.data?.athletes ?? [];
   const archivedCount = impact.filter((a) => a.hasHistory).length;
   // Solo se quita lo vigente: lo completado o archivado queda como historial.
@@ -231,22 +220,35 @@ function CycleRow({
           ) : (
             <span className={entry.status === "active" ? "pill pill-ok" : "pill"}>{CYCLE_STATUS_LABEL[entry.status]}</span>
           )}
-          <span className="pill">{CYCLE_TYPE_LABEL[entry.cycleType]}</span>
+          {entry.cycleType === "macrocycle" && <span className="pill">{CYCLE_TYPE_LABEL.macrocycle}</span>}
           {entry.weeks > 0 && <span className="pill">{plural(entry.weeks, "semana", "semanas")}</span>}
-          {entry.sessionsPerWeek !== null && <span className="pill">{formatInteger(entry.sessionsPerWeek)} por semana</span>}
         </div>
         {confirming && (
           <p className="rt-hint" role="alert">
             {question}
           </p>
         )}
+        {dating && (
+          <AssignTemplateDialog
+            template={{ id: entry.id, name: entry.name, weeks: entry.weeks }}
+            athlete={{ id: athleteId, name: athletes.find((a) => a.id === athleteId)?.name ?? "el atleta" }}
+            onClose={() => setDating(false)}
+            onAssigned={() => {
+              const who = athletes.find((a) => a.id === athleteId)?.name ?? "el atleta";
+              setDating(false);
+              setAssigning(false);
+              setAthleteId("");
+              onDone(`Ciclo asignado a ${who}. Arma sus sesiones desde su calendario.`);
+            }}
+          />
+        )}
         {assigning && (
           <form
             className="lb-assign"
             onSubmit={(event) => {
               event.preventDefault();
-              if (!athleteId || !startDate) return onError("Elige el atleta y la fecha de inicio.");
-              assign.mutate();
+              if (!athleteId) return onError("Elige el atleta.");
+              setDating(true);
             }}
           >
             <select aria-label="Atleta" value={athleteId} onChange={(e) => setAthleteId(e.target.value)}>
@@ -259,9 +261,8 @@ function CycleRow({
                 </option>
               ))}
             </select>
-            <input type="date" aria-label="Fecha de inicio" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-            <button type="submit" className="button-primary" style={{ width: "auto" }} disabled={assign.isPending}>
-              {assign.isPending ? "Asignando…" : "Asignar"}
+            <button type="submit" className="button-primary" style={{ width: "auto" }}>
+              Elegir fecha
             </button>
             <button type="button" className="rt-ghost" onClick={() => setAssigning(false)}>
               Cancelar
@@ -498,7 +499,7 @@ export function BibliotecaPage() {
         </div>
       </div>
 
-      {showCycleForm && <CreateCycleForm onDone={() => setShowCycleForm(false)} />}
+      {showCycleForm && <NewCycleDialog onClose={() => setShowCycleForm(false)} onCreated={() => setShowCycleForm(false)} />}
       {showTemplateForm && (
         <CreateTemplateForm
           onDone={(message) => {

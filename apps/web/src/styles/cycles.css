@@ -1,0 +1,34 @@
+/* Elegir las fechas de un ciclo (CYC-314, docs/diseno/ciclo-del-equipo): esquinas casi rectas. */
+.cy-picker { display: flex; flex-direction: column; gap: 8px; }
+.cy-cal { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 8px 12px 12px; border: 1px solid var(--color-gray-border); border-radius: 6px; }
+.cy-mhead { display: flex; align-items: center; justify-content: space-between; }
+.cy-mhead b { font-size: 0.95rem; font-weight: 600; }
+.cy-nav { display: inline-grid; place-items: center; width: 32px; height: 32px; border: 0; border-radius: 5px; background: none; font: inherit; font-size: 1.2rem; cursor: pointer; }
+button.cy-nav:hover:not(:disabled) { background: var(--color-gray-light); }
+.cy-nav:disabled { opacity: 0.3; cursor: default; }
+.cy-nav-narrow { visibility: hidden; }
+.cy-month table { width: 100%; border-collapse: separate; border-spacing: 0 2px; table-layout: fixed; }
+.cy-month th { padding: 4px 0; color: var(--color-gray-mid); font-size: 0.72rem; font-weight: 600; }
+.cy-month td { padding: 0; text-align: center; }
+.cy-day { position: relative; width: 100%; height: 34px; border: 1px solid transparent; border-radius: 0; background: none; font: inherit; font-size: 0.88rem; cursor: pointer; color: var(--color-ink); }
+.cy-day:hover:not(.cy-day-off) { background: var(--color-gray-light); }
+.cy-day:focus-visible { outline: 2px solid var(--color-ink); outline-offset: -2px; }
+.cy-day-today { border-color: var(--color-ink); border-radius: 5px; }
+.cy-day-in, .cy-day-in:hover { background: var(--color-blue-bg, #e8eefb); }
+.cy-day-edge, .cy-day-edge:hover:not(.cy-day-off) { background: var(--color-blue); border-radius: 5px; color: #fff; }
+.cy-day-off { color: var(--color-control-border); cursor: not-allowed; }
+.cy-day-edge.cy-day-off { color: #fff; }
+.cy-dot { position: absolute; left: 50%; bottom: 3px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--color-warn-fill); }
+.cy-summary { margin: 0; font-size: 0.92rem; font-weight: 600; }
+.cy-note { margin: 0; padding: 10px 14px; border: 1px solid #b9c8ec; border-radius: 6px; background: var(--color-blue-bg, #e8eefb); font-size: 0.9rem; }
+.cy-warn { position: sticky; top: 0; z-index: 2; margin: 0; padding: 10px 14px; border: 1px solid #f0c9a0; border-radius: 6px; background: #fdeede; color: #5b2d0a; font-size: 0.9rem; }
+.cy-modal.bd-modal { width: min(660px, 100%); border-radius: 8px; }
+.cy-modal .bd-inp, .cy-modal .bd-btn { border-radius: 6px; }
+.cy-modal h2 { font-weight: 600; }
+.cy-link { align-self: flex-start; border: 0; background: none; padding: 0; font: inherit; font-size: 0.88rem; font-weight: 600; color: var(--color-blue); cursor: pointer; }
+@media (max-width: 640px) {
+  .cy-cal { grid-template-columns: 1fr; }
+  .cy-month-2 { display: none; }
+  .cy-nav-narrow { visibility: visible; }
+  .cy-day { height: 40px; }
+}

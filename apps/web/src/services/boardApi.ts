@@ -18,9 +18,8 @@ async function cyclesOfWeek(athleteCycles: TrainingCycle[], monday: string): Pro
       leaves.push(cycle);
     }
   }
-  return leaves.filter(
-    (c) => (c.sessionsPerWeek ?? 0) > 0 && utcDay(c.startDate) <= utcDay(sunday) && utcDay(c.endDate) >= utcDay(monday),
-  );
+  // Los ciclos creados por fechas no tienen «sesiones por semana» (CYC-314): no se filtran por eso.
+  return leaves.filter((c) => utcDay(c.startDate) <= utcDay(sunday) && utcDay(c.endDate) >= utcDay(monday));
 }
 
 // Sesiones de un atleta en la semana calendario que empieza en `monday`.

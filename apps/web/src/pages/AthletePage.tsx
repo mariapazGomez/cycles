@@ -1,10 +1,9 @@
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import type { TrainingCycle } from "@cycles/shared";
 import * as cyclesApi from "../services/cyclesApi";
 import * as athletesApi from "../services/athletesApi";
-import { ApiError } from "../services/httpClient";
 import { libraryPath } from "../lib/library";
 import { usePageBackground } from "../hooks/usePageBackground";
 import { usePageWide } from "../hooks/usePageWide";
@@ -13,7 +12,7 @@ import { CycleSection } from "../components/board/CycleSection";
 import { NewCycleDialog } from "../components/board/NewCycleDialog";
 import { AthleteEventsPanel } from "../components/events/AthleteEventsPanel";
 import { orderSections, sectionKind } from "../lib/cycleSections";
-import { suggestStart } from "../lib/newCycle";
+import { AssignTemplateDialog } from "../components/cycles/AssignTemplateDialog";
 import { toLocalDay } from "../lib/calendar";
 import { AthleteSummaryView } from "./AthleteSummaryView";
 import { RmSection } from "../components/rm/RmSection";
@@ -108,7 +107,7 @@ export function AthletePage() {
 
       {showAssign && (
         <AssignTemplatePanel
-          athleteId={athleteId}
+          athlete={{ id: athlete.id, name: athlete.name }}
           onDone={(cycle) => {
             setShowAssign(false);
             setView("ciclo");
@@ -173,8 +172,6 @@ export function AthletePage() {
         <NewCycleDialog
           athleteName={athlete.name}
           athleteId={athleteId}
-          defaultStart={suggestStart(cycles, today)}
-          defaultSessions={current?.sessionsPerWeek ?? undefined}
           onClose={() => setShowNewCycle(false)}
           onCreated={(cycle) => {
             setShowNewCycle(false);
@@ -187,48 +184,21 @@ export function AthletePage() {
   );
 }
 
-// «Asignar ciclo de la Biblioteca»: crea una copia de la plantilla para este atleta.
-function AssignTemplatePanel({ athleteId, onDone }: { athleteId: string; onDone: (cycle: TrainingCycle) => void }) {
-  const queryClient = useQueryClient();
+// «Asignar ciclo de la Biblioteca»: se elige la plantilla y, en el calendario, su primer día.
+function AssignTemplatePanel({ athlete, onDone }: { athlete: { id: string; name: string }; onDone: (cycle: TrainingCycle) => void }) {
   const templatesQuery = useQuery({ queryKey: ["cycles", "templates"], queryFn: cyclesApi.listTemplates });
   const [templateId, setTemplateId] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [error, setError] = useState<string | null>(null);
-
-  const mutation = useMutation({
-    mutationFn: () => cyclesApi.assignTemplate(templateId, { athleteId, startDate }),
-    onSuccess: (cycle) => {
-      track("cycle_created", { type: cycle.cycleType, fromTemplate: true });
-      queryClient.invalidateQueries({ queryKey: ["cycles"] });
-      onDone(cycle);
-    },
-    onError: (e: unknown) => setError(e instanceof ApiError ? e.message : "No se pudo asignar el ciclo."),
-  });
-
-  function handleSubmit(event: FormEvent) {
-    event.preventDefault();
-    setError(null);
-    if (!templateId || !startDate) {
-      setError("Elige un ciclo y la fecha de inicio.");
-      return;
-    }
-    mutation.mutate();
-  }
-
+  const [dating, setDating] = useState(false);
   const templates = templatesQuery.data ?? [];
+  const template = templates.find((t) => t.id === templateId);
+
   return (
-    <form onSubmit={handleSubmit} noValidate className="hm-card pl-form">
+    <div className="hm-card pl-form">
       <h2>Asignar ciclo de la Biblioteca</h2>
-      {error && (
-        <div className="error-banner" role="alert">
-          {error}
-        </div>
-      )}
-      {templatesQuery.isLoading ? (
-        <p>Cargando…</p>
-      ) : templates.length === 0 ? (
+      {templatesQuery.isError && <div className="error-banner">No se pudo cargar tu Biblioteca.</div>}
+      {templatesQuery.data && templates.length === 0 ? (
         <p>
-          Todavía no tienes ciclos plantilla. Crea uno en la <Link to={libraryPath("cycle", "plantilla")}>Biblioteca</Link>.
+          No tienes ciclos en la Biblioteca. <Link to={libraryPath("cycle")}>Crea uno</Link> y vuelve aquí.
         </p>
       ) : (
         <>
@@ -240,20 +210,28 @@ function AssignTemplatePanel({ athleteId, onDone }: { athleteId: string; onDone:
               </option>
               {templates.map((t) => (
                 <option key={t.id} value={t.id}>
-                  {t.name}
+                  {t.name} ({t.templateWeeks ?? 1} {(t.templateWeeks ?? 1) === 1 ? "semana" : "semanas"})
                 </option>
               ))}
             </select>
           </div>
-          <div className="field">
-            <label htmlFor="assignStart">Fecha de inicio</label>
-            <input id="assignStart" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-          </div>
-          <button type="submit" className="button-primary" style={{ width: "auto" }} disabled={mutation.isPending}>
-            {mutation.isPending ? "Asignando…" : "Asignar"}
+          <button type="button" className="button-primary" style={{ width: "auto" }} disabled={!template} onClick={() => setDating(true)}>
+            Elegir fecha
           </button>
         </>
       )}
-    </form>
+      {dating && template && (
+        <AssignTemplateDialog
+          template={{ id: template.id, name: template.name, weeks: template.templateWeeks ?? 1 }}
+          athlete={athlete}
+          onClose={() => setDating(false)}
+          onAssigned={(cycle) => {
+            track("cycle_created", { type: cycle.cycleType, fromTemplate: true });
+            setDating(false);
+            onDone(cycle);
+          }}
+        />
+      )}
+    </div>
   );
 }
