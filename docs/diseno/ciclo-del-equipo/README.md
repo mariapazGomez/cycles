@@ -57,9 +57,33 @@ Nada de esta lista está aprobado; las maquetas lo muestran como propuesta.
 4. Con invitación pendiente no se puede crear el ciclo: aparece deshabilitado y se suma a mano cuando acepte.
 5. En la primera versión el equipo tiene un solo ciclo por fechas (hay estado de error).
 6. Eliminar el equipo o su ciclo sigue la misma regla que sacar a un atleta, con aviso y cifras.
-7. Con ciclo propio y del equipo, «Hoy» del atleta muestra la sesión de hoy y, si no hay, la más cercana en fecha (propuesta de Desarrollo; falta diseñar cómo se distinguen).
 
 La propuesta técnica de Desarrollo general, con su diagrama, está en el comentario de CYC-314.
+
+## Dos ciclos a la vez
+
+**Decisión de la usuaria (25-11): se muestran los dos.** Maquetas en [dos-ciclos.html](dos-ciclos.html) y capturas en `capturas-dos-ciclos/`. Parten del estilo actual de `origin/main` (por eso la app y estas pantallas web conservan sus formas redondeadas). Es lo único móvil de Equipos que se diseña ahora.
+
+La forma de distinguirlos es **el nombre del ciclo** en cada sesión; no se inventan colores por ciclo.
+
+**«Hoy» del atleta, app y web**
+- Una tarjeta por ciclo activo. Arriba van las sesiones de hoy sin terminar; si las dos son de hoy, primero la del ciclo que empezó antes (propuesta).
+- **Dos pendientes (app):** dos tarjetas oscuras; el botón de la segunda va en contorno para que haya una sola acción principal.
+- **Una empezada:** se ven sus ejercicios como hoy; la otra queda como tarjeta compacta arriba de la lista, con «Ver».
+- **Una hecha:** la pendiente pasa arriba y la hecha queda compacta, con «Compartir».
+- **Sin sesión hoy en un ciclo:** su tarjeta compacta muestra la próxima y su fecha.
+- **Web:** la primera sesión abierta con sus ejercicios; la segunda resumida con «Ver 4 ejercicios» y «Empezar sesión». «No puedo entrenar hoy» es de cada sesión.
+- Con un solo ciclo, «Hoy» queda igual que hoy.
+
+**Tarjeta del atleta para el coach** (`AthleteCard`)
+- Un bloque por ciclo: nombre (abre ese ciclo), semana, su tira de siete días y sus sesiones completadas.
+- El aviso dice de qué ciclo es. «Ver ciclo» pasa a «Ver ciclos» (la ficha, que ya tiene una sección por ciclo).
+- En la maqueta se omite el botón del resumen y, en la app, la barra de pestañas, por la regla vigente de no mostrar Resumen en maquetas; ambos se mantienen en el producto.
+
+**Para Desarrollo**
+- Hoy `/me/today` devuelve una sola sesión (`execution.service.ts`, el ciclo más antiguo manda): debe devolver una entrada por ciclo activo, con la sesión de hoy o la próxima, y las hechas hoy.
+- La app y la web deben permitir empezar cualquiera de las dos. Cambia la app móvil: necesita versión nueva y su propia tarjeta de App móvil.
+- La lista de atletas del coach hoy trae un ciclo por atleta: debe traer todos los activos.
 
 ## Pantallas
 
@@ -118,5 +142,4 @@ Cada copia necesita saber si sigue vinculada o quedó ajustada. La migración va
 
 - Más de un ciclo del equipo a la vez en las mismas fechas y asignar plantillas de la Biblioteca a un equipo.
 - Volver a vincular una sesión ajustada.
-- Cómo distinguir dos ciclos en «Hoy» del atleta y en las tarjetas del coach (queda por diseñar).
-- App móvil.
+- App móvil de Equipos (salvo «Hoy» con dos ciclos).
