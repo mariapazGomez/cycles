@@ -14,7 +14,7 @@ El botón «Agregar ciclo» de Equipos → Ciclos crea un ciclo para el equipo, 
 
 > «Haremos un nuevo diseño para crear los ciclos, lo haremos por fechas en un calendario. Solo lo que se debe rellenar a mano es el nombre, el objetivo seguirá siendo opcional. El tipo de ciclo ya no lo usaremos, y la fecha de inicio y la duración se obtendrán del calendario que seleccionaremos.»
 
-Aplica a ciclos de **atleta** y de **equipo**. Las plantillas de la Biblioteca (no tienen fechas) quedan **pendientes de confirmar** y no se diseñan aquí.
+Aplica a ciclos de **atleta** y de **equipo**. Las plantillas tienen su propio apartado más abajo.
 
 - **Campos escritos:** nombre (obligatorio) y objetivo (opcional).
 - **Editar un ciclo ya empezado** (decisión de la usuaria, 25-11): se puede cambiar el resto, pero el inicio no se puede mover a otro día anterior a hoy. En «Datos del ciclo» el inicio actual se ve marcado y se conserva; un inicio nuevo solo puede ser desde hoy. La API valida lo mismo. Captura `editar-datos-del-ciclo`. Qué pasa con las sesiones que quedan fuera al acortar el rango queda por definir.
@@ -25,6 +25,14 @@ Aplica a ciclos de **atleta** y de **equipo**. Las plantillas de la Biblioteca (
 - **Marcas en el calendario:** hoy con contorno; para un atleta, un punto en los días con otro ciclo suyo (informa, no bloquea); para el equipo, los días de su otro ciclo en naranja, con el error si se cruzan.
 - **Teclado y lector:** el calendario se recorre con flechas, Enter elige, cada día se anuncia con su fecha completa y el resumen se lee al cambiar.
 - En el ciclo de un atleta no hay paso «Quién lo recibe»: se crea directo.
+
+### Decisiones aceptadas por la usuaria (25-11)
+
+- **Plantillas sin fechas:** se escribe nombre, objetivo (opcional) y **duración en semanas** (de 1 a 52). Sin tipo de ciclo ni sesiones por semana. Captura `plantilla-nueva`.
+- **Al asignar una plantilla** se elige solo el primer día en el mismo calendario, desde hoy; el rango se pinta solo según las semanas. Hoy la asignación crea un ciclo vacío y eso no cambia. Captura `plantilla-asignar`.
+- **Macrociclos:** se dejan de crear; los que ya existen se siguen leyendo igual.
+- **La semana 1 empieza el día de inicio** del ciclo.
+- **No hay ciclos de un solo día:** el último día debe ser posterior al primero. Tocar de nuevo el primer día no completa el rango.
 
 ### La pizarra sin «sesiones por semana»
 
@@ -38,7 +46,6 @@ La pizarra actual (`apps/web/src/lib/board.ts`, `buildWeeks`) ya arma cada fila 
 | Copia de ciclos y plantillas (`cycles.service`, `account.service`) | Revisar los que hoy omiten ciclos sin `sessionsPerWeek` |
 
 - Cada fila son 7 días **desde el primer día del ciclo** (si empieza un miércoles, la fila va de miércoles a martes). Los días que sobran al final dicen «Fuera del ciclo». Captura `pizarra-desde-miercoles`.
-- Los macrociclos que ya existen no se tocan; qué pasa con ellos sin «tipo de ciclo» queda por confirmar.
 
 ## Por confirmar con la usuaria
 
@@ -51,8 +58,6 @@ Nada de esta lista está aprobado; las maquetas lo muestran como propuesta.
 5. En la primera versión el equipo tiene un solo ciclo por fechas (hay estado de error).
 6. Eliminar el equipo o su ciclo sigue la misma regla que sacar a un atleta, con aviso y cifras.
 7. Con ciclo propio y del equipo, «Hoy» del atleta muestra la sesión de hoy y, si no hay, la más cercana en fecha (propuesta de Desarrollo; falta diseñar cómo se distinguen).
-8. Si este nuevo «Nuevo ciclo» aplica también a las plantillas de la Biblioteca.
-9. Qué pasa con los macrociclos existentes al quitar el tipo de ciclo.
 
 La propuesta técnica de Desarrollo general, con su diagrama, está en el comentario de CYC-314.
 
@@ -62,6 +67,7 @@ La propuesta técnica de Desarrollo general, con su diagrama, está en el coment
 |---|---|
 | Equipo sin ciclo | `equipo-sin-ciclo` |
 | Nuevo ciclo: sin fechas, primer día y rango elegido | `nuevo-ciclo-sin-fechas`, `nuevo-ciclo-primer-dia`, `nuevo-ciclo-rango` |
+| Plantilla nueva y asignarla | `plantilla-nueva`, `plantilla-asignar` |
 | Datos de un ciclo ya empezado | `editar-datos-del-ciclo` |
 | Nuevo ciclo de un atleta | `nuevo-ciclo-atleta` |
 | Pizarra de un ciclo que empieza un miércoles | `pizarra-desde-miercoles` |
@@ -110,7 +116,7 @@ Cada copia necesita saber si sigue vinculada o quedó ajustada. La migración va
 
 ## Fuera de la primera versión
 
-- Más de un ciclo del equipo a la vez en las mismas fechas, plantillas desde la Biblioteca y macrociclos de equipo.
+- Más de un ciclo del equipo a la vez en las mismas fechas y asignar plantillas de la Biblioteca a un equipo.
 - Volver a vincular una sesión ajustada.
 - Cómo distinguir dos ciclos en «Hoy» del atleta y en las tarjetas del coach (queda por diseñar).
 - App móvil.

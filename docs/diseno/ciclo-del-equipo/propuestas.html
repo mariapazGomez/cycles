@@ -562,6 +562,9 @@ body{font-family:Inter,-apple-system,system-ui,sans-serif;background:#d9e0ee;col
 .cq-leg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
 .cq-g span.off{color:#c3c8d1}
 .cq-g span.edge.off{color:#fff}
+.cq-stp{display:flex;align-items:center;gap:10px}
+.cq-stp b{width:40px;height:40px;border:1px solid #8d95a3;border-radius:6px;display:grid;place-items:center;font:400 20px/1 Inter}
+.cq-stp .cq-in{width:140px;justify-content:center}
 
 </style>
 </head>
@@ -759,7 +762,7 @@ function datosVacio(){
  return dlgEq(`<h3>Nuevo ciclo para Voleibol sub-17</h3>${nombre('Nombre del ciclo',1)}${rango({})}<div class="cq-sum mut" role="status">Elige el primer día en el calendario, desde hoy.</div>${acts('Continuar',1)}`);
 }
 function datosInicio(){
- return dlgEq(`<h3>Nuevo ciclo para Voleibol sub-17</h3>${nombre('Fuerza base')}${rango({from:key(11,30)})}<div class="cq-sum mut" role="status">Empieza el lunes 30 nov. Ahora elige el último día.</div>${acts('Continuar',1)}`);
+ return dlgEq(`<h3>Nuevo ciclo para Voleibol sub-17</h3>${nombre('Fuerza base')}${rango({from:key(11,30)})}<div class="cq-sum mut" role="status">Empieza el lunes 30 nov. Ahora elige el último día: un ciclo dura al menos 2 días.</div>${acts('Continuar',1)}`);
 }
 function datosAtleta(){
  const o={from:key(11,25),to:key(12,11),own:[key(11,26),key(11,27),key(11,28),key(11,29),key(11,30),key(12,1),key(12,2),key(12,3),key(12,4)]};
@@ -848,6 +851,14 @@ function chocaEquipo(){
 function editarDatos(){
  return CQ(side('Ciclos'),board(),scrim(640,`<h3>Datos del ciclo</h3><div class="cq-info">El ciclo ya empezó el lunes 23 nov. Puedes cambiar el nombre, el objetivo y el último día. El inicio se mantiene; si lo cambias, solo puede ser desde hoy.</div>${fl('Nombre','Fuerza base')}${fl('Objetivo (opcional)','Base de fuerza antes de la liga')}${rango({from:key(11,23),to:key(12,27)})}<div class="cq-sum" role="status">Del lunes 23 nov al domingo 27 dic: 5 semanas</div>${acts('Guardar cambios')}`)).replace('class="web t3 wide"','class="web t3 wide" style="min-height:760px"');
 }
+const bib=(inner)=>wide(`<div class="web t3" style="min-height:__H__px">${T3NAV.replace('class="on">Equipos','>Equipos').replace('<span class="">Biblioteca','<span class="on">Biblioteca')}<div class="t3mn"><div class="t3hd"><h2>Biblioteca</h2></div><div class="t3emp" style="min-height:320px"></div></div>${inner}</div>`);
+function plantillaNueva(){
+ return bib(scrim(520,`<h3>Nueva plantilla de ciclo</h3>${fl('Nombre','Pretemporada 5 semanas')}${fl('Objetivo (opcional)','Por ejemplo, base de fuerza',1)}<div class="cq-fl"><div>Duración en semanas</div><div class="cq-stp"><b>−</b><div class="cq-in">5</div><b>+</b></div></div>${acts('Guardar en la Biblioteca')}`)).replace('__H__','600');
+}
+function plantillaAsignar(){
+ const o={from:key(11,30),to:key(12,31)};
+ return bib(scrim(640,`<h3>Asignar «Pretemporada 5 semanas» a Camila Rojas</h3><div class="cq-info">Elige solo el primer día, desde hoy. El final sale de las 5 semanas de la plantilla.</div>${rango({from:key(11,30),to:key(13,3)})}<div class="cq-sum" role="status">Del lunes 30 nov al domingo 3 ene 2027: 5 semanas</div>${acts('Asignar ciclo')}`)).replace('__H__','760');
+}
 function novedad(){
  return `<div class="web t3" style="min-height:420px;background:#cfd8ea;display:grid;place-items:center"><div style="width:440px;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 10px 40px rgba(31,34,40,.3)"><div style="height:170px;background:#f3f6fc;display:flex;align-items:center;justify-content:center;gap:14px"><div style="width:110px">${ses('Piernas base','Equipo')}</div><span style="font:500 24px/1 Inter;color:#1a66dd">→</span><div style="display:flex">${ATH.slice(0,4).map(a=>`<div style="margin-left:-4px">${AVb(a[0])}</div>`).join('')}</div></div><div style="padding:18px 22px 20px"><div style="font:600 20px/1.25 Inter;margin-bottom:8px">Planifica el ciclo de tu equipo</div><div style="font:400 15px/1.45 Inter;color:#3f4757;margin-bottom:16px">Pon las sesiones una vez en el calendario del equipo y llegan a cada integrante.</div><div style="display:flex;justify-content:flex-end"><span class="t3btn pr">Entendido</span></div></div></div></div>`;
 }
@@ -855,6 +866,7 @@ const out=document.getElementById('out');
 const add=(id,label,items)=>out.insertAdjacentHTML('beforeend',`<div class="lab">${label}</div><div class="row" id="${id}">${items.map(([c,h])=>`<div class="fr">${h}<div class="cap">${c}</div></div>`).join('')}</div>`);
 add('r1','1 · Crear el ciclo del equipo',[['Equipo sin ciclo',vacio()],['Nuevo ciclo, sin fechas elegidas',datosVacio()],['Elegido el primer día',datosInicio()],['Rango elegido: las fechas y la duración salen del calendario',datos()],['Paso 2: quién lo recibe, con aviso de ciclos propios',quien()],['Error: ya hay un ciclo del equipo en esas fechas (por confirmar)',chocaEquipo()]]);
 add('r1b','1b · El mismo flujo para un atleta, y la pizarra sin sesiones por semana',[['Nuevo ciclo de un atleta: se crea directo',datosAtleta()],['Ciclo que empieza un miércoles',semanasDesdeMiercoles()]]);
+add('r1c','1c · Plantillas de la Biblioteca (sin fechas)',[['Nueva plantilla: nombre, objetivo y duración en semanas',plantillaNueva()],['Al asignarla se elige solo el primer día',plantillaAsignar()]]);
 add('r2','2 · Calendario del ciclo del equipo',[['La pizarra de siempre, para todo el equipo',pizarra()],['Menú de una sesión y aviso con Deshacer',menuMover()],['Quién lo recibe',integrantes()]]);
 add('r3','3 · Cambios',[['Datos de un ciclo ya empezado: el inicio no se mueve a un día pasado',editarDatos()],['Editar la sesión del equipo: llega a los integrantes',editarEquipo()],['Editar desde la ficha de un atleta: solo su sesión',ventanaAtleta()]]);
 add('r4','4 · Entrar y salir del equipo',[['Al agregar un atleta se pregunta',entra()],['Al quitarlo, se avisa antes',sale()],['Al eliminar el equipo, también (propuesta)',eliminarEquipo()]]);
