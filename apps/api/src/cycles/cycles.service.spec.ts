@@ -6,8 +6,10 @@ import { AuthenticatedUser } from "../common/decorators/current-user.decorator";
 function setup() {
   const prisma = {
     trainingCycle: { findUnique: jest.fn(), findMany: jest.fn(), create: jest.fn(), update: jest.fn() },
-    trainingSession: { count: jest.fn().mockResolvedValue(0) },
+    trainingSession: { findMany: jest.fn().mockResolvedValue([]), update: jest.fn() },
     coachAthlete: { findUnique: jest.fn() },
+    // La transacción usa el mismo prisma simulado.
+    $transaction: jest.fn(async (work: (tx: unknown) => unknown): Promise<unknown> => work(prisma)),
   };
   const activity = { planCreated: jest.fn() };
   const service = new CyclesService(prisma as never, activity as never);
@@ -66,7 +68,17 @@ describe("CyclesService: plantillas", () => {
 });
 
 describe("CyclesService.assign", () => {
-  const dto = { athleteId: "a1", startDate: "2026-11-02" };
+  const dto = { athleteId: "a1", startDate: "2026-11-02", today: "2026-11-02" };
+  beforeEach(() => jest.useFakeTimers().setSystemTime(new Date("2026-11-02T12:00:00.000Z")));
+  afterEach(() => jest.useRealTimers());
+
+  it("no asigna con inicio anterior a hoy", async () => {
+    const { prisma, service } = setup();
+    prisma.trainingCycle.findUnique.mockResolvedValue(template);
+    prisma.coachAthlete.findUnique.mockResolvedValue(activeRelation);
+    await expect(service.assign("c1", "t1", { ...dto, startDate: "2026-10-26" })).rejects.toThrow("no puede empezar antes de hoy");
+    expect(prisma.trainingCycle.create).not.toHaveBeenCalled();
+  });
 
   it("copia la plantilla con fechas reales y templateId", async () => {
     const { prisma, activity, service } = setup();
@@ -190,7 +202,7 @@ describe("CyclesService.list", () => {
   });
 });
 
-describe("CyclesService.update: acortar el ciclo", () => {
+describe("CyclesService: fechas del ciclo (CYC-314)", () => {
   const cycle = {
     id: "y1",
     coachId: "c1",
@@ -199,26 +211,69 @@ describe("CyclesService.update: acortar el ciclo", () => {
     startDate: new Date("2026-10-05T00:00:00.000Z"),
     endDate: new Date("2026-11-15T00:00:00.000Z"),
   };
+  const session = (id: string, weekNumber: number, day: string) => ({ id, weekNumber, slotNumber: 1, scheduledDate: new Date(`${day}T00:00:00.000Z`), deletedAt: null });
+  const ready = () => {
+    const t = setup();
+    t.prisma.trainingCycle.findUnique.mockResolvedValue(cycle);
+    t.prisma.coachAthlete.findUnique.mockResolvedValue(activeRelation);
+    t.prisma.trainingCycle.update.mockResolvedValue({ id: "y1" });
+    return t;
+  };
+  beforeEach(() => jest.useFakeTimers().setSystemTime(new Date("2026-10-20T12:00:00.000Z")));
+  afterEach(() => jest.useRealTimers());
 
-  it("rechaza dejar sesiones fuera de las fechas", async () => {
-    const { prisma, service } = setup();
-    prisma.trainingCycle.findUnique.mockResolvedValue(cycle);
-    prisma.coachAthlete.findUnique.mockResolvedValue(activeRelation);
-    prisma.trainingSession.count.mockResolvedValue(1);
-    await expect(service.update("c1", "y1", { endDate: "2026-11-08" })).rejects.toThrow("Hay sesiones después");
-    expect(prisma.trainingCycle.update).not.toHaveBeenCalled();
-    const where = prisma.trainingSession.count.mock.calls[0][0].where;
-    expect(where.deletedAt).toBeNull();
-    expect(where.OR[1]).toEqual({ weekNumber: { gt: 5 } });
+  const base = { athleteId: "a1", name: "Fuerza", startDate: "2026-10-20", endDate: "2026-11-16", today: "2026-10-20" };
+
+  it("crea solo con nombre y fechas: sin tipo ni sesiones por semana", async () => {
+    const { prisma, service } = ready();
+    prisma.trainingCycle.create.mockResolvedValue({ id: "n1" });
+    await service.create("c1", base);
+    expect(prisma.trainingCycle.create.mock.calls[0][0].data).toMatchObject({ cycleType: "mesocycle", sessionsPerWeek: null });
   });
 
-  it("alargar el ciclo no revisa sesiones", async () => {
-    const { prisma, service } = setup();
-    prisma.trainingCycle.findUnique.mockResolvedValue(cycle);
-    prisma.coachAthlete.findUnique.mockResolvedValue(activeRelation);
-    prisma.trainingCycle.update.mockResolvedValue({ id: "y1" });
+  it("no crea con inicio de ayer, de un solo día ni macrociclos", async () => {
+    const { prisma, service } = ready();
+    await expect(service.create("c1", { ...base, startDate: "2026-10-19" })).rejects.toThrow("no puede empezar antes de hoy");
+    await expect(service.create("c1", { ...base, endDate: "2026-10-20" })).rejects.toThrow("posterior a la fecha de inicio");
+    await expect(service.create("c1", { ...base, cycleType: "macrocycle" })).rejects.toThrow("macrociclos");
+    expect(prisma.trainingCycle.create).not.toHaveBeenCalled();
+  });
+
+  it("un ciclo ya empezado se edita sin tocar el inicio, aunque la web lo reenvíe", async () => {
+    const { prisma, service } = ready();
+    await service.update("c1", "y1", { name: "Nuevo nombre", startDate: "2026-10-05", today: "2026-10-20" });
+    expect(prisma.trainingCycle.update).toHaveBeenCalled();
+    expect(prisma.trainingSession.update).not.toHaveBeenCalled();
+  });
+
+  it("no mueve el inicio a otro día anterior a hoy", async () => {
+    const { prisma, service } = ready();
+    await expect(service.update("c1", "y1", { startDate: "2026-10-12", today: "2026-10-20" })).rejects.toThrow("no puede empezar antes de hoy");
+    expect(prisma.trainingCycle.update).not.toHaveBeenCalled();
+  });
+
+  it("no deja sesiones fuera al acortar el final ni al mover el inicio", async () => {
+    const { prisma, service } = ready();
+    prisma.trainingSession.findMany.mockResolvedValue([session("s1", 5, "2026-11-10")]);
+    await expect(service.update("c1", "y1", { endDate: "2026-11-08" })).rejects.toThrow("Hay sesiones fuera");
+    prisma.trainingSession.findMany.mockResolvedValue([session("s2", 1, "2026-10-08")]);
+    await expect(service.update("c1", "y1", { startDate: "2026-10-26", today: "2026-10-20" })).rejects.toThrow("Hay sesiones fuera");
+    expect(prisma.trainingCycle.update).not.toHaveBeenCalled();
+  });
+
+  it("al mover el inicio recalcula la semana de cada sesión en la misma transacción", async () => {
+    const { prisma, service } = ready();
+    prisma.trainingSession.findMany.mockResolvedValue([session("s1", 4, "2026-10-28")]);
+    await service.update("c1", "y1", { startDate: "2026-10-21", today: "2026-10-20" });
+    const calls = prisma.trainingSession.update.mock.calls.map((c: any) => c[0].data);
+    expect(calls).toEqual([{ slotNumber: -1 }, { weekNumber: 2, slotNumber: 1 }]);
+    expect(prisma.trainingCycle.update).toHaveBeenCalled();
+  });
+
+  it("alargar el final no renumera nada", async () => {
+    const { prisma, service } = ready();
     await service.update("c1", "y1", { endDate: "2026-11-22" });
-    expect(prisma.trainingSession.count).not.toHaveBeenCalled();
+    expect(prisma.trainingSession.update).not.toHaveBeenCalled();
     expect(prisma.trainingCycle.update).toHaveBeenCalled();
   });
 });
