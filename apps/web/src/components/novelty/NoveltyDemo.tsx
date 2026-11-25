@@ -171,6 +171,51 @@ function RmMultiAdd() {
   );
 }
 
+// Equipos del coach (CYC-310).
+function TeamsGroup() {
+  const teams: [string, string, string, number][] = [
+    ["V", "Voleibol sub-17", "#2f9e5f", 12],
+    ["F", "Fuerza mañana", "#1a66dd", 5],
+    ["S", "Selección regional", "#7a4bd6", 8],
+  ];
+  return (
+    <div className="nd nd-rm nd-tm">
+      {teams.map(([i, n, c, count], k) => (
+        <div key={n} className={`nd-rw nd-tm-card${k === 2 ? " nd-rm-pop" : ""}`} style={{ top: 28 + k * 78, height: 66 }}>
+          <span className="nd-tm-i" style={{ background: c }}>{i}</span>
+          <b>{n}</b>
+          <span className="nd-tm-av">
+            <i>VS</i>
+            <i>CR</i>
+            <i>JP</i>
+          </span>
+          <small>{count} atletas</small>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TeamsCreate() {
+  const rows: [string, boolean][] = [
+    ["Valentina Soto", true],
+    ["Camila Rojas", true],
+    ["Josefa Pino", true],
+    ["Matías Vera", false],
+  ];
+  return (
+    <div className="nd nd-rm nd-tm">
+      <div className="nd-tm-field">Voleibol sub-17</div>
+      {rows.map(([n, on], i) => (
+        <div key={n} className={`nd-rw nd-tm-pick${on ? " nd-rm-pop" : ""}`} style={{ top: 70 + i * 52, height: 44 }}>
+          <span className={on ? "nd-tm-box nd-tm-box-on" : "nd-tm-box"}>{on ? "✓" : ""}</span>
+          <b>{n}</b>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function AthleteRmPercent() {
   return (
     <div className="nd nd-rm nd-rm-center">
@@ -196,7 +241,7 @@ export function NoveltyDemo({ slide }: { slide: NoveltySlide }) {
       </div>
     );
   }
-  const art = slide.demo === "blocks-group" ? <Group /> : slide.demo === "blocks-move" ? <Move /> : slide.demo === "blocks-legacy" ? <Legacy /> : slide.demo === "blocks-page" ? <Page /> : slide.demo === "rm-percent-row" ? <RmPercentRow /> : slide.demo === "rm-athlete-sheet" ? <RmAthleteSheet /> : slide.demo === "rm-multi-add" ? <RmMultiAdd /> : slide.demo === "athlete-rm-percent" ? <AthleteRmPercent /> : null;
+  const art = slide.demo === "blocks-group" ? <Group /> : slide.demo === "blocks-move" ? <Move /> : slide.demo === "blocks-legacy" ? <Legacy /> : slide.demo === "blocks-page" ? <Page /> : slide.demo === "rm-percent-row" ? <RmPercentRow /> : slide.demo === "rm-athlete-sheet" ? <RmAthleteSheet /> : slide.demo === "rm-multi-add" ? <RmMultiAdd /> : slide.demo === "athlete-rm-percent" ? <AthleteRmPercent /> : slide.demo === "teams-group" ? <TeamsGroup /> : slide.demo === "teams-create" ? <TeamsCreate /> : null;
   // Escala del escenario al ancho disponible (nunca se agranda ni se recorta).
   const scale = width === 0 ? 1 : Math.min(1, Math.max(0.3, width / STAGE_W));
   return (

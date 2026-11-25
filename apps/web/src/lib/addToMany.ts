@@ -21,6 +21,8 @@ export interface CycleLike {
 export interface Candidate {
   athleteId: string;
   name: string;
+  // Invitación sin aceptar (solo en un equipo): la rutina lo omite hasta que acepte.
+  pending?: boolean;
 }
 
 export interface PreviewRow {
@@ -29,6 +31,7 @@ export interface PreviewRow {
   // Ciclo del atleta que contiene la fecha; sin él no se le puede agregar la sesión.
   cycleId: string | null;
   cells: Array<{ exerciseId: string; kg: number | null }>;
+  pending: boolean;
   // «Falta RM» si en algún ejercicio con % no tiene RM.
   missingRm: boolean;
 }
@@ -60,9 +63,11 @@ export function buildPreview(input: {
     return {
       athleteId: c.athleteId,
       name: c.name,
-      cycleId: cycleForDate(input.cycles, c.athleteId, input.date)?.id ?? null,
+      cycleId: c.pending ? null : (cycleForDate(input.cycles, c.athleteId, input.date)?.id ?? null),
       cells,
-      missingRm: cells.some((cell) => cell.kg == null),
+      pending: Boolean(c.pending),
+      // Quien se omite no cuenta como «falta RM»: la rutina no le llega.
+      missingRm: !c.pending && cells.some((cell) => cell.kg == null),
     };
   });
 }
@@ -70,4 +75,12 @@ export function buildPreview(input: {
 // «A 4 de 5 atletas les falta RM en algún ejercicio.»
 export function missingRmCount(rows: PreviewRow[]): { missing: number; total: number } {
   return { missing: rows.filter((r) => r.missingRm).length, total: rows.length };
+}
+
+// La columna «Qué pasa» de cada atleta, con el mismo texto que el estado.
+export function whatHappens(row: PreviewRow): { text: string; state: "ready" | "missing_rm" | "no_cycle" | "pending" } {
+  if (row.pending) return { text: "Invitación pendiente: se omite", state: "pending" };
+  if (row.cycleId == null) return { text: "No tiene ciclo: se omite", state: "no_cycle" };
+  if (row.missingRm) return { text: "Recibe la rutina, falta su RM", state: "missing_rm" };
+  return { text: "Recibe la rutina con su peso", state: "ready" };
 }

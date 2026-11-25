@@ -101,6 +101,18 @@ export function AthleteCard({ row, monday, todayIso, adherence, adherenceLoading
         <span className={STATUS_PILL[row.status]}>{STATUS_LABEL[row.status]}</span>
       </div>
 
+      {(row.teams ?? []).length > 0 && (
+        <ul className="at-teams" aria-label="Equipos">
+          {(row.teams ?? []).map((t) => (
+            <li key={t.id}>
+              <Link className="tm-tag" to={`/equipos/${t.id}`}>
+                {t.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+
       {badge && (
         <Link className={`pill ${badge.kind === "pain" ? "pill-pain" : "pill-warn"} at-badge`} to={summaryPath}>
           {badge.label}
