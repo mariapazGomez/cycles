@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Novedad: nuevo ciclo (CYC-316)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--ink:#1f2228;--ink2:#5c6068;--blue:#1a66dd;--soft:#e8effb;--line:#dde4f0}
+*{box-sizing:border-box;margin:0}
+body{font-family:Inter,-apple-system,system-ui,sans-serif;background:#d9e0ee;color:var(--ink);padding:24px}
+.grid{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}
+.fr{display:grid;gap:8px;max-width:100%}
+.cap{font:600 13px/1.35 Inter;color:#3f4757}
+/* Popup actual (styles/novelty.css) */
+.pop{position:relative;width:648px;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 10px 40px rgba(31,34,40,.28)}
+.x{position:absolute;top:10px;right:10px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.92);display:grid;place-items:center;font:400 24px/1 Inter;z-index:2}
+.stage{position:relative;width:648px;height:292px;background:#eef1f6;border-bottom:1px solid var(--line);overflow:hidden}
+.tx{padding:20px 26px 6px}
+.tx h2{font:800 24px/1.25 Inter;margin-bottom:8px;text-wrap:balance}
+.tx p{font:400 15px/1.5 Inter;color:#3f4757;min-height:46px}
+.ft{display:flex;align-items:center;justify-content:space-between;padding:12px 26px 20px}
+.dots{display:flex;gap:7px}
+.dots i{width:8px;height:8px;border-radius:50%;background:#c9d2e4}
+.dots i.on{background:var(--blue)}
+.btn{height:42px;border-radius:999px;background:var(--blue);color:#fff;padding:0 20px;display:grid;place-items:center;font:700 14px/1 Inter}
+/* Escenario: piezas con el aspecto de la interfaz nueva */
+.box{position:absolute;background:#fff;border:1px solid var(--line);border-radius:6px;padding:12px 14px;box-shadow:0 4px 14px rgba(48,80,160,.12)}
+.h{font:600 13px/1 Inter;margin-bottom:10px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);row-gap:4px;text-align:center}
+.cal i{font:500 11px/18px Inter;font-style:normal;color:#8d95a3}
+.cal span{font:400 13px/30px Inter}
+.cal .off{color:#c3c8d1}
+.cal .in{background:var(--soft)}
+.cal .edge{background:var(--blue);color:#fff;border-radius:4px;font-weight:600}
+.cal .today{box-shadow:inset 0 0 0 1px var(--ink);border-radius:4px}
+.sum{position:absolute;background:var(--ink);color:#fff;border-radius:6px;padding:10px 14px;font:500 13px/1.3 Inter;white-space:nowrap}
+.fld{margin-bottom:10px}
+.fld b{display:block;font:600 12px/1 Inter;margin-bottom:5px}
+.in1{height:34px;border:1px solid #c9d2e4;border-radius:6px;padding:0 10px;display:flex;align-items:center;font:400 13px/1 Inter}
+.old{position:absolute;width:176px;background:#fff;border:1px dashed #8d95a3;border-radius:6px;padding:9px 11px;font:500 13px/1.2 Inter;color:var(--ink2);text-decoration:line-through;opacity:.38}
+.warn{position:absolute;background:#fdeede;border:1px solid #f0c9a0;color:#5b2d0a;border-radius:6px;padding:10px 12px;font:500 13px/1.4 Inter;width:228px}
+.ses{display:inline-block;width:6px;height:6px;border-radius:50%;background:#2f9e5f;position:absolute;left:50%;margin-left:-3px;bottom:2px}
+.cal .s{position:relative}
+.cal .outs{background:#fdeede;color:#8f4410;border-radius:4px}
+/* Animaciones: el estado base es el final; con «reducir movimiento» queda esa imagen */
+.a{animation-duration:4.8s;animation-iteration-count:infinite;animation-timing-function:ease;animation-fill-mode:both}
+
+@keyframes start{0%,8%{background:transparent;color:var(--ink)}16%,100%{background:var(--blue);color:#fff}}
+@keyframes fill{0%,22%{background:transparent}30%,100%{background:var(--soft)}}
+@keyframes end{0%,46%{background:transparent;color:var(--ink)}54%,100%{background:var(--blue);color:#fff}}
+@keyframes up{0%,56%{opacity:0;transform:translateY(10px)}66%,100%{opacity:1;transform:translateY(0)}}
+@keyframes leave{0%,14%{opacity:1;transform:translateX(0)}40%,100%{opacity:.38;transform:translateX(18px)}}
+@keyframes arrive{0%,30%{opacity:.25}55%,100%{opacity:1}}
+.k-start{animation-name:start}.k-fill{animation-name:fill}.k-end{animation-name:end}.k-up{animation-name:up}.k-leave{animation-name:leave}.k-arrive{animation-name:arrive}
+@media (prefers-reduced-motion: reduce){.a{animation:none!important}}
+@media(max-width:700px){.pop{zoom:.54}body{padding:16px}}
+</style>
+</head>
+<body>
+<div class="grid" id="out"></div>
+<script>
+const DAYS=['L','M','M','J','V','S','D'];
+const cal=(cells)=>`<div class="cal">${DAYS.map(d=>`<i>${d}</i>`).join('')}${cells.join('')}</div>`;
+const c=(n,cls='',st='')=>`<span class="${cls}" ${st?`style="${st}"`:''}>${n}</span>`;
+// 1. Rango: 30 nov a 20 dic, tres filas.
+function d1(){
+ const days=[30,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+ const cells=days.map((n,i)=> i===0?c(n,'edge a k-start'): i===20?c(n,'edge a k-end'): c(n,'in a k-fill',`animation-delay:${(i*0.045).toFixed(3)}s`));
+ return `<div class="box" style="left:150px;top:28px;width:348px"><div class="h">Fechas del ciclo</div>${cal(cells)}</div><div class="sum a k-up" style="left:182px;top:232px">Del lunes 30 nov al domingo 20 dic: 3 semanas</div>`;
+}
+// 2. Menos campos.
+function d2(){
+ const old=['Tipo de ciclo','Sesiones por semana','Fecha de inicio','Duración'].map((t,i)=>`<div class="old a k-leave" style="left:424px;top:${48+i*50}px;animation-delay:${i*0.12}s">${t}</div>`).join('');
+ return `<div class="box a k-arrive" style="left:56px;top:34px;width:326px"><div class="fld"><b>Nombre</b><div class="in1">Fuerza base</div></div><div class="fld"><b>Objetivo (opcional)</b><div class="in1">Base de fuerza</div></div><div class="fld" style="margin:0"><b>Fechas del ciclo</b><div class="in1" style="border-color:#1a66dd;background:#e8effb">30 nov – 20 dic</div></div></div>${old}`;
+}
+// 3. Desde hoy y sin sesiones fuera.
+function d3(){
+ const cells=[c(23,'off'),c(24,'off'),c(25,'edge'),c(26,'in'),c(27,'in'),c(28,'in'),c(29,'edge a k-end'),c('30<i class="ses"></i>','s outs a k-up'),c(1,''),c('2<i class="ses"></i>','s outs a k-up'),c(3),c('4<i class="ses"></i>','s outs a k-up'),c(5),c(6)];
+ return `<div class="box" style="left:52px;top:56px;width:316px"><div class="h">Fechas del ciclo</div>${cal(cells)}</div><div class="warn a k-up" style="left:392px;top:90px">Quedan 3 sesiones fuera. Muévelas o quítalas primero.</div>`;
+}
+// 4. Plantillas.
+function d4(){
+ const days=[30,1,2,3,4,5,6,7,8,9,10,11,12,13];
+ const cells=days.map((n,i)=> i===0?c(n,'edge a k-start'): c(n,'in a k-fill',`animation-delay:${(i*0.05).toFixed(3)}s`));
+ return `<div class="box" style="left:44px;top:62px;width:196px"><div class="h">Plantilla «Pretemporada»</div><div class="fld" style="margin:0"><b>Duración en semanas</b><div class="in1" style="justify-content:center">2</div></div></div><div class="box" style="left:266px;top:44px;width:338px"><div class="h">Elige solo el primer día</div>${cal(cells)}</div><div class="sum a k-up" style="left:266px;top:206px">Termina el domingo 13 dic</div>`;
+}
+const S=[
+ ['Crea tu ciclo en un calendario','Escribe el nombre y toca el primer y el último día. La duración sale sola.',d1],
+ ['Menos cosas que rellenar','Ya no pedimos tipo de ciclo ni sesiones por semana. A mano van el nombre y, si quieres, el objetivo.',d2],
+ ['Fechas sin sorpresas','Un ciclo nuevo empieza desde hoy. Si al cambiar las fechas quedan sesiones fuera, muévelas o quítalas.',d3],
+ ['Tus plantillas, por semanas','Define cuántas semanas dura. Al asignarla, eliges solo el primer día.',d4]];
+document.getElementById('out').innerHTML=S.map((s,i)=>`<div class="fr"><div class="pop"><span class="x">×</span><div class="stage">${s[2]()}</div><div class="tx"><h2>${s[0]}</h2><p>${s[1]}</p></div><div class="ft"><span class="dots">${S.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</span><span class="btn">${i===S.length-1?'Entendido':'Siguiente'}</span></div></div><div class="cap">Slide ${i+1} de 4</div></div>`).join('');
+window.__lens=S.map(s=>[s[0].length,s[1].length]);
+</script>
+</body>
+</html>
