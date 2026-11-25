@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dos ciclos a la vez (CYC-316)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--ink:#1f2228;--ink2:#5c6068;--blue:#1a66dd;--brand:#3080fc;--bg:#f3f6fc;--line:#dde4f0;--okbg:#e4f4ea;--oktx:#1d6b3f;--soft:#e8effb}
+*{box-sizing:border-box;margin:0}
+body{font-family:Inter,-apple-system,system-ui,sans-serif;background:#d9e0ee;color:var(--ink);padding:24px}
+.lab{font:700 13px/1 Inter;letter-spacing:.08em;text-transform:uppercase;color:#3f4757;margin:28px 0 12px}
+.row{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+.fr{display:grid;gap:8px;justify-items:start}
+.cap{font:600 13px/1.35 Inter;color:#3f4757;max-width:390px}
+/* App móvil (estilo actual de TodayScreen) */
+.ph{width:390px;height:844px;background:var(--bg);border-radius:44px;overflow:hidden;box-shadow:0 0 0 8px #1f2228;padding:52px 16px 0;margin:8px}
+.hd{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.hd h1{font:800 30px/1 Inter;margin-right:auto}
+.rnd{width:42px;height:42px;border-radius:50%;background:#fff;display:grid;place-items:center;border:1px solid var(--line)}
+.rnd.dk{background:var(--ink);color:#fff;font:700 14px/1 Inter;border:0}
+.rnd svg{width:20px;height:20px;stroke:var(--ink);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.hero{background:var(--ink);color:#fff;border-radius:22px;padding:14px;margin-bottom:10px}
+.top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.cy{font:700 12px/1 Inter;border-radius:999px;padding:6px 10px;background:rgba(255,255,255,.14);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:230px}
+.wk{font:600 12px/1 Inter;color:#b9c0cc;margin-left:auto}
+.hero h2{font:800 25px/1.15 Inter;margin-bottom:10px}
+.mid{display:flex;align-items:flex-end;gap:12px;margin-bottom:12px}
+.mid b{font:800 28px/1 Inter}
+.mid span{font:500 12px/1 Inter;color:#b9c0cc;margin-left:6px}
+.seg{display:flex;gap:4px;flex:1;margin-bottom:4px}
+.seg i{height:6px;flex:1;border-radius:3px;background:rgba(255,255,255,.2)}
+.seg i.d{background:var(--brand)}
+.hbt{height:50px;border-radius:999px;background:#fff;color:var(--ink);display:flex;align-items:center;justify-content:center;gap:10px;font:700 16px/1 Inter}
+.hbt.sec{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.45)}
+.card{background:#fff;border-radius:18px;padding:13px 14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(48,80,160,.08)}
+.mini{display:flex;align-items:center;gap:12px}
+.mini .tx{flex:1;min-width:0}
+.mini .c2{display:inline-block;font:700 11px/1 Inter;border-radius:999px;padding:5px 9px;background:var(--soft);color:#134fb0;margin-bottom:6px}
+.mini b{display:block;font:700 16px/1.2 Inter}
+.mini small{display:block;font:500 13px/1.3 Inter;color:var(--ink2);margin-top:3px}
+.mini .go{font:700 14px/1 Inter;color:var(--blue);white-space:nowrap}
+.okm{width:30px;height:30px;border-radius:50%;background:#2f9e5f;display:grid;place-items:center;flex:none}
+.okm svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.ex{display:flex;align-items:center;gap:12px}
+.nd{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font:700 14px/1 Inter;flex:none}
+.nd.cur{border-color:var(--blue);color:var(--blue)}
+.ex .tx{flex:1}
+.ex b{display:block;font:700 15px/1.25 Inter}
+.ex small{font:500 13px/1.3 Inter;color:var(--ink2)}
+.pl{font:700 12px/1 Inter;border-radius:999px;padding:6px 10px;background:var(--bg)}
+.week{display:flex;justify-content:space-between;align-items:center;font:600 14px/1 Inter}
+.week .dots{display:flex;gap:6px}
+.week .dots i{width:12px;height:12px;border-radius:50%;background:var(--line)}
+.week .dots i.d{background:#2f9e5f}
+.week .dots i.t{background:#fff;box-shadow:inset 0 0 0 2px var(--blue)}
+/* Web del atleta (TodayPage) y tarjeta del coach (AthleteCard) */
+.web{width:620px;max-width:100%;background:var(--bg);border-radius:12px;padding:22px}
+.wc{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px}
+.wc .c2{display:inline-block;font:700 12px/1 Inter;border-radius:999px;padding:5px 10px;background:var(--soft);color:#134fb0;margin-bottom:10px}
+.wc h2{font:800 23px/1.2 Inter;margin-bottom:8px}
+.pill{display:inline-block;font:600 12px/1 Inter;border-radius:999px;padding:6px 10px;background:#eceff5;color:#3f4757}
+.pill.ok{background:var(--okbg);color:var(--oktx)}
+.pill.warn{background:#fdeede;color:#8f4410}
+.lst{list-style:none;padding:0;margin:12px 0}
+.lst li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line);font:500 14px/1.3 Inter}
+.lst li span{color:var(--ink2);white-space:nowrap}
+.bp{height:46px;border-radius:999px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font:700 15px/1 Inter}
+.bg2{text-align:center;font:700 14px/1 Inter;color:var(--blue);padding:12px 0 0}
+.bs{height:40px;border-radius:999px;border:1.5px solid #8d95a3;display:flex;align-items:center;justify-content:center;font:700 14px/1 Inter;padding:0 18px}
+.at{width:380px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;display:grid;gap:12px}
+.at.warn{border-color:#f0c9a0}
+.atop{display:flex;align-items:center;gap:10px}
+.av{width:40px;height:40px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font:700 14px/1 Inter;flex:none}
+.atop div{flex:1;min-width:0}
+.atop b{display:block;font:700 15px/1.2 Inter}
+.atop small{font:500 12px/1.3 Inter;color:var(--ink2)}
+.cyb{border-top:1px solid var(--line);padding-top:10px;display:grid;gap:8px}
+.cyh{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.cyh u{text-decoration:none;color:var(--blue);font:700 14px/1.25 Inter}
+.cyh span{font:500 12px/1 Inter;color:var(--ink2);white-space:nowrap}
+.strip{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;row-gap:5px}
+.strip em{font:600 11px/1 Inter;font-style:normal;color:var(--ink2)}
+.m{width:18px;height:18px;border-radius:50%;margin:0 auto}
+.m.n{width:6px;height:6px;margin:6px auto;background:#c9d2e4}
+.m.p{border:2px solid #8d95a3}
+.m.d{background:#2f9e5f}
+.cnt{font:500 12px/1.3 Inter;color:var(--ink2)}
+.acts{display:flex;gap:10px;align-items:center}
+.acts u{text-decoration:none;color:var(--blue);font:700 14px/1 Inter}
+</style>
+</head>
+<body>
+<div id="out"></div>
+<script>
+const chk='<svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
+const bell='<svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 21h4"/></svg>';
+const week=(d)=>`<div class="card week"><span>Esta semana</span><div class="dots">${d.map(x=>`<i class="${x}"></i>`).join('')}</div></div>`;
+const phone=(body,w=['d','','t','','','',''])=>`<div class="ph"><div class="hd"><h1>Hoy</h1><div class="rnd">${bell}</div><div class="rnd dk">CR</div></div>${week(w)}${body}</div>`;
+const hero=(cy,wk,name,done,of,btn,sec)=>`<div class="hero"><div class="top"><span class="cy">${cy}</span><span class="wk">${wk}</span></div><h2>${name}</h2><div class="mid"><div><b>${done}</b><span>de ${of} ejercicios</span></div><div class="seg">${Array.from({length:of},(_,i)=>`<i class="${i<done?'d':''}"></i>`).join('')}</div></div><div class="hbt ${sec?'sec':''}">${btn}</div></div>`;
+const mini=(cy,name,sub,go,ok)=>`<div class="card mini">${ok?`<div class="okm">${chk}</div>`:''}<div class="tx"><span class="c2">${cy}</span><b>${name}</b><small>${sub}</small></div><span class="go">${go}</span></div>`;
+const exr=(n,name,t,p,cur)=>`<div class="card ex"><div class="nd ${cur?'cur':''}">${n}</div><div class="tx"><b>${name}</b><small>${t}</small></div><span class="pl">${p}</span></div>`;
+const m1=()=>phone(hero('Fuerza base','Semana 1','Torso',0,5,'Iniciar rutina →')+hero('Rehabilitación hombro','Semana 1','Movilidad de hombro',0,4,'Iniciar rutina →',true));
+const m2=()=>phone(hero('Fuerza base','Semana 1','Torso',1,5,'Continuar: Remo con barra →')+mini('Rehabilitación hombro','Movilidad de hombro','Para hoy, 4 ejercicios','Ver')+exr('✓','Press de banca','4 × 8 con 40 kg','4/4')+exr(2,'Remo con barra','4 × 8 con 35 kg','1/4',true)+exr(3,'Press militar','3 × 10 con 20 kg','0/3'));
+const m3=()=>phone(hero('Rehabilitación hombro','Semana 1','Movilidad de hombro',0,4,'Iniciar rutina →')+mini('Fuerza base','Torso','Hecha hoy','Compartir',true),['d','','d','','','','']);
+const m4=()=>phone(hero('Fuerza base','Semana 1','Torso',0,5,'Iniciar rutina →')+mini('Rehabilitación hombro','Movilidad de hombro','Próxima: viernes 27','Ver'));
+const lst=(a)=>`<ul class="lst">${a.map(x=>`<li>${x[0]}<span>${x[1]}</span></li>`).join('')}</ul>`;
+const w1=()=>`<div class="web"><div class="wc"><span class="c2">Fuerza base</span><h2>Te toca Torso</h2><span class="pill">Semana 1</span>${lst([['Press de banca','4 × 8 · 40 kg'],['Remo con barra','4 × 8 · 35 kg'],['Press militar','3 × 10 · 20 kg']])}<div class="bp">Empezar sesión</div><div class="bg2">No puedo entrenar hoy</div></div><div class="wc"><span class="c2">Rehabilitación hombro</span><h2>Te toca Movilidad de hombro</h2><span class="pill">Semana 1</span><div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:10px"><span style="font:700 14px/1 Inter;color:#1a66dd">Ver 4 ejercicios</span><span class="bs">Empezar sesión</span></div></div></div>`;
+const w2=()=>`<div class="web"><div class="wc"><span class="c2">Fuerza base</span><h2>Torso</h2><span class="pill ok">Hecha hoy</span></div><div class="wc"><span class="c2">Rehabilitación hombro</span><h2>Próxima: Movilidad de hombro</h2><span class="pill">Viernes 27</span><div style="margin-top:14px"><span style="font:700 14px/1 Inter;color:#1a66dd">Ver la sesión</span></div></div></div>`;
+const strip=(a)=>`<div class="strip">${['L','M','M','J','V','S','D'].map(d=>`<em>${d}</em>`).join('')}${a.map(x=>`<div><div class="m ${x}"></div></div>`).join('')}</div>`;
+const cyb=(n,w,s,c)=>`<div class="cyb"><div class="cyh"><u>${n}</u><span>${w}</span></div>${strip(s)}<div class="cnt">${c}</div></div>`;
+const at=(warn)=>`<div class="at ${warn?'warn':''}"><div class="atop"><span class="av">CR</span><div><b>Camila Rojas</b><small>camila@correo.com</small></div><span class="pill ${warn?'warn':'ok'}">${warn?'Con avisos':'Al día'}</span></div>${warn?'<div><span class="pill warn">Sesión omitida en Rehabilitación hombro</span></div>':''}${cyb('Fuerza base','Semana 1 de 4',['d','n','p','n','p','n','n'],'1 de 2 sesiones completadas')}${cyb('Rehabilitación hombro','Semana 1 de 3',['n','n','p','n','p','n','n'],warn?'0 de 1 sesiones completadas':'Aún sin sesiones completadas')}<div class="acts"><u>Ver ciclos</u></div></div>`;
+const out=document.getElementById('out');
+const add=(label,items)=>out.insertAdjacentHTML('beforeend',`<div class="lab">${label}</div><div class="row">${items.map(([c,h])=>`<div class="fr">${h}<div class="cap">${c}</div></div>`).join('')}</div>`);
+add('1 · Atleta en la app: «Hoy» con dos ciclos',[['Las dos sesiones de hoy, cada una con el nombre de su ciclo',m1()],['Con una empezada: la otra queda compacta y a la vista',m2()],['Con una hecha: la pendiente pasa arriba',m3()],['Solo una tiene sesión hoy: la otra muestra la próxima',m4()]]);
+add('2 · Atleta en la web: «Hoy» con dos ciclos',[['Dos sesiones hoy: la primera abierta y la segunda resumida',w1()],['Una hecha hoy y la otra sin sesión hoy',w2()]]);
+add('3 · Coach: tarjeta del atleta con dos ciclos',[['Un bloque por ciclo, con su semana y su avance',at(false)],['Con un aviso: dice de qué ciclo es',at(true)]]);
+</script>
+</body>
+</html>
