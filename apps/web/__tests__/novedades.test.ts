@@ -34,9 +34,9 @@ describe("fichas de novedad (registro)", () => {
 
 describe("qué novedad toca mostrar", () => {
   it("la coach ve las más recientes (calendario y Equipos), luego la de RM y la de bloques; la atleta, la suya en la web; el admin, ninguna", () => {
-    const recientes = pendientes(coach, 2);
-    expect(recientes.sort()).toEqual(["coach-teams", "cycle-calendar"]);
-    const vistas = ["coach-teams@1", "cycle-calendar@1"];
+    const recientes = pendientes(coach, 3);
+    expect(recientes.sort()).toEqual(["coach-team-cycle", "coach-teams", "cycle-calendar"]);
+    const vistas = ["coach-team-cycle@1", "coach-teams@1", "cycle-calendar@1"];
     expect(pendingNovelty(vistas, coach)?.key).toBe("coach-rm-percent");
     expect(pendingNovelty([...vistas, "coach-rm-percent@1"], coach)?.key).toBe("routine-blocks");
     expect(pendingNovelty([], { role: "athlete", platform: "web" })?.key).toBe("athlete-rm-percent");

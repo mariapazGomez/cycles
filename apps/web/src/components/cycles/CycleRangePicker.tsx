@@ -15,6 +15,7 @@ export function CycleRangePicker({
   keptStart = null,
   marked,
   markedLabel,
+  busy,
   summary,
 }: {
   value: Range;
@@ -25,6 +26,8 @@ export function CycleRangePicker({
   // Días con otro ciclo: informan, no bloquean.
   marked?: Set<string>;
   markedLabel?: string;
+  // Días ocupados por otro ciclo del equipo: se ven en naranja (cruzarlos da error).
+  busy?: Set<string>;
   summary?: string;
 }) {
   const floor = keptStart && keptStart < today ? keptStart : today;
@@ -75,7 +78,7 @@ export function CycleRangePicker({
     const inside = value.start && value.end && iso > value.start && iso < value.end;
     const disabled = iso < today && iso !== keptStart;
     const other = marked?.has(iso);
-    const cls = ["cy-day", isStart || isEnd ? "cy-day-edge" : inside ? "cy-day-in" : "", iso === today ? "cy-day-today" : "", disabled ? "cy-day-off" : ""].filter(Boolean).join(" ");
+    const cls = ["cy-day", isStart || isEnd ? "cy-day-edge" : inside ? "cy-day-in" : "", iso === today ? "cy-day-today" : "", busy?.has(iso) ? "cy-day-busy" : "", disabled ? "cy-day-off" : ""].filter(Boolean).join(" ");
     return (
       <td key={iso}>
         <button
@@ -85,7 +88,7 @@ export function CycleRangePicker({
           tabIndex={iso === tabDay ? 0 : -1}
           aria-disabled={disabled || undefined}
           aria-pressed={isStart || isEnd || Boolean(inside)}
-          aria-label={`${fullDayLabel(iso)}${iso === today ? ", hoy" : ""}${isStart ? ", primer día" : isEnd ? ", último día" : inside ? ", dentro del ciclo" : ""}${disabled ? `. ${BEFORE_TODAY_REASON}` : ""}${other && markedLabel ? `, ${markedLabel}` : ""}`}
+          aria-label={`${fullDayLabel(iso)}${iso === today ? ", hoy" : ""}${isStart ? ", primer día" : isEnd ? ", último día" : inside ? ", dentro del ciclo" : ""}${disabled ? `. ${BEFORE_TODAY_REASON}` : ""}${other && markedLabel ? `, ${markedLabel}` : ""}${busy?.has(iso) ? ", con otro ciclo del equipo" : ""}`}
           onClick={() => {
             setFocusDay(iso);
             if (!disabled) onPick(iso);

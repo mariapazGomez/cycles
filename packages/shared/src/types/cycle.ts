@@ -55,6 +55,8 @@ export interface TrainingCycle {
   sessionsPerWeek?: number;
   // Si este plan vive dentro de un macrociclo contenedor.
   parentCycleId?: string;
+  // Copia de un ciclo del equipo (CYC-314); nulo en los ciclos propios y en quien salió del equipo.
+  teamCycleId?: string | null;
 }
 
 export interface TrainingSession {
@@ -69,6 +71,9 @@ export interface TrainingSession {
   // muestra en la UI.
   routineId?: string;
   startedAt?: string | null;
+  // Copia de una sesión del equipo (CYC-314). Con detachedAt quedó ajustada: ya no recibe cambios.
+  teamSessionId?: string | null;
+  detachedAt?: string | null;
 }
 
 export interface Routine {

@@ -10,6 +10,8 @@ type ProgressSession = CycleProgress["sessions"][number];
 
 interface SessionCardProps {
   session: TrainingSession;
+  // «Del equipo», «Ajustada» o «Registrada» en las copias de un ciclo del equipo (CYC-314).
+  mark?: string | null;
   progress?: ProgressSession;
   dayLabel: string;
   tentative: boolean;
@@ -25,7 +27,7 @@ interface SessionCardProps {
 // Tarjeta de una sesión en su día. Mismos estados que el calendario anterior:
 // pendiente, hecha (verde, bloqueada), omitida (ámbar) y día tentativo.
 export const SessionCard = forwardRef<HTMLButtonElement, SessionCardProps>(function SessionCard(
-  { session, progress, dayLabel, tentative, saving, dragging, readOnly, menuOpen, onMenu, onDragStart, onDragEnd },
+  { session, mark, progress, dayLabel, tentative, saving, dragging, readOnly, menuOpen, onMenu, onDragStart, onDragEnd },
   menuRef,
 ) {
   const feedback = progress?.feedback;
@@ -89,6 +91,7 @@ export const SessionCard = forwardRef<HTMLButtonElement, SessionCardProps>(funct
         {done ? <CheckBadge /> : skipped ? <span className="pill pill-warn">Omitida</span> : <span className="bd-pend">Pendiente</span>}
         {feedback?.pain && <span className="pill pill-pain">Dolor</span>}
       </div>
+      {mark && <span className={`tmc-tag${mark === "Ajustada" ? " tmc-tag-warn" : mark === "Registrada" ? " tmc-tag-ok" : ""}`}>{mark}</span>}
       {tentative && !done && !skipped && <span className="bd-tentl">Día tentativo</span>}
       {done && feedback?.outcome === "completed" && feedback.srpe !== null && (
         <span className="bd-facts">

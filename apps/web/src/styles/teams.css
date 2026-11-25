@@ -138,3 +138,51 @@ a.tms-tool:hover { background: var(--color-gray-light); }
   .tms-week .hm-avatar { display: none; }
   .tms-mark, .tms-mark-none { width: 20px; height: 20px; }
 }
+
+/* Ciclo del equipo (CYC-314, docs/diseno/ciclo-del-equipo): esquinas casi rectas y sin negritas
+   pesadas. La pizarra reutiliza las piezas .bd- de la pizarra del atleta. */
+.tmc-board { --tmc-radius: 5px; }
+.tmc-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid var(--color-gray-border); border-radius: 8px; }
+.tmc-head h2 { margin: 0; font-size: 1.15rem; font-weight: 600; }
+.tmc-pick { max-width: 100%; min-height: 38px; padding: 4px 8px; border: 1px solid var(--color-control-border); border-radius: 5px; background: var(--color-bg); font: inherit; font-weight: 600; }
+.tmc-grow { flex: 1; }
+.tmc-objective { flex-basis: 100%; margin: 0; color: var(--color-ink-secondary); font-size: 0.9rem; }
+.tmc-chip { padding: 4px 10px; border-radius: 4px; background: var(--color-gray-light); font-size: 0.84rem; }
+.tmc-chip-blue { background: var(--color-blue-bg, #e8eefb); color: #134fb0; }
+.tmc-ses { display: flex; flex-direction: column; gap: 4px; }
+.tmc-ses-name { min-width: 0; overflow-wrap: anywhere; font-weight: 600; }
+.tmc-facts { color: var(--color-ink-secondary); font-size: 0.78rem; }
+.tmc-tag { align-self: flex-start; display: inline-block; padding: 2px 8px; border-radius: 4px; background: var(--color-gray-light); color: var(--color-ink-secondary); font-size: 0.76rem; font-weight: 500; }
+.tmc-tag-warn { background: var(--color-warn-bg); color: var(--color-warn-ink); }
+.tmc-tag-ok { background: var(--color-ok-bg); color: var(--color-ok-ink); }
+.tmc-section { margin: 24px 0 8px; font-size: 1.05rem; font-weight: 600; }
+.tmc-members td { vertical-align: middle; }
+.tmc-assign { margin-left: 8px; }
+.tmc-modal { border-radius: 8px; }
+.tmc-modal .bd-btn { border-radius: 6px; }
+.tmc-info { margin: 0; padding: 10px 12px; border: 1px solid #b9ccee; border-radius: 5px; background: var(--color-blue-bg, #e8eefb); font-size: 0.92rem; line-height: 1.45; }
+.tmc-who { margin: 0; padding: 0; list-style: none; max-height: 320px; overflow-y: auto; border-top: 1px solid var(--color-gray-border); }
+.tmc-who li { border-bottom: 1px solid var(--color-gray-border); }
+.tmc-who label { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 6px 2px; cursor: pointer; }
+.tmc-who input { width: 20px; height: 20px; flex-shrink: 0; accent-color: var(--color-blue); }
+.tmc-who .tmc-tag { align-self: center; margin-left: auto; text-align: right; }
+.tmc-who .tmc-off { cursor: default; color: var(--color-gray-mid); }
+.tmc-who-name { min-width: 0; }
+.tmc-impact { margin: 8px 0 0; padding-left: 20px; line-height: 1.7; }
+.tmc-delete { display: block; margin-top: 10px; color: var(--color-pain-ink); }
+.tmc-edit { width: min(640px, 100%); }
+.tmc-ex { width: 100%; border-collapse: collapse; }
+.tmc-ex th, .tmc-ex td { padding: 8px 4px; border-bottom: 1px solid var(--color-gray-border); text-align: left; vertical-align: top; }
+.tmc-ex thead th { color: var(--color-ink-secondary); font-size: 0.82rem; font-weight: 500; }
+.tmc-ex tbody th { font-weight: 500; }
+.tmc-ex td { width: 76px; }
+.tmc-ex td:last-child { width: 150px; }
+.tmc-ex .bd-inp { width: 100%; text-align: center; }
+@media (max-width: 560px) {
+  .tmc-ex thead { display: none; }
+  .tmc-ex tr { display: flex; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid var(--color-gray-border); }
+  .tmc-ex th, .tmc-ex td { border: 0; }
+  .tmc-ex tbody th { flex-basis: 100%; padding-bottom: 0; }
+  .tmc-members thead { display: none; }
+  .tmc-members tr { display: flex; flex-wrap: wrap; gap: 6px; }
+}

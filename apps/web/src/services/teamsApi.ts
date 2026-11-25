@@ -43,14 +43,16 @@ export function renameTeam(id: string, name: string) {
   return apiRequest<TeamDetail>(`/teams/${id}`, { method: "PATCH", body: { name } });
 }
 
-export function deleteTeam(id: string) {
-  return apiRequest<void>(`/teams/${id}`, { method: "DELETE" });
+// `today` (día local del coach) decide qué sesiones del ciclo del equipo son futuras.
+export function deleteTeam(id: string, today: string) {
+  return apiRequest<void>(`/teams/${id}?today=${today}`, { method: "DELETE" });
 }
 
 export function addTeamMembers(id: string, athleteIds: string[]) {
-  return apiRequest<TeamDetail>(`/teams/${id}/members`, { method: "POST", body: { athleteIds } });
+  // `pendingTeamCycles`: ciclos del equipo en curso o por venir, para preguntar si se asignan.
+  return apiRequest<TeamDetail & { pendingTeamCycles?: { id: string; name: string; startDate: string; endDate: string }[] }>(`/teams/${id}/members`, { method: "POST", body: { athleteIds } });
 }
 
-export function removeTeamMember(id: string, athleteId: string) {
-  return apiRequest<void>(`/teams/${id}/members/${athleteId}`, { method: "DELETE" });
+export function removeTeamMember(id: string, athleteId: string, today: string) {
+  return apiRequest<void>(`/teams/${id}/members/${athleteId}?today=${today}`, { method: "DELETE" });
 }

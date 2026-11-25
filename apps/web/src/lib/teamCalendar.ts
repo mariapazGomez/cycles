@@ -1,7 +1,6 @@
 // Calendario y ciclos de un equipo (CYC-318, docs/diseno/equipos-sidebar). Lógica pura.
 import type { AthleteEventOccurrence, EventType } from "@cycles/shared";
 import type { BoardSession } from "./weekBoard";
-import { totalWeeks } from "./planGrid";
 
 export interface MemberSessions {
   athleteId: string;
@@ -85,13 +84,4 @@ export function gmtLabel(offsetMinutes: number): string {
   const h = Math.floor(Math.abs(total) / 60);
   const m = Math.abs(total) % 60;
   return `GMT${total === 0 ? "" : `${sign}${h}${m ? `:${String(m).padStart(2, "0")}` : ""}`}`;
-}
-
-// Semana en que va un ciclo y su avance (semana / total): «2 de 6» y 33 %.
-export function cycleProgress(cycle: { startDate: string; endDate: string }, todayIso: string): { week: number; total: number; percent: number } {
-  const total = Math.max(1, totalWeeks(cycle.startDate, cycle.endDate));
-  const start = Date.parse(`${cycle.startDate.slice(0, 10)}T00:00:00Z`);
-  const today = Date.parse(`${todayIso}T00:00:00Z`);
-  const week = Math.min(total, Math.max(1, Math.floor((today - start) / (7 * 86_400_000)) + 1));
-  return { week, total, percent: Math.round((week / total) * 100) };
 }

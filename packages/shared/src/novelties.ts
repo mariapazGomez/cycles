@@ -38,7 +38,9 @@ export type NoveltyDemoId =
   | "cycle-range"
   | "cycle-fields"
   | "cycle-guard"
-  | "cycle-template";
+  | "cycle-template"
+  // Ciclo del equipo (CYC-314): web del coach.
+  | "team-cycle";
 
 export interface NoveltySlide {
   title: string;
@@ -279,6 +281,22 @@ export const NOVELTIES: Novelty[] = [
         text: "Define cuántas semanas dura. Al asignarla, eliges solo el primer día.",
         demoLabel: "Una plantilla de dos semanas: se elige el primer día y el calendario pinta el resto.",
         demo: "cycle-template",
+      },
+    ],
+  },
+  {
+    key: "coach-team-cycle",
+    version: 1,
+    since: "2026-11-25",
+    platforms: ["web"],
+    roles: ["coach"],
+    name: "Ciclo del equipo",
+    slides: [
+      {
+        title: "Planifica el ciclo de tu equipo",
+        text: "Pon las sesiones una vez en el calendario del equipo y llegan a cada integrante.",
+        demoLabel: "Una sesión del equipo llega a cuatro atletas.",
+        demo: "team-cycle",
       },
     ],
   },

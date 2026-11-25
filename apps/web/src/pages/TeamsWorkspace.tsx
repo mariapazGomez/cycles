@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as teamsApi from "../services/teamsApi";
 import * as athletesApi from "../services/athletesApi";
 import * as cyclesApi from "../services/cyclesApi";
@@ -10,9 +10,12 @@ import { LoadingScreen } from "../components/LoadingScreen";
 import { RowMenu } from "../components/builder/RowMenu";
 import { TeamSidebar, type TeamTool } from "../components/teams/TeamSidebar";
 import { TeamCalendar } from "../components/teams/TeamCalendar";
-import { TeamCycles } from "../components/teams/TeamCycles";
+import { TeamCycleView } from "../components/teams/cycle/TeamCycleView";
+import { NewTeamCycleDialog } from "../components/teams/cycle/NewTeamCycleDialog";
+import { JoinTeamCycleDialog, type Joining } from "../components/teams/cycle/JoinTeamCycleDialog";
+import * as teamCyclesApi from "../services/teamCyclesApi";
+import { defaultTeamCycle } from "../lib/teamCycle";
 import { TeamAthletesDialog } from "../components/teams/TeamAthletesDialog";
-import { TeamCycleDialog } from "../components/teams/TeamCycleDialog";
 import { TeamRoutineFlow } from "../components/teams/TeamRoutineFlow";
 import { CreateTeamDialog } from "../components/teams/CreateTeamDialog";
 import { AddAthletesDialog } from "../components/teams/AddAthletesDialog";
@@ -21,7 +24,7 @@ import { DeleteTeamDialog } from "../components/teams/DeleteTeamDialog";
 import { toLocalDay } from "../lib/calendar";
 import { athletesCount } from "../lib/teams";
 
-type Dialog = "create" | "athletes" | "add" | "rename" | "delete" | "routine" | "cycle" | null;
+type Dialog = "create" | "athletes" | "add" | "rename" | "delete" | "routine" | "cycle" | "join" | null;
 
 const COLLAPSED_KEY = "cycles.teams.sidebar-collapsed";
 
@@ -42,6 +45,7 @@ export function TeamsWorkspace() {
   usePageWide();
   const { id, tool } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [dialog, setDialog] = useState<Dialog>(null);
   const [collapsed, setCollapsed] = useState(readCollapsed);
   const todayIso = toLocalDay(new Date());
@@ -61,6 +65,9 @@ export function TeamsWorkspace() {
   const teamQuery = useQuery({ queryKey: ["teams", id], queryFn: () => teamsApi.getTeam(id as string), enabled: !!id && known });
   const athletesQuery = useQuery({ queryKey: ["athletes"], queryFn: athletesApi.listAthletes });
   const cyclesQuery = useQuery({ queryKey: ["cycles"], queryFn: cyclesApi.listCycles });
+  const teamCyclesQuery = useQuery({ queryKey: ["team-cycles", "of", id], queryFn: () => teamCyclesApi.listTeamCycles(id as string), enabled: !!id && known && tool === "ciclos" });
+  const [pickedCycle, setPickedCycle] = useState<string | null>(null);
+  const [joining, setJoining] = useState<Joining | null>(null);
 
   if (teamsQuery.isLoading) return <LoadingScreen />;
   if (teamsQuery.isError) return <div className="error-banner">No se pudieron cargar tus equipos.</div>;
@@ -72,6 +79,8 @@ export function TeamsWorkspace() {
   if (teams.length === 0 && id) return <Navigate to="/equipos" replace />;
 
   const team = teamQuery.data;
+  const teamCycles = teamCyclesQuery.data ?? [];
+  const shownCycle = teamCycles.find((c) => c.id === pickedCycle) ?? defaultTeamCycle(teamCycles, todayIso);
   const hasAthletes = (athletesQuery.data ?? []).some((r) => r.status === "active" || r.status === "pending");
 
   return (
@@ -118,9 +127,11 @@ export function TeamsWorkspace() {
                     Agregar rutina
                   </button>
                 ) : (
-                  <button type="button" className="tms-primary" disabled={team.athletes.length === 0} onClick={() => setDialog("cycle")}>
-                    Agregar ciclo
-                  </button>
+                  shownCycle && (
+                    <button type="button" className="tms-btn" onClick={() => setDialog("cycle")}>
+                      Agregar ciclo
+                    </button>
+                  )
                 )}
                 <button type="button" className="tms-btn" onClick={() => setDialog("athletes")}>
                   {athletesCount(team.athletes.length)}
@@ -137,8 +148,20 @@ export function TeamsWorkspace() {
 
             {activeTool === "calendario" ? (
               <TeamCalendar key={team.id} athletes={team.athletes} cycles={cyclesQuery.data ?? []} todayIso={todayIso} />
+            ) : teamCyclesQuery.isError ? (
+              <div className="error-banner">No se pudieron cargar los ciclos del equipo.</div>
+            ) : !teamCyclesQuery.data ? (
+              <p>Cargando…</p>
+            ) : shownCycle ? (
+              <TeamCycleView team={team} cycles={teamCycles} cycleId={shownCycle.id} today={todayIso} onPick={setPickedCycle} />
             ) : (
-              <TeamCycles athletes={team.athletes} todayIso={todayIso} />
+              <div className="tms-empty">
+                <h2>Este equipo aún no tiene ciclo</h2>
+                <p>Planifica una vez: las sesiones que pongas en el calendario del equipo llegan a cada integrante.</p>
+                <button type="button" className="tms-primary" onClick={() => setDialog("cycle")}>
+                  Agregar ciclo
+                </button>
+              </div>
             )}
           </>
         )}
@@ -154,9 +177,30 @@ export function TeamsWorkspace() {
         />
       )}
       {team && dialog === "athletes" && <TeamAthletesDialog team={team} onAdd={() => setDialog("add")} onClose={() => setDialog(null)} />}
-      {team && dialog === "add" && <AddAthletesDialog team={team} onClose={() => setDialog("athletes")} />}
+      {team && dialog === "add" && (
+        <AddAthletesDialog
+          team={team}
+          onClose={() => setDialog("athletes")}
+          onAddedToCycles={(next) => {
+            setJoining(next);
+            setDialog("join");
+          }}
+        />
+      )}
+      {team && dialog === "join" && joining && <JoinTeamCycleDialog team={team} joining={joining} today={todayIso} onClose={() => setDialog(null)} />}
       {team && dialog === "routine" && <TeamRoutineFlow teamId={team.id} onClose={() => setDialog(null)} />}
-      {team && dialog === "cycle" && <TeamCycleDialog team={team} onClose={() => setDialog(null)} />}
+      {team && dialog === "cycle" && (
+        <NewTeamCycleDialog
+          team={team}
+          existing={teamCycles}
+          onClose={() => setDialog(null)}
+          onCreated={(created) => {
+            setDialog(null);
+            setPickedCycle(created.id);
+            queryClient.invalidateQueries({ queryKey: ["team-cycles"] });
+          }}
+        />
+      )}
       {team && dialog === "rename" && <RenameTeamDialog team={team} onClose={() => setDialog(null)} />}
       {team && dialog === "delete" && (
         <DeleteTeamDialog

@@ -965,6 +965,72 @@
   }
 }
 
+/* Ciclo del equipo (CYC-314) */
+.nd-tmc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 26px;
+}
+
+.nd-tmc-card {
+  display: grid;
+  gap: 4px;
+  min-width: 170px;
+  padding: 12px 14px;
+  border: 1px solid #c9d2e4;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 15px;
+}
+
+.nd-tmc-card small {
+  color: var(--ink2);
+}
+
+.nd-tmc-arrow {
+  color: #1a66dd;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.nd-tmc-people {
+  display: flex;
+}
+
+.nd-tmc-people span {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  margin-left: -8px;
+  border-radius: 50%;
+  background: #1f2228;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  animation: nd-tmc-in 4.8s ease infinite both;
+}
+
+@keyframes nd-tmc-in {
+  0%,
+  10% {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+  30%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nd-tmc-people span {
+    animation: none;
+  }
+}
+
 /* Reactivo a la pantalla real (contenedor y alto de ventana) */
 @container (max-width: 479px) {
   .nv-body {

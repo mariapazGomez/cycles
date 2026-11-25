@@ -1,4 +1,4 @@
-import { cycleProgress, eventLines, gmtLabel, sessionBadge, sessionCards } from "../src/lib/teamCalendar";
+import { eventLines, gmtLabel, sessionBadge, sessionCards } from "../src/lib/teamCalendar";
 import type { BoardSession } from "../src/lib/weekBoard";
 
 const s = (id: string, name: string, status: BoardSession["status"], dayIso = "2026-11-16"): BoardSession => ({ id, name, status, dayIso, pain: false });
@@ -38,14 +38,5 @@ describe("calendario del equipo", () => {
     );
     expect(lines).toEqual(["Viaje: Matías"]);
     expect(eventLines([{ athleteId: "m", athleteName: "Matías", events: [ev("rest", "2026-11-29")] }, { athleteId: "v", athleteName: "V", events: [ev("rest", "2026-11-29")] }], "2026-11-29")).toEqual(["Descanso: 2"]);
-  });
-
-  it("zona horaria y avance del ciclo", () => {
-    expect(gmtLabel(180)).toBe("GMT-3");
-    expect(gmtLabel(0)).toBe("GMT");
-    expect(gmtLabel(-330)).toBe("GMT+5:30");
-    const cycle = { startDate: "2026-11-16", endDate: "2026-12-27" };
-    expect(cycleProgress(cycle, "2026-11-25")).toEqual({ week: 2, total: 6, percent: 33 });
-    expect(cycleProgress(cycle, "2027-02-01").week).toBe(6);
   });
 });
