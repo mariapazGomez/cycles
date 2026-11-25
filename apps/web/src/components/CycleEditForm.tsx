@@ -1,11 +1,12 @@
 import { FormEvent, useRef, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CycleStatus, TrainingCycle } from "@cycles/shared";
 import * as cyclesApi from "../services/cyclesApi";
+import * as sessionsApi from "../services/sessionsApi";
 import { ApiError } from "../services/httpClient";
 import { useDialogFocus } from "../hooks/useDialogFocus";
 import { toLocalDay } from "../lib/calendar";
-import { dayName, pickDay, pickEnd, type Range } from "../lib/cycleRange";
+import { dayName, outsideWarning, pickDay, pickEnd, type Range } from "../lib/cycleRange";
 import { CycleRangePicker } from "./cycles/CycleRangePicker";
 import { CYCLE_STATUS_LABEL } from "../lib/library";
 
@@ -39,7 +40,10 @@ export function CycleEditForm({ cycle, onClose }: { cycle: TrainingCycle; onClos
     },
   });
 
-  const valid = name.trim() !== "" && range.start !== null && range.end !== null;
+  // Con sesiones fuera del nuevo rango no se puede guardar; la API lo valida igual.
+  const sessionsQuery = useQuery({ queryKey: ["cycles", cycle.id, "sessions"], queryFn: () => sessionsApi.listSessions(cycle.id) });
+  const outside = outsideWarning(sessionsQuery.data ?? [], range, original);
+  const valid = name.trim() !== "" && range.start !== null && range.end !== null && !outside;
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -67,6 +71,11 @@ export function CycleEditForm({ cycle, onClose }: { cycle: TrainingCycle; onClos
             <div className="error-banner" role="alert">
               {editError}
             </div>
+          )}
+          {outside && (
+            <p className="cy-warn" role="alert">
+              {outside}
+            </p>
           )}
           {started && (
             <p className="cy-note">

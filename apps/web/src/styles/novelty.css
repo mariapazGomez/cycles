@@ -641,6 +641,254 @@
   animation: nd-pop 7s infinite both;
 }
 
+/* Nuevo ciclo por calendario (CYC-314): piezas con las esquinas casi rectas de la interfaz nueva.
+   El estado base es el final; con «reducir movimiento» queda esa imagen. */
+.nd-cy * {
+  box-sizing: border-box;
+}
+
+.nd-cy-box {
+  position: absolute;
+  padding: 12px 14px;
+  border: 1px solid #dde4f0;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(48, 80, 160, 0.12);
+}
+
+.nd-cy-h {
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.nd-cy-cal {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 4px;
+  text-align: center;
+}
+
+.nd-cy-cal i {
+  color: #8d95a3;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+.nd-cy-cal span {
+  position: relative;
+  font-size: 13px;
+  line-height: 30px;
+}
+
+.nd-cy-cal span b {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: #2f9e5f;
+}
+
+.nd-cy-off {
+  color: #c3c8d1;
+}
+
+.nd-cy-in {
+  background: #e8effb;
+}
+
+.nd-cy-cal .nd-cy-edge {
+  border-radius: 4px;
+  background: #1a66dd;
+  color: #fff;
+  font-weight: 600;
+}
+
+.nd-cy-cal .nd-cy-out {
+  border-radius: 4px;
+  background: #fdeede;
+  color: #8f4410;
+}
+
+.nd-cy-sum,
+.nd-cy-warn {
+  position: absolute;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.nd-cy-sum {
+  padding: 10px 14px;
+  background: var(--ink);
+  color: #fff;
+  white-space: nowrap;
+}
+
+.nd-cy-warn {
+  width: 228px;
+  padding: 10px 12px;
+  border: 1px solid #f0c9a0;
+  background: #fdeede;
+  color: #5b2d0a;
+  line-height: 1.4;
+}
+
+.nd-cy-field + .nd-cy-field {
+  margin-top: 10px;
+}
+
+.nd-cy-field b {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.nd-cy-inp {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid #c9d2e4;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.nd-cy-inp-on {
+  border-color: #1a66dd;
+  background: #e8effb;
+}
+
+.nd-cy-old {
+  position: absolute;
+  width: 176px;
+  padding: 9px 11px;
+  border: 1px dashed #8d95a3;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink2);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: line-through;
+  opacity: 0.38;
+  transform: translateX(18px);
+}
+
+.nd-cy-start,
+.nd-cy-fill,
+.nd-cy-end,
+.nd-cy-up,
+.nd-cy-leave,
+.nd-cy-arrive {
+  animation: 4.8s ease infinite both;
+}
+
+.nd-cy-start {
+  animation-name: nd-cy-start;
+}
+
+.nd-cy-fill {
+  animation-name: nd-cy-fill;
+}
+
+.nd-cy-end {
+  animation-name: nd-cy-end;
+}
+
+.nd-cy-cal .nd-cy-up,
+.nd-cy-up {
+  animation-name: nd-cy-up;
+}
+
+.nd-cy-leave {
+  animation-name: nd-cy-leave;
+}
+
+.nd-cy-arrive {
+  animation-name: nd-cy-arrive;
+}
+
+@keyframes nd-cy-start {
+  0%,
+  8% {
+    background: transparent;
+    color: var(--ink);
+  }
+  16%,
+  100% {
+    background: #1a66dd;
+    color: #fff;
+  }
+}
+
+@keyframes nd-cy-fill {
+  0%,
+  22% {
+    background: transparent;
+  }
+  30%,
+  100% {
+    background: #e8effb;
+  }
+}
+
+@keyframes nd-cy-end {
+  0%,
+  46% {
+    background: transparent;
+    color: var(--ink);
+  }
+  54%,
+  100% {
+    background: #1a66dd;
+    color: #fff;
+  }
+}
+
+@keyframes nd-cy-up {
+  0%,
+  56% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  66%,
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes nd-cy-leave {
+  0%,
+  14% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  40%,
+  100% {
+    opacity: 0.38;
+    transform: translateX(18px);
+  }
+}
+
+@keyframes nd-cy-arrive {
+  0%,
+  30% {
+    opacity: 0.25;
+  }
+  55%,
+  100% {
+    opacity: 1;
+  }
+}
+
 /* Reactivo a la pantalla real (contenedor y alto de ventana) */
 @container (max-width: 479px) {
   .nv-body {

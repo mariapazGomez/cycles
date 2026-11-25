@@ -75,3 +75,45 @@ export function busyDays(cycles: { startDate: string; endDate: string }[], limit
   }
   return out;
 }
+
+// Sesiones que quedarían fuera de las nuevas fechas: con fecha, antes del inicio o después del fin;
+// sin fecha, en una semana que el ciclo ya no tiene. La misma regla de la API.
+export function outsideSessions<T extends { weekNumber: number; scheduledDate?: string | null }>(sessions: T[], start: string, end: string): T[] {
+  const weeks = Math.floor((daysInRange(start, end) - 1) / 7) + 1;
+  return sessions.filter((s) => {
+    const day = s.scheduledDate?.slice(0, 10);
+    return day ? day < start || day > end : s.weekNumber > weeks;
+  });
+}
+
+const shortMonth = (iso: string) => MONTH_NAMES[Number(iso.slice(5, 7)) - 1].slice(0, 3).toLowerCase();
+
+// «lunes 30 nov, miércoles 2 y viernes 4 dic»: el mes va una vez, al final de cada tramo.
+export function listDays(isos: string[], shown = 5): string {
+  const days = [...new Set(isos)].sort();
+  const first = days.slice(0, shown);
+  const parts = first.map((iso, i) => {
+    const lastOfMonth = i === first.length - 1 || first[i + 1].slice(0, 7) !== iso.slice(0, 7);
+    return `${WEEKDAYS[weekdayOf(iso)]} ${Number(iso.slice(8, 10))}${lastOfMonth ? ` ${shortMonth(iso)}` : ""}`;
+  });
+  if (days.length > shown) return `${parts.join(", ")} y ${days.length - shown} fechas más`;
+  return parts.length > 1 ? `${parts.slice(0, -1).join(", ")} y ${parts[parts.length - 1]}` : (parts[0] ?? "");
+}
+
+// El aviso de «Datos del ciclo» cuando las nuevas fechas dejarían sesiones fuera, o null.
+export function outsideWarning(
+  sessions: { weekNumber: number; scheduledDate?: string | null }[],
+  range: Range,
+  original: Range,
+): string | null {
+  if (!range.start || !range.end) return null;
+  if (range.start === original.start && range.end === original.end) return null;
+  const outside = outsideSessions(sessions, range.start, range.end);
+  if (outside.length === 0) return null;
+  const shortened = range.start === original.start && range.end < (original.end ?? "");
+  const what = shortened ? `acortar el ciclo hasta el ${Number(range.end.slice(8, 10))} ${shortMonth(range.end)}` : "cambiar las fechas";
+  const count = outside.length === 1 ? "queda 1 sesión" : `quedan ${outside.length} sesiones`;
+  const dated = outside.flatMap((s) => (s.scheduledDate ? [s.scheduledDate.slice(0, 10)] : []));
+  const when = dated.length > 0 ? ` (${listDays(dated)})` : "";
+  return `No puedes ${what}: ${count} fuera${when}. ${outside.length === 1 ? "Muévela o quítala" : "Muévelas o quítalas"} primero.`;
+}
