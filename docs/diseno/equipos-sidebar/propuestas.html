@@ -358,42 +358,88 @@ body{font-family:Inter,-apple-system,system-ui,sans-serif;background:#d9e0ee;col
 .bn.sec{margin:0}
 .ph1 .bn,.ph1 .bn.sec{margin-top:0;margin-bottom:0}
 
-/* ===== CYC-316: Equipos con sidebar ===== */
-.web.sbw{padding-bottom:0;overflow:hidden}
-.s2sh{display:grid;grid-template-columns:var(--sbw,260px) 1fr;margin:0 -20px;min-height:520px}
-.s2sb{border-right:1px solid #e6ebf5;padding:14px 12px;display:flex;flex-direction:column;gap:10px;background:#fff}
-.s2sb .s2top{display:flex;align-items:center;gap:8px;padding:2px 6px 6px}
-.s2sb .s2ttl{font:800 18px/1 Inter;margin-right:auto}
-.s2sb .s2tg{width:34px;height:34px;display:grid;place-items:center;border-radius:10px}
-.s2sb .s2tg svg{width:22px;height:22px;stroke:#1f2228;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.s2sb .s2it{display:flex;align-items:center;gap:12px;border-radius:14px;padding:10px 12px;font:600 15px/1.2 Inter;color:#3f4757;white-space:nowrap}
-.s2sb .s2it i{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;color:#fff;font:800 12px/1 Inter;font-style:normal;flex:none}
-.s2sb .s2it span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
-.s2sb .s2it em{font:600 13px/1 Inter;font-style:normal;color:#8d95a3}
-.s2sb .s2it.on{background:#f0f1f4;color:#1f2228;font-weight:700}
-.s2sb .s2it.add{color:#1f2228}
-.s2sb .s2it.add b{width:28px;height:28px;display:grid;place-items:center;flex:none}
-.s2sb .s2it.add svg{width:22px;height:22px;stroke:#1f2228;fill:none;stroke-width:1.9;stroke-linecap:round}
-.s2sb .s2list{display:grid;gap:2px;align-content:start;flex:1}
-.s2sb .s2foot{border-top:1px solid #e6ebf5;padding-top:10px}
-.s2sb .s2none{font:500 14px/1.45 Inter;color:#3f4757;padding:4px 12px}
-.s2sb.s2col{padding:14px 10px;align-items:center}
-.s2sb.s2col .s2top{padding:2px 0 6px;justify-content:center}
-.s2sb.s2col .s2it{padding:10px;gap:0;justify-content:center}
-.s2sb.s2col .s2list{justify-items:center}
-.s2sb.s2col .s2foot{width:100%;display:grid;justify-items:center}
-.s2mn{padding:18px 20px 22px;min-width:0;position:relative}
-.s2mn .ph1 h2{font:800 24px/1.1 Inter}
-.s2scrim{position:absolute;inset:0;background:rgba(31,34,40,.38);display:grid;place-items:center;z-index:6}
-.s2dlg{background:#fff;border-radius:18px;box-shadow:0 10px 40px rgba(31,34,40,.3);width:440px;padding:18px 20px}
-.s2dlg .wt{margin-bottom:8px}
-.s2sel{display:flex;align-items:center;gap:10px;height:46px;border-radius:12px;border:1.5px solid #8d95a3;padding:0 12px;font:700 15px/1 Inter}
-.s2sel i{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;color:#fff;font:800 12px/1 Inter;font-style:normal}
-.s2sel svg{margin-left:auto;width:18px;height:18px;stroke:#3f4757;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.s2drw{position:absolute;left:0;right:0;top:112px;background:#fff;border-radius:14px;box-shadow:0 8px 28px rgba(31,34,40,.25);padding:8px;z-index:5}
-.web.ph{width:390px;padding:0}
-.s2mn .bn{white-space:nowrap}
-.s2mn .ph1 h2{white-space:nowrap}
+/* ===== CYC-316 v3: sidebar con selector y herramientas, tipografía liviana ===== */
+.web.t3{padding:0;overflow:hidden;font-weight:400}
+.t3nav{display:flex;align-items:center;gap:4px;border-bottom:1px solid #e6ebf5;padding:12px 20px}
+.t3nav b{font:600 16px/1 Inter;color:#1a66dd;margin-right:14px}
+.t3nav span{font:500 14px/1 Inter;color:#3f4757;padding:8px 12px;border-radius:10px}
+.t3nav span.on{background:#e8effb;color:#134fb0}
+.t3sh{display:grid;grid-template-columns:var(--sbw,250px) 1fr;min-height:540px}
+.t3sb{border-right:1px solid #e6ebf5;padding:14px 12px;display:flex;flex-direction:column;gap:12px;background:#fff;position:relative}
+.t3tg{display:flex;justify-content:flex-end;padding:0 4px}
+.t3tg b{width:34px;height:34px;display:grid;place-items:center;border-radius:10px}
+.t3tg svg,.t3ic svg{width:22px;height:22px;stroke:#1f2228;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.t3sel{display:flex;align-items:center;gap:10px;height:48px;border-radius:12px;border:1px solid #c9d2e4;padding:0 12px;font:500 15px/1 Inter;color:#1f2228;background:#fff}
+.t3sel i{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;color:#fff;font:600 12px/1 Inter;font-style:normal;flex:none}
+.t3sel span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t3sel svg{width:18px;height:18px;stroke:#3f4757;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.t3tools{display:grid;gap:2px}
+.t3tool{display:flex;align-items:center;gap:12px;border-radius:12px;padding:11px 12px;font:500 15px/1.2 Inter;color:#3f4757}
+.t3tool.on{background:#f0f1f4;color:#1f2228}
+.t3tool .t3ic{display:grid;place-items:center;width:24px;height:24px;flex:none}
+.t3lab{font:500 12px/1 Inter;color:#8d95a3;padding:4px 12px 0;letter-spacing:.04em;text-transform:uppercase}
+.t3sb.col{padding:14px 10px;align-items:center}
+.t3sb.col .t3tg{justify-content:center;padding:0}
+.t3sb.col .t3sel{width:48px;padding:0;justify-content:center;gap:0}
+.t3sb.col .t3tool{padding:11px;justify-content:center}
+.t3sb.col .t3tools{justify-items:center}
+.t3dd{position:absolute;left:12px;right:12px;top:112px;background:#fff;border-radius:14px;box-shadow:0 8px 28px rgba(31,34,40,.22);padding:6px;z-index:5}
+.t3dd .o{display:flex;align-items:center;gap:10px;border-radius:10px;padding:9px 10px;font:500 15px/1.2 Inter;color:#1f2228}
+.t3dd .o i{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;color:#fff;font:600 11px/1 Inter;font-style:normal;flex:none}
+.t3dd .o span{flex:1}
+.t3dd .o em{font:400 13px/1 Inter;font-style:normal;color:#8d95a3}
+.t3dd .o.on{background:#f0f1f4}
+.t3dd .sep{border-top:1px solid #e6ebf5;margin:6px 0 2px}
+.t3dd .o.add svg{width:20px;height:20px;stroke:#1f2228;fill:none;stroke-width:1.8;stroke-linecap:round}
+.t3mn{padding:20px 24px 26px;min-width:0;position:relative}
+.t3hd{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.t3hd h2{font:600 24px/1.1 Inter;margin-right:auto}
+.t3btn{display:inline-flex;align-items:center;gap:6px;height:38px;border-radius:999px;padding:0 16px;font:500 14px/1 Inter;border:1px solid #8d95a3;color:#1f2228;background:#fff;white-space:nowrap}
+.t3btn.pr{background:#1a66dd;border-color:#1a66dd;color:#fff}
+.t3btn.sq{padding:0;width:38px;justify-content:center}
+.t3wk{display:flex;align-items:center;gap:10px;font:500 14px/1 Inter;color:#3f4757}
+.t3wk b{width:30px;height:30px;border-radius:50%;border:1px solid #c9d2e4;display:grid;place-items:center;font-weight:400}
+.t3tb{border:1px solid #dde4f0;border-radius:14px;overflow:hidden}
+.t3r{display:grid;gap:8px;align-items:center;padding:11px 16px;border-top:1px solid #e6ebf5;font:400 14px/1.2 Inter}
+.t3r:first-child{border-top:0}
+.t3r.h{background:#f7f9fd;font:500 12px/1 Inter;color:#5c6068;padding:10px 16px}
+.t3r .nm{display:flex;align-items:center;gap:10px;font:500 14px/1.2 Inter}
+.t3r .nm .av{width:30px;height:30px;font-size:11px;font-weight:600}
+.t3cal{grid-template-columns:minmax(150px,1fr) repeat(7,44px)}
+.t3cal .d{text-align:center}
+.mk{width:22px;height:22px;border-radius:50%;margin:0 auto;display:grid;place-items:center}
+.mk.ok{background:#2f9e5f}
+.mk.ok svg{width:13px;height:13px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.mk.pe{border:2px solid #8d95a3}
+.mk.sk svg{width:15px;height:15px;stroke:#c0392b;fill:none;stroke-width:2.4;stroke-linecap:round}
+.mk.td{border:2px solid #1a66dd}
+.t3cyc{grid-template-columns:minmax(150px,1fr) 190px 90px 170px}
+.pg{height:6px;border-radius:3px;background:#e6ebf5;overflow:hidden}
+.pg i{display:block;height:100%;background:#1a66dd}
+.t3rk{grid-template-columns:32px minmax(150px,1fr) 1fr 56px}
+.t3rk .n{font:500 14px/1 Inter;color:#5c6068;text-align:center}
+.t3rk .pc{font:500 14px/1 Inter;text-align:right}
+.t3seg{display:flex;border:1px solid #c9d2e4;border-radius:10px;overflow:hidden;width:fit-content}
+.t3seg span{padding:8px 14px;font:500 13px/1 Inter;color:#3f4757}
+.t3seg span.on{background:#f0f1f4;color:#1f2228}
+.t3note{margin-top:14px;font:400 13px/1.45 Inter;color:#3f4757;background:#f7f9fd;border-radius:10px;padding:10px 12px}
+.t3scrim{position:absolute;inset:0;background:rgba(31,34,40,.38);display:grid;place-items:center;z-index:6}
+.t3dlg{background:#fff;border-radius:18px;box-shadow:0 10px 40px rgba(31,34,40,.3);width:520px;padding:20px 22px}
+.t3dlg h3{font:600 20px/1.2 Inter;margin-bottom:12px}
+.t3mem{display:grid;grid-template-columns:34px 1fr auto auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid #e6ebf5;font:400 14px/1.2 Inter}
+.t3mem:first-of-type{border-top:0}
+.t3mem .av{width:30px;height:30px;font-size:11px;font-weight:600}
+.t3mem u{color:#9d2a2a;font:500 14px/1 Inter;text-decoration:none}
+.t3emp{text-align:center;padding:60px 20px;border-radius:16px;background:#f7f9fd}
+.t3emp h3{font:600 22px/1.2 Inter;margin-bottom:8px}
+.t3emp p{font:400 15px/1.45 Inter;color:#3f4757;max-width:420px;margin:0 auto 18px}
+.t3ph{width:390px}
+.t3ph .t3sel{margin:14px 16px 0}
+.t3tabs{display:flex;gap:6px;padding:12px 16px 0;overflow:hidden}
+.t3tabs span{display:flex;align-items:center;gap:6px;border-radius:999px;padding:9px 14px;font:500 14px/1 Inter;color:#3f4757;background:#f3f5fa;white-space:nowrap}
+.t3tabs span.on{background:#1f2228;color:#fff}
+.t3tabs svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.t3dd .o span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 
 </style>
 </head>
@@ -431,54 +477,78 @@ const ppl=[['VS','Valentina Soto'],['CR','Camila Rojas'],['JP','Josefa Pino'],['
 const stack=(n,total)=>`<div class="stk">${ppl.slice(0,n).map(p=>AVb(p[0])).join('')}${total>n?`<div class="more">+${total-n}</div>`:''}</div>`;
 const tcard=(i,c,n,k,st)=>`<div class="tc"><div class="t"><i style="background:${c}">${i}</i><b>${n}</b><em>${k}</em></div>${st}</div>`;
 const cbx=(on)=>`<i class="cbx ${on?'on':''}">${on?chk:''}</i>`;
-const TEAMS=[['V','#2f9e5f','Voleibol sub-17',12],['F','#1a66dd','Fuerza mañana',5],['S','#7a4dd8','Selección regional',8],['B','#d9822b','Básquetbol femenino',10],['A','#c2467a','Atletismo velocidad',6],['N','#2a8f9d','Natación máster',9],['R','#6b7280','Rugby juvenil',15],['T','#4f7fd1','Tenis competitivo',4],['G','#8a5a2b','Gimnasio general',7]];
-const plus=`<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>`;
-const panel=`<svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><path d="M9.5 4.5v15"/></svg>`;
-const item=(t,on,col)=>`<div class="s2it ${on?'on':''}" title="${t[2]}"><i style="background:${t[1]}">${t[0]}</i>${col?'':`<span>${t[2]}</span><em>${t[3]}</em>`}</div>`;
-const addIt=(col)=>`<div class="s2it add"><b>${plus}</b>${col?'':'<span>Crear equipo</span>'}</div>`;
-const sidebar=(n,on,{col=false}={})=>`<aside class="s2sb ${col?'s2col':''}"><div class="s2top">${col?'':'<span class="s2ttl">Equipos</span>'}<span class="s2tg">${panel}</span></div><div class="s2list">${TEAMS.slice(0,n).map((t,i)=>item(t,i===on,col)).join('')}</div><div class="s2foot">${addIt(col)}</div></aside>`;
-const sbEmpty=`<aside class="s2sb"><div class="s2top"><span class="s2ttl">Equipos</span><span class="s2tg">${panel}</span></div><div class="s2list"><div class="s2none">Aún no tienes equipos.</div></div><div class="s2foot">${addIt(false)}</div></aside>`;
-const mrow=(a,n,c,s,cl)=>`<div class="mt">${AVb(a)}<b>${n}</b><span>${c}</span><span class="chip ${cl}">${s}</span><u>Quitar</u></div>`;
-const detMain=(extra='')=>`<main class="s2mn"><div class="ph1"><h2>Voleibol sub-17</h2><span class="chip gr">12 atletas</span><div style="margin-left:auto;display:flex;gap:10px;align-items:center"><span class="bn sec" style="height:40px">Agregar atletas</span><span class="bn" style="height:40px">Agregar rutina</span><span class="bn sec" style="height:40px;padding:0 12px">⋯</span></div></div>
- <div class="tbl"><div class="mt h"><span></span><span>Atleta</span><span>Ciclo</span><span>Estado</span><span></span></div>
- ${mrow('VS','Valentina Soto','Fuerza base, sem. 2','Al día','ok')}${mrow('CR','Camila Rojas','Fuerza base, sem. 2','Con avisos','sk')}${mrow('JP','Josefa Pino','Fuerza base, sem. 2','Al día','ok')}${mrow('MV','Matías Vera','Sin ciclo','Sin ciclo','gr')}${mrow('AD','Antonia Díaz','—','Invitación pendiente','gr')}</div>${extra}</main>`;
-const shell=(side,main,navOn='Equipos',w=260)=>`<div class="web sbw">${NAV(navOn)}<div class="s2sh" style="--sbw:${w}px">${side}${main}</div></div>`;
-function conEquipos(){
- return shell(sidebar(3,0),detMain(`<div class="wnote" style="margin-top:12px">Sidebar expandido: tus equipos, el elegido en gris, y «Crear equipo» al pie. El botón de arriba a la derecha lo contrae.</div>`));
+const TEAMS=[['V','#2f9e5f','Voleibol sub-17',12],['F','#1a66dd','Fuerza mañana',5],['S','#7a4dd8','Selección regional',8],['B','#d9822b','Básquetbol femenino',10]];
+const SV=(p)=>`<svg viewBox="0 0 24 24">${p}</svg>`;
+const IC={
+ panel:SV('<rect x="3.5" y="4.5" width="17" height="15" rx="3"/><path d="M9.5 4.5v15"/>'),
+ cal:SV('<path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M4 10h16M8 3v4M16 3v4"/>'),
+ cyc:SV('<path d="M20 12a8 8 0 0 1-13.7 5.6M4 12a8 8 0 0 1 13.7-5.6"/><path d="M18 3v4h-4M6 21v-4h4"/>'),
+ rk:SV('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"/>'),
+ chev:SV('<path d="m6 9 6 6 6-6"/>'),
+ plus:SV('<path d="M12 5v14M5 12h14"/>'),
+ chk:SV('<path d="m5 12.5 4.5 4.5L19 7.5"/>'),
+ x:SV('<path d="M6 6l12 12M18 6 6 18"/>')
+};
+const T3NAV=`<div class="t3nav"><b>Cycles</b>${['Inicio','Atletas','Equipos','Biblioteca','Ejercicios'].map(n=>`<span class="${n==='Equipos'?'on':''}">${n}</span>`).join('')}</div>`;
+const TOOLS=[['Calendario','cal'],['Ciclos','cyc'],['Rankings','rk']];
+const selBox=(t,col)=>`<div class="t3sel"><i style="background:${t[1]}">${t[0]}</i>${col?'':`<span>${t[2]}</span>${IC.chev}`}</div>`;
+const tools=(on,col)=>`<div class="t3tools">${TOOLS.map(x=>`<div class="t3tool ${x[0]===on?'on':''}" title="${x[0]}"><span class="t3ic">${IC[x[1]]}</span>${col?'':x[0]}</div>`).join('')}</div>`;
+const side=(on,{col=false,t=TEAMS[0],dd=''}={})=>`<aside class="t3sb ${col?'col':''}"><div class="t3tg"><b>${IC.panel}</b></div>${selBox(t,col)}${col?'':'<div class="t3lab">Herramientas</div>'}${tools(on,col)}${dd}</aside>`;
+const ddOpen=`<div class="t3dd">${TEAMS.map((t,i)=>`<div class="o ${i===0?'on':''}"><i style="background:${t[1]}">${t[0]}</i><span>${t[2]}</span><em>${t[3]}</em></div>`).join('')}<div class="sep"></div><div class="o add">${IC.plus}<span>Crear equipo</span></div></div>`;
+const head=(title,extra='')=>`<div class="t3hd"><h2>${title}</h2>${extra}<span class="t3btn">12 atletas</span><span class="t3btn sq">⋯</span></div>`;
+const ATH=[['VS','Valentina Soto'],['CR','Camila Rojas'],['JP','Josefa Pino'],['MV','Matías Vera'],['AD','Antonia Díaz']];
+const mk=(s)=>s==='ok'?`<div class="mk ok">${IC.chk}</div>`:s==='sk'?`<div class="mk sk">${IC.x}</div>`:s==='td'?`<div class="mk td"></div>`:s==='pe'?`<div class="mk pe"></div>`:'';
+const DAYS=['L','M','M','J','V','S','D'];
+const WEEK=[['ok','','ok','','pe','',''],['ok','','sk','','td','',''],['ok','','ok','','pe','',''],['','','','','','',''],['','','','','','','']];
+function calendario(){
+ return `<div class="t3mn">${head('Calendario',`<div class="t3wk"><b>‹</b>Semana del 23 al 29 nov<b>›</b></div><span class="t3btn pr">Agregar rutina</span>`)}
+ <div class="t3tb"><div class="t3r h t3cal"><span>Atleta</span>${DAYS.map(d=>`<span class="d">${d}</span>`).join('')}</div>
+ ${ATH.map((a,i)=>`<div class="t3r t3cal"><div class="nm">${AVb(a[0])}${a[1]}</div>${WEEK[i].map(s=>`<div>${mk(s)}</div>`).join('')}</div>`).join('')}</div>
+ <div class="t3note">Cada fila es un atleta del equipo y cada columna un día. Muestra sus sesiones: hecha, omitida, pendiente u hoy.</div></div>`;
 }
-function contraida(){
- return shell(sidebar(3,0,{col:true}),detMain(`<div class="wnote" style="margin-top:12px">Contraído, el sidebar queda en una columna angosta con la inicial de cada equipo. El botón de arriba lo expande de nuevo, y al pasar el cursor sobre un equipo se ve su nombre.</div>`),'Equipos',72);
+function ciclos(){
+ const r=(a,c,w,p)=>`<div class="t3r t3cyc"><div class="nm">${AVb(a[0])}${a[1]}</div><span>${c}</span><span>${w}</span>${p===null?'<span style="color:#8d95a3">—</span>':`<div class="pg"><i style="width:${p}%"></i></div>`}</div>`;
+ return `<div class="t3mn">${head('Ciclos',`<span class="t3btn pr">Agregar ciclo</span>`)}
+ <div class="t3tb"><div class="t3r h t3cyc"><span>Atleta</span><span>Ciclo</span><span>Semana</span><span>Avance</span></div>
+ ${r(ATH[0],'Fuerza base','2 de 6',33)}${r(ATH[1],'Fuerza base','2 de 6',33)}${r(ATH[2],'Fuerza base','2 de 6',30)}${r(ATH[3],'Sin ciclo','—',null)}${r(ATH[4],'Invitación pendiente','—',null)}</div>
+ <div class="t3note">El ciclo vigente de cada atleta del equipo. Al tocar una fila se abre el ciclo en la pizarra del atleta.</div></div>`;
 }
-function vacio2(){
- return shell(sbEmpty,`<main class="s2mn"><div class="ph1"><h2>Equipos</h2></div><div class="emp"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5M15 15c3 0 6 1.5 6 4"/></svg></div><b>Crea tu primer equipo</b><p>Agrupa a tus atletas para darles la misma rutina a todos, cada uno con su propio peso.</p><span class="bn" style="height:44px;padding:0 24px">Crear equipo</span></div></main>`);
+function rankings(){
+ const r=(n,a,p)=>`<div class="t3r t3rk"><span class="n">${n}</span><div class="nm">${AVb(a[0])}${a[1]}</div><div class="pg"><i style="width:${p}%"></i></div><span class="pc">${p} %</span></div>`;
+ return `<div class="t3mn">${head('Rankings',`<div class="t3seg"><span class="on">Últimas 4 semanas</span><span>Este ciclo</span></div>`)}
+ <div class="t3tb"><div class="t3r h t3rk"><span class="n">#</span><span>Atleta</span><span>Sesiones completadas</span><span class="pc"></span></div>
+ ${r(1,ATH[2],96)}${r(2,ATH[0],88)}${r(3,ATH[1],71)}${r(4,ATH[3],40)}${r(5,ATH[4],0)}</div>
+ <div class="t3note">Ordena a los atletas por el porcentaje de sesiones completadas sobre las asignadas en el período.</div></div>`;
 }
-function muchos(){
- return shell(sidebar(9,2),`<main class="s2mn"><div class="ph1"><h2>Selección regional</h2><span class="chip gr">8 atletas</span><div style="margin-left:auto;display:flex;gap:10px"><span class="bn sec" style="height:40px">Agregar atletas</span><span class="bn" style="height:40px">Agregar rutina</span><span class="bn sec" style="height:40px;padding:0 12px">⋯</span></div></div>
- <div class="tbl"><div class="mt h"><span></span><span>Atleta</span><span>Ciclo</span><span>Estado</span><span></span></div>${mrow('FG','Fernanda Gil','Fuerza base, sem. 2','Al día','ok')}${mrow('IM','Isidora Mena','Fuerza base, sem. 2','Al día','ok')}${mrow('TL','Tomás León','Sin ciclo','Sin ciclo','gr')}</div>
- <div class="wnote" style="margin-top:12px">Con muchos equipos la lista del sidebar se desplaza sola. El equipo abierto se mantiene visible y «Crear equipo» queda fijo abajo.</div></main>`);
+const frame=(sideH,main,w=250,over='')=>`<div class="web t3">${T3NAV}<div class="t3sh" style="--sbw:${w}px">${sideH}${main}</div>${over}</div>`;
+function f1(){return frame(side('Calendario'),calendario());}
+function f2(){return frame(side('Calendario',{col:true}),calendario(),72);}
+function f3(){return frame(side('Calendario',{dd:ddOpen}),calendario());}
+function f4(){return frame(side('Ciclos'),ciclos());}
+function f5(){return frame(side('Rankings'),rankings());}
+function f6(){
+ const m=(a,c)=>`<div class="t3mem">${AVb(a[0])}<span>${a[1]}</span><span class="chip ${c[1]}">${c[0]}</span><u>Quitar</u></div>`;
+ const over=`<div class="t3scrim"><div class="t3dlg"><h3>Atletas de Voleibol sub-17</h3>${m(ATH[0],['Al día','ok'])}${m(ATH[1],['Con avisos','sk'])}${m(ATH[2],['Al día','ok'])}${m(ATH[3],['Sin ciclo','gr'])}${m(ATH[4],['Invitación pendiente','gr'])}<div style="display:flex;gap:10px;margin-top:16px"><span class="t3btn pr">Agregar atletas</span><span class="t3btn">Cerrar</span></div></div></div>`;
+ return frame(side('Calendario'),calendario(),250,over);
 }
-function crearSb(){
- const row=(n,a,sel)=>`<div class="r ${sel?'sel':''}">${cbx(sel)}${AVb(a)}<span>${n}</span></div>`;
- return `<div class="web sbw">${NAV('Equipos')}<div class="s2sh">${sidebar(3,0)}${detMain()}<div class="s2scrim"><div class="s2dlg"><div class="wt">Crear equipo</div><div class="fld"><b>Nombre del equipo</b>${inp('Básquetbol femenino','100%')}</div><div class="cnt">2 elegidos</div><div class="pk">${row('Valentina Soto','VS',1)}${row('Camila Rojas','CR',1)}${row('Josefa Pino','JP',0)}</div><div style="display:flex;gap:10px;margin-top:14px"><span class="bn" style="height:44px;padding:0 22px">Crear equipo</span><span class="bn sec" style="height:44px;padding:0 22px">Cancelar</span></div></div></div></div></div>`;
+function f7(){
+ const side0=`<aside class="t3sb"><div class="t3tg"><b>${IC.panel}</b></div><div class="t3sel"><span style="color:#8d95a3">Sin equipos</span>${IC.chev}</div><div class="t3lab">Herramientas</div><div class="t3tools" style="opacity:.45">${TOOLS.map(x=>`<div class="t3tool"><span class="t3ic">${IC[x[1]]}</span>${x[0]}</div>`).join('')}</div></aside>`;
+ return frame(side0,`<div class="t3mn"><div class="t3hd"><h2>Equipos</h2></div><div class="t3emp"><h3>Crea tu primer equipo</h3><p>Agrupa a tus atletas para darles la misma rutina a todos, cada uno con su propio peso.</p><span class="t3btn pr" style="height:44px;padding:0 22px">Crear equipo</span></div></div>`);
 }
-function nuevoSinAtletas(){
- const t=['B','#d9822b','Básquetbol femenino',0];
- return shell(`<aside class="s2sb"><div class="s2top"><span class="s2ttl">Equipos</span><span class="s2tg">${panel}</span></div><div class="s2list">${[TEAMS[0],TEAMS[1],TEAMS[2],t].map((x,i)=>item(x,i===3)).join('')}</div><div class="s2foot">${addIt(false)}</div></aside>`,`<main class="s2mn"><div class="ph1"><h2>Básquetbol femenino</h2><span class="chip gr">0 atletas</span><div style="margin-left:auto;display:flex;gap:10px"><span class="bn sec" style="height:40px;padding:0 12px">⋯</span></div></div>
- <div class="emp"><b>Este equipo aún no tiene atletas</b><p>Agrega a los que ya tienes para darles la misma rutina.</p><span class="bn" style="height:44px;padding:0 24px">Agregar atletas</span></div></main>`);
-}
-function angosto(open){
- const head=`<div style="padding:14px 16px;border-bottom:1px solid #e6ebf5;display:flex;align-items:center;gap:10px"><b style="font:800 16px/1 Inter;color:#1a66dd">Cycles</b><span style="margin-left:auto;font:700 14px/1 Inter;color:#134fb0">Equipos</span></div>`;
- const sel=`<div style="padding:14px 16px 0"><div class="s2sel"><i style="background:#2f9e5f">V</i>Voleibol sub-17<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></div></div>`;
- const body=`<div style="padding:14px 16px 20px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><h2 style="font:800 22px/1.1 Inter">Voleibol sub-17</h2><span class="chip gr">12</span></div><div style="display:flex;gap:8px;margin-bottom:12px"><span class="bn" style="height:40px;flex:1">Agregar rutina</span><span class="bn sec" style="height:40px;padding:0 12px">⋯</span></div><div class="tbl">${[['VS','Valentina Soto','Al día','ok'],['CR','Camila Rojas','Con avisos','sk'],['JP','Josefa Pino','Al día','ok']].map(r=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid #e6ebf5">${AVb(r[0])}<b style="font:700 14px/1.2 Inter;flex:1">${r[1]}</b><span class="chip ${r[3]}">${r[2]}</span></div>`).join('')}</div></div>`;
- const dr=open?`<div class="s2drw" style="top:122px;left:16px;right:16px"><span class="s2new" style="display:flex;align-items:center;justify-content:center;gap:8px;height:40px;border-radius:999px;background:#1a66dd;color:#fff;font:700 14px/1 Inter;margin-bottom:8px">Crear equipo</span><div class="s2sb" style="border:0;padding:0;background:#fff"><div class="s2list">${TEAMS.slice(0,4).map((t,i)=>item(t,i===0)).join('')}</div></div></div>`:'';
- return `<div class="web ph" style="min-height:460px;overflow:hidden">${head}${sel}${body}${dr}</div>`;
+function f8(open){
+ const nav=`<div style="padding:14px 16px;border-bottom:1px solid #e6ebf5;display:flex;align-items:center"><b style="font:600 16px/1 Inter;color:#1a66dd">Cycles</b><span style="margin-left:auto;font:500 14px/1 Inter;color:#134fb0">Equipos</span></div>`;
+ const tabs=`<div class="t3tabs">${TOOLS.map((x,i)=>`<span class="${i===0?'on':''}">${IC[x[1]]}${x[0]}</span>`).join('')}</div>`;
+ const body=`<div style="padding:16px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><h2 style="font:600 20px/1.1 Inter;margin-right:auto">Calendario</h2><span class="t3btn">12</span></div><div class="t3tb">${ATH.slice(0,4).map((a,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:${i?'1px solid #e6ebf5':'0'}">${AVb(a[0])}<span style="font:500 14px/1.2 Inter;flex:1">${a[1]}</span><div style="display:flex;gap:4px">${WEEK[i].slice(0,5).map(s=>mk(s)||'<div class="mk" style="border:1px dashed #dde4f0"></div>').map(h=>`<div style="width:22px">${h}</div>`).join('')}</div></div>`).join('')}</div></div>`;
+ const dd=open?`<div class="t3dd" style="top:70px;left:16px;right:16px">${TEAMS.map((t,i)=>`<div class="o ${i===0?'on':''}"><i style="background:${t[1]}">${t[0]}</i><span>${t[2]}</span><em>${t[3]}</em></div>`).join('')}<div class="sep"></div><div class="o add">${IC.plus}<span>Crear equipo</span></div></div>`:'';
+ return `<div class="web t3 t3ph" style="min-height:520px;position:relative">${nav}${selBox(TEAMS[0])}${tabs}${body}${dd}</div>`;
 }
 const out=document.getElementById('out');
 const add=(id,label,items)=>out.insertAdjacentHTML('beforeend',`<div class="lab">${label}</div><div class="row" id="${id}">${items.map(([c,h])=>`<div class="fr">${h}<div class="cap">${c}</div></div>`).join('')}</div>`);
-add('r1','1 · Sidebar expandido y contraído',[['Expandido: nombre y cantidad de atletas de cada equipo',conEquipos()],['Contraído: solo la inicial de cada equipo',contraida()]]);
-add('r2','2 · Otros estados',[['Sin equipos: el sidebar solo trae «Crear equipo»',vacio2()],['Con muchos equipos: la lista se desplaza',muchos()],['Equipo recién creado, sin atletas',nuevoSinAtletas()]]);
-add('r3','3 · Crear equipo desde el sidebar',[['Crear equipo: el mismo cuadro de CYC-308, sobre la pantalla con sidebar',crearSb()]]);
-add('r4','4 · Pantalla angosta (web en celular o ventana pequeña)',[['El sidebar se pliega en un selector de equipo',angosto(false)],['Selector abierto: lista de equipos y «Crear equipo»',angosto(true)]]);
+add('r1','1 · Sidebar expandido y contraído',[['Expandido: selector de equipo arriba y las herramientas debajo',f1()],['Contraído: la inicial del equipo y los íconos de las herramientas',f2()]]);
+add('r2','2 · Selector de equipo',[['Selector abierto: cambia de equipo o crea uno',f3()],['Sin equipos',f7()]]);
+add('r3','3 · Herramientas (Calendario es la vista de arriba)',[['Ciclos: el ciclo vigente de cada atleta',f4()],['Rankings: sesiones completadas por atleta',f5()]]);
+add('r4','4 · Atletas del equipo',[['Se abre desde el botón «12 atletas»: agregar y quitar',f6()]]);
+add('r5','5 · Pantalla angosta',[['Selector arriba y las herramientas como pestañas',f8(false)],['Selector abierto',f8(true)]]);
 
 </script>
 </body>
