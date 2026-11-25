@@ -27,7 +27,7 @@ const MASTER_INCLUDE = {
 type Master = Prisma.TeamSessionGetPayload<{ include: typeof MASTER_INCLUDE }>;
 
 const COPY_INCLUDE = {
-  cycle: { select: { id: true, athleteId: true, coachId: true, status: true } },
+  cycle: { select: { id: true, athleteId: true, coachId: true, status: true, teamCycleId: true } },
   sessionExercises: { select: { id: true, teamSessionExerciseId: true, _count: { select: { logs: true } } } },
   _count: { select: { feedback: true } },
 } satisfies Prisma.TrainingSessionInclude;
@@ -204,9 +204,11 @@ export class TeamCyclesService {
       this.prisma.trainingCycle.findMany({ where: { teamCycleId }, select: { id: true, athleteId: true, status: true, athlete: { select: { name: true } } } }),
       this.prisma.trainingSession.findMany({
         where: { teamSession: { teamCycleId }, deletedAt: null },
-        select: { id: true, teamSessionId: true, status: true, detachedAt: true, cycle: { select: { athleteId: true } } },
+        select: { id: true, teamSessionId: true, status: true, detachedAt: true, cycle: { select: { athleteId: true, teamCycleId: true } } },
       }),
     ]);
+    const current = new Set(copies.map((c) => c.athleteId!));
+    const counted = copySessions.filter((c) => this.stillCounts(c, current));
     return {
       id: cycle.id,
       teamId: cycle.teamId,
@@ -217,7 +219,7 @@ export class TeamCyclesService {
       status: cycle.status,
       athletes: copies.map((c) => ({ athleteId: c.athleteId, name: c.athlete?.name ?? "", cycleId: c.id, status: c.status })),
       sessions: sessions.map((s) => {
-        const own = copySessions.filter((c) => c.teamSessionId === s.id);
+        const own = counted.filter((c) => c.teamSessionId === s.id);
         return {
           ...s,
           recipients: own.length,
@@ -284,6 +286,17 @@ export class TeamCyclesService {
     return session.id;
   }
 
+  // Quien salió del equipo ya no cuenta: sus sesiones conservadas quedan en un ciclo propio. Si
+  // volvió a entrar, lo que conservó vuelve a contar (por eso no recibió una copia repetida).
+  private stillCounts(copy: { deletedAt?: Date | null; cycle: { athleteId: string | null; teamCycleId: string | null } }, current: Set<string>): boolean {
+    return copy.cycle.teamCycleId !== null || (!copy.deletedAt && current.has(copy.cycle.athleteId!));
+  }
+
+  private async currentAthletes(db: Tx | PrismaService, teamCycleId: string): Promise<Set<string>> {
+    const cycles = await db.trainingCycle.findMany({ where: { teamCycleId }, select: { athleteId: true } });
+    return new Set(cycles.map((c) => c.athleteId!));
+  }
+
   // Las copias vivas de una sesión del equipo, con sus filas bloqueadas hasta terminar la
   // transacción: así nadie empieza ni registra mientras se decide si reciben el cambio.
   private async lockedCopies(tx: Tx, teamSessionId: string): Promise<Copy[]> {
@@ -324,7 +337,9 @@ export class TeamCyclesService {
 
   private async propagate(tx: Tx, teamSessionId: string, today: Date, summary: PropagationSummary, changed: { id: string; athleteId: string }[]) {
     const master = await tx.teamSession.findUniqueOrThrow({ where: { id: teamSessionId }, include: MASTER_INCLUDE });
+    const current = await this.currentAthletes(tx, master.teamCycleId);
     for (const copy of await this.lockedCopies(tx, teamSessionId)) {
+      if (!this.stillCounts(copy, current)) continue;
       const reason = skipReason(stateOf(copy), today);
       addToSummary(summary, reason);
       if (reason) continue;
@@ -526,7 +541,10 @@ export class TeamCyclesService {
   // Eliminar una sesión del plan: se quita de quienes la recibirían un cambio; lo registrado, lo
   // ajustado y lo pasado se conserva.
   private async removeMaster(tx: Tx, teamSessionId: string, today: Date, summary: PropagationSummary) {
+    const { teamCycleId } = await tx.teamSession.findUniqueOrThrow({ where: { id: teamSessionId }, select: { teamCycleId: true } });
+    const current = await this.currentAthletes(tx, teamCycleId);
     for (const copy of await this.lockedCopies(tx, teamSessionId)) {
+      if (!this.stillCounts(copy, current)) continue;
       const reason = skipReason(stateOf(copy), today);
       addToSummary(summary, reason);
       if (!reason) await tx.trainingSession.update({ where: { id: copy.id }, data: { deletedAt: new Date() } });
