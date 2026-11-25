@@ -1,5 +1,6 @@
 import { openCardKey, todayCards, upcomingDayLabel } from "../src/lib/todayCycles";
 import { cycleCardData, liveCycles } from "../src/lib/weekBoard";
+import { orderSections, sectionKind } from "../src/lib/cycleSections";
 import type { TodayCycleEntry } from "../src/services/executionApi";
 
 const session = (id: string, startedAt: string | null = null) => ({ id, name: id, startedAt }) as TodayCycleEntry["pending"][number];
@@ -107,5 +108,25 @@ describe("tarjeta del atleta con varios ciclos", () => {
       c("macro", "2026-11-02", "2027-02-01", "active", "macrocycle"),
     ];
     expect(liveCycles(list, "2026-11-23").map((x) => x.id)).toEqual(["viejo", "nuevo"]);
+  });
+});
+
+describe("ficha del atleta con dos ciclos", () => {
+  const c = (id: string, startDate: string, endDate: string, status: "active" | "completed" = "active") => ({ id, startDate, endDate, status });
+
+  it("los dos que incluyen hoy están en curso y van arriba; el que terminó queda al final", () => {
+    const list = [c("terminado", "2026-10-01", "2026-11-01"), c("fuerza", "2026-11-02", "2026-12-06"), c("hombro", "2026-11-23", "2026-12-13"), c("futuro", "2027-01-04", "2027-01-31")];
+    const { cycles, current } = orderSections(list, "2026-11-25");
+    expect(cycles.map((x) => [x.id, sectionKind(x, current, "2026-11-25")])).toEqual([
+      ["hombro", "current"],
+      ["fuerza", "current"],
+      ["futuro", "future"],
+      ["terminado", "past"],
+    ]);
+  });
+
+  it("uno completado que incluye hoy no está en curso si hay otro activo", () => {
+    const { current } = orderSections([c("listo", "2026-11-02", "2026-12-06", "completed"), c("activo", "2026-11-23", "2026-12-13")], "2026-11-25");
+    expect(sectionKind(c("listo", "2026-11-02", "2026-12-06", "completed"), current, "2026-11-25")).toBe("past");
   });
 });
