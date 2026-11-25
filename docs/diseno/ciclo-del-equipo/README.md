@@ -6,7 +6,7 @@ El botón «Agregar ciclo» de Equipos → Ciclos crea un ciclo para el equipo, 
 
 1. Un cambio en la sesión del equipo se aplica a los integrantes.
 2. Un cambio en la ventana de un atleta afecta solo a su sesión y nunca a la planificación del equipo.
-3. Al agregar un atleta al equipo se pregunta si se le asigna el ciclo; recibe las sesiones desde ese día.
+3. Al agregar un atleta al equipo se pregunta si se le asigna el ciclo; recibe las sesiones desde ese día. **Conserva el inicio del ciclo del equipo**: su ciclo empieza el mismo día, las semanas son iguales para todos y solo recibe sesiones desde que entra.
 4. Al sacar un atleta conserva lo registrado y las sesiones ajustadas para él; se quitan sus demás sesiones futuras del ciclo del equipo, avisando antes.
 5. Si un atleta ya tiene ciclo propio en esas fechas, conviven; antes de crear el ciclo se avisa quiénes lo tienen y el coach decide por persona.
 
@@ -17,6 +17,8 @@ El botón «Agregar ciclo» de Equipos → Ciclos crea un ciclo para el equipo, 
 Aplica a ciclos de **atleta** y de **equipo**. Las plantillas de la Biblioteca (no tienen fechas) quedan **pendientes de confirmar** y no se diseñan aquí.
 
 - **Campos escritos:** nombre (obligatorio) y objetivo (opcional).
+- **Editar un ciclo ya empezado** (decisión de la usuaria, 25-11): se puede cambiar el resto, pero el inicio no se puede mover a otro día anterior a hoy. En «Datos del ciclo» el inicio actual se ve marcado y se conserva; un inicio nuevo solo puede ser desde hoy. La API valida lo mismo. Captura `editar-datos-del-ciclo`. Qué pasa con las sesiones que quedan fuera al acortar el rango queda por definir.
+- La copia de un atleta que entra a un ciclo del equipo ya iniciado usa el inicio del equipo, anterior a hoy: es la excepción a la regla de abajo, porque no es un ciclo nuevo planificado.
 - **El ciclo no puede empezar antes de hoy** (decisión de la usuaria, 25-11): los días anteriores salen apagados y no se pueden elegir, y la flecha de mes anterior no baja del mes actual. La API debe rechazar un inicio anterior a hoy, con el día local del coach. Vale al crear; los ciclos que ya existen no cambian.
 - **Fechas:** dos meses a la vista; un toque elige el primer día y otro el último. El rango se pinta y debajo dice «Del lunes 23 nov al domingo 20 dic: 4 semanas» (o «2 semanas y 3 días»). Tocar de nuevo empieza otro rango. «Continuar» o «Crear ciclo» se activa con nombre y rango.
 - **Se quitan:** tipo de ciclo (también su etiqueta en el encabezado del ciclo), fecha de inicio y duración escritas, y sesiones por semana.
@@ -60,6 +62,7 @@ La propuesta técnica de Desarrollo general, con su diagrama, está en el coment
 |---|---|
 | Equipo sin ciclo | `equipo-sin-ciclo` |
 | Nuevo ciclo: sin fechas, primer día y rango elegido | `nuevo-ciclo-sin-fechas`, `nuevo-ciclo-primer-dia`, `nuevo-ciclo-rango` |
+| Datos de un ciclo ya empezado | `editar-datos-del-ciclo` |
 | Nuevo ciclo de un atleta | `nuevo-ciclo-atleta` |
 | Pizarra de un ciclo que empieza un miércoles | `pizarra-desde-miercoles` |
 | Quién lo recibe, con aviso de ciclos propios | `nuevo-ciclo-quien-recibe` |

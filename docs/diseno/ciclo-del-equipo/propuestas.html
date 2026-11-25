@@ -818,7 +818,7 @@ function ventanaAtleta(){
 }
 function entra(){
  return CQ(side('Ciclos'),board(),scrim(480,`<h3>¿Le asignas el ciclo del equipo a Fernanda Gil?</h3>
- <div class="cq-info">Fernanda entró a Voleibol sub-17. Si lo recibe, le llegan las sesiones desde hoy, miércoles 25: <b style="font-weight:600">5 sesiones</b>.</div>
+ <div class="cq-info">Fernanda entró a Voleibol sub-17. El ciclo empezó el lunes 23 y sus semanas son las mismas que las del equipo. Si lo recibe, le llegan las sesiones desde hoy, miércoles 25: <b style="font-weight:600">5 sesiones</b>.</div>
  <div class="cq-warn">Ya tiene el ciclo «Fuerza personal» en esas fechas. Los dos conviven.</div>
  <div class="cq-acts"><span class="t3btn pr">Sí, asignar desde hoy</span><span class="t3btn">No por ahora</span></div>`));
 }
@@ -844,6 +844,9 @@ function chocaEquipo(){
  const o={from:key(12,7),to:key(12,31),busy:[key(11,25),key(12,20)]};
  return CQ(side('Ciclos'),board(),scrim(640,`<h3>Nuevo ciclo para Voleibol sub-17</h3><div class="cq-warn" role="alert">Esas fechas se cruzan con «Fuerza base», que va hasta el 20 dic. Por ahora el equipo tiene un solo ciclo a la vez: elige desde el 21 dic.</div>${fl('Nombre','Preparación liga')}${rango(o)}<div class="cq-leg"><span><i style="background:#fdeede;border:1px solid #f0c9a0"></i>Días de «Fuerza base»</span></div>${acts('Continuar',1)}`));
 }
+function editarDatos(){
+ return CQ(side('Ciclos'),board(),scrim(640,`<h3>Datos del ciclo</h3><div class="cq-info">El ciclo ya empezó el lunes 23 nov. Puedes cambiar el nombre, el objetivo y el último día. El inicio se mantiene; si lo cambias, solo puede ser desde hoy.</div>${fl('Nombre','Fuerza base')}${fl('Objetivo (opcional)','Base de fuerza antes de la liga')}${rango({from:key(11,23),to:key(12,27)})}<div class="cq-sum" role="status">Del lunes 23 nov al domingo 27 dic: 5 semanas</div>${acts('Guardar cambios')}`));
+}
 function novedad(){
  return `<div class="web t3" style="min-height:420px;background:#cfd8ea;display:grid;place-items:center"><div style="width:440px;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 10px 40px rgba(31,34,40,.3)"><div style="height:170px;background:#f3f6fc;display:flex;align-items:center;justify-content:center;gap:14px"><div style="width:110px">${ses('Piernas base','Equipo')}</div><span style="font:500 24px/1 Inter;color:#1a66dd">→</span><div style="display:flex">${ATH.slice(0,4).map(a=>`<div style="margin-left:-4px">${AVb(a[0])}</div>`).join('')}</div></div><div style="padding:18px 22px 20px"><div style="font:600 20px/1.25 Inter;margin-bottom:8px">Planifica el ciclo de tu equipo</div><div style="font:400 15px/1.45 Inter;color:#3f4757;margin-bottom:16px">Pon las sesiones una vez en el calendario del equipo y llegan a cada integrante.</div><div style="display:flex;justify-content:flex-end"><span class="t3btn pr">Entendido</span></div></div></div></div>`;
 }
@@ -852,7 +855,7 @@ const add=(id,label,items)=>out.insertAdjacentHTML('beforeend',`<div class="lab"
 add('r1','1 · Crear el ciclo del equipo',[['Equipo sin ciclo',vacio()],['Nuevo ciclo, sin fechas elegidas',datosVacio()],['Elegido el primer día',datosInicio()],['Rango elegido: las fechas y la duración salen del calendario',datos()],['Paso 2: quién lo recibe, con aviso de ciclos propios',quien()],['Error: ya hay un ciclo del equipo en esas fechas (por confirmar)',chocaEquipo()]]);
 add('r1b','1b · El mismo flujo para un atleta, y la pizarra sin sesiones por semana',[['Nuevo ciclo de un atleta: se crea directo',datosAtleta()],['Ciclo que empieza un miércoles',semanasDesdeMiercoles()]]);
 add('r2','2 · Calendario del ciclo del equipo',[['La pizarra de siempre, para todo el equipo',pizarra()],['Menú de una sesión y aviso con Deshacer',menuMover()],['Quién lo recibe',integrantes()]]);
-add('r3','3 · Cambios',[['Editar la sesión del equipo: llega a los integrantes',editarEquipo()],['Editar desde la ficha de un atleta: solo su sesión',ventanaAtleta()]]);
+add('r3','3 · Cambios',[['Datos de un ciclo ya empezado: el inicio no se mueve a un día pasado',editarDatos()],['Editar la sesión del equipo: llega a los integrantes',editarEquipo()],['Editar desde la ficha de un atleta: solo su sesión',ventanaAtleta()]]);
 add('r4','4 · Entrar y salir del equipo',[['Al agregar un atleta se pregunta',entra()],['Al quitarlo, se avisa antes',sale()],['Al eliminar el equipo, también (propuesta)',eliminarEquipo()]]);
 add('r5','5 · Ficha de novedad',[['Coach, 1 slide',novedad()]]);
 
