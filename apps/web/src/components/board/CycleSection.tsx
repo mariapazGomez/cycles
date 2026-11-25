@@ -53,7 +53,7 @@ export function CycleSection({ cycle, athlete, kind, open, onToggle }: CycleSect
             {kind === "current" && <span className="pill pill-blue">En curso</span>}
             {kind === "future" && <span className="pill">Empieza el {shortDate(start)}</span>}
             {kind === "past" && <span className="pill">{cycle.status === "active" ? "Terminó" : CYCLE_STATUS_LABEL[cycle.status]}</span>}
-            <span className="pill">{CYCLE_TYPE_LABEL[cycle.cycleType]}</span>
+            {cycle.cycleType === "macrocycle" && <span className="pill">{CYCLE_TYPE_LABEL.macrocycle}</span>}
             <span className="pill">
               {shortDate(start)}{start.slice(0, 4) !== end.slice(0, 4) ? ` ${start.slice(0, 4)}` : ""} – {shortDate(end)} {end.slice(0, 4)}
             </span>

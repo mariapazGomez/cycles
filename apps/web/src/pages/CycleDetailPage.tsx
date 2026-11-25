@@ -1,16 +1,15 @@
-import { FormEvent, useState } from "react";
+import { useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CycleStatus, CycleType } from "@cycles/shared";
 import * as cyclesApi from "../services/cyclesApi";
 import * as athletesApi from "../services/athletesApi";
 import { usePageBackground } from "../hooks/usePageBackground";
 import { CyclePageSkeleton } from "../components/Skeleton";
 import { CycleEditForm } from "../components/CycleEditForm";
+import { NewCycleDialog } from "../components/board/NewCycleDialog";
 import { useAuth } from "../hooks/useAuth";
-import { ApiError } from "../services/httpClient";
 import { AthleteCycle } from "../components/AthleteCycle";
-import { track } from "../lib/analytics";
 import { libraryPath } from "../lib/library";
 
 const CYCLE_STATUS_LABEL: Record<CycleStatus, string> = {
@@ -73,7 +72,7 @@ export function CycleDetailPage() {
           <h1 className="page-title">{cycle.name}</h1>
           <div className="pl-chips">
             <span className={cycle.status === "active" ? "pill pill-blue" : "pill"}>{CYCLE_STATUS_LABEL[cycle.status]}</span>
-            <span className="pill">{CYCLE_TYPE_LABEL[cycle.cycleType]}</span>
+            {cycle.cycleType === "macrocycle" && <span className="pill">{CYCLE_TYPE_LABEL.macrocycle}</span>}
             <span className="pill">
               {formatDate(cycle.startDate)} – {formatDate(cycle.endDate)}
             </span>
@@ -122,138 +121,34 @@ function MacrocycleChildren({
   athleteId: string;
   isCoach: boolean;
 }) {
-  const queryClient = useQueryClient();
   const childrenQuery = useQuery({
     queryKey: ["cycles", cycleId, "children"],
     queryFn: () => cyclesApi.getChildren(cycleId),
   });
-
+  const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
-  const [name, setName] = useState("");
-  const [cycleType, setCycleType] = useState<Exclude<CycleType, "macrocycle">>("mesocycle");
-  const [sessionsPerWeek, setSessionsPerWeek] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [formError, setFormError] = useState<string | null>(null);
-
-  const createMutation = useMutation({
-    mutationFn: () =>
-      cyclesApi.createCycle({
-        athleteId,
-        parentCycleId: cycleId,
-        name,
-        cycleType,
-        sessionsPerWeek: Number(sessionsPerWeek),
-        startDate,
-        endDate,
-      }),
-    onSuccess: () => {
-      track("cycle_created", { type: cycleType, inMacrocycle: true });
-      setShowForm(false);
-      setName("");
-      setSessionsPerWeek("");
-      setStartDate("");
-      setEndDate("");
-      queryClient.invalidateQueries({ queryKey: ["cycles", cycleId, "children"] });
-    },
-    onError: (error: unknown) => {
-      setFormError(error instanceof ApiError ? error.message : "No se pudo crear el ciclo.");
-    },
-  });
-
-  function handleSubmit(event: FormEvent) {
-    event.preventDefault();
-    setFormError(null);
-    createMutation.mutate();
-  }
 
   return (
     <div style={{ marginTop: 32 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <h2 style={{ fontSize: "1.1rem", margin: 0 }}>Ciclos dentro de este macrociclo</h2>
         {isCoach && (
-          <button
-            type="button"
-            className="button-secondary"
-            style={{ width: "auto" }}
-            onClick={() => setShowForm((v) => !v)}
-          >
-            {showForm ? "Cancelar" : "Agregar ciclo"}
+          <button type="button" className="button-secondary" style={{ width: "auto" }} onClick={() => setShowForm(true)}>
+            Agregar ciclo
           </button>
         )}
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} noValidate style={{ maxWidth: 420, marginTop: 16 }}>
-          {formError && <div className="error-banner">{formError}</div>}
-
-          <div className="field">
-            <label htmlFor="childType">Tipo</label>
-            <select
-              id="childType"
-              value={cycleType}
-              onChange={(e) => setCycleType(e.target.value as Exclude<CycleType, "macrocycle">)}
-            >
-              <option value="mesocycle">Mesociclo</option>
-              <option value="microcycle">Microciclo</option>
-            </select>
-          </div>
-
-          <div className="field">
-            <label htmlFor="childSessionsPerWeek">Sesiones por semana</label>
-            <input
-              id="childSessionsPerWeek"
-              type="number"
-              min={1}
-              required
-              value={sessionsPerWeek}
-              onChange={(e) => setSessionsPerWeek(e.target.value)}
-            />
-          </div>
-
-          <div className="field">
-            <label htmlFor="childName">Nombre</label>
-            <input
-              id="childName"
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-
-          <div style={{ display: "flex", gap: 12 }}>
-            <div className="field" style={{ flex: 1 }}>
-              <label htmlFor="childStart">Inicio</label>
-              <input
-                id="childStart"
-                type="date"
-                required
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-            </div>
-            <div className="field" style={{ flex: 1 }}>
-              <label htmlFor="childEnd">Fin</label>
-              <input
-                id="childEnd"
-                type="date"
-                required
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="button-primary"
-            style={{ width: "auto" }}
-            disabled={createMutation.isPending}
-          >
-            {createMutation.isPending ? "Creando…" : "Agregar ciclo"}
-          </button>
-        </form>
+        <NewCycleDialog
+          athleteId={athleteId}
+          parentCycleId={cycleId}
+          onClose={() => setShowForm(false)}
+          onCreated={() => {
+            setShowForm(false);
+            queryClient.invalidateQueries({ queryKey: ["cycles", cycleId, "children"] });
+          }}
+        />
       )}
 
       <div style={{ marginTop: 16 }}>
@@ -273,10 +168,7 @@ function MacrocycleChildren({
                   }}
                 >
                   <span>
-                    <strong>{child.name}</strong>{" "}
-                    <span style={{ color: "var(--color-ink-secondary)" }}>
-                      ({CYCLE_TYPE_LABEL[child.cycleType]})
-                    </span>
+                    <strong>{child.name}</strong>
                   </span>
                   <span style={{ color: "var(--color-ink-secondary)" }}>→</span>
                 </Link>

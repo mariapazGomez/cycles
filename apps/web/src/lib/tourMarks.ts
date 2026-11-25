@@ -105,7 +105,7 @@ export const MARKS: Mark[] = [
     during: [2],
     level: "Ciclo",
     selector: () => tour("cycle-create"),
-    text: () => "Ponle nombre, inicio y semanas. Luego toca Crear ciclo.",
+    text: () => "Ponle nombre y elige las fechas en el calendario. Luego toca Crear ciclo.",
     when: (c) => c.has("cycle-create"),
   },
   {

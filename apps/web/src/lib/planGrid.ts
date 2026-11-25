@@ -2,9 +2,11 @@
 // Funciones puras, sin red.
 import type { TrainingSession } from "@cycles/shared";
 
+// Semanas de 7 días desde el inicio, con el último día incluido: así ningún día queda sin fila (un
+// ciclo de 8 días tiene 2 semanas).
 export function totalWeeks(startDate: string, endDate: string): number {
   const ms = new Date(endDate).getTime() - new Date(startDate).getTime();
-  return Math.max(1, Math.ceil(ms / (7 * 24 * 60 * 60 * 1000)));
+  return Math.max(1, Math.floor(ms / (7 * 24 * 60 * 60 * 1000)) + 1);
 }
 
 export type WeekState = "past" | "current" | "future";
