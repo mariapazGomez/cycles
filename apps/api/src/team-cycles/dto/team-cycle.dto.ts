@@ -74,6 +74,15 @@ export class AddTeamSessionDto {
   today?: string;
 }
 
+export class DuplicateTeamSessionDto {
+  @IsDateString()
+  scheduledDate!: string;
+
+  @IsOptional()
+  @Matches(DAY)
+  today?: string;
+}
+
 export class UpdateTeamSessionDto {
   @IsOptional()
   @Transform(trim)
