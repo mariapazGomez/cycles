@@ -30,7 +30,7 @@ export interface TodayCycleEntry {
   cycle: TodayResponse["cycle"];
   pending: TodayResponse["session"][];
   upcoming: boolean;
-  done: { id: string; name: string; weekNumber: number; slotNumber: number }[];
+  done: { id: string; name: string; weekNumber: number; slotNumber: number; exercises: { done: number; total: number } }[];
 }
 
 // `date` y `since` describen el día local de quien entrena.

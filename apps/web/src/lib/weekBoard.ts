@@ -2,7 +2,7 @@
 // (docs/diseno/ciclo-en-calendario). Funciones puras, sin red.
 import type { SessionStatus, TrainingSession } from "@cycles/shared";
 import type { AttentionItem, AttentionKind } from "../services/trackingApi";
-import { addDays, sessionDayIso } from "./weekCalendar";
+import { addDays, mondayOf, sessionDayIso, weekStartIso } from "./weekCalendar";
 
 // Una sesión de la semana de un atleta, ya con su día.
 export interface BoardSession {
@@ -31,21 +31,26 @@ export function sessionsByDay(sessions: BoardSession[], monday: string): BoardSe
 }
 
 // Para la tarjeta de un atleta con varios ciclos (CYC-314): de las sesiones de UN ciclo, las de la
-// semana (para su tira de días) y cuántas van completadas de las que ya tocaban hasta hoy.
+// semana (para su tira de días) y cuántas van completadas de las asignadas en las últimas cuatro
+// semanas, con la misma cuenta que la tarjeta de un solo ciclo (resumen del atleta).
 export function cycleCardData(
   cycleStart: string,
   slots: number,
   sessions: Array<Pick<TrainingSession, "id" | "name" | "status" | "weekNumber" | "slotNumber" | "scheduledDate">>,
   monday: string,
-  todayIso: string,
-): { week: BoardSession[]; done: number; due: number } {
+  weeks = 4,
+): { week: BoardSession[]; done: number; of: number } {
   const dated = sessions.map((s) => ({ id: s.id, name: s.name, status: s.status, dayIso: sessionDayIso(cycleStart, s, slots), pain: false }));
   const sunday = addDays(monday, 6);
-  const due = dated.filter((s) => s.status !== "pending" || s.dayIso <= todayIso);
+  const firstMonday = addDays(monday, -7 * (weeks - 1));
+  const counted = sessions.filter((s) => {
+    const planned = mondayOf(weekStartIso(cycleStart, s.weekNumber));
+    return planned >= firstMonday && planned <= monday;
+  });
   return {
     week: dated.filter((s) => s.dayIso >= monday && s.dayIso <= sunday),
-    done: due.filter((s) => s.status === "completed").length,
-    due: due.length,
+    done: counted.filter((s) => s.status === "completed").length,
+    of: counted.length,
   };
 }
 

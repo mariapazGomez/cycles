@@ -86,7 +86,7 @@ function WeekStrip({ week, monday, todayIso, loading }: { week: BoardSession[] |
 // Con dos o más ciclos a la vez, un bloque por ciclo: nombre, semana, su tira y sus completadas.
 function CycleBlock({ cycle, monday, todayIso }: { cycle: TrainingCycle; monday: string; todayIso: string }) {
   const query = useQuery({ queryKey: ["cycles", cycle.id, "sessions"], queryFn: () => sessionsApi.listSessions(cycle.id), staleTime: 60_000 });
-  const data = query.data ? cycleCardData(cycle.startDate, cycle.sessionsPerWeek ?? 0, query.data, monday, todayIso) : null;
+  const data = query.data ? cycleCardData(cycle.startDate, cycle.sessionsPerWeek ?? 0, query.data, monday) : null;
   return (
     <div className="at-block">
       <div className="at-cycle">
@@ -99,9 +99,9 @@ function CycleBlock({ cycle, monday, todayIso }: { cycle: TrainingCycle; monday:
           <span>No se pudieron cargar sus sesiones.</span>
         ) : !data ? (
           <Skeleton height={8} />
-        ) : data.due > 0 ? (
+        ) : data.of > 0 ? (
           <span>
-            {data.done} de {data.due} {data.due === 1 ? "sesión completada" : "sesiones completadas"}
+            {data.done} de {data.of} {data.of === 1 ? "sesión completada" : "sesiones completadas"}
           </span>
         ) : (
           <span>Aún sin sesiones completadas.</span>

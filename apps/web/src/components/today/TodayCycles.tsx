@@ -7,7 +7,7 @@ import { track } from "../../lib/analytics";
 import { openCardKey, todayCards, upcomingDayLabel, type TodayCard } from "../../lib/todayCycles";
 import { ExerciseList } from "./ExerciseList";
 
-type OpenCard = Extract<TodayCard, { kind: "pending" | "upcoming" }>;
+type OpenCard = Extract<TodayCard, { kind: "pending" | "overdue" | "upcoming" }>;
 
 // «Hoy» cuando hay dos o más ciclos a la vez: una tarjeta por ciclo, con su nombre.
 export function TodayCycles({ entries, todayIso }: { entries: executionApi.TodayCycleEntry[]; todayIso: string }) {
@@ -36,6 +36,7 @@ function SessionCard({ card, main, todayIso }: { card: OpenCard; main: boolean; 
   const queryClient = useQueryClient();
   const { session } = card;
   const upcoming = card.kind === "upcoming";
+  const overdue = card.kind === "overdue";
   const started = Boolean(session.startedAt);
   const [expanded, setExpanded] = useState(false);
   const [skipping, setSkipping] = useState(false);
@@ -83,10 +84,10 @@ function SessionCard({ card, main, todayIso }: { card: OpenCard; main: boolean; 
   return (
     <section className="tc-card" aria-labelledby={`tc-${session.id}`}>
       <span className="pill pill-blue tc-cycle">{card.cycleName}</span>
-      <h2 id={`tc-${session.id}`}>{upcoming ? `Próxima: ${session.name}` : `Te toca ${session.name}`}</h2>
+      <h2 id={`tc-${session.id}`}>{upcoming ? `Próxima: ${session.name}` : overdue ? `Pendiente: ${session.name}` : `Te toca ${session.name}`}</h2>
       <div className="row">
         <span className="pill">
-          {upcoming && session.scheduledDate ? upcomingDayLabel(session.scheduledDate, todayIso) : `Semana ${session.weekNumber}`}
+          {(upcoming || overdue) && session.scheduledDate ? upcomingDayLabel(session.scheduledDate, todayIso) : `Semana ${session.weekNumber}`}
         </span>
         {started && <span className="pill pill-blue">En curso</span>}
       </div>

@@ -4,31 +4,36 @@ import { weekdayOf, MONTH_NAMES } from "./eventCalendar";
 import type { TodayCycleEntry } from "../services/executionApi";
 
 export type TodayCard =
-  | { kind: "pending" | "upcoming"; key: string; cycleName: string; session: TodayCycleEntry["pending"][number] }
+  | { kind: "pending" | "overdue" | "upcoming"; key: string; cycleName: string; session: TodayCycleEntry["pending"][number] }
   | { kind: "done"; key: string; cycleName: string; session: TodayCycleEntry["done"][number] };
 
-// Primero lo que está por hacer ahora; después, por ciclo, lo hecho hoy o la próxima sesión. Cada
-// ciclo ocupa una tarjeta: si ya tiene una hecha hoy, solo suma otra si también es de hoy.
+// Primero lo que está por hacer: la sesión en curso, las de hoy y las atrasadas (que no se presentan
+// como de hoy). Después, por ciclo, lo hecho hoy o la próxima. Si un ciclo ya tiene una hecha hoy,
+// solo suma otra si es de hoy o está en curso.
 export function todayCards(entries: TodayCycleEntry[], todayIso: string): TodayCard[] {
   const now: TodayCard[] = [];
   const rest: TodayCard[] = [];
   for (const e of entries) {
     if (!e.upcoming) {
-      const mine = e.done.length > 0 ? e.pending.filter((s) => s.scheduledDate?.slice(0, 10) === todayIso) : e.pending;
-      for (const s of mine) now.push({ kind: "pending", key: s.id, cycleName: e.cycle.name, session: s });
+      const mine = e.done.length > 0 ? e.pending.filter((s) => s.startedAt || s.scheduledDate?.slice(0, 10) === todayIso) : e.pending;
+      for (const s of mine) {
+        const late = !s.startedAt && Boolean(s.scheduledDate) && s.scheduledDate!.slice(0, 10) < todayIso;
+        now.push({ kind: late ? "overdue" : "pending", key: s.id, cycleName: e.cycle.name, session: s });
+      }
     }
     for (const s of e.done) rest.push({ kind: "done", key: s.id, cycleName: e.cycle.name, session: s });
     if (e.upcoming && e.done.length === 0) {
       for (const s of e.pending.slice(0, 1)) rest.push({ kind: "upcoming", key: s.id, cycleName: e.cycle.name, session: s });
     }
   }
-  return [...now, ...rest];
+  const rank = (c: TodayCard) => (c.kind !== "done" && c.session.startedAt ? 0 : c.kind === "pending" ? 1 : 2);
+  return [...now.sort((a, b) => rank(a) - rank(b)), ...rest];
 }
 
-// La tarjeta que va abierta, con el botón principal: la que está en curso o, si no, la primera por hacer.
+// La tarjeta que va abierta, con el botón principal.
 export function openCardKey(cards: TodayCard[]): string | null {
-  const pending = cards.filter((c): c is Extract<TodayCard, { kind: "pending" | "upcoming" }> => c.kind === "pending");
-  return (pending.find((c) => c.session.startedAt) ?? pending[0])?.key ?? null;
+  // La primera por hacer ya es la que está en curso, si hay una.
+  return cards.find((c) => c.kind === "pending" || c.kind === "overdue")?.key ?? null;
 }
 
 const WEEKDAYS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];

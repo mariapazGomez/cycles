@@ -121,7 +121,13 @@ export class ExecutionService {
     const entryOf = async (cycle: Awaited<ReturnType<ExecutionService["usableCycles"]>>[number]) => {
       const pendingWhere = { cycleId: cycle.id, status: "pending" as const, deletedAt: null };
       const order = [{ weekNumber: "asc" as const }, { slotNumber: "asc" as const }];
-      let pending = await this.prisma.trainingSession.findMany({ where: { ...pendingWhere, scheduledDate: day }, orderBy: order, include: TODAY_INCLUDE });
+      // Las de ese día y las que ya están en curso (aunque sean de otro día).
+      let pending = await this.prisma.trainingSession.findMany({
+        where: { ...pendingWhere, OR: [{ scheduledDate: day }, { startedAt: { not: null } }] },
+        orderBy: order,
+        include: TODAY_INCLUDE,
+      });
+      pending.sort((a, b) => Number(!!b.startedAt) - Number(!!a.startedAt));
       if (pending.length === 0) {
         const next = await this.prisma.trainingSession.findFirst({ where: pendingWhere, orderBy: order, include: TODAY_INCLUDE });
         pending = next ? [next] : [];
@@ -134,19 +140,29 @@ export class ExecutionService {
           feedback: { some: { ...CURRENT_FEEDBACK, submittedAt: { gte: since, lt: until } } },
         },
         orderBy: order,
-        select: { id: true, name: true, weekNumber: true, slotNumber: true },
+        select: {
+          id: true,
+          name: true,
+          weekNumber: true,
+          slotNumber: true,
+          sessionExercises: { select: { targetSets: true, logs: { where: CURRENT_LOG, select: { id: true } } } },
+        },
       });
       if (pending.length === 0 && done.length === 0) return null;
 
       // «Próxima»: lo que sigue tiene un día que todavía no llega.
-      const upcoming = pending.length > 0 && pending[0].scheduledDate !== null && startOfUtcDay(pending[0].scheduledDate) > day;
+      const upcoming = pending.length > 0 && !pending[0].startedAt && pending[0].scheduledDate !== null && startOfUtcDay(pending[0].scheduledDate) > day;
       const loaded = [];
       for (const session of pending) loaded.push(await this.withLoads(session, athleteId));
       return {
         cycle: { id: cycle.id, name: cycle.name, currentWeek: planWeekAt(cycle.startDate, now) },
         pending: loaded,
         upcoming,
-        done,
+        // De las hechas basta el resumen; el detalle sale de GET /sessions/:id.
+        done: done.map(({ sessionExercises, ...session }) => ({
+          ...session,
+          exercises: { done: sessionExercises.filter((e) => e.logs.length >= e.targetSets).length, total: sessionExercises.length },
+        })),
       };
     };
 
@@ -156,8 +172,14 @@ export class ExecutionService {
     }
     const entries = all.flatMap((entry) => (entry ? [entry] : []));
 
-    // Primero los ciclos con algo por hacer ahora; dentro de cada grupo, el que empezó antes.
-    const rank = (e: (typeof entries)[number]) => (e.pending.length > 0 && !e.upcoming ? 0 : 1);
+    // Primero la sesión en curso, luego las de hoy, después las atrasadas y al final lo demás;
+    // dentro de cada grupo, el ciclo que empezó antes.
+    const rank = (e: (typeof entries)[number]) => {
+      const first = e.pending[0];
+      if (!first || e.upcoming) return 3;
+      if (first.startedAt) return 0;
+      return first.scheduledDate && startOfUtcDay(first.scheduledDate) < day ? 2 : 1;
+    };
     return { cycles: entries.sort((a, b) => rank(a) - rank(b)) };
   }
 

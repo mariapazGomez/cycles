@@ -74,6 +74,7 @@ describe("GET /me/today/cycles", () => {
       [second, 1, []],
       [c.cycleA, 0, [c.sA]],
     ]);
+    expect(res.body.cycles[1].done[0].exercises).toEqual({ done: 0, total: 1 });
     // Cerrada antes de que empezara el día del atleta: ya no es «hecha hoy».
     const later = await cycles(`?date=${day(0)}&since=${new Date(Date.now() + 60_000).toISOString()}`);
     expect(later.body.cycles.map((e: any) => e.cycle.id)).toEqual([second]);
@@ -81,5 +82,19 @@ describe("GET /me/today/cycles", () => {
     const legacy = await app.http("get", `/me/today?date=${day(0)}`, c.token.athleteA);
     expect(Object.keys(legacy.body).sort()).toEqual(["assignedToday", "cycle", "session"]);
     expect(legacy.body.session.id).toBe(secondSession);
+  });
+
+  it("la empezada va arriba aunque su ciclo haya empezado después; una atrasada va tras las de hoy", async () => {
+    const third = await app.prisma.trainingCycle.create({
+      data: { coachId: c.userId.coachA, athleteId: c.userId.athleteA, name: "Atrasado", cycleType: "mesocycle", startDate: midnight(-30), endDate: midnight(20) },
+    });
+    await app.prisma.trainingSession.create({ data: { cycleId: third.id, name: "Quedó pendiente", weekNumber: 1, slotNumber: 1, scheduledDate: midnight(-3) } });
+    await app.prisma.trainingSession.update({ where: { id: secondSession }, data: { scheduledDate: midnight(0) } });
+    const today = await cycles();
+    expect(today.body.cycles.map((e: any) => e.cycle.id)).toEqual([second, third.id, c.cycleA]);
+
+    await app.prisma.trainingSession.updateMany({ where: { cycleId: third.id }, data: { startedAt: new Date() } });
+    const started = await cycles();
+    expect(started.body.cycles[0].cycle.id).toBe(third.id);
   });
 });

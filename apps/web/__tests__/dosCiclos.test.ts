@@ -10,7 +10,7 @@ const entry = (name: string, over: Partial<TodayCycleEntry> = {}): TodayCycleEnt
   done: [],
   ...over,
 });
-const done = (id: string) => [{ id, name: id, weekNumber: 1, slotNumber: 1 }];
+const done = (id: string) => [{ id, name: id, weekNumber: 1, slotNumber: 1, exercises: { done: 1, total: 1 } }];
 
 const TODAY = "2026-11-25";
 
@@ -24,9 +24,19 @@ describe("«Hoy» con dos ciclos", () => {
     expect(openCardKey(cards)).toBe("a-1");
   });
 
-  it("si una está empezada, esa va abierta", () => {
+  it("si una está empezada, esa va arriba y abierta", () => {
     const cards = todayCards([entry("a"), entry("b", { pending: [session("b-1", "2026-11-25T10:00:00Z")] })], TODAY);
+    expect(cards[0].key).toBe("b-1");
     expect(openCardKey(cards)).toBe("b-1");
+  });
+
+  it("una atrasada no se presenta como de hoy y va después de las de hoy", () => {
+    const dated = (id: string, day: string) => ({ ...session(id), scheduledDate: `${day}T00:00:00.000Z` });
+    const cards = todayCards([entry("a", { pending: [dated("a-1", "2026-11-18")] }), entry("b", { pending: [dated("b-1", TODAY)] })], TODAY);
+    expect(cards.map((c) => [c.kind, c.key])).toEqual([
+      ["pending", "b-1"],
+      ["overdue", "a-1"],
+    ]);
   });
 
   it("una hecha y la otra sin sesión hoy: hecha compacta y la próxima, sin abrir ninguna", () => {
@@ -67,16 +77,23 @@ describe("tarjeta del atleta con varios ciclos", () => {
     scheduledDate: `${day}T00:00:00.000Z`,
   });
 
-  it("cuenta las completadas de las que ya tocaban y arma la semana", () => {
+  it("arma la semana y cuenta las completadas de las asignadas en las últimas 4 semanas", () => {
+    const at = (id: string, day: string, weekNumber: number, status: "pending" | "completed" = "pending") => ({ ...s(id, day, status), weekNumber });
     const data = cycleCardData(
-      "2026-11-23",
+      "2026-10-26",
       0,
-      [s("lun", "2026-11-23", "completed"), s("mie", "2026-11-25"), s("vie", "2026-11-27"), { ...s("otra", "2026-11-30"), weekNumber: 2 }],
+      [
+        at("fuera", "2026-10-26", 1, "completed"),
+        at("hace3", "2026-11-02", 2, "completed"),
+        at("lun", "2026-11-23", 5, "completed"),
+        at("mie", "2026-11-25", 5),
+        at("vie", "2026-11-27", 5),
+        at("otra", "2026-11-30", 6),
+      ],
       "2026-11-23",
-      "2026-11-25",
     );
-    expect([data.done, data.due]).toEqual([1, 2]);
-    expect(data.week.map((x) => x.dayIso)).toEqual(["2026-11-23", "2026-11-25", "2026-11-27"]);
+    expect([data.done, data.of]).toEqual([2, 4]);
+    expect(data.week.map((x) => x.id)).toEqual(["lun", "mie", "vie"]);
   });
 
   it("solo los ciclos activos que corren esta semana, del que empezó antes", () => {
