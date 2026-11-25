@@ -17,6 +17,7 @@ import { ScheduleSessionDto } from "./dto/schedule-session.dto";
 import { buildExerciseProgress, type ExerciseProgressResponse, type RawSessionExercise } from "./exercise-progress";
 import { TodayQueryDto } from "./dto/today-query.dto";
 import { buildWeeklySummary } from "./weekly-summary";
+import { pickNearest } from "./today-pick";
 
 // Registro de ejecución del atleta. ExerciseLog y SessionFeedback son
 // append-only: aquí solo se crean filas, nunca se actualizan ni se borran.
@@ -97,18 +98,40 @@ export class ExecutionService {
       return { cycle: cycleInfo(cycle), session: await this.withLoads(chosen, athleteId), assignedToday };
     }
 
+    // La siguiente pendiente de cada ciclo. Con un solo ciclo con pendientes, es la respuesta.
+    const next = [];
     for (const cycle of usable) {
       const session = await this.prisma.trainingSession.findFirst({
         where: { cycleId: cycle.id, status: "pending", deletedAt: null },
         orderBy: [{ weekNumber: "asc" }, { slotNumber: "asc" }],
         include,
       });
-      if (session) {
-        return { cycle: cycleInfo(cycle), session: await this.withLoads(session, athleteId), assignedToday };
-      }
+      if (session) next.push(session);
     }
+    if (next.length === 0) return null;
 
-    return null;
+    // Con dos o más (por ejemplo, uno propio y uno del equipo) no se esconde ninguno: la de hoy va en
+    // `assignedToday` y la elegida es la de hoy o la más cercana en fecha.
+    let session = next[0];
+    if (next.length > 1) {
+      const day = (query.date ? parseDay(query.date) : null) ?? startOfUtcDay(now);
+      const todays = next.find((s) => assignedToday.some((a) => a.id === s.id));
+      let chosen = todays;
+      if (!chosen && assignedToday.length > 0) {
+        chosen = (await this.prisma.trainingSession.findFirst({ where: { id: assignedToday[0].id }, include })) ?? undefined;
+      }
+      if (!chosen) {
+        const upcoming = await this.prisma.trainingSession.findFirst({
+          where: { cycleId: { in: usable.map((c) => c.id) }, status: "pending", deletedAt: null, scheduledDate: { gte: day } },
+          orderBy: [{ scheduledDate: "asc" }],
+          include,
+        });
+        chosen = pickNearest(upcoming ? [...next, upcoming] : next, day) ?? undefined;
+      }
+      session = chosen ?? session;
+    }
+    const cycle = usable.find((c) => c.id === session.cycleId)!;
+    return { cycle: cycleInfo(cycle), session: await this.withLoads(session, athleteId), assignedToday };
   }
 
   // Agrega rmStatus y resolvedWeightKg a los ejercicios con carga en % del RM (CYC-306).
