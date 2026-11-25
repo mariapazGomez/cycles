@@ -234,4 +234,33 @@ describe("Ciclo del equipo", () => {
       expect(res.body.assignedToday.map((a: any) => a.id)).toContain(mine.id);
     });
   });
+
+  describe("quien salió del equipo", () => {
+    beforeAll(async () => {
+      await reset();
+      teamId = (await post("/teams", { name: "Voley salidas", athleteIds: [c.userId.athleteA, second] })).body.id;
+    });
+
+    it("deja de contar en el plan; si vuelve, cuenta lo que conservó y no hay fantasmas", async () => {
+      const id = (await makeCycle([c.userId.athleteA, second])).body.id;
+      const kept = (await addSession(id, 2)).body.sessionId;
+      const dropped = (await addSession(id, 4)).body.sessionId;
+      const mine = copyOf((await detail(id)).sessions, kept, second).sessionId;
+      await app.http("patch", `/sessions/${mine}`, coach()).send({ name: "Ajustada" });
+      expect((await app.http("delete", `/teams/${teamId}/members/${second}?today=${day(0)}`, coach())).status).toBe(204);
+
+      const after = (await detail(id)).sessions;
+      expect(after.map((x: any) => [x.recipients, x.adjusted])).toEqual([[1, 0], [1, 0]]);
+      const moved = await app.http("patch", `/team-sessions/${kept}`, coach()).send({ scheduledDate: day(3), today: day(0) });
+      expect(moved.body).toEqual({ updated: 1, skipped: { adjusted: 0, recorded: 0, past: 0, removed: 0 } });
+
+      await post(`/teams/${teamId}/members`, { athleteIds: [second] });
+      await post(`/team-cycles/${id}/members`, { athleteIds: [second], today: day(0) });
+      const back = (await detail(id)).sessions;
+      expect(back.find((x: any) => x.id === kept)).toMatchObject({ recipients: 2, adjusted: 1 });
+      expect(back.find((x: any) => x.id === dropped)).toMatchObject({ recipients: 2, adjusted: 0 });
+      const removed = await app.http("delete", `/team-sessions/${dropped}`, coach());
+      expect(removed.body).toEqual({ updated: 2, skipped: { adjusted: 0, recorded: 0, past: 0, removed: 0 } });
+    });
+  });
 });
