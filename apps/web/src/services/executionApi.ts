@@ -24,6 +24,20 @@ export function getToday() {
   return apiRequest<TodayResponse | null>("/me/today");
 }
 
+// Una entrada por ciclo activo (CYC-314): lo que toca (las de hoy o, si no hay, la siguiente
+// pendiente) y lo que ya se cerró hoy.
+export interface TodayCycleEntry {
+  cycle: TodayResponse["cycle"];
+  pending: TodayResponse["session"][];
+  upcoming: boolean;
+  done: { id: string; name: string; weekNumber: number; slotNumber: number }[];
+}
+
+// `date` y `since` describen el día local de quien entrena.
+export function getTodayCycles(date: string, since: string) {
+  return apiRequest<{ cycles: TodayCycleEntry[] }>(`/me/today/cycles?date=${date}&since=${encodeURIComponent(since)}`);
+}
+
 export function startSession(sessionId: string) {
   return apiRequest<TrainingSession>(`/sessions/${sessionId}/start`, { method: "POST" });
 }

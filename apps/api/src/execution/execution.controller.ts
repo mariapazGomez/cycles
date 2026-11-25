@@ -7,7 +7,7 @@ import { ExecutionService } from "./execution.service";
 import { LogSetDto } from "./dto/log-set.dto";
 import { SessionFeedbackDto } from "./dto/session-feedback.dto";
 import { ScheduleSessionDto } from "./dto/schedule-session.dto";
-import { TodayQueryDto } from "./dto/today-query.dto";
+import { TodayCyclesQueryDto, TodayQueryDto } from "./dto/today-query.dto";
 import { SummaryQueryDto } from "./dto/summary-query.dto";
 import { WeeklySummaryQueryDto } from "./dto/weekly-summary-query.dto";
 
@@ -22,6 +22,12 @@ export class ExecutionController {
   @Get("me/today")
   today(@CurrentUser() user: AuthenticatedUser, @Query() query: TodayQueryDto) {
     return this.executionService.today(user.id, query);
+  }
+
+  // Una entrada por ciclo activo, para mostrar los dos cuando hay dos a la vez (CYC-314).
+  @Get("me/today/cycles")
+  todayByCycle(@CurrentUser() user: AuthenticatedUser, @Query() query: TodayCyclesQueryDto) {
+    return this.executionService.todayByCycle(user.id, query);
   }
 
   // Series y carga por grupo muscular de cada sesión entrenada de un plan, para
