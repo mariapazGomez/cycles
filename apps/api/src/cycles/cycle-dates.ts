@@ -6,7 +6,6 @@ export const CYCLE_DATE_MESSAGES = {
   beforeToday: "El ciclo no puede empezar antes de hoy.",
   badToday: "La fecha de hoy no es válida.",
   endNotAfterStart: "La fecha de fin debe ser posterior a la fecha de inicio.",
-  sessionsOutside: "Hay sesiones fuera de esas fechas: quítalas o muévelas antes de cambiar el ciclo.",
 } as const;
 
 // Un ciclo no empieza antes de hoy, con el día local del coach (`today`). El servidor no conoce su
@@ -83,3 +82,22 @@ export function renumberForStart(sessions: PlacedSession[], startDate: Date): Ma
   }
   return result;
 }
+
+const SHORT_MONTHS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+const shortDay = (d: Date) => `${d.getUTCDate()} ${SHORT_MONTHS[d.getUTCMonth()]}`;
+
+// Lo que se le dice al coach cuando el cambio dejaría sesiones fuera: cuántas y en qué fechas. Las
+// fechas van sin repetir y, si son muchas, se muestran las primeras.
+export function outsideError(outside: { scheduledDate: Date | null }[], shown = 5) {
+  const dates = [...new Set(outside.filter((s) => s.scheduledDate).map((s) => startOfUtcDay(s.scheduledDate!).toISOString().slice(0, 10)))].sort();
+  const listed = dates.slice(0, shown).map((d) => shortDay(new Date(`${d}T00:00:00.000Z`)));
+  const more = dates.length > shown ? ` y ${dates.length - shown} fechas más` : "";
+  const when = listed.length > 0 ? ` (${listed.join(", ")}${more})` : "";
+  const n = outside.length;
+  return {
+    statusCode: 409,
+    message: `No puedes cambiar las fechas: ${n === 1 ? "queda 1 sesión" : `quedan ${n} sesiones`} fuera${when}. Muévelas o quítalas primero.`,
+    outside: { count: n, dates },
+  };
+}
+
