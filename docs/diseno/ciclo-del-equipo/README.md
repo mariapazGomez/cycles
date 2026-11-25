@@ -17,6 +17,7 @@ El botón «Agregar ciclo» de Equipos → Ciclos crea un ciclo para el equipo, 
 Aplica a ciclos de **atleta** y de **equipo**. Las plantillas de la Biblioteca (no tienen fechas) quedan **pendientes de confirmar** y no se diseñan aquí.
 
 - **Campos escritos:** nombre (obligatorio) y objetivo (opcional).
+- **El ciclo no puede empezar antes de hoy** (decisión de la usuaria, 25-11): los días anteriores salen apagados y no se pueden elegir, y la flecha de mes anterior no baja del mes actual. La API debe rechazar un inicio anterior a hoy, con el día local del coach. Vale al crear; los ciclos que ya existen no cambian.
 - **Fechas:** dos meses a la vista; un toque elige el primer día y otro el último. El rango se pinta y debajo dice «Del lunes 23 nov al domingo 20 dic: 4 semanas» (o «2 semanas y 3 días»). Tocar de nuevo empieza otro rango. «Continuar» o «Crear ciclo» se activa con nombre y rango.
 - **Se quitan:** tipo de ciclo (también su etiqueta en el encabezado del ciclo), fecha de inicio y duración escritas, y sesiones por semana.
 - **Marcas en el calendario:** hoy con contorno; para un atleta, un punto en los días con otro ciclo suyo (informa, no bloquea); para el equipo, los días de su otro ciclo en naranja, con el error si se cruzan.
@@ -49,8 +50,7 @@ Nada de esta lista está aprobado; las maquetas lo muestran como propuesta.
 6. Eliminar el equipo o su ciclo sigue la misma regla que sacar a un atleta, con aviso y cifras.
 7. Con ciclo propio y del equipo, «Hoy» del atleta muestra la sesión de hoy y, si no hay, la más cercana en fecha (propuesta de Desarrollo; falta diseñar cómo se distinguen).
 8. Si este nuevo «Nuevo ciclo» aplica también a las plantillas de la Biblioteca.
-9. Si se puede elegir un primer día anterior a hoy (las maquetas lo permiten).
-10. Qué pasa con los macrociclos existentes al quitar el tipo de ciclo.
+9. Qué pasa con los macrociclos existentes al quitar el tipo de ciclo.
 
 La propuesta técnica de Desarrollo general, con su diagrama, está en el comentario de CYC-314.
 

@@ -560,6 +560,7 @@ body{font-family:Inter,-apple-system,system-ui,sans-serif;background:#d9e0ee;col
 .cq-sum.mut{font-weight:400;color:#5c6068}
 .cq-leg{display:flex;gap:14px;margin-top:8px;font:400 12px/1.3 Inter;color:#5c6068}
 .cq-leg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.cq-g span.off{color:#c3c8d1}
 
 </style>
 </head>
@@ -742,6 +743,7 @@ function month(m,name,off,len,o={}){
   if(busy&&k>=busy[0]&&k<=busy[1]&&!c.length) c.push('busy');
   if(k===key(11,25)&&!c.includes('edge')) c.push('today');
   if(own.includes(k)) c.push('own');
+  if(k<key(11,25)) c.push('off');
   cells.push(`<span class="${c.join(' ')}">${d}</span>`);}
  return `<div><div class="cq-mh"><b>${m===11?'‹':''}</b>${name}<b>${m===12?'›':''}</b></div><div class="cq-g">${['L','M','M','J','V','S','D'].map(x=>`<i>${x}</i>`).join('')}${cells.join('')}</div></div>`;
 }
@@ -750,13 +752,13 @@ const acts=(label,off)=>`<div class="cq-acts" style="justify-content:flex-end"><
 const nombre=(v,ph)=>`${fl('Nombre',v,ph)}${fl('Objetivo (opcional)',ph?'Por ejemplo, base de fuerza':'Base de fuerza antes de la liga',ph)}`;
 const dlgEq=(inner)=>CQ(side('Ciclos'),`<div class="t3mn">${hd()}<div class="t3emp" style="min-height:700px"><h3>Este equipo aún no tiene ciclo</h3></div></div>`,scrim(640,inner));
 function datos(){
- return dlgEq(`<h3>Nuevo ciclo para Voleibol sub-17</h3>${nombre('Fuerza base')}${rango({from:key(11,23),to:key(12,20)})}<div class="cq-sum" role="status">Del lunes 23 nov al domingo 20 dic: 4 semanas</div>${acts('Continuar')}`);
+ return dlgEq(`<h3>Nuevo ciclo para Voleibol sub-17</h3>${nombre('Fuerza base')}${rango({from:key(11,30),to:key(12,27)})}<div class="cq-sum" role="status">Del lunes 30 nov al domingo 27 dic: 4 semanas</div>${acts('Continuar')}`);
 }
 function datosVacio(){
- return dlgEq(`<h3>Nuevo ciclo para Voleibol sub-17</h3>${nombre('Nombre del ciclo',1)}${rango({})}<div class="cq-sum mut" role="status">Elige el primer día en el calendario.</div>${acts('Continuar',1)}`);
+ return dlgEq(`<h3>Nuevo ciclo para Voleibol sub-17</h3>${nombre('Nombre del ciclo',1)}${rango({})}<div class="cq-sum mut" role="status">Elige el primer día en el calendario, desde hoy.</div>${acts('Continuar',1)}`);
 }
 function datosInicio(){
- return dlgEq(`<h3>Nuevo ciclo para Voleibol sub-17</h3>${nombre('Fuerza base')}${rango({from:key(11,23)})}<div class="cq-sum mut" role="status">Empieza el lunes 23 nov. Ahora elige el último día.</div>${acts('Continuar',1)}`);
+ return dlgEq(`<h3>Nuevo ciclo para Voleibol sub-17</h3>${nombre('Fuerza base')}${rango({from:key(11,30)})}<div class="cq-sum mut" role="status">Empieza el lunes 30 nov. Ahora elige el último día.</div>${acts('Continuar',1)}`);
 }
 function datosAtleta(){
  const o={from:key(11,25),to:key(12,11),own:[key(11,26),key(11,27),key(11,28),key(11,29),key(11,30),key(12,1),key(12,2),key(12,3),key(12,4)]};
