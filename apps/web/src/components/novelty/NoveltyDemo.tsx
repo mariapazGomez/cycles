@@ -172,6 +172,7 @@ function RmMultiAdd() {
 }
 
 // Equipos del coach (CYC-310).
+// El selector de equipo del sidebar, abierto: los equipos con su cantidad y «Crear equipo».
 function TeamsGroup() {
   const teams: [string, string, string, number][] = [
     ["V", "Voleibol sub-17", "#2f9e5f", 12],
@@ -180,18 +181,17 @@ function TeamsGroup() {
   ];
   return (
     <div className="nd nd-rm nd-tm">
-      {teams.map(([i, n, c, count], k) => (
-        <div key={n} className={`nd-rw nd-tm-card${k === 2 ? " nd-rm-pop" : ""}`} style={{ top: 28 + k * 78, height: 66 }}>
-          <span className="nd-tm-i" style={{ background: c }}>{i}</span>
-          <b>{n}</b>
-          <span className="nd-tm-av">
-            <i>VS</i>
-            <i>CR</i>
-            <i>JP</i>
-          </span>
-          <small>{count} atletas</small>
-        </div>
-      ))}
+      <div className="nd-tm-field">Voleibol sub-17 ⌄</div>
+      <div className="nd-tm-menu">
+        {teams.map(([i, n, c, count], k) => (
+          <div key={n} className={`nd-tm-opt${k === 0 ? " nd-tm-opt-on" : ""}`}>
+            <span className="nd-tm-i" style={{ background: c }}>{i}</span>
+            <b>{n}</b>
+            <small>{count}</small>
+          </div>
+        ))}
+        <div className="nd-tm-opt nd-rm-pop">+ Crear equipo</div>
+      </div>
     </div>
   );
 }

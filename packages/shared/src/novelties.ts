@@ -215,7 +215,7 @@ export const NOVELTIES: Novelty[] = [
       {
         title: "Ahora puedes crear equipos",
         text: "Agrupa a tus atletas y dales la misma rutina a todos, cada uno con su peso.",
-        demoLabel: "Tres tarjetas de equipo con su nombre, la cantidad de atletas y sus avatares.",
+        demoLabel: "El selector de equipo abierto: los equipos con su cantidad de atletas y «Crear equipo» al final.",
         demo: "teams-group",
       },
       {

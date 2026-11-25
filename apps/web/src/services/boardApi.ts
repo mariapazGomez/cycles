@@ -4,10 +4,9 @@ import * as sessionsApi from "./sessionsApi";
 import type { BoardSession } from "../lib/weekBoard";
 import { addDays, sessionDayIso, utcDay } from "../lib/weekCalendar";
 
-// Ciclos con sesiones que pueden caer en la semana `monday`..domingo: los
-// activos del atleta y, si son macrociclos, los ciclos que contienen.
-async function cyclesOfWeek(athleteCycles: TrainingCycle[], monday: string): Promise<TrainingCycle[]> {
-  const sunday = addDays(monday, 6);
+// Ciclos con sesiones que pueden caer entre `from` y `to`: los activos del atleta
+// y, si son macrociclos, los ciclos que contienen.
+async function cyclesOfRange(athleteCycles: TrainingCycle[], from: string, to: string): Promise<TrainingCycle[]> {
   const leaves: TrainingCycle[] = [];
   for (const cycle of athleteCycles) {
     if (cycle.status !== "active") continue;
@@ -18,23 +17,26 @@ async function cyclesOfWeek(athleteCycles: TrainingCycle[], monday: string): Pro
       leaves.push(cycle);
     }
   }
-  return leaves.filter(
-    (c) => (c.sessionsPerWeek ?? 0) > 0 && utcDay(c.startDate) <= utcDay(sunday) && utcDay(c.endDate) >= utcDay(monday),
-  );
+  return leaves.filter((c) => (c.sessionsPerWeek ?? 0) > 0 && utcDay(c.startDate) <= utcDay(to) && utcDay(c.endDate) >= utcDay(from));
 }
 
-// Sesiones de un atleta en la semana calendario que empieza en `monday`.
-export async function loadAthleteWeek(athleteCycles: TrainingCycle[], monday: string): Promise<BoardSession[]> {
-  const sunday = addDays(monday, 6);
-  const cycles = await cyclesOfWeek(athleteCycles, monday);
+// Sesiones de un atleta entre dos días (incluidos), cada una con su día. La usan la semana
+// del Inicio y el calendario del equipo.
+export async function loadAthleteSessions(athleteCycles: TrainingCycle[], from: string, to: string): Promise<BoardSession[]> {
+  const cycles = await cyclesOfRange(athleteCycles, from, to);
   const lists = await Promise.all(cycles.map((cycle) => sessionsApi.listSessions(cycle.id)));
   const result: BoardSession[] = [];
   cycles.forEach((cycle, i) => {
     for (const session of lists[i]) {
       const dayIso = sessionDayIso(cycle.startDate, session, cycle.sessionsPerWeek ?? 0);
-      if (utcDay(dayIso) < utcDay(monday) || utcDay(dayIso) > utcDay(sunday)) continue;
+      if (utcDay(dayIso) < utcDay(from) || utcDay(dayIso) > utcDay(to)) continue;
       result.push({ id: session.id, name: session.name, status: session.status, dayIso, pain: false });
     }
   });
   return result;
+}
+
+// Sesiones de un atleta en la semana calendario que empieza en `monday`.
+export function loadAthleteWeek(athleteCycles: TrainingCycle[], monday: string): Promise<BoardSession[]> {
+  return loadAthleteSessions(athleteCycles, monday, addDays(monday, 6));
 }

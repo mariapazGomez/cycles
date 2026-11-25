@@ -26,8 +26,7 @@ import { CycleDetailPage } from "./pages/CycleDetailPage";
 import { SessionDetailPage } from "./pages/SessionDetailPage";
 import { BibliotecaPage } from "./pages/BibliotecaPage";
 import { ExercisesPage } from "./pages/ExercisesPage";
-import { TeamsPage } from "./pages/TeamsPage";
-import { TeamDetailPage } from "./pages/TeamDetailPage";
+import { TeamsWorkspace } from "./pages/TeamsWorkspace";
 import { AthletePage } from "./pages/AthletePage";
 import { SessionLogPage } from "./pages/SessionLogPage";
 import { libraryPath } from "./lib/library";
@@ -140,8 +139,9 @@ export function App() {
         <Route path="athletes" element={<CoachOnly><AthletesPage /></CoachOnly>} />
         <Route path="athletes/:athleteId" element={<CoachOnly><AthletePage /></CoachOnly>} />
         <Route path="calendar" element={<CalendarPage />} />
-        <Route path="equipos" element={<CoachOnly><TeamsPage /></CoachOnly>} />
-        <Route path="equipos/:id" element={<CoachOnly><TeamDetailPage /></CoachOnly>} />
+        <Route path="equipos" element={<CoachOnly><TeamsWorkspace /></CoachOnly>} />
+        <Route path="equipos/:id" element={<CoachOnly><TeamsWorkspace /></CoachOnly>} />
+        <Route path="equipos/:id/:tool" element={<CoachOnly><TeamsWorkspace /></CoachOnly>} />
         <Route path="biblioteca" element={<CoachOnly><BibliotecaPage /></CoachOnly>} />
         <Route path="ejercicios" element={<CoachOnly><ExercisesPage /></CoachOnly>} />
         <Route path="account" element={<AccountPage />} />
