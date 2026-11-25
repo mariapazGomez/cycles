@@ -561,6 +561,7 @@ body{font-family:Inter,-apple-system,system-ui,sans-serif;background:#d9e0ee;col
 .cq-leg{display:flex;gap:14px;margin-top:8px;font:400 12px/1.3 Inter;color:#5c6068}
 .cq-leg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
 .cq-g span.off{color:#c3c8d1}
+.cq-g span.edge.off{color:#fff}
 
 </style>
 </head>
@@ -845,7 +846,7 @@ function chocaEquipo(){
  return CQ(side('Ciclos'),board(),scrim(640,`<h3>Nuevo ciclo para Voleibol sub-17</h3><div class="cq-warn" role="alert">Esas fechas se cruzan con «Fuerza base», que va hasta el 20 dic. Por ahora el equipo tiene un solo ciclo a la vez: elige desde el 21 dic.</div>${fl('Nombre','Preparación liga')}${rango(o)}<div class="cq-leg"><span><i style="background:#fdeede;border:1px solid #f0c9a0"></i>Días de «Fuerza base»</span></div>${acts('Continuar',1)}`));
 }
 function editarDatos(){
- return CQ(side('Ciclos'),board(),scrim(640,`<h3>Datos del ciclo</h3><div class="cq-info">El ciclo ya empezó el lunes 23 nov. Puedes cambiar el nombre, el objetivo y el último día. El inicio se mantiene; si lo cambias, solo puede ser desde hoy.</div>${fl('Nombre','Fuerza base')}${fl('Objetivo (opcional)','Base de fuerza antes de la liga')}${rango({from:key(11,23),to:key(12,27)})}<div class="cq-sum" role="status">Del lunes 23 nov al domingo 27 dic: 5 semanas</div>${acts('Guardar cambios')}`));
+ return CQ(side('Ciclos'),board(),scrim(640,`<h3>Datos del ciclo</h3><div class="cq-info">El ciclo ya empezó el lunes 23 nov. Puedes cambiar el nombre, el objetivo y el último día. El inicio se mantiene; si lo cambias, solo puede ser desde hoy.</div>${fl('Nombre','Fuerza base')}${fl('Objetivo (opcional)','Base de fuerza antes de la liga')}${rango({from:key(11,23),to:key(12,27)})}<div class="cq-sum" role="status">Del lunes 23 nov al domingo 27 dic: 5 semanas</div>${acts('Guardar cambios')}`)).replace('class="web t3 wide"','class="web t3 wide" style="min-height:760px"');
 }
 function novedad(){
  return `<div class="web t3" style="min-height:420px;background:#cfd8ea;display:grid;place-items:center"><div style="width:440px;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 10px 40px rgba(31,34,40,.3)"><div style="height:170px;background:#f3f6fc;display:flex;align-items:center;justify-content:center;gap:14px"><div style="width:110px">${ses('Piernas base','Equipo')}</div><span style="font:500 24px/1 Inter;color:#1a66dd">→</span><div style="display:flex">${ATH.slice(0,4).map(a=>`<div style="margin-left:-4px">${AVb(a[0])}</div>`).join('')}</div></div><div style="padding:18px 22px 20px"><div style="font:600 20px/1.25 Inter;margin-bottom:8px">Planifica el ciclo de tu equipo</div><div style="font:400 15px/1.45 Inter;color:#3f4757;margin-bottom:16px">Pon las sesiones una vez en el calendario del equipo y llegan a cada integrante.</div><div style="display:flex;justify-content:flex-end"><span class="t3btn pr">Entendido</span></div></div></div></div>`;
