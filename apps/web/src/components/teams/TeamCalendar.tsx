@@ -30,7 +30,7 @@ function Mark({ sessions, isToday }: { sessions: BoardSession[]; isToday: boolea
 
 // Calendario del equipo: cuadrícula mensual (vista inicial) o semana por atleta. Las sesiones del
 // equipo dicen cuántos atletas las hicieron; lo que agregaron los atletas va en una línea por tipo
-// (sin sus notas, R7). Los eventos del equipo llegan con CYC-317/319.
+// (sin sus notas, R7).
 export function TeamCalendar({ athletes, cycles, todayIso }: { athletes: TeamAthlete[]; cycles: TrainingCycle[]; todayIso: string }) {
   // En pantalla angosta el calendario abre por semana (una fila por atleta), como en el diseño.
   const [mode, setMode] = useState<Mode>(() => (window.matchMedia("(max-width: 760px)").matches ? "week" : "month"));

@@ -8,8 +8,6 @@ export type TeamTool = "calendario" | "ciclos";
 const ICON: Record<string, JSX.Element> = {
   calendario: <path d="M5 6h14a1 1 0 011 1v12a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1zM4 10h16M8 3.5V7M16 3.5V7" />,
   ciclos: <path d="M18.5 8A7 7 0 006 9.5M5.5 16A7 7 0 0018 14.5M19 4v4.5h-4.5M5 20v-4.5h4.5" />,
-  eventos: <path d="M5 6h14a1 1 0 011 1v12a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1zM4 10h16M8 3.5V7M16 3.5V7M12 12.5l1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2-1.6-1.5 2.2-.3z" />,
-  rankings: <path d="M8 4h8v5a4 4 0 01-8 0V4zM8 6H4.5c0 3 1.5 4 3.8 4M16 6h3.5c0 3-1.5 4-3.8 4M12 13v4M8.5 20h7M9.5 17h5v3h-5z" />,
 };
 
 function ToolIcon({ name }: { name: string }) {
@@ -20,12 +18,10 @@ function ToolIcon({ name }: { name: string }) {
   );
 }
 
-// «Eventos» y «Rankings» llegan con CYC-319: se ven apagadas hasta entonces.
-const TOOLS: { id: TeamTool | "eventos" | "rankings"; label: string; ready: boolean }[] = [
-  { id: "calendario", label: "Calendario", ready: true },
-  { id: "ciclos", label: "Ciclos", ready: true },
-  { id: "eventos", label: "Eventos", ready: false },
-  { id: "rankings", label: "Rankings", ready: false },
+// Solo las herramientas que ya existen: Eventos y Rankings se agregan aquí con CYC-319.
+const TOOLS: { id: TeamTool; label: string }[] = [
+  { id: "calendario", label: "Calendario" },
+  { id: "ciclos", label: "Ciclos" },
 ];
 
 // Sidebar de Equipos (CYC-318): contraer, selector del equipo y herramientas. En pantalla
@@ -148,12 +144,12 @@ export function TeamSidebar({
               <span className="tms-label">{t.label}</span>
             </>
           );
-          return t.ready && current ? (
+          return current ? (
             <Link key={t.id} to={`/equipos/${current.id}/${t.id}`} className={active ? "tms-tool tms-tool-on" : "tms-tool"} aria-current={active ? "page" : undefined} title={t.label}>
               {content}
             </Link>
           ) : (
-            <span key={t.id} className="tms-tool tms-tool-off" aria-disabled="true" title={t.ready ? t.label : `${t.label}: pronto`}>
+            <span key={t.id} className="tms-tool tms-tool-off" aria-disabled="true" title={t.label}>
               {content}
             </span>
           );
