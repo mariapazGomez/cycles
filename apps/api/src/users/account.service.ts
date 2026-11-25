@@ -121,6 +121,8 @@ export class AccountService {
     await tx.athleteEvent.deleteMany({ where: { athleteId } });
     await this.deleteLoginData(tx, athleteId);
     await tx.athleteInvitationToken.deleteMany({ where: { coachAthlete: { athleteId } } });
+    // Sale de los equipos de sus coaches (CYC-309); el equipo y sus demás atletas siguen.
+    await tx.teamMember.deleteMany({ where: { athleteId } });
     await tx.coachAthlete.deleteMany({ where: { athleteId } });
     await tx.user.delete({ where: { id: athleteId } });
   }
@@ -135,6 +137,9 @@ export class AccountService {
     await tx.athleteInvitationToken.deleteMany({ where: { coachAthlete: { coachId } } });
     // La fila del coach se queda anonimizada, así que su pizarra no se borra sola.
     await tx.coachSummaryLayout.deleteMany({ where: { coachId } });
+    // Sus equipos (CYC-309) se van con su cuenta; los atletas no se tocan.
+    await tx.teamMember.deleteMany({ where: { team: { coachId } } });
+    await tx.team.deleteMany({ where: { coachId } });
 
     // Los planes de los atletas copiados de sus plantillas pierden ese vínculo.
     await tx.trainingCycle.updateMany({ where: { template: { coachId } }, data: { templateId: null } });

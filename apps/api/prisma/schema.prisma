@@ -118,6 +118,8 @@ model User {
   cyclesAsAthlete         TrainingCycle[]          @relation("CyclesAsAthlete")
   exerciseLogs            ExerciseLog[]
   athleteMaxes            AthleteMax[]             @relation("MaxOfAthlete")
+  teamsAsCoach            Team[]                   @relation("TeamsAsCoach")
+  teamMemberships         TeamMember[]             @relation("TeamMemberships")
   recordedMaxes           AthleteMax[]             @relation("MaxRecordedBy")
   sessionFeedback         SessionFeedback[]
   loadAdjustments         LoadAdjustment[]
@@ -493,6 +495,34 @@ enum MaxSource {
 // Solo se agrega: un RM nuevo es otra fila y el vigente es el de `measuredAt`
 // más reciente (desempate por `createdAt`). Lo levantado en series NO es el RM.
 // Sin notas libres (R7). Dato de rendimiento, como las series. CYC-306.
+// Equipo del coach (CYC-309, docs/diseno/equipos): solo un nombre y los atletas que el coach ya
+// tiene. Un atleta puede estar en varios equipos. No hay vínculo vivo con las rutinas: el equipo
+// se lee al momento de agregar una rutina. Solo web del coach.
+model Team {
+  id        String   @id @default(uuid())
+  coachId   String
+  name      String
+  createdAt DateTime @default(now())
+
+  coach   User         @relation("TeamsAsCoach", fields: [coachId], references: [id])
+  members TeamMember[]
+
+  @@unique([coachId, name])
+}
+
+model TeamMember {
+  id        String   @id @default(uuid())
+  teamId    String
+  athleteId String
+  createdAt DateTime @default(now())
+
+  team    Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  athlete User @relation("TeamMemberships", fields: [athleteId], references: [id])
+
+  @@unique([teamId, athleteId])
+  @@index([athleteId])
+}
+
 model AthleteMax {
   id           String    @id @default(uuid())
   athleteId    String

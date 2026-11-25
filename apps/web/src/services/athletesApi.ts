@@ -11,6 +11,8 @@ export interface AthleteRelation {
     name: string;
     email: string;
   };
+  // Equipos del coach a los que pertenece (CYC-309); para las etiquetas y los filtros.
+  teams?: { id: string; name: string }[];
 }
 
 export function inviteAthlete(data: { email: string; name: string }) {

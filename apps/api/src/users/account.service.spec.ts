@@ -11,6 +11,8 @@ function setup(user: { id: string; role: string }, cycles: unknown[] = []) {
     sessionExercise: { findMany: jest.fn().mockResolvedValue([{ id: "se1" }]), deleteMany: fn() },
     exerciseLog: { deleteMany: fn() },
     athleteMax: { deleteMany: fn() },
+    teamMember: { deleteMany: fn() },
+    team: { deleteMany: fn() },
     sessionFeedback: { deleteMany: fn() },
     loadAdjustment: { deleteMany: fn() },
     refreshToken: { deleteMany: fn() },
@@ -78,6 +80,7 @@ describe("AccountService.deleteAccount (atleta)", () => {
     expect(tx.trainingCycle.create.mock.calls[0][0].data).not.toHaveProperty("athleteId");
     expect(tx.exerciseLog.deleteMany).toHaveBeenCalled();
     expect(tx.athleteMax.deleteMany).toHaveBeenCalledWith({ where: { athleteId: "a1" } });
+    expect(tx.teamMember.deleteMany).toHaveBeenCalledWith({ where: { athleteId: "a1" } });
     expect(tx.sessionFeedback.deleteMany).toHaveBeenCalled();
     expect(tx.trainingCycle.deleteMany).toHaveBeenCalledWith({ where: { id: { in: ["c1"] } } });
     expect(tx.refreshToken.deleteMany).toHaveBeenCalled();

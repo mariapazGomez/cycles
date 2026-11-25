@@ -25,6 +25,8 @@ export function inviteProblems({ name, email }: { name: string; email: string })
 }
 
 type Filter = "all" | "attention" | "no_plan" | "pending";
+// Un equipo es un filtro más (CYC-310): se guarda como «team:<id>».
+type TeamFilter = `team:${string}`;
 
 const FILTER_LABEL: Record<Filter, string> = {
   all: "Todos",
@@ -47,7 +49,7 @@ export function AthletesPanel() {
   const queryClient = useQueryClient();
   const roster = useCoachRoster();
   const [showInvite, setShowInvite] = useState(false);
-  const [filter, setFilter] = useState<Filter>("all");
+  const [filter, setFilter] = useState<Filter | TeamFilter>("all");
   const [search, setSearch] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -124,8 +126,13 @@ export function AthletesPanel() {
     no_plan: rows.filter((r) => r.status === "no_plan").length,
     pending: rows.filter((r) => r.status === "pending").length,
   };
+  // Los equipos que tienen atletas en esta lista, con cuántos son.
+  const teamCounts = new Map<string, { name: string; count: number }>();
+  for (const row of rows) for (const t of row.teams ?? []) teamCounts.set(t.id, { name: t.name, count: (teamCounts.get(t.id)?.count ?? 0) + 1 });
+  const teamFilters = [...teamCounts.entries()].sort((a, b) => a[1].name.localeCompare(b[1].name, "es"));
   const query = normalize(search.trim());
   const visible = rows.filter((row) => {
+    if (filter.startsWith("team:") && !(row.teams ?? []).some((t) => `team:${t.id}` === filter)) return false;
     if (filter === "attention" && row.attention.length === 0) return false;
     if (filter === "no_plan" && row.status !== "no_plan") return false;
     if (filter === "pending" && row.status !== "pending") return false;
@@ -181,6 +188,11 @@ export function AthletesPanel() {
                   {FILTER_LABEL[key]} <em className={key === "attention" ? "" : "at-count"}>{counts[key]}</em>
                 </button>
               ))}
+            {teamFilters.map(([id, t]) => (
+              <button key={id} type="button" className="cb-chip" aria-pressed={filter === `team:${id}`} onClick={() => setFilter(`team:${id}`)}>
+                Equipo: {t.name} <em className="at-count">{t.count}</em>
+              </button>
+            ))}
           </div>
           <div className="at-search">
             <label htmlFor="athleteSearch" className="at-sr">

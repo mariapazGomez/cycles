@@ -1,4 +1,4 @@
-import { buildPreview, cycleForDate, missingRmCount } from "../src/lib/addToMany";
+import { buildPreview, cycleForDate, missingRmCount, whatHappens } from "../src/lib/addToMany";
 
 const cycles = [
   { id: "c1", athleteId: "a1", startDate: "2026-11-01", endDate: "2026-11-30" },
@@ -31,5 +31,30 @@ describe("agregar una rutina a varios atletas", () => {
   it("sin ejercicios con %, a nadie le falta RM", () => {
     const rows = buildPreview({ candidates: [{ athleteId: "a1", name: "V" }], cycles, date: "2026-11-20", percentExercises: [], rmByAthlete: new Map() });
     expect(rows[0].missingRm).toBe(false);
+  });
+
+  it("un atleta con invitación pendiente se omite y no cuenta como «falta RM»", () => {
+    const rows = buildPreview({
+      candidates: [{ athleteId: "a1", name: "V" }, { athleteId: "p1", name: "Pendiente", pending: true }],
+      cycles,
+      date: "2026-11-20",
+      percentExercises: [{ exerciseId: "sq", name: "Sentadilla", percent: 80 }],
+      rmByAthlete: new Map(),
+    });
+    expect(rows[1]).toMatchObject({ cycleId: null, pending: true, missingRm: false });
+    expect(whatHappens(rows[1])).toEqual({ text: "Invitación pendiente: se omite", state: "pending" });
+    expect(whatHappens(rows[0]).state).toBe("missing_rm");
+  });
+
+  it("explica qué pasa con quien no tiene ciclo y con quien está lista", () => {
+    const [ready, noCycle] = buildPreview({
+      candidates: [{ athleteId: "a1", name: "V" }, { athleteId: "a2", name: "C" }],
+      cycles,
+      date: "2026-11-20",
+      percentExercises: [],
+      rmByAthlete: new Map(),
+    });
+    expect(whatHappens(ready)).toEqual({ text: "Recibe la rutina con su peso", state: "ready" });
+    expect(whatHappens(noCycle)).toEqual({ text: "No tiene ciclo: se omite", state: "no_cycle" });
   });
 });

@@ -61,6 +61,7 @@ export function useCoachRoster() {
       week: query.data ? query.data.map((s) => ({ ...s, pain: pain.has(s.id) })) : null,
       weekLoading: query.isLoading && query.fetchStatus !== "idle",
       attention: groups.find((g) => g.athlete.id === row.id)?.items ?? [],
+      teams: athletesQuery.data?.find((r) => r.athlete.id === row.id)?.teams ?? [],
     };
   });
 

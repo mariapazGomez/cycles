@@ -30,7 +30,10 @@ export type NoveltyDemoId =
   | "rm-percent-row"
   | "rm-athlete-sheet"
   | "rm-multi-add"
-  | "athlete-rm-percent";
+  | "athlete-rm-percent"
+  // Equipos del coach (CYC-310): solo la web del coach.
+  | "teams-group"
+  | "teams-create";
 
 export interface NoveltySlide {
   title: string;
@@ -198,6 +201,28 @@ export const NOVELTIES: Novelty[] = [
         text: "Cada uno recibe su peso según su RM. Si a alguien le falta, te avisamos.",
         demoLabel: "La misma rutina para tres atletas: dos con su peso calculado y una con «Sin RM» y un aviso.",
         demo: "rm-multi-add",
+      },
+    ],
+  },
+  {
+    key: "coach-teams",
+    version: 1,
+    since: "2026-11-25",
+    platforms: ["web"],
+    roles: ["coach"],
+    name: "Equipos",
+    slides: [
+      {
+        title: "Ahora puedes crear equipos",
+        text: "Agrupa a tus atletas y dales la misma rutina a todos, cada uno con su peso.",
+        demoLabel: "Tres tarjetas de equipo con su nombre, la cantidad de atletas y sus avatares.",
+        demo: "teams-group",
+      },
+      {
+        title: "Crea uno desde Equipos",
+        text: "Elige a los atletas que ya tienes. Invitar sigue en Atletas.",
+        demoLabel: "Se escribe el nombre del equipo y se marcan tres atletas con casillas.",
+        demo: "teams-create",
       },
     ],
   },
