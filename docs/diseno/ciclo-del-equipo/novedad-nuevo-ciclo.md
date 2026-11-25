@@ -1,6 +1,6 @@
 # Ficha de novedad: «Nuevo ciclo» por calendario (CYC-316)
 
-Para el PR #274. **Pendiente de aprobación de la usuaria.** Maqueta animada en [novedad-nuevo-ciclo.html](novedad-nuevo-ciclo.html); capturas del estado final en `capturas-novedad/`.
+Para el PR #274. **Aprobada por la usuaria (25-11).** Maqueta animada en [novedad-nuevo-ciclo.html](novedad-nuevo-ciclo.html); capturas del estado final en `capturas-novedad/`.
 
 Usa el popup de novedades que ya existe (`docs/diseno/guia-novedades-bloques`, `styles/novelty.css`, escenario de 648 × 292). Solo web y solo coach. Se muestra una vez; las cuentas nuevas la reciben como vista, igual que las demás.
 
