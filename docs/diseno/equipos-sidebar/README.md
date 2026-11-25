@@ -8,6 +8,7 @@ Rediseño de la pestaña Equipos (CYC-308): la navegación dentro de la pestaña
 - Un **selector desplegable** para elegir el equipo con el que se trabaja, y no un campo por equipo.
 - Debajo, las herramientas del equipo: **Calendario, Ciclos, Eventos y Rankings**.
 - Sin negritas pesadas.
+- Sin formas redondeadas en todo: se ve «generado por IA». Botones, campos, tarjetas, etiquetas y cuadros usan esquinas casi rectas (4 a 6 px, 8 px en cuadros y menús). Solo siguen redondos los avatares de personas y los círculos de color de estado.
 
 ## Qué cambia respecto de CYC-308
 
