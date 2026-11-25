@@ -9,7 +9,7 @@ import {
   visibleSlides,
   type Novelty,
 } from "@cycles/shared";
-import { canShowNovelty, isBuilderPath, noveltyConditions } from "../src/lib/novelty";
+import { canShowNovelty, conditionsReady, isBuilderPath, noveltyConditions } from "../src/lib/novelty";
 
 const coach = { role: "coach", platform: "web" } as const;
 const fake = (over: Partial<Novelty>): Novelty => ({ ...NOVELTIES[0], ...over });
@@ -32,10 +32,12 @@ describe("fichas de novedad (registro)", () => {
 });
 
 describe("qué novedad toca mostrar", () => {
-  it("la coach ve la más reciente (RM) y luego la de bloques; la atleta, la suya en la web; el admin, ninguna", () => {
-    expect(pendingNovelty([], coach)?.key).toBe("coach-rm-percent");
-    expect(pendingNovelty(["coach-rm-percent@1"], coach)?.key).toBe("routine-blocks");
-    expect(pendingNovelty([], { role: "athlete", platform: "web" })?.key).toBe("athlete-rm-percent");
+  it("la coach ve la más reciente (dos ciclos), luego RM y bloques; la atleta, la suya en la web; el admin, ninguna", () => {
+    expect(pendingNovelty([], coach)?.key).toBe("coach-two-cycles");
+    expect(pendingNovelty(["coach-two-cycles@1"], coach)?.key).toBe("coach-rm-percent");
+    expect(pendingNovelty(["coach-two-cycles@1", "coach-rm-percent@1"], coach)?.key).toBe("routine-blocks");
+    expect(pendingNovelty([], { role: "athlete", platform: "web" })?.key).toBe("athlete-two-cycles");
+    expect(pendingNovelty(["athlete-two-cycles@1"], { role: "athlete", platform: "web" })?.key).toBe("athlete-rm-percent");
     expect(pendingNovelty([], { role: "admin", platform: "web" })).toBeNull();
     expect(pendingNovelty([], { role: "coach", platform: "mobile" })).toBeNull();
   });
@@ -80,5 +82,13 @@ describe("cuándo puede salir el popup", () => {
   it("no sale donde hay un borrador abierto", () => {
     for (const p of ["/routines/new", "/routines/abc", "/sessions/s1"]) expect(isBuilderPath(p)).toBe(true);
     for (const p of ["/", "/routines", "/library", "/cycles/1"]) expect(isBuilderPath(p)).toBe(false);
+  });
+});
+
+describe("cuándo se puede abrir el popup", () => {
+  it("el atleta no espera las rutinas (no tiene acceso a ellas); el coach sí", () => {
+    expect(conditionsReady("athlete", false)).toBe(true);
+    expect(conditionsReady("coach", false)).toBe(false);
+    expect(conditionsReady("coach", true)).toBe(true);
   });
 });

@@ -187,6 +187,74 @@ function AthleteRmPercent() {
   );
 }
 
+// Dos ciclos a la vez (CYC-316), según docs/diseno/ciclo-del-equipo/novedad-dos-ciclos.html.
+function TwoCyclesBlock({ name, week, marks, count, className }: { name: string; week: string; marks: string; count: string; className?: string }) {
+  return (
+    <div className={className}>
+      <div className="nd-tc-cy">
+        {name}
+        <small>{week}</small>
+      </div>
+      {/* Un carácter por día: d hecha, p pendiente, n sin sesión. */}
+      <div className="nd-tc-week">
+        {[...marks].map((m, i) => (
+          <i key={i} className={`nd-tc-${m}`} />
+        ))}
+      </div>
+      <div className="nd-tc-count">{count}</div>
+    </div>
+  );
+}
+
+function TwoCyclesCard({ alert }: { alert?: boolean }) {
+  return (
+    <div className="nd">
+      <div className="nd-tc-card">
+        <div className="nd-tc-who">
+          <span>CR</span>Camila Rojas
+        </div>
+        {alert && <div className="nd-tc-alert nd-tc-up">Sesión omitida en Rehabilitación hombro</div>}
+        <TwoCyclesBlock className={alert ? undefined : "nd-tc-in1"} name="Fuerza base" week="Semana 1 de 4" marks="dnpnpnn" count="1 de 2 sesiones completadas" />
+        <hr />
+        <TwoCyclesBlock className={alert ? undefined : "nd-tc-in2"} name="Rehabilitación hombro" week="Semana 1 de 3" marks="nnpnpnn" count="0 de 1 sesión completada" />
+      </div>
+    </div>
+  );
+}
+
+function TwoCyclesToday({ start }: { start?: boolean }) {
+  return (
+    <div className="nd">
+      <div className={`nd-tc-ses nd-tc-left${start ? "" : " nd-tc-in1"}`} style={{ top: start ? 42 : 56 }}>
+        <span className="nd-tc-chip">Fuerza base</span>
+        <b>Te toca Torso</b>
+        <div className="nd-tc-li">
+          Press de banca<span>4 × 8</span>
+        </div>
+        {start ? (
+          <div className="nd-tc-primary">Empezar sesión</div>
+        ) : (
+          <div className="nd-tc-li">
+            Remo con barra<span>4 × 8</span>
+          </div>
+        )}
+      </div>
+      <div className={`nd-tc-ses nd-tc-right${start ? "" : " nd-tc-in2"}`} style={{ top: start ? 78 : 56 }}>
+        <span className="nd-tc-chip">Rehabilitación hombro</span>
+        <b>Te toca Movilidad</b>
+        {start ? (
+          <div className="nd-tc-row">
+            <span className="nd-tc-link">Ver 4 ejercicios</span>
+            <span className="nd-tc-secondary nd-tc-press">Empezar sesión</span>
+          </div>
+        ) : (
+          <div className="nd-tc-li">4 ejercicios</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function NoveltyDemo({ slide }: { slide: NoveltySlide }) {
   const [ref, width] = useElementWidth<HTMLDivElement>();
   if (slide.video) {
@@ -196,7 +264,7 @@ export function NoveltyDemo({ slide }: { slide: NoveltySlide }) {
       </div>
     );
   }
-  const art = slide.demo === "blocks-group" ? <Group /> : slide.demo === "blocks-move" ? <Move /> : slide.demo === "blocks-legacy" ? <Legacy /> : slide.demo === "blocks-page" ? <Page /> : slide.demo === "rm-percent-row" ? <RmPercentRow /> : slide.demo === "rm-athlete-sheet" ? <RmAthleteSheet /> : slide.demo === "rm-multi-add" ? <RmMultiAdd /> : slide.demo === "athlete-rm-percent" ? <AthleteRmPercent /> : null;
+  const art = slide.demo === "blocks-group" ? <Group /> : slide.demo === "blocks-move" ? <Move /> : slide.demo === "blocks-legacy" ? <Legacy /> : slide.demo === "blocks-page" ? <Page /> : slide.demo === "rm-percent-row" ? <RmPercentRow /> : slide.demo === "rm-athlete-sheet" ? <RmAthleteSheet /> : slide.demo === "rm-multi-add" ? <RmMultiAdd /> : slide.demo === "athlete-rm-percent" ? <AthleteRmPercent /> : slide.demo === "two-cycles-card" ? <TwoCyclesCard /> : slide.demo === "two-cycles-alert" ? <TwoCyclesCard alert /> : slide.demo === "two-cycles-today" ? <TwoCyclesToday /> : slide.demo === "two-cycles-start" ? <TwoCyclesToday start /> : null;
   // Escala del escenario al ancho disponible (nunca se agranda ni se recorta).
   const scale = width === 0 ? 1 : Math.min(1, Math.max(0.3, width / STAGE_W));
   return (
