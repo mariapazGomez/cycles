@@ -17,7 +17,7 @@ El botón «Agregar ciclo» de Equipos → Ciclos crea un ciclo para el equipo, 
 Aplica a ciclos de **atleta** y de **equipo**. Las plantillas tienen su propio apartado más abajo.
 
 - **Campos escritos:** nombre (obligatorio) y objetivo (opcional).
-- **Editar un ciclo ya empezado** (decisión de la usuaria, 25-11): se puede cambiar el resto, pero el inicio no se puede mover a otro día anterior a hoy. En «Datos del ciclo» el inicio actual se ve marcado y se conserva; un inicio nuevo solo puede ser desde hoy. La API valida lo mismo. Captura `editar-datos-del-ciclo`. Qué pasa con las sesiones que quedan fuera al acortar el rango queda por definir.
+- **Editar un ciclo ya empezado** (decisión de la usuaria, 25-11): se puede cambiar el resto, pero el inicio no se puede mover a otro día anterior a hoy. En «Datos del ciclo» el inicio actual se ve marcado y se conserva; un inicio nuevo solo puede ser desde hoy. La API valida lo mismo. Captura `editar-datos-del-ciclo`. Para acortarlo, ver la regla de sesiones fuera del rango.
 - La copia de un atleta que entra a un ciclo del equipo ya iniciado usa el inicio del equipo, anterior a hoy: es la excepción a la regla de abajo, porque no es un ciclo nuevo planificado.
 - **El ciclo no puede empezar antes de hoy** (decisión de la usuaria, 25-11): los días anteriores salen apagados y no se pueden elegir, y la flecha de mes anterior no baja del mes actual. La API debe rechazar un inicio anterior a hoy, con el día local del coach. Vale al crear; los ciclos que ya existen no cambian.
 - **Fechas:** dos meses a la vista; un toque elige el primer día y otro el último. El rango se pinta y debajo dice «Del lunes 23 nov al domingo 20 dic: 4 semanas» (o «2 semanas y 3 días»). Tocar de nuevo empieza otro rango. «Continuar» o «Crear ciclo» se activa con nombre y rango.
@@ -47,22 +47,23 @@ La pizarra actual (`apps/web/src/lib/board.ts`, `buildWeeks`) ya arma cada fila 
 
 - Cada fila son 7 días **desde el primer día del ciclo** (si empieza un miércoles, la fila va de miércoles a martes). Los días que sobran al final dicen «Fuera del ciclo». Captura `pizarra-desde-miercoles`.
 
-## Por confirmar con la usuaria
+## Confirmado por la usuaria (25-11)
 
-Nada de esta lista está aprobado; las maquetas lo muestran como propuesta.
-
-1. Una sesión ajustada en la ficha del atleta queda separada y deja de recibir los cambios del equipo.
-2. Las sesiones ya registradas nunca cambian.
-3. Un cambio del equipo llega solo a copias enlazadas, sin ajustar, pendientes, sin empezar y de hoy en adelante.
-4. Con invitación pendiente no se puede crear el ciclo: aparece deshabilitado y se suma a mano cuando acepte.
-5. En la primera versión el equipo tiene un solo ciclo por fechas (hay estado de error).
+1. Una sesión ajustada en la ficha del atleta queda separada y deja de recibir los cambios del equipo; lo ya registrado nunca cambia.
+2. Un cambio del equipo no actualiza sesiones pendientes de días pasados: llega solo a las copias enlazadas, sin ajustar, pendientes, sin empezar y de hoy en adelante.
+3. Mover la fecha de una sesión del equipo mueve las copias enlazadas.
+4. Quitar una sesión del equipo conserva la que está ajustada.
+5. Con invitación pendiente se omite: aparece deshabilitado y se suma a mano cuando acepte.
 6. Eliminar el equipo o su ciclo sigue la misma regla que sacar a un atleta, con aviso y cifras.
+7. El equipo tiene un solo ciclo por fechas (hay estado de error).
+- **No se puede acortar ni mover un ciclo si quedan sesiones fuera del rango nuevo.** «Datos del ciclo» dice cuántas y en qué fechas, y «Guardar cambios» queda desactivado hasta moverlas o quitarlas. Vale para ciclos de atleta y de equipo; la API valida lo mismo. Captura `acortar-con-sesiones-fuera`.
+- Con dos ciclos se muestran los dos.
 
 La propuesta técnica de Desarrollo general, con su diagrama, está en el comentario de CYC-314.
 
 ## Dos ciclos a la vez
 
-**Decisión de la usuaria (25-11): se muestran los dos.** Maquetas en [dos-ciclos.html](dos-ciclos.html) y capturas en `capturas-dos-ciclos/`. Parten del estilo actual de `origin/main` (por eso la app y estas pantallas web conservan sus formas redondeadas). Es lo único móvil de Equipos que se diseña ahora.
+**Decisión de la usuaria (25-11): se muestran los dos.** La forma de mostrarlos descrita aquí es la propuesta de diseño y **aún no la ha aprobado**. Maquetas en [dos-ciclos.html](dos-ciclos.html) y capturas en `capturas-dos-ciclos/`. Parten del estilo actual de `origin/main` (por eso la app y estas pantallas web conservan sus formas redondeadas). Es lo único móvil de Equipos que se diseña ahora.
 
 La forma de distinguirlos es **el nombre del ciclo** en cada sesión; no se inventan colores por ciclo.
 
@@ -92,6 +93,7 @@ La forma de distinguirlos es **el nombre del ciclo** en cada sesión; no se inve
 | Equipo sin ciclo | `equipo-sin-ciclo` |
 | Nuevo ciclo: sin fechas, primer día y rango elegido | `nuevo-ciclo-sin-fechas`, `nuevo-ciclo-primer-dia`, `nuevo-ciclo-rango` |
 | Plantilla nueva y asignarla | `plantilla-nueva`, `plantilla-asignar` |
+| Acortar con sesiones fuera | `acortar-con-sesiones-fuera` |
 | Datos de un ciclo ya empezado | `editar-datos-del-ciclo` |
 | Nuevo ciclo de un atleta | `nuevo-ciclo-atleta` |
 | Pizarra de un ciclo que empieza un miércoles | `pizarra-desde-miercoles` |
