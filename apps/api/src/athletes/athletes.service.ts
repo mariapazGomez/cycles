@@ -7,6 +7,7 @@ import { AuthService, AuthTokens } from "../auth/auth.service";
 import { generateRawToken, hashToken } from "../auth/token.util";
 import { InviteAthleteDto } from "./dto/invite-athlete.dto";
 import { POLICY_VERSION, policyAcceptanceData } from "../common/policy";
+import { TeamsService } from "../teams/teams.service";
 
 export type AcceptResult = { linked: true } | { linked: false; tokens: AuthTokens };
 
@@ -19,6 +20,7 @@ export class AthletesService {
     private readonly mail: MailService,
     private readonly authService: AuthService,
     private readonly activity: ActivityNotifier,
+    private readonly teams: TeamsService,
   ) {}
 
   async invite(coachId: string, dto: InviteAthleteDto): Promise<{ id: string; email: string }> {
@@ -148,6 +150,8 @@ export class AthletesService {
       orderBy: { createdAt: "desc" },
     });
 
+    // Los equipos de cada atleta (CYC-309), para las etiquetas y los filtros de la lista.
+    const teamsOf = await this.teams.teamsByAthlete(coachId);
     return relations.map((relation) => ({
       id: relation.id,
       status: relation.status,
@@ -156,6 +160,7 @@ export class AthletesService {
         name: relation.athlete.name,
         email: relation.athlete.email,
       },
+      teams: teamsOf.get(relation.athleteId) ?? [],
     }));
   }
 }
