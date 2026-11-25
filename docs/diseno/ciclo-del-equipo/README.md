@@ -63,12 +63,12 @@ La propuesta técnica de Desarrollo general, con su diagrama, está en el coment
 
 ## Dos ciclos a la vez
 
-**Decisión de la usuaria (25-11): se muestran los dos.** La forma de mostrarlos descrita aquí es la propuesta de diseño y **aún no la ha aprobado**. Maquetas en [dos-ciclos.html](dos-ciclos.html) y capturas en `capturas-dos-ciclos/`. Parten del estilo actual de `origin/main` (por eso la app y estas pantallas web conservan sus formas redondeadas). Es lo único móvil de Equipos que se diseña ahora.
+**Decisión de la usuaria (25-11): se muestran los dos.** **Diseño aprobado por la usuaria (25-11)** en el chat de Organización. Maquetas en [dos-ciclos.html](dos-ciclos.html) y capturas en `capturas-dos-ciclos/`. Parten del estilo actual de `origin/main` (por eso la app y estas pantallas web conservan sus formas redondeadas). Es lo único móvil de Equipos que se diseña ahora.
 
 La forma de distinguirlos es **el nombre del ciclo** en cada sesión; no se inventan colores por ciclo.
 
 **«Hoy» del atleta, app y web**
-- Una tarjeta por ciclo activo. Arriba van las sesiones de hoy sin terminar; si las dos son de hoy, primero la del ciclo que empezó antes (propuesta).
+- Una tarjeta por ciclo activo. Arriba van las sesiones de hoy sin terminar; si las dos son de hoy, primero la del ciclo que empezó antes.
 - **Dos pendientes (app):** dos tarjetas oscuras; el botón de la segunda va en contorno para que haya una sola acción principal.
 - **Una empezada:** se ven sus ejercicios como hoy; la otra queda como tarjeta compacta arriba de la lista, con «Ver».
 - **Una hecha:** la pendiente pasa arriba y la hecha queda compacta, con «Compartir».
