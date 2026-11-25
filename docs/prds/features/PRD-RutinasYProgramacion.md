@@ -189,3 +189,7 @@ Los ciclos se crean eligiendo las fechas en un calendario. A mano solo van el no
 - No se crean macrociclos nuevos; los existentes se siguen leyendo.
 - Las plantillas se definen solo por su duración en semanas.
 
+## Ciclo del equipo (CYC-314, API)
+
+El equipo tiene un plan maestro (`TeamCycle`, `TeamSession`) y cada integrante que lo recibe tiene un ciclo y sesiones normales enlazados. Un cambio del equipo se aplica a las copias; un cambio en la sesión de una persona solo la afecta a ella y la separa del plan. Quien entra recibe las sesiones desde ese día y conserva el inicio del equipo. Quien sale conserva lo registrado y lo ajustado; se quitan sus demás sesiones futuras del ciclo del equipo. Un ciclo propio en las mismas fechas convive. No se puede acortar ni mover el ciclo si alguna sesión (del plan o de la ficha de un atleta) quedaría fuera; la respuesta dice cuántas y en qué fechas. Con dos ciclos a la vez se muestran los dos. Las reglas (confirmadas el 2026-11-25) están en `apps/api/src/team-cycles/rules.ts`.
+

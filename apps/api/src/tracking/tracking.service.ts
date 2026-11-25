@@ -26,6 +26,7 @@ import {
   rirDeviation,
 } from "./rules";
 import { CreateLoadAdjustmentDto } from "./dto/create-load-adjustment.dto";
+import { detachFromTeam } from "../common/team-detach";
 
 // Un plan con todo lo necesario para calcular seguimiento: sesiones, su cierre
 // vigente, y por ejercicio los objetivos y las series vigentes.
@@ -370,6 +371,8 @@ export class TrackingService {
         }),
       ),
     ]);
+    // Ajustar la carga de una persona separa sus sesiones del plan del equipo (CYC-314).
+    await detachFromTeam(this.prisma, [...new Set(targets.map((se) => se.sessionId))]);
     return adjustment;
   }
 
