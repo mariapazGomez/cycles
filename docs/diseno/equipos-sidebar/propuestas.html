@@ -440,6 +440,35 @@ body{font-family:Inter,-apple-system,system-ui,sans-serif;background:#d9e0ee;col
 .t3tabs span.on{background:#1f2228;color:#fff}
 .t3tabs svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .t3dd .o span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+/* ===== Calendario mensual ===== */
+.t3fl{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.t3fl span{display:inline-flex;align-items:center;gap:8px;height:36px;border-radius:10px;border:1px solid #dde4f0;padding:0 12px;font:500 13px/1 Inter;color:#1f2228;background:#fff}
+.t3fl svg{width:14px;height:14px;stroke:#3f4757;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.t3mo{border:1px solid #dde4f0;border-radius:16px;overflow:hidden;background:#fff}
+.t3mh{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.t3mh h3{font:500 18px/1 Inter;margin-right:auto}
+.t3mh h3 em{font:400 12px/1 Inter;font-style:normal;color:#8d95a3;margin-left:6px}
+.t3mh .t3seg span{padding:7px 12px}
+.t3mh .t3btn{height:32px;padding:0 12px;font-size:13px}
+.t3mh .t3btn.sq{width:32px;padding:0}
+.t3dw{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid #e6ebf5}
+.t3dw span{padding:10px 10px 8px;font:500 11px/1 Inter;color:#5c6068;letter-spacing:.06em}
+.t3wkr{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid #e6ebf5}
+.t3c{min-height:104px;padding:6px 6px 8px;border-left:1px solid #e6ebf5;display:flex;flex-direction:column;gap:4px;background:#fff}
+.t3c:first-child{border-left:0}
+.t3c.o{background:#f4f5f7}
+.t3c .n{font:400 12px/1 Inter;color:#5c6068;text-align:right;padding:2px 4px}
+.t3c .n b{display:inline-block;background:#1f2228;color:#fff;border-radius:6px;padding:3px 6px;font-weight:500}
+.t3c .n u{text-decoration:none;font:500 11px/1 Inter;color:#1f2228;margin-right:6px}
+.t3cd{border:1px solid #dde4f0;border-radius:9px;padding:5px 6px;background:#fff;min-width:0}
+.t3cd .tt{display:flex;align-items:center;gap:5px;font:500 11.5px/1.2 Inter;color:#1f2228}
+.t3cd .tt i{width:9px;height:9px;border-radius:50%;flex:none}
+.t3cd .tt span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t3cd .ch{display:inline-block;margin-top:4px;border-radius:999px;padding:2px 7px;font:500 10.5px/1.2 Inter;background:#e4f4ea;color:#1d6b3f}
+.t3cd .ch.gr{background:#eceff5;color:#3f4757}
+.t3cd .ch.bl{background:#e8effb;color:#134fb0}
+.t3cd .ch.am{background:#fdeede;color:#8f4410}
+.t3mr{font:400 11px/1 Inter;color:#5c6068;padding:0 4px}
 
 </style>
 </head>
@@ -501,11 +530,30 @@ const ATH=[['VS','Valentina Soto'],['CR','Camila Rojas'],['JP','Josefa Pino'],['
 const mk=(s)=>s==='ok'?`<div class="mk ok">${IC.chk}</div>`:s==='sk'?`<div class="mk sk">${IC.x}</div>`:s==='td'?`<div class="mk td"></div>`:s==='pe'?`<div class="mk pe"></div>`:'';
 const DAYS=['L','M','M','J','V','S','D'];
 const WEEK=[['ok','','ok','','pe','',''],['ok','','sk','','td','',''],['ok','','ok','','pe','',''],['','','','','','',''],['','','','','','','']];
-function calendario(){
- return `<div class="t3mn">${head('Calendario',`<div class="t3wk"><b>‹</b>Semana del 23 al 29 nov<b>›</b></div><span class="t3btn pr">Agregar rutina</span>`)}
+function calendarioSemana(){
+ return `<div class="t3mn">${head('Calendario',`<div class="t3wk"><b>‹</b>Semana del 23 al 29 nov</div><span class="t3btn pr">Agregar rutina</span>`)}
  <div class="t3tb"><div class="t3r h t3cal"><span>Atleta</span>${DAYS.map(d=>`<span class="d">${d}</span>`).join('')}</div>
  ${ATH.map((a,i)=>`<div class="t3r t3cal"><div class="nm">${AVb(a[0])}${a[1]}</div>${WEEK[i].map(s=>`<div>${mk(s)}</div>`).join('')}</div>`).join('')}</div>
- <div class="t3note">Cada fila es un atleta del equipo y cada columna un día. Muestra sus sesiones: hecha, omitida, pendiente u hoy.</div></div>`;
+ <div class="t3note">Vista «Semana»: una fila por atleta y una columna por día, con una marca por sesión.</div></div>`;
+}
+const cdS=(t,ch,k='')=>`<div class="t3cd"><div class="tt"><i style="background:#2f9e5f"></i><span>${t}</span></div><span class="ch ${k}">${ch}</span></div>`;
+const cdE=(t,c,ch='Equipo')=>`<div class="t3cd"><div class="tt"><i style="background:${c}"></i><span>${t}</span></div><span class="ch bl">${ch}</span></div>`;
+const cdA=(t)=>`<div class="t3mr">${t}</div>`;
+function cell(n,o,inner,today){return `<div class="t3c ${o?'o':''}"><div class="n">${today?`<u>Hoy</u><b>${n}</b>`:n}</div>${inner||''}</div>`;}
+function calendario(){
+ const R=(a)=>`<div class="t3wkr">${a.join('')}</div>`;
+ const rows=[
+  R([cell(26,1),cell(27,1),cell(28,1),cell(29,1),cell(30,1),cell(31,1),cell(1,1)]),
+  R([cell(2),cell(3),cell(4),cell(5),cell(6),cell(7),cell(8)]),
+  R([cell(9),cell(10),cell(11),cell(12),cell(13),cell(14),cell(15)]),
+  R([cell(16,0,cdS('Piernas base','10 de 12')),cell(17),cell(18,0,cdS('Torso','12 de 12')),cell(19),cell(20,0,cdS('Piernas base','11 de 12')),cell(21,0,cdE('Amistoso',EVC.part)),cell(22)]),
+  R([cell(23,0,cdS('Piernas base','12 de 12')),cell(24,0,cdE('Entrenamiento',EVC.ent,'3 atletas')),cell(25,0,cdS('Torso','7 de 12','am'),true),cell(26,0,cdA('Viaje: Matías')),cell(27,0,cdS('Piernas base','Pendiente','gr')),cell(28,0,cdE('Partido de liga',EVC.part)),cell(29,0,cdA('Descanso: 2'))])
+ ];
+ return `<div class="t3mn">${head('Calendario',`<span class="t3btn pr">Agregar rutina</span>`)}
+ <div class="t3fl"><span>${IC.cal.replace('<svg','<svg')}Todos los tipos ${IC.chev}</span><span>Todas las personas ${IC.chev}</span></div>
+ <div class="t3mo"><div class="t3mh"><h3>Noviembre de 2026<em>(GMT-3)</em></h3><div class="t3seg"><span>Semana</span><span class="on">Mes</span></div><span class="t3btn">Hoy</span><span class="t3btn sq">‹</span><span class="t3btn sq">›</span></div>
+ <div class="t3dw">${['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'].map(d=>`<span>${d}</span>`).join('')}</div>${rows.join('')}</div>
+ <div class="t3note">Cada día muestra las sesiones del equipo con cuántos atletas las hicieron, los eventos que creaste y, en una línea, lo que agregaron los atletas. Los filtros dejan ver solo un tipo o una persona.</div></div>`;
 }
 function ciclos(){
  const r=(a,c,w,p)=>`<div class="t3r t3cyc"><div class="nm">${AVb(a[0])}${a[1]}</div><span>${c}</span><span>${w}</span>${p===null?'<span style="color:#8d95a3">—</span>':`<div class="pg"><i style="width:${p}%"></i></div>`}</div>`;
@@ -560,6 +608,7 @@ function rankings(){
 }
 const frame=(sideH,main,w=250,over='')=>`<div class="web t3">${T3NAV}<div class="t3sh" style="--sbw:${w}px">${sideH}${main}</div>${over}</div>`;
 function f1(){return frame(side('Calendario'),calendario());}
+function f11(){return frame(side('Calendario'),calendarioSemana());}
 function f2(){return frame(side('Calendario',{col:true}),calendario(),72);}
 function f3(){return frame(side('Calendario',{dd:ddOpen}),calendario());}
 function f4(){return frame(side('Ciclos'),ciclos());}
@@ -584,7 +633,7 @@ function f8(open){
 }
 const out=document.getElementById('out');
 const add=(id,label,items)=>out.insertAdjacentHTML('beforeend',`<div class="lab">${label}</div><div class="row" id="${id}">${items.map(([c,h])=>`<div class="fr">${h}<div class="cap">${c}</div></div>`).join('')}</div>`);
-add('r1','1 · Sidebar expandido y contraído',[['Expandido: selector de equipo arriba y las herramientas debajo',f1()],['Contraído: la inicial del equipo y los íconos de las herramientas',f2()]]);
+add('r1','1 · Sidebar expandido y contraído',[['Expandido: selector de equipo arriba y las herramientas debajo',f1()],['Contraído: la inicial del equipo y los íconos de las herramientas',f2()],['Calendario en modo Semana: una fila por atleta',f11()]]);
 add('r2','2 · Selector de equipo',[['Selector abierto: cambia de equipo o crea uno',f3()],['Sin equipos',f7()]]);
 add('r3','3 · Herramientas (Calendario es la vista de arriba)',[['Ciclos: el ciclo vigente de cada atleta',f4()],['Eventos: los del equipo (los creas tú) y los que agregan los atletas; el menú de un evento del equipo',f9()],['Crear un evento para todo el equipo',f10()],['Rankings: sesiones completadas por atleta',f5()]]);
 add('r4','4 · Atletas del equipo',[['Se abre desde el botón «12 atletas»: agregar y quitar',f6()]]);
