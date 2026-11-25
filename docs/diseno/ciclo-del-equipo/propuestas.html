@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ciclo del equipo (CYC-316)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--ink:#1f2228;--gray:#5c6068;--blue:#1a66dd;--brand:#3080fc;--soft:#e8effb;--bg:#f3f6fc;--line:#dde4f0;--green:#2f9e5f;--okbg:#e4f4ea;--oktx:#1d6b3f;--warn:#e0752b;--pain:#d64545;--sh:0 6px 20px rgba(48,80,160,.10)}
+*{box-sizing:border-box;margin:0}
+body{font-family:Inter,-apple-system,system-ui,sans-serif;background:#d9e0ee;color:var(--ink);padding:24px}
+.lab{font:700 13px/1 Inter;letter-spacing:.1em;text-transform:uppercase;color:#3f4757;margin:30px 0 12px}
+.row{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+.fr{display:grid;gap:8px;justify-items:start}
+.cap{font:600 13px/1.3 Inter;color:#3f4757;max-width:390px}
+/* ===== marco del teléfono ===== */
+.ph{position:relative;width:390px;height:844px;background:var(--bg);overflow:hidden;border-radius:44px;box-shadow:0 0 0 1px #c9d2e4;flex:none}
+.ph.tall{height:auto}
+.sb{height:54px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 34px 6px 34px;font:600 16px/1 Inter}
+.sb i{position:absolute;left:50%;top:10px;width:118px;height:34px;border-radius:20px;background:#000;transform:translateX(-50%)}
+.sb em{font-style:normal;letter-spacing:.1em;font-size:11px}
+.scr{padding:6px 16px 120px}
+.hd{display:flex;align-items:center;gap:10px;margin:10px 0 14px}
+.hd h1{font:700 32px/1.1 Inter;letter-spacing:-.01em;flex:1}
+.hd svg.iso{width:34px;height:34px;flex:none}
+.av{width:44px;height:44px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font:700 15px/1 Inter;flex:none}
+.bell{width:40px;height:40px;display:grid;place-items:center;flex:none}
+.bell svg{width:26px;height:26px;stroke:var(--ink);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.back{display:flex;align-items:center;gap:6px;color:var(--blue);font:600 17px/1 Inter;margin:6px 0 10px}
+.back svg{width:22px;height:22px;stroke:var(--blue);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.card{background:#fff;border-radius:22px;box-shadow:var(--sh);padding:16px 16px;margin-bottom:12px}
+.card h2{font:700 20px/1.2 Inter}
+.ch{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.ch span{font:500 14px/1 Inter;color:var(--gray)}
+.dark{background:var(--ink);color:#fff;border-radius:22px;padding:18px 18px 18px;margin-bottom:12px;position:relative;overflow:hidden}
+.dark .k{font:500 14px/1 Inter;color:#c9d0dc}
+.dark .t{font:800 28px/1.1 Inter;margin:6px 0 8px;letter-spacing:-.01em}
+.dark .n{font:800 40px/1 Inter}
+.dark .n small{font:500 15px/1 Inter;color:#c9d0dc;margin-left:8px}
+.segs{display:flex;gap:6px;margin-top:14px}
+.segs i{flex:1;height:6px;border-radius:3px;background:#3a414e}
+.segs i.on{background:var(--brand)}
+.segs i.cur{background:#fff}
+.beads{position:absolute;right:-6px;top:6px;width:150px;height:110px;opacity:.95}
+.btnw{display:flex;justify-content:space-between;align-items:center;background:#fff;color:var(--ink);border-radius:999px;padding:0 22px;height:52px;font:700 17px/1 Inter;margin-top:16px}
+.btnw svg{width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 12px;font:700 13px/1 Inter;white-space:nowrap}
+.chip.ok{background:var(--okbg);color:var(--oktx)}
+.chip.nx{background:var(--soft);color:var(--blue)}
+.chip.sk{background:#fdeede;color:#8f4410}
+.chip.pn{background:#fbe7e7;color:#9d2a2a}
+.chip.gr{background:#eceff5;color:#3f4757}
+.seg2{display:flex;background:#dce5f7;border-radius:999px;padding:5px;margin-bottom:12px}
+.seg2 b{flex:1;text-align:center;border-radius:999px;padding:13px 0;font:700 16px/1 Inter;color:var(--gray)}
+.seg2 b.on{background:var(--blue);color:#fff}
+/* ===== isla ===== */
+.isla{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);display:flex;gap:6px;background:rgba(255,255,255,.96);border-radius:999px;padding:7px 8px;box-shadow:0 8px 28px rgba(31,34,40,.18),0 0 0 1px rgba(31,34,40,.04)}
+.isla b{width:76px;height:46px;border-radius:999px;display:grid;place-items:center}
+.isla b.on{background:var(--soft)}
+.isla svg{width:26px;height:26px;fill:none;stroke:var(--gray);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.isla b.on svg{stroke:var(--blue)}
+.home{position:absolute;left:50%;bottom:9px;width:134px;height:5px;border-radius:3px;background:#1f2228;transform:translateX(-50%)}
+/* ===== matriz de la semana ===== */
+.grid{display:grid;grid-template-columns:92px repeat(7,1fr);align-items:center;row-gap:4px}
+.grid .dh{font:600 13px/1 Inter;color:var(--gray);text-align:center;padding:2px 0 8px}
+.grid .dh.hoy{color:var(--blue);font-weight:800}
+.grid .nm{font:700 14px/1.15 Inter;padding-right:6px}
+.grid .c{height:42px;display:grid;place-items:center;border-radius:12px}
+.grid .c.hoy{background:var(--soft)}
+.pe{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;position:relative}
+.pe svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.pe.done{background:var(--green)}
+.pe.pend{background:#fff;border:2.5px solid var(--green)}
+.pe.skip{background:#cfd6e3}
+.pe.skip svg{stroke:#fff}
+.pe.none{width:5px;height:5px;background:#c3cbd9}
+.pe .pdot{position:absolute;right:-5px;top:-5px;width:12px;height:12px;border-radius:50%;background:var(--pain);border:2px solid #fff}
+.leg{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:12px;font:500 13px/1 Inter;color:var(--gray)}
+.leg span{display:inline-flex;align-items:center;gap:6px}
+.leg .pe{width:16px;height:16px}
+.leg .pe svg{width:10px;height:10px}
+.leg .pe.pend{border-width:2px}
+/* ===== filas ===== */
+.rw{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid #edf0f6}
+.rw:first-of-type{border-top:0}
+.rw .av{width:40px;height:40px;font-size:14px}
+.rw .tx{flex:1;min-width:0}
+.rw .tx b{display:block;font:700 17px/1.2 Inter}
+.rw .tx span{display:block;font:400 14px/1.3 Inter;color:var(--gray);margin-top:2px}
+.bd svg.chev,.rw svg.chev{width:20px;height:20px;stroke:var(--gray);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.bd{display:flex;align-items:center;gap:12px;padding:14px 14px;background:#fff;border-radius:22px;box-shadow:var(--sh);margin-bottom:10px}
+.bd .gl{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;flex:none}
+.bd .gl svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bd .tx{flex:1}
+.bd .tx b{display:block;font:700 18px/1.2 Inter}
+.bd .tx span{font:400 14px/1.3 Inter;color:var(--gray)}
+.ex{display:flex;align-items:center;gap:12px;padding:10px 12px;background:#f7f9fd;border-radius:16px;margin:6px 0}
+.ex i{width:32px;height:32px;border-radius:50%;background:#eceff5;display:grid;place-items:center;font:700 14px/1 Inter;font-style:normal;color:var(--gray);flex:none}
+.ex .tx{flex:1}
+.ex .tx b{display:block;font:700 16px/1.2 Inter}
+.ex .tx span{font:400 13px/1.3 Inter;color:var(--gray)}
+.ex em{font:700 15px/1 Inter;font-style:normal;color:var(--gray)}
+.wk{display:flex;gap:8px;margin-bottom:12px}
+.wk b{width:48px;height:48px;border-radius:50%;background:#eceff5;display:grid;place-items:center;font:700 15px/1 Inter;color:var(--gray)}
+.wk b.on{background:var(--ink);color:#fff}
+.note{background:#f7f9fd;border-radius:16px;padding:12px 14px;margin-top:10px;font:400 15px/1.4 Inter}
+.note .more{display:inline-block;margin-top:8px;color:var(--blue);font:700 15px/1 Inter}
+.empty{display:grid;place-items:center;text-align:center;gap:14px;padding:70px 26px 0}
+.empty .ill{width:96px;height:96px;border-radius:50%;background:var(--soft);display:grid;place-items:center}
+.empty .ill svg{width:48px;height:48px;stroke:var(--blue);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.empty h2{font:800 24px/1.15 Inter}
+.empty p{font:400 16px/1.45 Inter;color:#3f4757}
+.empty .b{margin-top:8px;background:var(--blue);color:#fff;border-radius:999px;padding:0 26px;height:52px;display:inline-flex;align-items:center;font:700 17px/1 Inter}
+/* ===== novedad ===== */
+.scrim{position:absolute;inset:0;background:rgba(31,34,40,.55);display:grid;place-items:center}
+.nv{width:calc(100% - 32px);background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 10px 40px rgba(31,34,40,.3)}
+.nv .dm{background:#f3f6fc;height:170px;position:relative}
+.nv .pane{padding:16px 18px 6px;display:grid;gap:8px}
+.nv .lb{font:700 12px/1 Inter;letter-spacing:.06em;text-transform:uppercase;color:var(--blue)}
+.nv h3{font:800 22px/1.15 Inter}
+.nv p{font:400 16px/1.4 Inter}
+.nv .ft{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 14px}
+.nv .ft .sk{color:var(--blue);font:700 16px/1 Inter;padding:0 8px}
+.nv .dots{display:flex;gap:4px}
+.nv .dots i{width:8px;height:8px;border-radius:99px;background:#c9d3e6}
+.nv .dots i.on{width:22px;background:var(--blue)}
+.nv .nx{background:var(--blue);color:#fff;font:700 16px/1 Inter;border-radius:12px;padding:0 20px;height:44px;display:grid;place-items:center}
+.mini{position:absolute;left:12px;right:12px;top:12px;background:#fff;border-radius:16px;box-shadow:var(--sh);padding:8px}
+.mini .g{display:grid;grid-template-columns:54px repeat(7,1fr);align-items:center;row-gap:3px;font:700 11px/1 Inter}
+.mini .g .pe{width:15px;height:15px;margin:auto}
+.mini .g .pe svg{width:9px;height:9px}
+.mini .g .pe.pend{border-width:2px}
+.mini .g .pe.none{width:4px;height:4px}
+.mini .g .pdt{right:-4px;top:-4px;width:8px;height:8px;border-width:1.5px}
+
+/* ===== CYC-296: ejercicios por tiempo ===== */
+.web{position:relative;width:1000px;max-width:100%;background:#fff;border-radius:16px;box-shadow:0 0 0 1px #c9d2e4;padding:18px 20px 22px;flex:none}
+.web.nar{width:560px}
+.web .wt{font:800 18px/1.2 Inter;margin-bottom:10px}
+.wbk{border-radius:18px;box-shadow:0 2px 10px rgba(48,80,160,.12);overflow:hidden;margin-bottom:12px;background:#fff}
+.wbk .bh{display:flex;align-items:center;gap:10px;padding:8px 12px;min-height:46px}
+.wbk .bh i{width:14px;height:14px;border-radius:50%}
+.wbk .bh b{font:700 16px/1.2 Inter}
+.wbk .bh em{margin-left:auto;font:600 13px/1 Inter;font-style:normal;color:#3f4757}
+.wr{display:grid;grid-template-columns:18px minmax(150px,1fr) 56px 128px 76px 64px 64px 28px;gap:8px;align-items:center;padding:8px 12px;border-top:1px solid #e6ebf5;position:relative}
+.wr.h{border-top:0;padding-top:6px;padding-bottom:2px;font:600 12px/1 Inter;color:#3f4757;text-align:center}
+.wr.h span:nth-child(2){text-align:left}
+.wr .gp{color:#8d95a3;font-size:16px;text-align:center}
+.wr .nm b{display:block;font:700 15px/1.2 Inter}
+.wr .nm span{font:400 12px/1.2 Inter;color:#3f4757}
+.f{height:34px;border:1px solid #8d95a3;border-radius:10px;display:grid;place-items:center;font:500 14px/1 Inter;background:#fff}
+.f.off{background:#eceff5;border-color:#c9d2e4;color:#5c6068}
+.f.ph2{color:#5c6068}
+.uf{display:flex;height:34px;border:1px solid #8d95a3;border-radius:10px;overflow:hidden}
+.uf .v{flex:1;display:grid;place-items:center;font:500 14px/1 Inter}
+.uf .u{display:flex;align-items:center;gap:4px;padding:0 8px;background:#e8effb;border-left:1px solid #8d95a3;font:700 12px/1 Inter;color:#134fb0;white-space:nowrap}
+.uf .u svg{width:10px;height:10px;stroke:#134fb0;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.uf .u.st{background:#f3f6fc;color:#3f4757}
+.dots3{font:700 18px/1 Inter;text-align:center;color:#3f4757}
+.pop{position:absolute;z-index:5;background:#fff;border-radius:12px;box-shadow:0 6px 24px rgba(31,34,40,.22);padding:6px;width:210px}
+.pop div{padding:9px 10px;border-radius:8px;font:600 14px/1.2 Inter;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pop div.on{background:#e8effb;color:#134fb0}
+.pop div small{font:400 12px/1.2 Inter;color:#3f4757;display:block}
+.pop svg{width:16px;height:16px;stroke:#134fb0;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.tag{display:inline-block;margin-left:6px;border-radius:999px;background:#e8effb;color:#134fb0;font:700 11px/1 Inter;padding:3px 7px;vertical-align:middle}
+.wnote{margin-top:10px;font:500 13px/1.4 Inter;color:#3f4757;background:#f7f9fd;border-radius:10px;padding:10px 12px}
+.fld{display:grid;gap:6px;margin:12px 0}
+.fld>b{font:700 13px/1 Inter}
+.sg{display:flex;gap:0;border:1px solid #8d95a3;border-radius:10px;overflow:hidden;width:fit-content}
+.sg span{padding:9px 16px;font:600 14px/1 Inter;color:#3f4757;background:#fff}
+.sg span.on{background:#1a66dd;color:#fff}
+/* ---- app atleta ---- */
+.xr{display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border-radius:18px;margin-top:8px;box-shadow:0 2px 10px rgba(48,80,160,.10)}
+.xr .nd{width:34px;height:34px;border-radius:50%;background:#eceff5;display:grid;place-items:center;font:700 15px/1 Inter;color:#5c6068;flex:none}
+.xr .nd.cur{background:#e8effb;color:#1a66dd;box-shadow:0 0 0 2px #1a66dd inset}
+.xr .tx{flex:1;min-width:0}
+.xr .tx b{display:block;font:700 17px/1.2 Inter}
+.xr .tx span{font:500 14px/1.3 Inter;color:#3f4757}
+.pl{border-radius:999px;background:#eef3fc;padding:7px 11px;font:700 13px/1 Inter;color:#3f4757}
+.pl.cur{background:#e8effb;color:#1a66dd}
+.blk{background:#f3f6fc;border-radius:22px;padding:10px;margin-bottom:10px;box-shadow:0 4px 16px rgba(48,80,160,.10)}
+.blk .bh2{display:flex;align-items:center;gap:10px;min-height:46px}
+.blk .pr{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;flex:none}
+.blk .pr svg{width:19px;height:19px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.blk .bh2 .t{flex:1}
+.blk .bh2 .t b{display:block;font:800 16px/1.2 Inter}
+.blk .bh2 .t span{font:500 13px/1.2 Inter;color:#3f4757}
+.xt{font:800 28px/1.15 Inter;margin:6px 0 12px;padding:0 2px}
+.beads2{display:flex;align-items:center;gap:6px;margin-bottom:14px;font:600 14px/1 Inter}
+.beads2 i{width:12px;height:12px;border-radius:50%;background:#c3cbd9}
+.beads2 i.d{background:#3080fc}
+.beads2 i.a{width:18px;height:18px;background:#e8effb;border:2px solid #1a66dd}
+.beads2 span{margin-left:6px}
+.sc{background:#fff;border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(48,80,160,.10)}
+.sc .sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.sc .sh b{font:700 16px/1 Inter}
+.tp{background:#e8effb;color:#134fb0;border-radius:999px;padding:5px 12px;font:700 12px/1 Inter}
+.ringw{position:relative;width:236px;height:236px;margin:6px auto 12px}
+.ringw svg{width:236px;height:236px;transform:rotate(-90deg)}
+.ringw .ct{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.ringw .ct b{font:800 66px/1 Inter;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.ringw .ct span{font:600 14px/1.2 Inter;color:#3f4757;margin-top:6px}
+.bt{display:flex;align-items:center;justify-content:center;gap:8px;height:56px;border-radius:999px;font:700 17px/1 Inter;background:#1a66dd;color:#fff;box-shadow:0 6px 16px rgba(26,102,221,.30)}
+.bt svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.bt.sec{background:#fff;color:#1f2228;border:1.5px solid #8d95a3;box-shadow:none}
+.bt.sec svg{stroke:#1f2228}
+.bt.off{opacity:.45;box-shadow:none}
+.btrow{display:flex;gap:10px}
+.btrow .bt{flex:1}
+.lnk{text-align:center;color:#1a66dd;font:700 15px/1 Inter;margin-top:14px}
+.stp{display:flex;align-items:center;margin-top:6px}
+.stp i{width:56px;height:56px;border-radius:50%;background:#e8effb;color:#1a66dd;display:grid;place-items:center;font:600 28px/1 Inter;font-style:normal}
+.stp b{flex:1;text-align:center;font:800 52px/1 Inter}
+.stp b small{font:700 20px/1 Inter;color:#3f4757;margin-left:4px}
+.flab{font:600 13px/1 Inter;color:#3f4757}
+.pend{display:flex;justify-content:space-between;background:#fff;border-radius:14px;padding:12px 14px;margin-bottom:10px;font:500 13px/1 Inter;color:#3f4757;box-shadow:0 2px 10px rgba(48,80,160,.10)}
+.dn{display:flex;justify-content:space-between;align-items:center;background:#e4f4ea;border-radius:14px;padding:12px 14px;margin-bottom:10px;font:500 13px/1 Inter;color:#1d6b3f}
+.dn b{font:700 13px/1 Inter}
+.dn u{color:#1a66dd;font:600 13px/1 Inter;text-decoration:none}
+.ft{position:absolute;left:0;right:0;bottom:0;padding:10px 16px 34px;background:#eef3fc}
+.hint{font:500 13px/1.3 Inter;color:#3f4757;text-align:center;margin-bottom:8px}
+.rb{background:#1f2228;border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px;color:#fff}
+.rb .x{flex:1}
+.rb .x small{display:block;font:500 11px/1 Inter;color:#c9d0dc}
+.rb .x b{font:700 22px/1.2 Inter;font-variant-numeric:tabular-nums}
+.rb .trk{height:4px;border-radius:2px;background:#3a414e;margin-top:6px;overflow:hidden}
+.rb .trk i{display:block;height:4px;background:#3080fc}
+.rb .sk2{border:1px solid #8d95a3;border-radius:999px;padding:8px 14px;font:700 13px/1 Inter}
+.lg{font:500 14px/1.4 Inter;color:#3f4757;margin:6px 0 0 46px}
+.scr.nopad{padding-bottom:0}
+
+/* ===== CYC-305: RM y % del RM ===== */
+.wbk{overflow:visible}
+.wbk .bh{border-radius:18px 18px 0 0}
+.wh{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.wr2{display:grid;grid-template-columns:18px minmax(130px,1fr) 52px 100px 124px 104px 54px 54px 28px;gap:8px;align-items:center;padding:8px 12px;border-top:1px solid #e6ebf5;position:relative}
+.wr2.h{border-top:0;padding-top:6px;padding-bottom:2px;font:600 12px/1 Inter;color:#3f4757;text-align:center}
+.wr2.h span:nth-child(2){text-align:left}
+.wr2 .gp{color:#8d95a3;font-size:16px;text-align:center}
+.wr2 .nm b{font:700 15px/1.2 Inter}
+.pw{position:relative}
+.kgc{display:inline-flex;align-items:center;gap:4px;border-radius:999px;background:#e4f4ea;color:#1d6b3f;font:700 13px/1 Inter;padding:7px 11px;white-space:nowrap}
+.kgc.no{background:#fdeede;color:#8f4410}
+.kgc svg{width:11px;height:11px;stroke:#8f4410;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.src{font:700 11px/1 Inter;border-radius:999px;padding:4px 8px;white-space:nowrap;display:inline-block}
+.src.co{background:#e8effb;color:#134fb0}
+.src.at{background:#e4f4ea;color:#1d6b3f}
+.src.es{background:#eceff5;color:#3f4757}
+.alr{display:flex;align-items:center;gap:10px;background:#fdeede;border:1px solid #f0c9a0;color:#5b2d0a;border-radius:14px;padding:12px 14px;font:500 14px/1.4 Inter}
+.alr svg{width:20px;height:20px;stroke:#8f4410;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.alr span{flex:1}
+.alr u{color:#134fb0;font:700 14px/1 Inter;text-decoration:none;white-space:nowrap}
+.sec{font:800 16px/1 Inter;margin:18px 0 8px}
+.tbl{border:1px solid #dde4f0;border-radius:14px;overflow:hidden}
+.tr{display:grid;grid-template-columns:1fr 130px 90px 90px 110px;gap:8px;align-items:center;padding:11px 14px;border-top:1px solid #e6ebf5;font:500 14px/1.2 Inter}
+.tr:first-child{border-top:0}
+.tr.h{background:#f3f6fc;font:700 12px/1 Inter;color:#3f4757;padding:9px 14px}
+.tr b{font:700 15px/1.2 Inter}
+.tr .n{font:700 15px/1 Inter}
+.tr.h .n{font:700 12px/1 Inter}
+.tr .d{color:#3f4757}
+.tr u{color:#134fb0;font:700 14px/1 Inter;text-decoration:none;text-align:right}
+.sug{margin-top:10px;background:#e8effb;border-radius:14px;padding:12px 14px;font:500 14px/1.5 Inter;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sug u{color:#134fb0;font:700 14px/1 Inter;text-decoration:none}
+.bn{display:inline-grid;place-items:center;background:#1a66dd;color:#fff;border-radius:999px;height:34px;padding:0 16px;font:700 14px/1 Inter}
+.bn.sec{background:#fff;color:#1f2228;border:1.5px solid #8d95a3}
+.cr{display:grid;grid-template-columns:150px repeat(3,1fr);gap:8px;align-items:center;padding:7px 0;border-top:1px solid #e6ebf5;font:600 14px/1 Inter}
+.cr.h{border-top:0;font:700 12px/1 Inter;color:#3f4757;text-align:center}
+.cr b{font:700 14px/1.2 Inter}
+.cv{border-radius:10px;padding:10px 0;text-align:center;font:700 13px/1 Inter}
+.cv.ok{background:#e4f4ea;color:#1d6b3f}
+.cv.no{background:#fdeede;color:#8f4410}
+.rd{display:flex;gap:10px;align-items:flex-start;margin-top:10px;font:400 13px/1.4 Inter;color:#1f2228}
+.rd i{flex:none;width:18px;height:18px;border-radius:50%;border:2px solid #8d95a3;background:#fff;margin-top:1px}
+.rd i.on{border-color:#1a66dd;background:radial-gradient(#1a66dd 0 45%,#fff 50%)}
+.rd b{display:block;font:700 14px/1.3 Inter}
+.msg{background:#e8effb;border-radius:16px;padding:14px}
+.msg b{font:800 17px/1.25 Inter}
+.msg p{font:400 15px/1.45 Inter;margin:6px 0 12px;color:#1f2228}
+.sheet{background:#fff;border-radius:28px 28px 0 0;padding:10px 18px 34px;width:100%}
+.grab{display:block;width:40px;height:5px;border-radius:3px;background:#c9d2e4;margin:0 auto 14px}
+.nvbox{background:#fff;border-radius:16px;padding:12px 16px;text-align:center;box-shadow:var(--sh)}
+.nvbox b{display:block;font:800 30px/1 Inter}
+.nvbox small{font:500 13px/1.4 Inter;color:#3f4757}
+.nvbox.on{background:#1a66dd}
+.nvbox.on b,.nvbox.on small{color:#fff}
+.pop div.dis{opacity:.6}
+.pop div.dis small{color:#8f4410;opacity:1}
+.pop div.act{color:#134fb0;font-weight:700;border-top:1px solid #e6ebf5;margin-top:4px;border-radius:0 0 8px 8px}
+.bn.off{opacity:.45}
+.rn{font:500 13px/1.35 Inter;color:#3f4757;margin:0 0 12px}
+.cbx{display:grid;place-items:center;width:20px;height:20px;border-radius:6px;border:2px solid #8d95a3;background:#fff;flex:none}
+.cbx.on{background:#1a66dd;border-color:#1a66dd}
+.cbx svg{width:13px;height:13px;stroke:#fff;fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+.cr2{display:grid;grid-template-columns:28px 140px repeat(3,1fr) 90px;gap:8px;align-items:center;padding:7px 0;border-top:1px solid #e6ebf5;font:600 14px/1 Inter}
+.cr2.h{border-top:0;font:700 12px/1 Inter;color:#3f4757;text-align:center}
+.cr2.h span:nth-child(2){text-align:left}
+.cr2 b{font:700 14px/1.2 Inter}
+.stt{font:700 12px/1 Inter;border-radius:999px;padding:6px 8px;text-align:center}
+.stt.ok{background:#e4f4ea;color:#1d6b3f}
+.stt.no{background:#fdeede;color:#8f4410}
+.ntf{display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-top:1px solid #e6ebf5}
+.ntf:first-of-type{border-top:0}
+.ntf .dot{width:10px;height:10px;border-radius:50%;background:#1a66dd;margin-top:6px;flex:none}
+.ntf b{font:700 15px/1.3 Inter;display:block}
+.ntf p{font:400 14px/1.4 Inter;color:#3f4757;margin:4px 0 8px}
+.ntf u{color:#134fb0;font:700 14px/1 Inter;text-decoration:none}
+.calc{background:#f3f6fc;border-radius:14px;padding:14px 16px}
+.calc>b{font:800 14px/1 Inter;display:block;margin-bottom:8px}
+.calc .fm{font:700 18px/1.3 Inter;color:#134fb0;margin-bottom:6px}
+.calc .st{font:500 15px/1.4 Inter}
+.rules{margin:0;padding-left:20px;font:400 14px/1.5 Inter;color:#3f4757}
+
+/* ===== CYC-308: Equipos ===== */
+.nav{display:flex;align-items:center;gap:6px;border-bottom:1px solid #e6ebf5;margin:-18px -20px 16px;padding:12px 20px}
+.nav b{font:800 16px/1 Inter;color:#1a66dd;margin-right:14px}
+.nav span{font:600 14px/1 Inter;color:#3f4757;padding:8px 12px;border-radius:10px}
+.nav span.on{background:#e8effb;color:#134fb0}
+.ph1{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.ph1 h2{font:800 26px/1.1 Inter}
+.ph1 .bn{margin-left:auto}
+.tg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.tc{border-radius:16px;box-shadow:0 0 0 1px #dde4f0;padding:14px;display:grid;gap:12px}
+.tc .t{display:flex;align-items:center;gap:10px}
+.tc .t i{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:#fff;font:800 15px/1 Inter;font-style:normal}
+.tc .t b{font:800 16px/1.2 Inter}
+.tc .t em{margin-left:auto;font:700 13px/1 Inter;font-style:normal;color:#3f4757}
+.stk{display:flex}
+.stk .av{width:30px;height:30px;font-size:11px;margin-left:-4px;box-shadow:0 0 0 2px #fff}
+.stk .av:first-child{margin-left:0}
+.stk .more{width:30px;height:30px;border-radius:50%;background:#eceff5;color:#3f4757;font:700 11px/1 Inter;display:grid;place-items:center;margin-left:-8px;box-shadow:0 0 0 2px #fff}
+.emp{text-align:center;padding:46px 20px 40px;border-radius:16px;background:#f7f9fd}
+.emp b{display:block;font:800 22px/1.2 Inter;margin-bottom:8px}
+.emp p{font:400 15px/1.45 Inter;color:#3f4757;max-width:420px;margin:0 auto 18px}
+.emp .ico{width:64px;height:64px;border-radius:20px;background:#e8effb;display:grid;place-items:center;margin:0 auto 16px}
+.emp .ico svg{width:30px;height:30px;stroke:#1a66dd;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.pk{border:1px solid #dde4f0;border-radius:14px;overflow:hidden;margin-top:6px}
+.pk .r{display:grid;grid-template-columns:28px 36px 1fr auto;gap:10px;align-items:center;padding:9px 12px;border-top:1px solid #e6ebf5;font:600 14px/1.2 Inter}
+.pk .r:first-child{border-top:0}
+.pk .r .av{width:32px;height:32px;font-size:11px}
+.pk .r.sel{background:#f3f6fc}
+.mt{display:grid;grid-template-columns:36px 1fr 150px 130px 90px;gap:10px;align-items:center;padding:11px 14px;border-top:1px solid #e6ebf5;font:500 14px/1.2 Inter}
+.mt.h{border-top:0;background:#f3f6fc;font:700 12px/1 Inter;color:#3f4757;padding:9px 14px}
+.mt .av{width:32px;height:32px;font-size:11px}
+.mt b{font:700 15px/1.2 Inter}
+.mt u{color:#9d2a2a;font:700 14px/1 Inter;text-decoration:none;text-align:right}
+.srch{display:flex;align-items:center;height:40px;border-radius:10px;border:1.5px solid #8d95a3;padding:0 12px;font:500 14px/1 Inter;color:#8d95a3;margin-top:6px}
+.cnt{font:700 13px/1 Inter;color:#134fb0;margin:10px 0 2px}
+.dd{position:absolute;z-index:5;background:#fff;border-radius:12px;box-shadow:0 6px 24px rgba(31,34,40,.22);padding:6px;width:260px}
+.dd div{padding:10px 12px;border-radius:8px;font:600 14px/1.2 Inter;display:flex;align-items:center;gap:8px}
+.dd div.on{background:#e8effb;color:#134fb0}
+.dd div.dg{color:#9d2a2a}
+.sm{display:flex;gap:8px;align-items:center}
+.acard{border-radius:16px;box-shadow:0 0 0 1px #dde4f0;padding:14px;display:grid;gap:8px}
+.acard .t{display:flex;align-items:center;gap:10px}
+.acard .t b{font:800 16px/1.2 Inter}
+
+.bn.sec{margin:0}
+.ph1 .bn,.ph1 .bn.sec{margin-top:0;margin-bottom:0}
+
+/* ===== CYC-316 v3: sidebar con selector y herramientas, tipografía liviana ===== */
+.web.t3{padding:0;overflow:hidden;font-weight:400}
+.t3nav{display:flex;align-items:center;gap:4px;border-bottom:1px solid #e6ebf5;padding:12px 20px}
+.t3nav b{font:600 16px/1 Inter;color:#1a66dd;margin-right:14px}
+.t3nav span{font:500 14px/1 Inter;color:#3f4757;padding:8px 12px;border-radius:10px}
+.t3nav span.on{background:#e8effb;color:#134fb0}
+.t3sh{display:grid;grid-template-columns:var(--sbw,250px) 1fr;min-height:540px}
+.t3sb{border-right:1px solid #e6ebf5;padding:14px 12px;display:flex;flex-direction:column;gap:12px;background:#fff;position:relative}
+.t3tg{display:flex;justify-content:flex-end;padding:0 4px}
+.t3tg b{width:34px;height:34px;display:grid;place-items:center;border-radius:10px}
+.t3tg svg,.t3ic svg{width:22px;height:22px;stroke:#1f2228;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.t3sel{display:flex;align-items:center;gap:10px;height:48px;border-radius:12px;border:1px solid #c9d2e4;padding:0 12px;font:500 15px/1 Inter;color:#1f2228;background:#fff}
+.t3sel i{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;color:#fff;font:600 12px/1 Inter;font-style:normal;flex:none}
+.t3sel span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t3sel svg{width:18px;height:18px;stroke:#3f4757;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.t3tools{display:grid;gap:2px}
+.t3tool{display:flex;align-items:center;gap:12px;border-radius:12px;padding:11px 12px;font:500 15px/1.2 Inter;color:#3f4757}
+.t3tool.on{background:#f0f1f4;color:#1f2228}
+.t3tool .t3ic{display:grid;place-items:center;width:24px;height:24px;flex:none}
+.t3lab{font:500 12px/1 Inter;color:#8d95a3;padding:4px 12px 0;letter-spacing:.04em;text-transform:uppercase}
+.t3sb.col{padding:14px 10px;align-items:center}
+.t3sb.col .t3tg{justify-content:center;padding:0}
+.t3sb.col .t3sel{width:48px;padding:0;justify-content:center;gap:0}
+.t3sb.col .t3tool{padding:11px;justify-content:center}
+.t3sb.col .t3tools{justify-items:center}
+.t3dd{position:absolute;left:12px;right:12px;top:112px;background:#fff;border-radius:14px;box-shadow:0 8px 28px rgba(31,34,40,.22);padding:6px;z-index:5}
+.t3dd .o{display:flex;align-items:center;gap:10px;border-radius:10px;padding:9px 10px;font:500 15px/1.2 Inter;color:#1f2228}
+.t3dd .o i{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;color:#fff;font:600 11px/1 Inter;font-style:normal;flex:none}
+.t3dd .o span{flex:1}
+.t3dd .o em{font:400 13px/1 Inter;font-style:normal;color:#8d95a3}
+.t3dd .o.on{background:#f0f1f4}
+.t3dd .sep{border-top:1px solid #e6ebf5;margin:6px 0 2px}
+.t3dd .o.add svg{width:20px;height:20px;stroke:#1f2228;fill:none;stroke-width:1.8;stroke-linecap:round}
+.t3mn{padding:20px 24px 26px;min-width:0;position:relative}
+.t3hd{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.t3hd h2{font:600 24px/1.1 Inter;margin-right:auto}
+.t3btn{display:inline-flex;align-items:center;gap:6px;height:38px;border-radius:999px;padding:0 16px;font:500 14px/1 Inter;border:1px solid #8d95a3;color:#1f2228;background:#fff;white-space:nowrap}
+.t3btn.pr{background:#1a66dd;border-color:#1a66dd;color:#fff}
+.t3btn.sq{padding:0;width:38px;justify-content:center}
+.t3wk{display:flex;align-items:center;gap:10px;font:500 14px/1 Inter;color:#3f4757}
+.t3wk b{width:30px;height:30px;border-radius:50%;border:1px solid #c9d2e4;display:grid;place-items:center;font-weight:400}
+.t3tb{border:1px solid #dde4f0;border-radius:14px;overflow:hidden}
+.t3r{display:grid;gap:8px;align-items:center;padding:11px 16px;border-top:1px solid #e6ebf5;font:400 14px/1.2 Inter}
+.t3r:first-child{border-top:0}
+.t3r.h{background:#f7f9fd;font:500 12px/1 Inter;color:#5c6068;padding:10px 16px}
+.t3r .nm{display:flex;align-items:center;gap:10px;font:500 14px/1.2 Inter}
+.t3r .nm .av{width:30px;height:30px;font-size:11px;font-weight:600}
+.t3cal{grid-template-columns:minmax(150px,1fr) repeat(7,44px)}
+.t3cal .d{text-align:center}
+.mk{width:22px;height:22px;border-radius:50%;margin:0 auto;display:grid;place-items:center}
+.mk.ok{background:#2f9e5f}
+.mk.ok svg{width:13px;height:13px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.mk.pe{border:2px solid #8d95a3}
+.mk.sk svg{width:15px;height:15px;stroke:#c0392b;fill:none;stroke-width:2.4;stroke-linecap:round}
+.mk.td{border:2px solid #1a66dd}
+.t3cyc{grid-template-columns:minmax(150px,1fr) 190px 90px 170px}
+.pg{height:6px;border-radius:3px;background:#e6ebf5;overflow:hidden}
+.pg i{display:block;height:100%;background:#1a66dd}
+.t3rk{grid-template-columns:32px minmax(150px,1fr) 1fr 56px}
+.t3rk .n{font:500 14px/1 Inter;color:#5c6068;text-align:center}
+.t3rk .pc{font:500 14px/1 Inter;text-align:right}
+.t3seg{display:flex;border:1px solid #c9d2e4;border-radius:10px;overflow:hidden;width:fit-content}
+.t3seg span{padding:8px 14px;font:500 13px/1 Inter;color:#3f4757}
+.t3seg span.on{background:#f0f1f4;color:#1f2228}
+.t3note{margin-top:14px;font:400 13px/1.45 Inter;color:#3f4757;background:#f7f9fd;border-radius:10px;padding:10px 12px}
+.t3scrim{position:absolute;inset:0;background:rgba(31,34,40,.38);display:grid;place-items:center;z-index:6}
+.t3dlg{background:#fff;border-radius:18px;box-shadow:0 10px 40px rgba(31,34,40,.3);width:520px;padding:20px 22px}
+.t3dlg h3{font:600 20px/1.2 Inter;margin-bottom:12px}
+.t3mem{display:grid;grid-template-columns:34px 1fr auto auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid #e6ebf5;font:400 14px/1.2 Inter}
+.t3mem:first-of-type{border-top:0}
+.t3mem .av{width:30px;height:30px;font-size:11px;font-weight:600}
+.t3mem u{color:#9d2a2a;font:500 14px/1 Inter;text-decoration:none}
+.t3emp{text-align:center;padding:60px 20px;border-radius:16px;background:#f7f9fd}
+.t3emp h3{font:600 22px/1.2 Inter;margin-bottom:8px}
+.t3emp p{font:400 15px/1.45 Inter;color:#3f4757;max-width:420px;margin:0 auto 18px}
+.t3ph{width:390px}
+.t3ph .t3sel{margin:14px 16px 0}
+.t3tabs{display:flex;gap:6px;padding:12px 16px 0;overflow:hidden}
+.t3tabs span{display:flex;align-items:center;gap:5px;border-radius:999px;padding:8px 10px;font:500 14px/1 Inter;color:#3f4757;background:#f3f5fa;white-space:nowrap}
+.t3tabs span.on{background:#1f2228;color:#fff}
+.t3tabs svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.t3dd .o span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+/* ===== Calendario mensual ===== */
+.t3fl{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.t3fl span{display:inline-flex;align-items:center;gap:8px;height:36px;border-radius:10px;border:1px solid #dde4f0;padding:0 12px;font:500 13px/1 Inter;color:#1f2228;background:#fff}
+.t3fl svg{width:14px;height:14px;stroke:#3f4757;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.t3mo{border:1px solid #dde4f0;border-radius:16px;overflow:hidden;background:#fff}
+.t3mh{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.t3mh h3{font:500 18px/1 Inter;margin-right:auto}
+.t3mh h3 em{font:400 12px/1 Inter;font-style:normal;color:#8d95a3;margin-left:6px}
+.t3mh .t3seg span{padding:7px 12px}
+.t3mh .t3btn{height:32px;padding:0 12px;font-size:13px}
+.t3mh .t3btn.sq{width:32px;padding:0}
+.t3dw{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid #e6ebf5}
+.t3dw span{padding:10px 10px 8px;font:500 11px/1 Inter;color:#5c6068;letter-spacing:.06em}
+.t3wkr{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid #e6ebf5}
+.t3c{min-height:104px;padding:6px 6px 8px;border-left:1px solid #e6ebf5;display:flex;flex-direction:column;gap:4px;background:#fff}
+.t3c:first-child{border-left:0}
+.t3c.o{background:#f4f5f7}
+.t3c .n{font:400 12px/1 Inter;color:#5c6068;text-align:right;padding:2px 4px}
+.t3c .n b{display:inline-block;background:#1f2228;color:#fff;border-radius:6px;padding:3px 6px;font-weight:500}
+.t3c .n u{text-decoration:none;font:500 11px/1 Inter;color:#1f2228;margin-right:6px}
+.t3cd{border:1px solid #dde4f0;border-radius:9px;padding:5px 6px;background:#fff;min-width:0}
+.t3cd .tt{display:flex;align-items:center;gap:5px;font:500 11.5px/1.2 Inter;color:#1f2228}
+.t3cd .tt i{width:9px;height:9px;border-radius:50%;flex:none}
+.t3cd .tt span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t3cd .ch{display:inline-block;margin-top:4px;border-radius:999px;padding:2px 7px;font:500 10.5px/1.2 Inter;background:#e4f4ea;color:#1d6b3f}
+.t3cd .ch.gr{background:#eceff5;color:#3f4757}
+.t3cd .ch.bl{background:#e8effb;color:#134fb0}
+.t3cd .ch.am{background:#fdeede;color:#8f4410}
+.t3mr{font:400 11px/1 Inter;color:#5c6068;padding:0 4px}
+/* ===== Esquinas casi rectas (feedback de la usuaria) ===== */
+.web.t3{border-radius:6px}
+.t3nav span{border-radius:4px}
+.t3sel{border-radius:6px}
+.t3sel i,.t3dd .o i{border-radius:4px}
+.t3tg b{border-radius:6px}
+.t3tool{border-radius:6px}
+.t3dd{border-radius:8px}
+.t3dd .o{border-radius:4px}
+.t3btn{border-radius:6px}
+.t3wk b{border-radius:6px}
+.t3tb,.t3mo{border-radius:6px}
+.t3seg{border-radius:6px}
+.t3fl span{border-radius:6px}
+.t3cd{border-radius:4px}
+.t3cd .ch{border-radius:4px}
+.t3c .n b{border-radius:4px}
+.t3dlg{border-radius:8px}
+.t3note,.t3emp{border-radius:6px}
+.t3tabs span{border-radius:6px}
+.pg,.pg i{border-radius:2px}
+.chip{border-radius:4px}
+.t3scrim{border-radius:6px}
+
+/* ===== Ciclo del equipo ===== */
+.web.t3.wide{width:1200px}
+.cq-cyc{border:1px solid #dde4f0;border-radius:6px}
+.cq-ch{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid #e6ebf5}
+.cq-ch b{font:600 17px/1.2 Inter;margin-right:4px}
+.cq-pill{border-radius:4px;padding:4px 8px;font:500 12px/1 Inter;background:#eceff5;color:#3f4757;white-space:nowrap}
+.cq-pill.bl{background:#e8effb;color:#134fb0}
+.cq-pill.ok{background:#e4f4ea;color:#1d6b3f}
+.cq-pill.am{background:#fdeede;color:#8f4410}
+.cq-save{margin-left:auto;font:400 12px/1 Inter;color:#5c6068}
+.cq-bd{display:grid;grid-template-columns:minmax(0,1fr) 190px}
+.cq-cal{padding:10px 12px 12px;min-width:0}
+.cq-wl{font:500 12px/1 Inter;color:#5c6068;margin:8px 0 6px}
+.cq-wk{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.cq-d{border:1px solid #e6ebf5;border-radius:4px;min-height:96px;padding:5px;display:flex;flex-direction:column;gap:5px;background:#fff}
+.cq-d.p{background:#f4f5f7}
+.cq-d .h{display:flex;justify-content:space-between;font:400 11px/1 Inter;color:#5c6068}
+.cq-d .h b{background:#1f2228;color:#fff;border-radius:4px;padding:2px 5px;font-weight:500}
+.cq-d .pt{font:400 11px/1.3 Inter;color:#8d95a3}
+.cq-plus{margin-top:auto;border:1px dashed #c9d2e4;border-radius:4px;text-align:center;font:400 14px/20px Inter;color:#5c6068}
+.cq-s{border:1px solid #c9d2e4;border-radius:4px;padding:5px 6px;background:#fff}
+.cq-s.done{background:#eef8f1;border-color:#bfe0cb}
+.cq-s .t{display:flex;justify-content:space-between;gap:4px;font:500 11.5px/1.25 Inter}
+.cq-s .m{margin-top:3px;font:400 10.5px/1.3 Inter;color:#5c6068}
+.cq-s .cq-pill{display:inline-block;margin-top:4px;font-size:10.5px;padding:2px 5px}
+.cq-rt{border-left:1px solid #e6ebf5;padding:10px 10px 12px;display:flex;flex-direction:column;gap:8px}
+.cq-rt h4{font:600 13px/1 Inter}
+.cq-rt .srch2{border:1px solid #c9d2e4;border-radius:4px;padding:7px 8px;font:400 12px/1 Inter;color:#8d95a3}
+.cq-rt .r{border:1px solid #dde4f0;border-radius:4px;padding:8px;font:500 12px/1.3 Inter}
+.cq-rt .r small{display:block;font:400 11px/1.3 Inter;color:#5c6068;margin-top:3px}
+.cq-toast{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);background:#1f2228;color:#fff;border-radius:6px;padding:11px 16px;font:400 13px/1.3 Inter;display:flex;gap:16px;z-index:7;white-space:nowrap}
+.cq-toast u{font-weight:600;text-decoration:none;color:#8ab4ff}
+.cq-fl{margin-bottom:12px}
+.cq-fl>div{font:500 13px/1 Inter;margin-bottom:6px}
+.cq-in{height:40px;border:1px solid #c9d2e4;border-radius:6px;display:flex;align-items:center;padding:0 12px;font:400 14px/1 Inter}
+.cq-in.ph2{color:#8d95a3}
+.cq-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cq-pr{display:grid;grid-template-columns:22px 32px 1fr auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid #e6ebf5;font:400 14px/1.2 Inter}
+.cq-pr .av{width:28px;height:28px;font-size:10px;font-weight:600}
+.cq-ck{width:18px;height:18px;border-radius:4px;border:2px solid #8d95a3;display:grid;place-items:center}
+.cq-ck.on{background:#1a66dd;border-color:#1a66dd}
+.cq-ck svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+.cq-ck.off{opacity:.35}
+.cq-warn{background:#fdeede;border:1px solid #f0c9a0;color:#5b2d0a;border-radius:6px;padding:10px 12px;font:400 13px/1.45 Inter;margin-bottom:12px}
+.cq-info{background:#e8effb;border:1px solid #b9ccf0;border-radius:6px;padding:10px 12px;font:400 13px/1.45 Inter;margin-bottom:12px}
+.cq-acts{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.cq-ex{display:grid;grid-template-columns:1fr 60px 60px 70px;gap:8px;align-items:center;padding:9px 0;border-top:1px solid #e6ebf5;font:400 14px/1.2 Inter}
+.cq-ex.h{border-top:0;font:500 12px/1 Inter;color:#5c6068}
+.cq-ex span.v{border:1px solid #c9d2e4;border-radius:4px;text-align:center;padding:7px 0}
+.cq-li{font:400 14px/1.6 Inter;padding-left:18px;margin:0 0 4px}
+.cq-mem{grid-template-columns:minmax(160px,1fr) 190px minmax(200px,1.2fr)}
+/* ===== Nuevo ciclo: rango en calendario ===== */
+.cq-mos{display:grid;grid-template-columns:1fr 1fr;gap:22px;border:1px solid #dde4f0;border-radius:6px;padding:12px 14px}
+.cq-mh{display:flex;align-items:center;justify-content:space-between;font:500 14px/1 Inter;margin-bottom:10px}
+.cq-mh b{font-weight:400;color:#3f4757;width:24px;text-align:center}
+.cq-g{display:grid;grid-template-columns:repeat(7,1fr);row-gap:3px;text-align:center}
+.cq-g i{font:500 11px/22px Inter;font-style:normal;color:#8d95a3}
+.cq-g span{font:400 13px/30px Inter;position:relative}
+.cq-g span.in{background:#e8effb}
+.cq-g span.edge{background:#1a66dd;color:#fff;font-weight:500;border-radius:4px}
+.cq-g span.today{box-shadow:inset 0 0 0 1px #1f2228;border-radius:4px}
+.cq-g span.busy{color:#8f4410;background:#fdeede}
+.cq-g span.own:after{content:"";position:absolute;left:50%;bottom:3px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:#e0752b}
+.cq-sum{margin-top:10px;font:500 14px/1.4 Inter}
+.cq-sum.mut{font-weight:400;color:#5c6068}
+.cq-leg{display:flex;gap:14px;margin-top:8px;font:400 12px/1.3 Inter;color:#5c6068}
+.cq-leg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.cq-g span.off{color:#c3c8d1}
+.cq-g span.edge.off{color:#fff}
+.cq-stp{display:flex;align-items:center;gap:10px}
+.cq-stp b{width:40px;height:40px;border:1px solid #8d95a3;border-radius:6px;display:grid;place-items:center;font:400 20px/1 Inter}
+.cq-stp .cq-in{width:140px;justify-content:center}
+
+</style>
+</head>
+<body>
+<div id="out"></div>
+<script>
+const I={
+ cal:'<path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M4 10h16M8 3v4M16 3v4"/>',
+ dumb:'<path d="M6 8v8M3 10v4M18 8v8M21 10v4M6 12h12"/>',
+ chat:'<path d="M4 5h16v11H9l-5 4z"/>',
+ bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 21h4"/>',
+ left:'<path d="m15 6-6 6 6 6"/>',
+ check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+ fire:'<path d="M12 3c1 3.5 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 2.5 1.5 2.5C11 8 11 5.5 12 3z"/>',
+ play:'<path d="M8 5v14l11-7z"/>',
+ pause:'<path d="M9 5v14M15 5v14"/>',
+ chev:'<path d="m6 9 6 6 6-6"/>',
+ cls:'<path d="M6 6l12 12M18 6 6 18"/>'
+};
+const ic=(n,cls='')=>`<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+const ISO=`<svg class="iso" viewBox="0 0 100 100" fill="none" stroke="#3080fc" stroke-width="20" stroke-linecap="round"><path d="M17.09 69 A38 38 0 0 1 61.74 13.86"/><path d="M81.5 28.75 A38 38 0 0 1 35.77 85.23"/></svg>`;
+const bell=`<div class="bell">${ic('bell')}</div>`;
+function phone(body,{tabs=null,active=0,time='9:41',over=''}={}){
+  const isla=tabs?`<div class="isla">${tabs.map((t,i)=>`<b class="${i===active?'on':''}" aria-label="${t[1]}">${ic(t[0])}</b>`).join('')}</div><div class="home"></div>`:'';
+  return `<div class="ph"><div class="sb"><span>${time}</span><i></i><span><em>•••• ◖◗</em></span></div>${body}${isla}${over}</div>`;
+}
+const TABS=[['cal','Calendario'],['dumb','Inicio'],['chat','Asistente']];
+const back=(t)=>`<div class="back">${ic('left')}${t}</div>`;
+
+const chk=ic('check');
+const inp=(t,w,ph)=>`<div class="f ${ph?'ph2':''}" style="justify-content:start;padding:0 12px;${w?`width:${w}`:''}">${t}</div>`;
+const AVb=(t,c)=>`<div class="av" ${c?`style="background:${c}"`:''}>${t}</div>`;
+const NAV=(on)=>`<div class="nav"><b>Cycles</b>${['Inicio','Atletas','Equipos','Biblioteca','Ejercicios'].map(n=>`<span class="${n===on?'on':''}">${n}</span>`).join('')}</div>`;
+const ppl=[['VS','Valentina Soto'],['CR','Camila Rojas'],['JP','Josefa Pino'],['MV','Matías Vera'],['AD','Antonia Díaz'],['FG','Fernanda Gil'],['IM','Isidora Mena']];
+const stack=(n,total)=>`<div class="stk">${ppl.slice(0,n).map(p=>AVb(p[0])).join('')}${total>n?`<div class="more">+${total-n}</div>`:''}</div>`;
+const tcard=(i,c,n,k,st)=>`<div class="tc"><div class="t"><i style="background:${c}">${i}</i><b>${n}</b><em>${k}</em></div>${st}</div>`;
+const cbx=(on)=>`<i class="cbx ${on?'on':''}">${on?chk:''}</i>`;
+const TEAMS=[['V','#2f9e5f','Voleibol sub-17',12],['F','#1a66dd','Fuerza mañana',5],['S','#7a4dd8','Selección regional',8],['B','#d9822b','Básquetbol femenino',10]];
+const SV=(p)=>`<svg viewBox="0 0 24 24">${p}</svg>`;
+const IC={
+ panel:SV('<rect x="3.5" y="4.5" width="17" height="15" rx="3"/><path d="M9.5 4.5v15"/>'),
+ cal:SV('<path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M4 10h16M8 3v4M16 3v4"/>'),
+ cyc:SV('<path d="M20 12a8 8 0 0 1-13.7 5.6M4 12a8 8 0 0 1 13.7-5.6"/><path d="M18 3v4h-4M6 21v-4h4"/>'),
+ rk:SV('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"/>'),
+ ev:SV('<path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M4 10h16M8 3v4M16 3v4"/><path d="m12 12.6.9 1.8 2 .3-1.4 1.4.3 2-1.8-.9-1.8.9.3-2-1.4-1.4 2-.3z"/>'),
+ chev:SV('<path d="m6 9 6 6 6-6"/>'),
+ plus:SV('<path d="M12 5v14M5 12h14"/>'),
+ chk:SV('<path d="m5 12.5 4.5 4.5L19 7.5"/>'),
+ x:SV('<path d="M6 6l12 12M18 6 6 18"/>')
+};
+const T3NAV=`<div class="t3nav"><b>Cycles</b>${['Inicio','Atletas','Equipos','Biblioteca','Ejercicios'].map(n=>`<span class="${n==='Equipos'?'on':''}">${n}</span>`).join('')}</div>`;
+const TOOLS=[['Calendario','cal'],['Ciclos','cyc'],['Eventos','ev'],['Rankings','rk']];
+const selBox=(t,col)=>`<div class="t3sel"><i style="background:${t[1]}">${t[0]}</i>${col?'':`<span>${t[2]}</span>${IC.chev}`}</div>`;
+const tools=(on,col)=>`<div class="t3tools">${TOOLS.map(x=>`<div class="t3tool ${x[0]===on?'on':''}" title="${x[0]}"><span class="t3ic">${IC[x[1]]}</span>${col?'':x[0]}</div>`).join('')}</div>`;
+const side=(on,{col=false,t=TEAMS[0],dd=''}={})=>`<aside class="t3sb ${col?'col':''}"><div class="t3tg"><b>${IC.panel}</b></div>${selBox(t,col)}${col?'':'<div class="t3lab">Herramientas</div>'}${tools(on,col)}${dd}</aside>`;
+const ddOpen=`<div class="t3dd">${TEAMS.map((t,i)=>`<div class="o ${i===0?'on':''}"><i style="background:${t[1]}">${t[0]}</i><span>${t[2]}</span><em>${t[3]}</em></div>`).join('')}<div class="sep"></div><div class="o add">${IC.plus}<span>Crear equipo</span></div></div>`;
+const head=(title,extra='')=>`<div class="t3hd"><h2>${title}</h2>${extra}<span class="t3btn">12 atletas</span><span class="t3btn sq">⋯</span></div>`;
+const ATH=[['VS','Valentina Soto'],['CR','Camila Rojas'],['JP','Josefa Pino'],['MV','Matías Vera'],['AD','Antonia Díaz']];
+const mk=(s)=>s==='ok'?`<div class="mk ok">${IC.chk}</div>`:s==='sk'?`<div class="mk sk">${IC.x}</div>`:s==='td'?`<div class="mk td"></div>`:s==='pe'?`<div class="mk pe"></div>`:'';
+const DAYS=['L','M','M','J','V','S','D'];
+const WEEK=[['ok','','ok','','pe','',''],['ok','','sk','','td','',''],['ok','','ok','','pe','',''],['','','','','','',''],['','','','','','','']];
+function calendarioSemana(){
+ return `<div class="t3mn">${head('Calendario',`<div class="t3wk"><b>‹</b>Semana del 23 al 29 nov</div><span class="t3btn pr">Agregar rutina</span>`)}
+ <div class="t3tb"><div class="t3r h t3cal"><span>Atleta</span>${DAYS.map(d=>`<span class="d">${d}</span>`).join('')}</div>
+ ${ATH.map((a,i)=>`<div class="t3r t3cal"><div class="nm">${AVb(a[0])}${a[1]}</div>${WEEK[i].map(s=>`<div>${mk(s)}</div>`).join('')}</div>`).join('')}</div>
+ <div class="t3note">Vista «Semana»: una fila por atleta y una columna por día, con una marca por sesión.</div></div>`;
+}
+const cdS=(t,ch,k='')=>`<div class="t3cd"><div class="tt"><i style="background:#2f9e5f"></i><span>${t}</span></div><span class="ch ${k}">${ch}</span></div>`;
+const cdE=(t,c,ch='Equipo')=>`<div class="t3cd"><div class="tt"><i style="background:${c}"></i><span>${t}</span></div><span class="ch bl">${ch}</span></div>`;
+const cdA=(t)=>`<div class="t3mr">${t}</div>`;
+function cell(n,o,inner,today){return `<div class="t3c ${o?'o':''}"><div class="n">${today?`<u>Hoy</u><b>${n}</b>`:n}</div>${inner||''}</div>`;}
+function calendario(){
+ const R=(a)=>`<div class="t3wkr">${a.join('')}</div>`;
+ const rows=[
+  R([cell(26,1),cell(27,1),cell(28,1),cell(29,1),cell(30,1),cell(31,1),cell(1,1)]),
+  R([cell(2),cell(3),cell(4),cell(5),cell(6),cell(7),cell(8)]),
+  R([cell(9),cell(10),cell(11),cell(12),cell(13),cell(14),cell(15)]),
+  R([cell(16,0,cdS('Piernas base','10 de 12')),cell(17),cell(18,0,cdS('Torso','12 de 12')),cell(19),cell(20,0,cdS('Piernas base','11 de 12')),cell(21,0,cdE('Amistoso',EVC.part)),cell(22)]),
+  R([cell(23,0,cdS('Piernas base','12 de 12')),cell(24,0,cdE('Entrenamiento',EVC.ent,'3 atletas')),cell(25,0,cdS('Torso','7 de 12','am'),true),cell(26,0,cdA('Viaje: Matías')),cell(27,0,cdS('Piernas base','Pendiente','gr')),cell(28,0,cdE('Partido de liga',EVC.part)),cell(29,0,cdA('Descanso: 2'))])
+ ];
+ return `<div class="t3mn">${head('Calendario',`<span class="t3btn pr">Agregar rutina</span>`)}
+ <div class="t3fl"><span>${IC.cal.replace('<svg','<svg')}Todos los tipos ${IC.chev}</span><span>Todas las personas ${IC.chev}</span></div>
+ <div class="t3mo"><div class="t3mh"><h3>Noviembre de 2026<em>(GMT-3)</em></h3><div class="t3seg"><span>Semana</span><span class="on">Mes</span></div><span class="t3btn">Hoy</span><span class="t3btn sq">‹</span><span class="t3btn sq">›</span></div>
+ <div class="t3dw">${['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'].map(d=>`<span>${d}</span>`).join('')}</div>${rows.join('')}</div>
+ <div class="t3note">Cada día muestra las sesiones del equipo con cuántos atletas las hicieron, los eventos que creaste y, en una línea, lo que agregaron los atletas. Los filtros dejan ver solo un tipo o una persona.</div></div>`;
+}
+function ciclos(){
+ const r=(a,c,w,p)=>`<div class="t3r t3cyc"><div class="nm">${AVb(a[0])}${a[1]}</div><span>${c}</span><span>${w}</span>${p===null?'<span style="color:#8d95a3">—</span>':`<div class="pg"><i style="width:${p}%"></i></div>`}</div>`;
+ return `<div class="t3mn">${head('Ciclos',`<span class="t3btn pr">Agregar ciclo</span>`)}
+ <div class="t3tb"><div class="t3r h t3cyc"><span>Atleta</span><span>Ciclo</span><span>Semana</span><span>Avance</span></div>
+ ${r(ATH[0],'Fuerza base','2 de 6',33)}${r(ATH[1],'Fuerza base','2 de 6',33)}${r(ATH[2],'Fuerza base','2 de 6',30)}${r(ATH[3],'Sin ciclo','—',null)}${r(ATH[4],'Invitación pendiente','—',null)}</div>
+ <div class="t3note">El ciclo vigente de cada atleta del equipo. Al tocar una fila se abre el ciclo en la pizarra del atleta.</div></div>`;
+}
+const EVC={part:'#1f2228',ent:'#d9822b',via:'#8d95a3',des:'#7a4dd8',otro:'#4f7fd1'};
+const pl=(c)=>`<span style="display:inline-block;width:22px;height:22px;border-radius:50%;background:${c};box-shadow:0 0 0 3px ${c}33;flex:none"></span>`;
+const stk=(n,s=0)=>`<div style="display:flex">${ATH.slice(s,s+n).map((a,i)=>`<div style="margin-left:${i?'-6px':'0'};box-shadow:0 0 0 2px #fff;border-radius:50%">${AVb(a[0]).replace('class="av"','class="av" style="width:26px;height:26px;font-size:10px"')}</div>`).join('')}</div>`;
+const EVG='grid-template-columns:70px 28px minmax(160px,1fr) 190px 40px';
+const evA=(d,c,t,h,n,who,s=0)=>`<div class="t3r" style="${EVG}"><span style="font:500 14px/1.2 Inter">${d}</span>${pl(c)}<div><div style="font:500 14px/1.2 Inter">${t}</div><div style="font:400 12px/1.3 Inter;color:#5c6068;margin-top:3px">${h}</div></div><div style="display:flex;align-items:center;gap:8px">${stk(n,s)}<span style="font:400 13px/1 Inter;color:#3f4757;white-space:nowrap">${who}</span></div><span></span></div>`;
+const evT=(d,c,t,h,menu)=>`<div class="t3r" style="${EVG};background:#f7f9fd;position:relative"><span style="font:500 14px/1.2 Inter">${d}</span>${pl(c)}<div><div style="font:500 14px/1.2 Inter">${t}</div><div style="font:400 12px/1.3 Inter;color:#5c6068;margin-top:3px">${h}</div></div><div style="display:flex;align-items:center;gap:8px"><i style="width:26px;height:26px;border-radius:4px;display:grid;place-items:center;color:#fff;font:600 11px/1 Inter;font-style:normal;background:#2f9e5f">V</i><span style="font:500 13px/1 Inter;color:#134fb0;white-space:nowrap">Todo el equipo</span></div><span style="text-align:center;font:500 18px/1 Inter;color:#3f4757">⋯</span>${menu||''}</div>`;
+const evMenu=`<div class="t3dd" style="left:auto;right:30px;top:330px;width:160px"><div class="o"><span>Editar</span></div><div class="o" style="color:#9d2a2a"><span>Eliminar</span></div></div>`;
+function eventos(menu){
+ return `<div class="t3mn">${head('Eventos',`<div class="t3wk"><b>‹</b>Semana del 23 al 29 nov<b>›</b></div><span class="t3btn pr">Agregar evento</span>`)}
+ <div class="alr" style="background:#fdeede;border:1px solid #f0c9a0;color:#5b2d0a;border-radius:6px;padding:11px 14px;font:400 14px/1.4 Inter;margin-bottom:12px;display:flex;gap:10px;align-items:center"><b style="font-weight:500">Choque de carga:</b> Camila Rojas tiene partido el sábado y sesión el viernes y el sábado.</div>
+ <div class="t3tb"><div class="t3r h" style="${EVG}"><span>Día</span><span></span><span>Evento</span><span>Quiénes</span><span></span></div>
+ ${evA('Mar 24',EVC.ent,'Entrenamiento de voleibol','19:00, 90 min',3,'3 atletas')}
+ ${evA('Jue 26',EVC.via,'Viaje','Todo el día',1,'Matías Vera',3)}
+ ${evT('Sáb 28',EVC.part,'Partido de liga','16:00, 120 min','')}
+ ${evA('Dom 29',EVC.des,'Descanso activo','Todo el día',2,'2 atletas')}</div>
+ <div class="t3note">Las filas con fondo suave y «Todo el equipo» son eventos que creaste tú y puedes editar. Las demás son lo que cada atleta agregó por su cuenta: de solo lectura y sin sus notas.</div>${menu?evMenu:''}</div>`;
+}
+function eventoDlg(){
+ const tp=(t,c,on)=>`<span class="t3btn" style="${on?'background:#f0f1f4;border-color:#1f2228':''}"><span style="width:12px;height:12px;border-radius:50%;background:${c};display:inline-block"></span>${t}</span>`;
+ const fl=(l,v,w)=>`<div style="${w?`width:${w}`:'flex:1'}"><div style="font:500 13px/1 Inter;margin-bottom:6px">${l}</div><div style="height:42px;border:1px solid #c9d2e4;border-radius:6px;display:flex;align-items:center;padding:0 12px;font:400 14px/1 Inter">${v}</div></div>`;
+ const dd=['L','M','M','J','V','S','D'].map((d,i)=>`<span style="width:32px;height:32px;border-radius:6px;display:grid;place-items:center;font:500 13px/1 Inter;${i===5?'background:#1a66dd;color:#fff':'border:1px solid #c9d2e4'}">${d}</span>`).join('');
+ const over=`<div class="t3scrim"><div class="t3dlg" style="width:560px"><h3>Nuevo evento para Voleibol sub-17</h3>
+ <div style="font:500 13px/1 Inter;margin-bottom:8px">Tipo</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">${tp('Partido o competencia',EVC.part,1)}${tp('Entrenamiento',EVC.ent)}${tp('Viaje',EVC.via)}${tp('Descanso activo',EVC.des)}${tp('Otro',EVC.otro)}</div>
+ <div style="margin-bottom:12px">${fl('Nombre','Partido de liga','100%')}</div>
+ <div style="display:flex;gap:12px;margin-bottom:12px">${fl('Fecha','Sáb 28 nov')}${fl('Hora','16:00')}${fl('Duración','120 min')}</div>
+ <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span style="width:20px;height:20px;border-radius:4px;border:2px solid #8d95a3"></span><span style="font:400 14px/1 Inter">Todo el día</span></div>
+ <div style="font:500 13px/1 Inter;margin-bottom:8px">Se repite</div><div style="display:flex;gap:6px;margin-bottom:14px">${dd}</div>
+ <div>${fl('Nota para los atletas (opcional)','Llegar 45 min antes','100%')}</div>
+ <div style="display:flex;gap:10px;margin-top:16px"><span class="t3btn pr">Guardar evento</span><span class="t3btn">Cancelar</span></div></div></div>`;
+ return frame(side('Eventos'),eventos(false),250,over);
+}
+function atletaEv(){
+ return `<div class="web nar" style="min-height:420px"><div class="wt" style="font-weight:600">Calendario · semana del 23 al 29 nov</div>
+ <div class="tbl" style="margin-bottom:10px"><div style="padding:12px 14px;border-top:0"><div style="font:500 12px/1 Inter;color:#5c6068;margin-bottom:8px">Sáb 28</div>
+ <div style="display:flex;align-items:center;gap:12px;border-radius:6px;background:#f3f5fa;padding:12px">${pl(EVC.part)}<div style="flex:1"><div style="font:500 15px/1.2 Inter">Partido de liga</div><div style="font:400 13px/1.3 Inter;color:#5c6068;margin-top:3px">16:00, 120 min</div><div style="font:400 13px/1.3 Inter;color:#3f4757;margin-top:6px">Llegar 45 min antes</div></div><span class="chip gr">Voleibol sub-17</span></div></div></div>
+ <div class="wnote">El atleta ve los eventos de su equipo en su calendario, con el nombre del equipo, y no puede editarlos. Si lo quitan del equipo, deja de verlos.</div></div>`;
+}
+function rankings(){
+ const r=(n,a,p)=>`<div class="t3r t3rk"><span class="n">${n}</span><div class="nm">${AVb(a[0])}${a[1]}</div><div class="pg"><i style="width:${p}%"></i></div><span class="pc">${p} %</span></div>`;
+ return `<div class="t3mn">${head('Rankings',`<div class="t3seg"><span class="on">Últimas 4 semanas</span><span>Este ciclo</span></div>`)}
+ <div class="t3tb"><div class="t3r h t3rk"><span class="n">#</span><span>Atleta</span><span>Sesiones completadas</span><span class="pc"></span></div>
+ ${r(1,ATH[2],96)}${r(2,ATH[0],88)}${r(3,ATH[1],71)}${r(4,ATH[3],40)}${r(5,ATH[4],0)}</div>
+ <div class="t3note">Ordena a los atletas por el porcentaje de sesiones completadas sobre las asignadas en el período.</div></div>`;
+}
+const frame=(sideH,main,w=250,over='')=>`<div class="web t3">${T3NAV}<div class="t3sh" style="--sbw:${w}px">${sideH}${main}</div>${over}</div>`;
+function f1(){return frame(side('Calendario'),calendario());}
+function f11(){return frame(side('Calendario'),calendarioSemana());}
+function f2(){return frame(side('Calendario',{col:true}),calendario(),72);}
+function f3(){return frame(side('Calendario',{dd:ddOpen}),calendario());}
+function f4(){return frame(side('Ciclos'),ciclos());}
+function f9(){return frame(side('Eventos'),eventos(true));}
+function f10(){return eventoDlg();}
+function f5(){return frame(side('Rankings'),rankings());}
+function f6(){
+ const m=(a,c)=>`<div class="t3mem">${AVb(a[0])}<span>${a[1]}</span><span class="chip ${c[1]}">${c[0]}</span><u>Quitar</u></div>`;
+ const over=`<div class="t3scrim"><div class="t3dlg"><h3>Atletas de Voleibol sub-17</h3>${m(ATH[0],['Al día','ok'])}${m(ATH[1],['Con avisos','sk'])}${m(ATH[2],['Al día','ok'])}${m(ATH[3],['Sin ciclo','gr'])}${m(ATH[4],['Invitación pendiente','gr'])}<div style="display:flex;gap:10px;margin-top:16px"><span class="t3btn pr">Agregar atletas</span><span class="t3btn">Cerrar</span></div></div></div>`;
+ return frame(side('Calendario'),calendario(),250,over);
+}
+function f7(){
+ const side0=`<aside class="t3sb"><div class="t3tg"><b>${IC.panel}</b></div><div class="t3sel"><span style="color:#8d95a3">Sin equipos</span>${IC.chev}</div><div class="t3lab">Herramientas</div><div class="t3tools" style="opacity:.45">${TOOLS.map(x=>`<div class="t3tool"><span class="t3ic">${IC[x[1]]}</span>${x[0]}</div>`).join('')}</div></aside>`;
+ return frame(side0,`<div class="t3mn"><div class="t3hd"><h2>Equipos</h2></div><div class="t3emp"><h3>Crea tu primer equipo</h3><p>Agrupa a tus atletas para darles la misma rutina a todos, cada uno con su propio peso.</p><span class="t3btn pr" style="height:44px;padding:0 22px">Crear equipo</span></div></div>`);
+}
+function f8(open){
+ const nav=`<div style="padding:14px 16px;border-bottom:1px solid #e6ebf5;display:flex;align-items:center"><b style="font:600 16px/1 Inter;color:#1a66dd">Cycles</b><span style="margin-left:auto;font:500 14px/1 Inter;color:#134fb0">Equipos</span></div>`;
+ const tabs=`<div class="t3tabs">${TOOLS.map((x,i)=>`<span class="${i===0?'on':''}">${IC[x[1]]}${i===0?x[0]:''}</span>`).join('')}</div>`;
+ const body=`<div style="padding:16px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><h2 style="font:600 20px/1.1 Inter;margin-right:auto">Calendario</h2><span class="t3btn">12</span></div><div class="t3tb">${ATH.slice(0,4).map((a,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:${i?'1px solid #e6ebf5':'0'}">${AVb(a[0])}<span style="font:500 14px/1.2 Inter;flex:1">${a[1]}</span><div style="display:flex;gap:4px">${WEEK[i].slice(0,5).map(s=>mk(s)||'<div class="mk" style="border:1px dashed #dde4f0"></div>').map(h=>`<div style="width:22px">${h}</div>`).join('')}</div></div>`).join('')}</div></div>`;
+ const dd=open?`<div class="t3dd" style="top:70px;left:16px;right:16px">${TEAMS.map((t,i)=>`<div class="o ${i===0?'on':''}"><i style="background:${t[1]}">${t[0]}</i><span>${t[2]}</span><em>${t[3]}</em></div>`).join('')}<div class="sep"></div><div class="o add">${IC.plus}<span>Crear equipo</span></div></div>`:'';
+ return `<div class="web t3 t3ph" style="min-height:520px;position:relative">${nav}${selBox(TEAMS[0])}${tabs}${body}${dd}</div>`;
+}
+const wide=(h)=>h.replace('class="web t3"','class="web t3 wide"');
+const CQ=(side_,main,over='')=>wide(frame(side_,main,250,over));
+const scrim=(w,inner)=>`<div class="t3scrim"><div class="t3dlg" style="width:${w}px">${inner}</div></div>`;
+const hd=(extra='')=>head('Ciclos',extra);
+const note=(t)=>`<div class="t3note">${t}</div>`;
+function vacio(){
+ return CQ(side('Ciclos'),`<div class="t3mn">${hd()}<div class="t3emp"><h3>Este equipo aún no tiene ciclo</h3><p>Planifica una vez: las sesiones que pongas en el calendario del equipo llegan a cada integrante.</p><span class="t3btn pr" style="height:42px;padding:0 22px">Agregar ciclo</span></div></div>`);
+}
+const bgCic=()=>`<div class="t3mn">${hd()}<div class="t3emp" style="min-height:560px"><h3>Este equipo aún no tiene ciclo</h3></div></div>`;
+const fl=(l,v,ph)=>`<div class="cq-fl"><div>${l}</div><div class="cq-in ${ph?'ph2':''}">${v}</div></div>`;
+// Calendario de rango: from y to como [mes, día]; mes 11 o 12 de 2026.
+const key=(m,d)=>m*100+d;
+function month(m,name,off,len,o={}){
+ const {from=null,to=null,busy=null,own=[]}=o;
+ let cells=Array.from({length:off},()=>'<span></span>');
+ for(let d=1;d<=len;d++){const k=key(m,d);const c=[];
+  if(from&&k===from) c.push('edge'); else if(to&&k===to) c.push('edge'); else if(from&&to&&k>from&&k<to) c.push('in');
+  if(busy&&k>=busy[0]&&k<=busy[1]&&!c.length) c.push('busy');
+  if(k===key(11,25)&&!c.includes('edge')) c.push('today');
+  if(own.includes(k)) c.push('own');
+  if(k<key(11,25)) c.push('off');
+  cells.push(`<span class="${c.join(' ')}">${d}</span>`);}
+ return `<div><div class="cq-mh"><b>${m===11?'‹':''}</b>${name}<b>${m===12?'›':''}</b></div><div class="cq-g">${['L','M','M','J','V','S','D'].map(x=>`<i>${x}</i>`).join('')}${cells.join('')}</div></div>`;
+}
+const rango=(o)=>`<div style="font:500 13px/1 Inter;margin-bottom:6px">Fechas del ciclo</div><div class="cq-mos">${month(11,'Noviembre 2026',6,30,o)}${month(12,'Diciembre 2026',1,31,o)}</div>`;
+const acts=(label,off)=>`<div class="cq-acts" style="justify-content:flex-end"><span class="t3btn">Cancelar</span><span class="t3btn pr" style="${off?'opacity:.45':''}">${label}</span></div>`;
+const nombre=(v,ph)=>`${fl('Nombre',v,ph)}${fl('Objetivo (opcional)',ph?'Por ejemplo, base de fuerza':'Base de fuerza antes de la liga',ph)}`;
+const dlgEq=(inner)=>CQ(side('Ciclos'),`<div class="t3mn">${hd()}<div class="t3emp" style="min-height:700px"><h3>Este equipo aún no tiene ciclo</h3></div></div>`,scrim(640,inner));
+function datos(){
+ return dlgEq(`<h3>Nuevo ciclo para Voleibol sub-17</h3>${nombre('Fuerza base')}${rango({from:key(11,30),to:key(12,27)})}<div class="cq-sum" role="status">Del lunes 30 nov al domingo 27 dic: 4 semanas</div>${acts('Continuar')}`);
+}
+function datosVacio(){
+ return dlgEq(`<h3>Nuevo ciclo para Voleibol sub-17</h3>${nombre('Nombre del ciclo',1)}${rango({})}<div class="cq-sum mut" role="status">Elige el primer día en el calendario, desde hoy.</div>${acts('Continuar',1)}`);
+}
+function datosInicio(){
+ return dlgEq(`<h3>Nuevo ciclo para Voleibol sub-17</h3>${nombre('Fuerza base')}${rango({from:key(11,30)})}<div class="cq-sum mut" role="status">Empieza el lunes 30 nov. Ahora elige el último día: un ciclo dura al menos 2 días.</div>${acts('Continuar',1)}`);
+}
+function datosAtleta(){
+ const o={from:key(11,25),to:key(12,11),own:[key(11,26),key(11,27),key(11,28),key(11,29),key(11,30),key(12,1),key(12,2),key(12,3),key(12,4)]};
+ return CQ(side('Ciclos'),`<div class="t3mn"><div class="t3hd"><h2>Camila Rojas</h2></div><div class="t3emp" style="min-height:700px"></div></div>`,scrim(640,`<h3>Nuevo ciclo para Camila Rojas</h3>${fl('Nombre','Rehabilitación hombro')}${fl('Objetivo (opcional)','Volver a cargar el hombro')}${rango(o)}<div class="cq-sum" role="status">Del miércoles 25 nov al viernes 11 dic: 2 semanas y 3 días</div><div class="cq-leg"><span><i style="background:#e0752b;border-radius:50%;width:6px;height:6px"></i>Días con otro ciclo de Camila</span></div>${acts('Crear ciclo')}`)).replace('class="on">Equipos','>Equipos').replace('<span class="">Atletas','<span class="on">Atletas').replace(/<aside class="t3sb[\s\S]*?<\/aside>/,'').replace('class="t3sh" style="--sbw:250px"','class="t3sh" style="grid-template-columns:1fr"');
+}
+function semanasDesdeMiercoles(){
+ const cab=['Mié','Jue','Vie','Sáb','Dom','Lun','Mar'];
+ const w=(label,nums,extra={})=>wk(label,nums.map((n,i)=>{const t=`${cab[i]} ${n}`;
+  if(extra[i]==='out') return `<div class="cq-d p"><div class="h"><span></span><span>${t}</span></div><span class="pt">Fuera del ciclo</span></div>`;
+  return day(t,extra[i]||'',i===0&&nums[0]===25?{today:true}:{});}));
+ return `<div class="web t3 wide" style="min-height:420px"><div style="padding:18px 20px"><div class="cq-cyc"><div class="cq-ch"><b>Rehabilitación hombro</b><span class="cq-pill bl">En curso</span><span class="cq-pill">25 nov – 11 dic 2026</span></div><div class="cq-cal">${w('Semana 1: mié 25 nov al mar 1 dic',[25,26,27,28,29,30,1],{0:ses('Movilidad','7 ejercicios'),2:ses('Torso','5 ejercicios')})}${w('Semana 2: mié 2 al mar 8 dic',[2,3,4,5,6,7,8])}${w('Semana 3: mié 9 al vie 11 dic',[9,10,11,12,13,14,15],{3:'out',4:'out',5:'out',6:'out'})}</div></div>${note('Cada fila son 7 días contados desde el primer día del ciclo. Si el ciclo termina a mitad de fila, los días que sobran dicen «Fuera del ciclo». No hay casillas por sesión: en cada día caben las que quieras.')}</div></div>`;
+}
+const ck=(on,off)=>`<span class="cq-ck ${on?'on':''} ${off?'off':''}">${on?IC.chk:''}</span>`;
+const pr=(a,c,off,tag='')=>`<div class="cq-pr">${ck(c,off)}${AVb(a[0])}<span style="${off?'color:#8d95a3':''}">${a[1]}</span>${tag}</div>`;
+function quien(){
+ return CQ(side('Ciclos'),bgCic(),scrim(560,`<h3>¿Quién recibe «Fuerza base»?</h3>
+ <div class="cq-warn">2 atletas ya tienen un ciclo propio en estas fechas. Si lo reciben, los dos ciclos conviven en su calendario. Decide por cada uno.</div>
+ ${pr(ATH[0],1,0)}${pr(ATH[1],1,0,'<span class="cq-pill am">Tiene «Rehabilitación hombro»</span>')}${pr(ATH[2],1,0)}${pr(ATH[3],0,0,'<span class="cq-pill am">Tiene «Pretemporada»</span>')}${pr(ATH[4],0,1,'<span class="cq-pill">Invitación pendiente</span>')}
+ <div style="font:400 13px/1.4 Inter;color:#5c6068;border-top:1px solid #e6ebf5;padding-top:10px">Y 7 atletas más sin otro ciclo, ya marcados.</div>
+ <div class="cq-acts" style="justify-content:space-between"><span class="t3btn">Atrás</span><span class="t3btn pr">Crear ciclo para 10 atletas</span></div>`));
+}
+const ses=(name,meta,extra='',cls='')=>`<div class="cq-s ${cls}"><div class="t"><span>${name}</span><span>${cls?'':'⋯'}</span></div><div class="m">${meta}</div>${extra}</div>`;
+const day=(n,inner='',o={})=>`<div class="cq-d ${o.past?'p':''}"><div class="h"><span>${o.today?'Hoy':''}</span>${o.today?`<b>${n}</b>`:`<span>${n}</span>`}</div>${inner}${o.past?(inner?'':'<span class="pt">Día pasado</span>'):'<div class="cq-plus">+</div>'}</div>`;
+const DW=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+const wk=(label,days)=>`<div class="cq-wl">${label}</div><div class="cq-wk">${days.join('')}</div>`;
+function weeks(){
+ const P={past:true};
+ return wk('Semana 1: 23 al 29 nov',[day('Lun 23',ses('Piernas base','10 de 10 hechas','','done'),P),day('Mar 24','',P),day('Mié 25',ses('Torso','4 de 10 hechas'),{today:true}),day('Jue 26'),day('Vie 27',ses('Piernas base','10 atletas','<span class="cq-pill am">1 ajustada</span>')),day('Sáb 28'),day('Dom 29')])+
+ wk('Semana 2: 30 nov al 6 dic',[day('Lun 30',ses('Piernas base','10 atletas')),day('Mar 1'),day('Mié 2',ses('Torso','10 atletas')),day('Jue 3'),day('Vie 4',ses('Piernas base','10 atletas')),day('Sáb 5'),day('Dom 6')])+
+ wk('Semana 3: 7 al 13 dic',[day('Lun 7'),day('Mar 8'),day('Mié 9'),day('Jue 10'),day('Vie 11'),day('Sáb 12'),day('Dom 13')]);
+}
+const panelRt=`<div class="cq-rt"><h4>Rutinas</h4><div class="srch2">Buscar rutina</div><span class="t3btn pr" style="justify-content:center">Crear rutina nueva</span>${[['Piernas base','6 ejercicios'],['Torso','5 ejercicios'],['Pliometría','4 ejercicios'],['Movilidad','7 ejercicios']].map(r=>`<div class="r">${r[0]}<small>${r[1]}</small></div>`).join('')}</div>`;
+const cycHead=(save='Guardado')=>`<div class="cq-ch"><b>Fuerza base</b><span class="cq-pill bl">En curso</span><span class="cq-pill">23 nov – 20 dic 2026</span><span class="cq-pill">10 de 12 atletas</span><span class="cq-save">${save}</span><span class="t3btn" style="height:30px;font-size:13px">Datos del ciclo</span></div>`;
+const board=(over='')=>`<div class="t3mn">${hd('<span class="t3btn">Agregar ciclo</span>')}<div class="cq-cyc">${cycHead()}<div class="cq-bd"><div class="cq-cal">${weeks()}</div>${panelRt}</div></div>${over}</div>`;
+function pizarra(){
+ return CQ(side('Ciclos'),board(note('Es la misma pizarra del ciclo de un atleta: arrastra una rutina a un día o usa «+». Cada gesto se guarda solo y llega a los integrantes. Lo registrado no cambia.')));
+}
+function menuMover(){
+ const menu=`<div class="t3dd" style="left:700px;right:auto;top:268px;width:210px"><div class="o"><span>Editar ejercicios</span></div><div class="o"><span>Mover a otro día…</span></div><div class="o"><span>Duplicar en otro día…</span></div><div class="o" style="color:#9d2a2a"><span>Quitar de este día</span></div></div><div class="cq-toast"><span>Cambio guardado: actualizada en 9 atletas. 1 no cambió (ajustada).</span><u>Deshacer</u></div>`;
+ return CQ(side('Ciclos'),board(menu));
+}
+function editarEquipo(){
+ const ex=(n,s,r,k)=>`<div class="cq-ex"><span>${n}</span><span class="v">${s}</span><span class="v">${r}</span><span class="v">${k}</span></div>`;
+ return CQ(side('Ciclos'),board(),scrim(560,`<h3>Piernas base, viernes 27 nov</h3>
+ <div class="cq-info">Estás editando la sesión del equipo. El cambio llega a <b style="font-weight:600">9 atletas</b>. La sesión ajustada de Camila Rojas no cambia.</div>
+ <div class="cq-ex h"><span>Ejercicio</span><span>Series</span><span>Reps</span><span>Carga</span></div>${ex('Sentadilla',4,6,'80 %')}${ex('Peso muerto',3,5,'70 %')}${ex('Hip thrust',3,10,'75 %')}
+ <div class="cq-acts"><span class="t3btn pr">Guardar para 9 atletas</span><span class="t3btn">Cancelar</span></div>`));
+}
+function ventanaAtleta(){
+ const ex=(n,s,r,k)=>`<div class="cq-ex"><span>${n}</span><span class="v">${s}</span><span class="v">${r}</span><span class="v">${k}</span></div>`;
+ const main=`<div class="t3mn" style="padding:20px 24px"><div class="t3hd"><h2>Camila Rojas</h2></div><div class="cq-cyc"><div class="cq-ch"><b>Fuerza base</b><span class="cq-pill bl">En curso</span><span class="cq-pill bl">Ciclo de Voleibol sub-17</span></div><div class="cq-cal">${wk('Semana 1: 23 al 29 nov',[day('Lun 23',ses('Piernas base','Hecha','<span class="cq-pill ok">Registrada</span>','done'),{past:true}),day('Mar 24','',{past:true}),day('Mié 25',ses('Torso','5 ejercicios','<span class="cq-pill bl">Del equipo</span>'),{today:true}),day('Jue 26'),day('Vie 27',ses('Piernas base','5 ejercicios','<span class="cq-pill am">Ajustada</span>')),day('Sáb 28'),day('Dom 29')])}</div></div></div>`;
+ const over=scrim(560,`<h3>Piernas base de Camila, viernes 27 nov</h3>
+ <div class="cq-warn">Este cambio es solo para Camila. La planificación del equipo no cambia, y esta sesión deja de recibir los cambios del equipo.</div>
+ <div class="cq-ex h"><span>Ejercicio</span><span>Series</span><span>Reps</span><span>Carga</span></div>${ex('Sentadilla',3,6,'60 %')}${ex('Peso muerto',3,5,'60 %')}
+ <div class="cq-acts"><span class="t3btn pr">Guardar solo para Camila</span><span class="t3btn">Cancelar</span></div>`);
+ return wide(`<div class="web t3">${T3NAV.replace('class="on">Equipos','>Equipos').replace('<span class="">Atletas','<span class="on">Atletas')}${main}${over}</div>`).replace('<div class="web t3 wide">','<div class="web t3 wide" style="min-height:560px">');
+}
+function entra(){
+ return CQ(side('Ciclos'),board(),scrim(480,`<h3>¿Le asignas el ciclo del equipo a Fernanda Gil?</h3>
+ <div class="cq-info">Fernanda entró a Voleibol sub-17. El ciclo empezó el lunes 23 y sus semanas son las mismas que las del equipo. Si lo recibe, le llegan las sesiones desde hoy, miércoles 25: <b style="font-weight:600">5 sesiones</b>.</div>
+ <div class="cq-warn">Ya tiene el ciclo «Fuerza personal» en esas fechas. Los dos conviven.</div>
+ <div class="cq-acts"><span class="t3btn pr">Sí, asignar desde hoy</span><span class="t3btn">No por ahora</span></div>`));
+}
+function sale(){
+ return CQ(side('Ciclos'),board(),scrim(480,`<h3>Quitar a Camila Rojas del equipo</h3>
+ <p style="font:400 14px/1.5 Inter;margin-bottom:8px">En «Fuerza base»:</p>
+ <ul class="cq-li"><li>Se quitan <b style="font-weight:600">3 sesiones futuras</b>.</li><li>Conserva 2 sesiones ya registradas.</li><li>Conserva 1 sesión que ajustaste para Camila.</li></ul>
+ <div class="cq-acts"><span class="t3btn pr" style="background:#b3261e;border-color:#b3261e">Quitar del equipo</span><span class="t3btn">Cancelar</span></div>`));
+}
+function integrantes(){
+ const r=(a,e,c,d)=>`<div class="t3r cq-mem"><div class="nm">${AVb(a[0])}${a[1]}</div><span><span class="cq-pill ${c}">${e}</span></span><span style="font:400 13px/1.3 Inter;color:#3f4757">${d}</span></div>`;
+ return CQ(side('Ciclos'),`<div class="t3mn">${hd('<span class="t3btn">Agregar ciclo</span>')}<div class="cq-cyc" style="margin-bottom:14px">${cycHead()}</div>
+ <div class="t3tb"><div class="t3r h cq-mem"><span>Atleta</span><span>Ciclo del equipo</span><span>Detalle</span></div>${r(ATH[0],'Lo recibe','ok','2 de 2 hechas hasta hoy')}${r(ATH[1],'Lo recibe','ok','1 sesión ajustada. También tiene «Rehabilitación hombro»')}${r(ATH[2],'Lo recibe','ok','Al día')}${r(ATH[3],'No lo recibe','','Sigue con «Pretemporada». <u style="text-decoration:none;color:#134fb0;font-weight:500">Asignar desde hoy</u>')}${r(ATH[4],'No lo recibe','','Invitación pendiente')}</div>
+ ${note('Debajo de la pizarra: quién recibe el ciclo y qué tiene de distinto. Cada nombre abre su ficha.')}</div>`);
+}
+function eliminarEquipo(){
+ return CQ(side('Ciclos'),board(),scrim(480,`<h3>Eliminar «Voleibol sub-17»</h3>
+ <p style="font:400 14px/1.5 Inter;margin-bottom:8px">El equipo tiene el ciclo «Fuerza base» en curso. En los 10 atletas que lo reciben:</p>
+ <ul class="cq-li"><li>Se quitan <b style="font-weight:600">29 sesiones futuras</b>.</li><li>Conservan lo que ya registraron.</li><li>Conservan la sesión ajustada.</li></ul>
+ <div class="cq-acts"><span class="t3btn pr" style="background:#b3261e;border-color:#b3261e">Eliminar equipo</span><span class="t3btn">Cancelar</span></div>`));
+}
+function chocaEquipo(){
+ const o={from:key(12,7),to:key(12,31),busy:[key(11,25),key(12,20)]};
+ return CQ(side('Ciclos'),board(),scrim(640,`<h3>Nuevo ciclo para Voleibol sub-17</h3><div class="cq-warn" role="alert">Esas fechas se cruzan con «Fuerza base», que va hasta el 20 dic. Por ahora el equipo tiene un solo ciclo a la vez: elige desde el 21 dic.</div>${fl('Nombre','Preparación liga')}${rango(o)}<div class="cq-leg"><span><i style="background:#fdeede;border:1px solid #f0c9a0"></i>Días de «Fuerza base»</span></div>${acts('Continuar',1)}`));
+}
+function editarDatos(){
+ return CQ(side('Ciclos'),board(),scrim(640,`<h3>Datos del ciclo</h3><div class="cq-info">El ciclo ya empezó el lunes 23 nov. Puedes cambiar el nombre, el objetivo y el último día. El inicio se mantiene; si lo cambias, solo puede ser desde hoy.</div>${fl('Nombre','Fuerza base')}${fl('Objetivo (opcional)','Base de fuerza antes de la liga')}${rango({from:key(11,23),to:key(12,27)})}<div class="cq-sum" role="status">Del lunes 23 nov al domingo 27 dic: 5 semanas</div>${acts('Guardar cambios')}`)).replace('class="web t3 wide"','class="web t3 wide" style="min-height:760px"');
+}
+const bib=(inner)=>wide(`<div class="web t3" style="min-height:__H__px">${T3NAV.replace('class="on">Equipos','>Equipos').replace('<span class="">Biblioteca','<span class="on">Biblioteca')}<div class="t3mn"><div class="t3hd"><h2>Biblioteca</h2></div><div class="t3emp" style="min-height:320px"></div></div>${inner}</div>`);
+function plantillaNueva(){
+ return bib(scrim(520,`<h3>Nueva plantilla de ciclo</h3>${fl('Nombre','Pretemporada 5 semanas')}${fl('Objetivo (opcional)','Por ejemplo, base de fuerza',1)}<div class="cq-fl"><div>Duración en semanas</div><div class="cq-stp"><b>−</b><div class="cq-in">5</div><b>+</b></div></div>${acts('Guardar en la Biblioteca')}`)).replace('__H__','600');
+}
+function plantillaAsignar(){
+ const o={from:key(11,30),to:key(12,31)};
+ return bib(scrim(640,`<h3>Asignar «Pretemporada 5 semanas» a Camila Rojas</h3><div class="cq-info">Elige solo el primer día, desde hoy. El final sale de las 5 semanas de la plantilla.</div>${rango({from:key(11,30),to:key(13,3)})}<div class="cq-sum" role="status">Del lunes 30 nov al domingo 3 ene 2027: 5 semanas</div>${acts('Asignar ciclo')}`)).replace('__H__','760');
+}
+function acortar(){
+ const o={from:key(11,23),to:key(11,29)};
+ return CQ(side('Ciclos'),board(),scrim(640,`<h3>Datos del ciclo</h3><div class="cq-warn" role="alert">No puedes acortar el ciclo hasta el 29 nov: quedan 3 sesiones fuera (lunes 30 nov, miércoles 2 y viernes 4 dic). Muévelas o quítalas primero.</div>${fl('Nombre','Fuerza base')}${rango(o)}<div class="cq-sum" role="status">Del lunes 23 nov al domingo 29 nov: 1 semana</div>${acts('Guardar cambios',1)}`)).replace('class="web t3 wide"','class="web t3 wide" style="min-height:760px"');
+}
+function novedad(){
+ return `<div class="web t3" style="min-height:420px;background:#cfd8ea;display:grid;place-items:center"><div style="width:440px;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 10px 40px rgba(31,34,40,.3)"><div style="height:170px;background:#f3f6fc;display:flex;align-items:center;justify-content:center;gap:14px"><div style="width:110px">${ses('Piernas base','Equipo')}</div><span style="font:500 24px/1 Inter;color:#1a66dd">→</span><div style="display:flex">${ATH.slice(0,4).map(a=>`<div style="margin-left:-4px">${AVb(a[0])}</div>`).join('')}</div></div><div style="padding:18px 22px 20px"><div style="font:600 20px/1.25 Inter;margin-bottom:8px">Planifica el ciclo de tu equipo</div><div style="font:400 15px/1.45 Inter;color:#3f4757;margin-bottom:16px">Pon las sesiones una vez en el calendario del equipo y llegan a cada integrante.</div><div style="display:flex;justify-content:flex-end"><span class="t3btn pr">Entendido</span></div></div></div></div>`;
+}
+const out=document.getElementById('out');
+const add=(id,label,items)=>out.insertAdjacentHTML('beforeend',`<div class="lab">${label}</div><div class="row" id="${id}">${items.map(([c,h])=>`<div class="fr">${h}<div class="cap">${c}</div></div>`).join('')}</div>`);
+add('r1','1 · Crear el ciclo del equipo',[['Equipo sin ciclo',vacio()],['Nuevo ciclo, sin fechas elegidas',datosVacio()],['Elegido el primer día',datosInicio()],['Rango elegido: las fechas y la duración salen del calendario',datos()],['Paso 2: quién lo recibe, con aviso de ciclos propios',quien()],['Error: ya hay un ciclo del equipo en esas fechas',chocaEquipo()]]);
+add('r1b','1b · El mismo flujo para un atleta, y la pizarra sin sesiones por semana',[['Nuevo ciclo de un atleta: se crea directo',datosAtleta()],['Ciclo que empieza un miércoles',semanasDesdeMiercoles()]]);
+add('r1c','1c · Plantillas de la Biblioteca (sin fechas)',[['Nueva plantilla: nombre, objetivo y duración en semanas',plantillaNueva()],['Al asignarla se elige solo el primer día',plantillaAsignar()]]);
+add('r2','2 · Calendario del ciclo del equipo',[['La pizarra de siempre, para todo el equipo',pizarra()],['Menú de una sesión y aviso con Deshacer',menuMover()],['Quién lo recibe',integrantes()]]);
+add('r3','3 · Cambios',[['Datos de un ciclo ya empezado: el inicio no se mueve a un día pasado',editarDatos()],['No se acorta ni se mueve el ciclo si quedan sesiones fuera',acortar()],['Editar la sesión del equipo: llega a los integrantes',editarEquipo()],['Editar desde la ficha de un atleta: solo su sesión',ventanaAtleta()]]);
+add('r4','4 · Entrar y salir del equipo',[['Al agregar un atleta se pregunta',entra()],['Al quitarlo, se avisa antes',sale()],['Al eliminar el equipo, también',eliminarEquipo()]]);
+add('r5','5 · Ficha de novedad',[['Coach, 1 slide',novedad()]]);
+
+</script>
+</body>
+</html>
