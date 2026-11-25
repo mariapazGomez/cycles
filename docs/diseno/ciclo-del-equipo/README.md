@@ -10,6 +10,33 @@ El botón «Agregar ciclo» de Equipos → Ciclos crea un ciclo para el equipo, 
 4. Al sacar un atleta conserva lo registrado y las sesiones ajustadas para él; se quitan sus demás sesiones futuras del ciclo del equipo, avisando antes.
 5. Si un atleta ya tiene ciclo propio en esas fechas, conviven; antes de crear el ciclo se avisa quiénes lo tienen y el coach decide por persona.
 
+## Nuevo ciclo por calendario (pedido de la usuaria, 25-11)
+
+> «Haremos un nuevo diseño para crear los ciclos, lo haremos por fechas en un calendario. Solo lo que se debe rellenar a mano es el nombre, el objetivo seguirá siendo opcional. El tipo de ciclo ya no lo usaremos, y la fecha de inicio y la duración se obtendrán del calendario que seleccionaremos.»
+
+Aplica a ciclos de **atleta** y de **equipo**. Las plantillas de la Biblioteca (no tienen fechas) quedan **pendientes de confirmar** y no se diseñan aquí.
+
+- **Campos escritos:** nombre (obligatorio) y objetivo (opcional).
+- **Fechas:** dos meses a la vista; un toque elige el primer día y otro el último. El rango se pinta y debajo dice «Del lunes 23 nov al domingo 20 dic: 4 semanas» (o «2 semanas y 3 días»). Tocar de nuevo empieza otro rango. «Continuar» o «Crear ciclo» se activa con nombre y rango.
+- **Se quitan:** tipo de ciclo (también su etiqueta en el encabezado del ciclo), fecha de inicio y duración escritas, y sesiones por semana.
+- **Marcas en el calendario:** hoy con contorno; para un atleta, un punto en los días con otro ciclo suyo (informa, no bloquea); para el equipo, los días de su otro ciclo en naranja, con el error si se cruzan.
+- **Teclado y lector:** el calendario se recorre con flechas, Enter elige, cada día se anuncia con su fecha completa y el resumen se lee al cambiar.
+- En el ciclo de un atleta no hay paso «Quién lo recibe»: se crea directo.
+
+### La pizarra sin «sesiones por semana»
+
+La pizarra actual (`apps/web/src/lib/board.ts`, `buildWeeks`) ya arma cada fila con 7 días por fecha; el dato no define filas. Hoy se usa en otros puntos, que Desarrollo debe resolver:
+
+| Uso actual | Propuesta |
+|---|---|
+| Ubicar sesiones antiguas sin fecha (`sessionOffset` → `defaultOffsets(slots)`) | Los ciclos antiguos conservan su valor; si es nulo, repartir por el orden de la sesión dentro de la semana |
+| La API exige `sessionsPerWeek` y `cycleType` al crear (salvo macrociclo) | Dejarlos opcionales para ciclos nuevos |
+| Crear sesión por casilla (`CycleDetailPage`, valida `slotNumber ≤ sessionsPerWeek`) | Los ciclos nuevos crean sesiones solo por fecha |
+| Copia de ciclos y plantillas (`cycles.service`, `account.service`) | Revisar los que hoy omiten ciclos sin `sessionsPerWeek` |
+
+- Cada fila son 7 días **desde el primer día del ciclo** (si empieza un miércoles, la fila va de miércoles a martes). Los días que sobran al final dicen «Fuera del ciclo». Captura `pizarra-desde-miercoles`.
+- Los macrociclos que ya existen no se tocan; qué pasa con ellos sin «tipo de ciclo» queda por confirmar.
+
 ## Por confirmar con la usuaria
 
 Nada de esta lista está aprobado; las maquetas lo muestran como propuesta.
@@ -21,6 +48,9 @@ Nada de esta lista está aprobado; las maquetas lo muestran como propuesta.
 5. En la primera versión el equipo tiene un solo ciclo por fechas (hay estado de error).
 6. Eliminar el equipo o su ciclo sigue la misma regla que sacar a un atleta, con aviso y cifras.
 7. Con ciclo propio y del equipo, «Hoy» del atleta muestra la sesión de hoy y, si no hay, la más cercana en fecha (propuesta de Desarrollo; falta diseñar cómo se distinguen).
+8. Si este nuevo «Nuevo ciclo» aplica también a las plantillas de la Biblioteca.
+9. Si se puede elegir un primer día anterior a hoy (las maquetas lo permiten).
+10. Qué pasa con los macrociclos existentes al quitar el tipo de ciclo.
 
 La propuesta técnica de Desarrollo general, con su diagrama, está en el comentario de CYC-314.
 
@@ -29,7 +59,9 @@ La propuesta técnica de Desarrollo general, con su diagrama, está en el coment
 | Paso | Captura |
 |---|---|
 | Equipo sin ciclo | `equipo-sin-ciclo` |
-| Nuevo ciclo: nombre, objetivo, tipo, inicio y duración | `nuevo-ciclo-datos` |
+| Nuevo ciclo: sin fechas, primer día y rango elegido | `nuevo-ciclo-sin-fechas`, `nuevo-ciclo-primer-dia`, `nuevo-ciclo-rango` |
+| Nuevo ciclo de un atleta | `nuevo-ciclo-atleta` |
+| Pizarra de un ciclo que empieza un miércoles | `pizarra-desde-miercoles` |
 | Quién lo recibe, con aviso de ciclos propios | `nuevo-ciclo-quien-recibe` |
 | Fechas ocupadas por otro ciclo del equipo | `nuevo-ciclo-fechas-ocupadas` |
 | Pizarra del equipo | `pizarra-del-equipo` |
@@ -45,7 +77,6 @@ La propuesta técnica de Desarrollo general, con su diagrama, está en el coment
 ## Reglas del diseño
 
 - **Se reutiliza la pizarra** (`docs/diseno/ciclos-pizarra`, variante A): rutinas a la derecha, «+» por día, arrastrar, menú ⋯, autoguardado y Deshacer. Los días pasados no aceptan sesiones.
-- **Sin «sesiones por semana»**: el plan del equipo se organiza por fechas.
 - **Cada tarjeta del equipo** dice a cuántos atletas llega; las pasadas, cuántos la hicieron; «N ajustada» cuando hay copias separadas. Esas cifras se calculan con las sesiones de cada atleta, porque el plan del equipo no tiene atleta.
 - **Después de guardar** un cambio se informa a cuántos llegó y cuántos no cambiaron, y por qué.
 - **El plan del equipo no tiene atleta:** no muestra series, RM ni «Sin RM» por persona. El % del RM está siempre disponible y el peso se calcula en la copia de cada atleta; a quien no tiene RM le llega el % sin peso con el aviso «Falta el RM».
