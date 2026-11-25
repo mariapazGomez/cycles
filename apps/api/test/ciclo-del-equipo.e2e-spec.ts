@@ -203,19 +203,35 @@ describe("Ciclo del equipo", () => {
     });
   });
 
+  describe("fechas del ciclo del equipo", () => {
+    it("no se acorta si una sesión del plan o de la ficha de un atleta quedaría fuera", async () => {
+      await reset();
+      const cycleId = (await makeCycle([c.userId.athleteA])).body.id;
+      const master = (await addSession(cycleId, 2)).body.sessionId;
+      const copy = await app.prisma.trainingSession.findFirstOrThrow({ where: { teamSessionId: master } });
+      // La del atleta se mueve más adelante (queda ajustada); la del plan sigue en su día.
+      expect((await app.http("patch", `/sessions/${copy.id}`, coach()).send({ scheduledDate: day(10), today: day(0) })).status).toBe(200);
+      const blocked = await app.http("patch", `/team-cycles/${cycleId}`, coach()).send({ endDate: day(5), today: day(0) });
+      expect(blocked.status).toBe(409);
+      expect(blocked.body.outside).toEqual({ count: 1, dates: [day(10)] });
+      const both = await app.http("patch", `/team-cycles/${cycleId}`, coach()).send({ endDate: day(1), today: day(0) });
+      expect(both.body.outside).toEqual({ count: 2, dates: [day(2), day(10)] });
+      expect((await app.prisma.trainingCycle.findFirstOrThrow({ where: { teamCycleId: cycleId } })).endDate.toISOString().slice(0, 10)).not.toBe(day(5));
+      expect((await app.http("patch", `/team-cycles/${cycleId}`, coach()).send({ endDate: day(12), today: day(0) })).status).toBe(200);
+      expect((await app.prisma.trainingCycle.findFirstOrThrow({ where: { teamCycleId: cycleId } })).endDate.toISOString().slice(0, 10)).toBe(day(12));
+    });
+  });
+
   describe("Hoy con dos ciclos", () => {
-    it("elige la sesión de hoy del ciclo del equipo aunque el propio haya empezado antes, y lista ambas", async () => {
+    it("/me/today no cambia para la app instalada y lista las sesiones de hoy de ambos", async () => {
       await reset();
       const cycleId = (await makeCycle([c.userId.athleteA])).body.id;
       await addSession(cycleId, 0);
       const res = await app.http("get", `/me/today?date=${day(0)}`, c.token.athleteA);
       expect(res.status).toBe(200);
       const mine = await app.prisma.trainingSession.findFirstOrThrow({ where: { cycle: { teamCycleId: cycleId } } });
-      const assigned = res.body.assignedToday.map((a: any) => a.id);
-      // No se esconde ninguna: la del equipo está en la lista de hoy y la elegida es una de hoy.
-      expect(assigned).toContain(mine.id);
-      expect(assigned).toContain(res.body.session.id);
-      expect(res.body.session.scheduledDate.slice(0, 10)).toBe(day(0));
+      expect(Object.keys(res.body).sort()).toEqual(["assignedToday", "cycle", "session"]);
+      expect(res.body.assignedToday.map((a: any) => a.id)).toContain(mine.id);
     });
   });
 });

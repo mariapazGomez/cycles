@@ -1,7 +1,6 @@
 import type { PrismaService } from "../prisma/prisma.service";
 
-// Un cambio del coach en la sesión de una persona la separa del plan del equipo (CYC-314,
-// POR CONFIRMAR 1): deja de recibir sus cambios. No hace nada en una sesión que no es copia.
+// Un cambio del coach en la sesión de una persona la separa del plan del equipo (CYC-314): deja de recibir sus cambios. No hace nada en una sesión que no es copia.
 export async function detachFromTeam(prisma: PrismaService, sessionIds: string[]): Promise<void> {
   if (sessionIds.length === 0) return;
   await prisma.trainingSession.updateMany({

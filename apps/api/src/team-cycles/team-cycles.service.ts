@@ -7,12 +7,18 @@ import { startOfUtcDay } from "../common/training";
 import { cleanNote } from "../common/exercise-note";
 import { cleanBlocks } from "../common/work-blocks";
 import { earliestAllowedDay, reassignSlots, weekOfDate } from "../sessions/slots";
-import { CYCLE_DATE_MESSAGES, isValidRange, renumberForStart, sessionsOutside, startDateError } from "../cycles/cycle-dates";
+import { CYCLE_DATE_MESSAGES, isValidRange, outsideError, renumberForStart, sessionsOutside, startDateError } from "../cycles/cycle-dates";
 import type { SaveSessionStructureDto, SessionStructureExerciseDto } from "../sessions/dto/save-session-structure.dto";
 import { addToSummary, emptySummary, rangesOverlap, removalFate, skipReason, TEAM_RULES, type CopyState, type PropagationSummary } from "./rules";
 import type { AddTeamSessionDto, CreateTeamCycleDto, TeamCycleDatesDto, UpdateTeamCycleDto, UpdateTeamSessionDto } from "./dto/team-cycle.dto";
 
 type Tx = Prisma.TransactionClient;
+
+const copySessions = (tx: Tx, cycleId: string) =>
+  tx.trainingSession.findMany({
+    where: { cycleId },
+    select: { id: true, weekNumber: true, slotNumber: true, scheduledDate: true, deletedAt: true, teamSessionId: true },
+  });
 
 const MASTER_INCLUDE = {
   blocks: { orderBy: { orderIndex: "asc" as const } },
@@ -115,7 +121,7 @@ export class TeamCyclesService {
   // --- crear y leer ---
 
   // «Quién lo recibe»: por persona, si ya tiene un ciclo propio en esas fechas (conviven; el coach
-  // decide) y si su invitación sigue pendiente (no se le puede crear, POR CONFIRMAR 4).
+  // decide) y si su invitación sigue pendiente (no se le crea: se agrega a mano cuando acepta).
   async preview(coachId: string, teamId: string, dto: TeamCycleDatesDto) {
     await this.ownedTeam(coachId, teamId);
     const range = this.range(dto);
@@ -511,30 +517,33 @@ export class TeamCyclesService {
     if (startMoved || endMoved) await this.assertDatesFree(cycle.teamId, { startDate, endDate }, teamCycleId);
 
     const data = { ...(dto.name !== undefined ? { name: dto.name } : {}), ...(dto.objective !== undefined ? { objective: dto.objective } : {}), startDate, endDate };
-    // Copias que conservan sus fechas porque tienen sesiones (ajustadas o registradas) fuera del rango nuevo.
-    const keptDates: string[] = [];
     await this.prisma.$transaction(async (tx) => {
-      const masters = await tx.teamSession.findMany({ where: { teamCycleId }, select: { scheduledDate: true } });
-      if (masters.some((m) => startOfUtcDay(m.scheduledDate) < startDate || startOfUtcDay(m.scheduledDate) > endDate)) {
-        throw new ConflictException(CYCLE_DATE_MESSAGES.sessionsOutside);
+      const copies = await tx.trainingCycle.findMany({ where: { teamCycleId, status: "active" } });
+      const sessionsByCopy = new Map<string, Awaited<ReturnType<typeof copySessions>>>();
+      for (const copy of copies) sessionsByCopy.set(copy.id, await copySessions(tx, copy.id));
+      // No se puede acortar ni mover el ciclo si alguna sesión quedaría fuera: ni del plan del equipo
+      // ni de la ficha de un atleta (por ejemplo, una ajustada o una registrada).
+      if (startMoved || endMoved) {
+        const masters = await tx.teamSession.findMany({ where: { teamCycleId }, select: { id: true, scheduledDate: true } });
+        const mastersOut = masters.filter((m) => startOfUtcDay(m.scheduledDate) < startDate || startOfUtcDay(m.scheduledDate) > endDate);
+        const counted = new Map(mastersOut.map((m) => [m.id, startOfUtcDay(m.scheduledDate).getTime()]));
+        // La copia de una sesión del equipo que ya se cuenta, en su mismo día, no suma de nuevo.
+        const own = [...sessionsByCopy.values()].flatMap((sessions) => sessionsOutside(sessions, { startDate, endDate }) as typeof sessions);
+        const outside = [...mastersOut, ...own.filter((s) => !(s.teamSessionId && s.scheduledDate && counted.get(s.teamSessionId) === startOfUtcDay(s.scheduledDate).getTime()))];
+        if (outside.length > 0) throw new ConflictException(outsideError(outside));
       }
       await tx.teamCycle.update({ where: { id: teamCycleId }, data });
-      for (const copy of await tx.trainingCycle.findMany({ where: { teamCycleId, status: "active" } })) {
-        const sessions = await tx.trainingSession.findMany({
-          where: { cycleId: copy.id },
-          select: { id: true, weekNumber: true, slotNumber: true, scheduledDate: true, deletedAt: true },
-        });
-        const fits = sessionsOutside(sessions, { startDate, endDate }).length === 0;
-        if (!fits) keptDates.push(copy.athleteId!);
-        if (fits && startMoved && sessions.length > 0) {
+      for (const copy of copies) {
+        const sessions = sessionsByCopy.get(copy.id)!;
+        if (startMoved && sessions.length > 0) {
           const placed = renumberForStart(sessions, startDate);
           for (const [i, s] of sessions.entries()) await tx.trainingSession.update({ where: { id: s.id }, data: { slotNumber: -(i + 1) } });
           for (const s of sessions) await tx.trainingSession.update({ where: { id: s.id }, data: placed.get(s.id)! });
         }
-        await tx.trainingCycle.update({ where: { id: copy.id }, data: fits ? data : { name: data.name, objective: data.objective } });
+        await tx.trainingCycle.update({ where: { id: copy.id }, data });
       }
     });
-    return { ...(await this.detail(coachId, teamCycleId)), keptDates };
+    return this.detail(coachId, teamCycleId);
   }
 
   // --- entradas y salidas ---
@@ -629,7 +638,7 @@ export class TeamCyclesService {
     return this.tally(await this.copySessions(this.prisma, [teamCycleId]), this.today(todayInput));
   }
 
-  // POR CONFIRMAR (6): eliminar el ciclo o el equipo aplica la misma regla que sacar a un atleta.
+  // Eliminar el ciclo o el equipo aplica la misma regla que sacar a un atleta.
   async remove(coachId: string, teamCycleId: string, todayInput?: string) {
     await this.ownedCycle(coachId, teamCycleId);
     const today = this.today(todayInput);
