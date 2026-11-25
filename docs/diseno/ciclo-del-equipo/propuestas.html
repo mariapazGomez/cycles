@@ -749,7 +749,7 @@ function pizarra(){
  return CQ(side('Ciclos'),board(note('Es la misma pizarra del ciclo de un atleta: arrastra una rutina a un día o usa «+». Cada gesto se guarda solo y llega a los integrantes. Lo registrado no cambia.')));
 }
 function menuMover(){
- const menu=`<div class="t3dd" style="left:700px;right:auto;top:268px;width:210px"><div class="o"><span>Editar ejercicios</span></div><div class="o"><span>Mover a otro día…</span></div><div class="o"><span>Duplicar en otro día…</span></div><div class="o" style="color:#9d2a2a"><span>Quitar de este día</span></div></div><div class="cq-toast"><span>Cambio guardado: se actualizó en 9 atletas. 1 no cambió porque está ajustada.</span><u>Deshacer</u></div>`;
+ const menu=`<div class="t3dd" style="left:700px;right:auto;top:268px;width:210px"><div class="o"><span>Editar ejercicios</span></div><div class="o"><span>Mover a otro día…</span></div><div class="o"><span>Duplicar en otro día…</span></div><div class="o" style="color:#9d2a2a"><span>Quitar de este día</span></div></div><div class="cq-toast"><span>Cambio guardado: actualizada en 9 atletas. 1 no cambió (ajustada).</span><u>Deshacer</u></div>`;
  return CQ(side('Ciclos'),board(menu));
 }
 function editarEquipo(){
@@ -761,7 +761,7 @@ function editarEquipo(){
 }
 function ventanaAtleta(){
  const ex=(n,s,r,k)=>`<div class="cq-ex"><span>${n}</span><span class="v">${s}</span><span class="v">${r}</span><span class="v">${k}</span></div>`;
- const main=`<div class="t3mn" style="padding:20px 24px"><div class="t3hd"><h2>Camila Rojas</h2></div><div class="cq-cyc"><div class="cq-ch"><b>Fuerza base</b><span class="cq-pill bl">En curso</span><span class="cq-pill bl">Ciclo de Voleibol sub-17</span></div><div class="cq-cal">${wk('Semana 1: 23 al 29 nov',[day('Lun 23',ses('Piernas base','Hecha','<span class="cq-pill bl">Del equipo</span>','done'),{past:true}),day('Mar 24','',{past:true}),day('Mié 25',ses('Torso','5 ejercicios','<span class="cq-pill bl">Del equipo</span>'),{today:true}),day('Jue 26'),day('Vie 27',ses('Piernas base','5 ejercicios','<span class="cq-pill am">Ajustada</span>')),day('Sáb 28'),day('Dom 29')])}</div></div></div>`;
+ const main=`<div class="t3mn" style="padding:20px 24px"><div class="t3hd"><h2>Camila Rojas</h2></div><div class="cq-cyc"><div class="cq-ch"><b>Fuerza base</b><span class="cq-pill bl">En curso</span><span class="cq-pill bl">Ciclo de Voleibol sub-17</span></div><div class="cq-cal">${wk('Semana 1: 23 al 29 nov',[day('Lun 23',ses('Piernas base','Hecha','<span class="cq-pill ok">Registrada</span>','done'),{past:true}),day('Mar 24','',{past:true}),day('Mié 25',ses('Torso','5 ejercicios','<span class="cq-pill bl">Del equipo</span>'),{today:true}),day('Jue 26'),day('Vie 27',ses('Piernas base','5 ejercicios','<span class="cq-pill am">Ajustada</span>')),day('Sáb 28'),day('Dom 29')])}</div></div></div>`;
  const over=scrim(560,`<h3>Piernas base de Camila, viernes 27 nov</h3>
  <div class="cq-warn">Este cambio es solo para Camila. La planificación del equipo no cambia, y esta sesión deja de recibir los cambios del equipo.</div>
  <div class="cq-ex h"><span>Ejercicio</span><span>Series</span><span>Reps</span><span>Carga</span></div>${ex('Sentadilla',3,6,'60 %')}${ex('Peso muerto',3,5,'60 %')}
@@ -792,12 +792,18 @@ function eliminarEquipo(){
  <ul class="cq-li"><li>Se quitan <b style="font-weight:600">29 sesiones futuras</b>.</li><li>Conservan lo que ya registraron.</li><li>Conservan la sesión ajustada.</li></ul>
  <div class="cq-acts"><span class="t3btn pr" style="background:#b3261e;border-color:#b3261e">Eliminar equipo</span><span class="t3btn">Cancelar</span></div>`));
 }
+function chocaEquipo(){
+ return CQ(side('Ciclos'),board(),scrim(520,`<h3>Nuevo ciclo para Voleibol sub-17</h3>
+ <div class="cq-warn" role="alert">El equipo ya tiene «Fuerza base» del 23 nov al 20 dic. Elige otras fechas: por ahora el equipo tiene un solo ciclo a la vez.</div>
+ ${fl('Nombre','Preparación liga')}<div class="cq-2">${fl('Fecha de inicio','7 dic 2026')}${fl('Duración','4 semanas')}</div>
+ <div class="cq-acts" style="justify-content:flex-end"><span class="t3btn">Cancelar</span><span class="t3btn pr" style="opacity:.45">Continuar</span></div>`));
+}
 function novedad(){
  return `<div class="web t3" style="min-height:420px;background:#cfd8ea;display:grid;place-items:center"><div style="width:440px;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 10px 40px rgba(31,34,40,.3)"><div style="height:170px;background:#f3f6fc;display:flex;align-items:center;justify-content:center;gap:14px"><div style="width:110px">${ses('Piernas base','Equipo')}</div><span style="font:500 24px/1 Inter;color:#1a66dd">→</span><div style="display:flex">${ATH.slice(0,4).map(a=>`<div style="margin-left:-4px">${AVb(a[0])}</div>`).join('')}</div></div><div style="padding:18px 22px 20px"><div style="font:600 20px/1.25 Inter;margin-bottom:8px">Planifica el ciclo de tu equipo</div><div style="font:400 15px/1.45 Inter;color:#3f4757;margin-bottom:16px">Pon las sesiones una vez en el calendario del equipo y llegan a cada integrante.</div><div style="display:flex;justify-content:flex-end"><span class="t3btn pr">Entendido</span></div></div></div></div>`;
 }
 const out=document.getElementById('out');
 const add=(id,label,items)=>out.insertAdjacentHTML('beforeend',`<div class="lab">${label}</div><div class="row" id="${id}">${items.map(([c,h])=>`<div class="fr">${h}<div class="cap">${c}</div></div>`).join('')}</div>`);
-add('r1','1 · Crear el ciclo del equipo',[['Equipo sin ciclo',vacio()],['Paso 1: los mismos datos de un ciclo nuevo',datos()],['Paso 2: quién lo recibe, con aviso de ciclos propios',quien()]]);
+add('r1','1 · Crear el ciclo del equipo',[['Equipo sin ciclo',vacio()],['Paso 1: los mismos datos de un ciclo nuevo',datos()],['Paso 2: quién lo recibe, con aviso de ciclos propios',quien()],['Error: ya hay un ciclo del equipo en esas fechas (por confirmar)',chocaEquipo()]]);
 add('r2','2 · Calendario del ciclo del equipo',[['La pizarra de siempre, para todo el equipo',pizarra()],['Menú de una sesión y aviso con Deshacer',menuMover()],['Quién lo recibe',integrantes()]]);
 add('r3','3 · Cambios',[['Editar la sesión del equipo: llega a los integrantes',editarEquipo()],['Editar desde la ficha de un atleta: solo su sesión',ventanaAtleta()]]);
 add('r4','4 · Entrar y salir del equipo',[['Al agregar un atleta se pregunta',entra()],['Al quitarlo, se avisa antes',sale()],['Al eliminar el equipo, también (propuesta)',eliminarEquipo()]]);

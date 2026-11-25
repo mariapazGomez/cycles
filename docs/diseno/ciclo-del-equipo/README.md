@@ -12,9 +12,17 @@ El botón «Agregar ciclo» de Equipos → Ciclos crea un ciclo para el equipo, 
 
 ## Por confirmar con la usuaria
 
-- Una sesión ajustada en la ficha del atleta queda separada: deja de recibir los cambios del equipo (las demás siguen vinculadas).
-- Las sesiones ya registradas nunca cambian.
-- Eliminar un equipo con ciclo en curso trata a cada integrante igual que sacarlo del equipo (propuesta de diseño).
+Nada de esta lista está aprobado; las maquetas lo muestran como propuesta.
+
+1. Una sesión ajustada en la ficha del atleta queda separada y deja de recibir los cambios del equipo.
+2. Las sesiones ya registradas nunca cambian.
+3. Un cambio del equipo llega solo a copias enlazadas, sin ajustar, pendientes, sin empezar y de hoy en adelante.
+4. Con invitación pendiente no se puede crear el ciclo: aparece deshabilitado y se suma a mano cuando acepte.
+5. En la primera versión el equipo tiene un solo ciclo por fechas (hay estado de error).
+6. Eliminar el equipo o su ciclo sigue la misma regla que sacar a un atleta, con aviso y cifras.
+7. Con ciclo propio y del equipo, «Hoy» del atleta muestra la sesión de hoy y, si no hay, la más cercana en fecha (propuesta de Desarrollo; falta diseñar cómo se distinguen).
+
+La propuesta técnica de Desarrollo general, con su diagrama, está en el comentario de CYC-314.
 
 ## Pantallas
 
@@ -23,6 +31,7 @@ El botón «Agregar ciclo» de Equipos → Ciclos crea un ciclo para el equipo, 
 | Equipo sin ciclo | `equipo-sin-ciclo` |
 | Nuevo ciclo: nombre, objetivo, tipo, inicio y duración | `nuevo-ciclo-datos` |
 | Quién lo recibe, con aviso de ciclos propios | `nuevo-ciclo-quien-recibe` |
+| Fechas ocupadas por otro ciclo del equipo | `nuevo-ciclo-fechas-ocupadas` |
 | Pizarra del equipo | `pizarra-del-equipo` |
 | Menú de sesión y resumen tras guardar | `menu-de-sesion` |
 | Quién lo recibe y qué tiene de distinto | `quien-lo-recibe` |
@@ -39,7 +48,8 @@ El botón «Agregar ciclo» de Equipos → Ciclos crea un ciclo para el equipo, 
 - **Sin «sesiones por semana»**: el plan del equipo se organiza por fechas.
 - **Cada tarjeta del equipo** dice a cuántos atletas llega; las pasadas, cuántos la hicieron; «N ajustada» cuando hay copias separadas. Esas cifras se calculan con las sesiones de cada atleta, porque el plan del equipo no tiene atleta.
 - **Después de guardar** un cambio se informa a cuántos llegó y cuántos no cambiaron, y por qué.
-- **En la ficha del atleta** la sesión muestra «Del equipo» o «Ajustada», y editarla avisa que el cambio es solo para esa persona.
+- **El plan del equipo no tiene atleta:** no muestra series, RM ni «Sin RM» por persona. El % del RM está siempre disponible y el peso se calcula en la copia de cada atleta; a quien no tiene RM le llega el % sin peso con el aviso «Falta el RM».
+- **En la ficha del atleta** la sesión muestra «Del equipo», «Ajustada» o «Registrada», y editarla avisa que el cambio es solo para esa persona.
 - **Invitación pendiente**: aparece deshabilitada, con la razón.
 - Los avisos de sacar a un atleta o eliminar el equipo dan las cifras de lo que se quita y lo que se conserva.
 - Esquinas casi rectas, sin negritas pesadas ni líneas grises bajo los títulos.
