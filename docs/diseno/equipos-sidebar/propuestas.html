@@ -360,22 +360,28 @@ body{font-family:Inter,-apple-system,system-ui,sans-serif;background:#d9e0ee;col
 
 /* ===== CYC-316: Equipos con sidebar ===== */
 .web.sbw{padding-bottom:0;overflow:hidden}
-.s2sh{display:grid;grid-template-columns:260px 1fr;margin:0 -20px;min-height:520px}
-.s2sb{border-right:1px solid #e6ebf5;padding:16px 14px;display:flex;flex-direction:column;gap:12px;background:#fafbfe}
-.s2sb .s2top{display:flex;align-items:center;gap:8px}
-.s2sb .s2top h3{font:800 15px/1 Inter;margin:0;text-align:left}
-.s2sb .s2new{display:flex;align-items:center;justify-content:center;gap:8px;height:40px;border-radius:999px;background:#1a66dd;color:#fff;font:700 14px/1 Inter}
-.s2sb .s2new svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.6;stroke-linecap:round}
-.s2sb .s2it{display:flex;align-items:center;gap:10px;border-radius:12px;padding:9px 10px;font:600 14px/1.2 Inter;color:#1f2228}
-.s2sb .s2it i{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:#fff;font:800 13px/1 Inter;font-style:normal;flex:none}
-.s2sb .s2it span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.s2sb .s2it em{font:700 12px/1 Inter;font-style:normal;color:#3f4757}
-.s2sb .s2it.on{background:#e8effb;box-shadow:inset 3px 0 0 #1a66dd}
-.s2sb .s2it.on span{font-weight:800;color:#134fb0}
-.s2sb .s2list{display:grid;gap:2px}
-.s2sb .s2lst{max-height:330px;overflow:hidden;position:relative}
-.s2sb .s2fade{position:absolute;left:0;right:0;bottom:0;height:36px;background:linear-gradient(#fafbfe00,#fafbfe)}
-.s2sb .s2none{font:500 13px/1.45 Inter;color:#3f4757;padding:4px 6px}
+.s2sh{display:grid;grid-template-columns:var(--sbw,260px) 1fr;margin:0 -20px;min-height:520px}
+.s2sb{border-right:1px solid #e6ebf5;padding:14px 12px;display:flex;flex-direction:column;gap:10px;background:#fff}
+.s2sb .s2top{display:flex;align-items:center;gap:8px;padding:2px 6px 6px}
+.s2sb .s2ttl{font:800 18px/1 Inter;margin-right:auto}
+.s2sb .s2tg{width:34px;height:34px;display:grid;place-items:center;border-radius:10px}
+.s2sb .s2tg svg{width:22px;height:22px;stroke:#1f2228;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.s2sb .s2it{display:flex;align-items:center;gap:12px;border-radius:14px;padding:10px 12px;font:600 15px/1.2 Inter;color:#3f4757;white-space:nowrap}
+.s2sb .s2it i{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;color:#fff;font:800 12px/1 Inter;font-style:normal;flex:none}
+.s2sb .s2it span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.s2sb .s2it em{font:600 13px/1 Inter;font-style:normal;color:#8d95a3}
+.s2sb .s2it.on{background:#f0f1f4;color:#1f2228;font-weight:700}
+.s2sb .s2it.add{color:#1f2228}
+.s2sb .s2it.add b{width:28px;height:28px;display:grid;place-items:center;flex:none}
+.s2sb .s2it.add svg{width:22px;height:22px;stroke:#1f2228;fill:none;stroke-width:1.9;stroke-linecap:round}
+.s2sb .s2list{display:grid;gap:2px;align-content:start;flex:1}
+.s2sb .s2foot{border-top:1px solid #e6ebf5;padding-top:10px}
+.s2sb .s2none{font:500 14px/1.45 Inter;color:#3f4757;padding:4px 12px}
+.s2sb.s2col{padding:14px 10px;align-items:center}
+.s2sb.s2col .s2top{padding:2px 0 6px;justify-content:center}
+.s2sb.s2col .s2it{padding:10px;gap:0;justify-content:center}
+.s2sb.s2col .s2list{justify-items:center}
+.s2sb.s2col .s2foot{width:100%;display:grid;justify-items:center}
 .s2mn{padding:18px 20px 22px;min-width:0;position:relative}
 .s2mn .ph1 h2{font:800 24px/1.1 Inter}
 .s2scrim{position:absolute;inset:0;background:rgba(31,34,40,.38);display:grid;place-items:center;z-index:6}
@@ -427,24 +433,29 @@ const tcard=(i,c,n,k,st)=>`<div class="tc"><div class="t"><i style="background:$
 const cbx=(on)=>`<i class="cbx ${on?'on':''}">${on?chk:''}</i>`;
 const TEAMS=[['V','#2f9e5f','Voleibol sub-17',12],['F','#1a66dd','Fuerza mañana',5],['S','#7a4dd8','Selección regional',8],['B','#d9822b','Básquetbol femenino',10],['A','#c2467a','Atletismo velocidad',6],['N','#2a8f9d','Natación máster',9],['R','#6b7280','Rugby juvenil',15],['T','#4f7fd1','Tenis competitivo',4],['G','#8a5a2b','Gimnasio general',7]];
 const plus=`<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>`;
-const item=(t,on)=>`<div class="s2it ${on?'on':''}"><i style="background:${t[1]}">${t[0]}</i><span>${t[2]}</span><em>${t[3]}</em></div>`;
-const sidebar=(n,on,{search=false,fade=false,max=false}={})=>`<aside class="s2sb"><div class="s2top"><h3>Mis equipos</h3></div><span class="s2new">${plus}Crear equipo</span>${search?`<div class="srch" style="margin:0;height:38px">Buscar equipo</div>`:''}<div class="s2list ${max?'s2lst':''}">${TEAMS.slice(0,n).map((t,i)=>item(t,i===on)).join('')}${fade?'<div class="s2fade"></div>':''}</div></aside>`;
-const sbEmpty=`<aside class="s2sb"><div class="s2top"><h3>Mis equipos</h3></div><span class="s2new">${plus}Crear equipo</span><div class="s2none">Aún no tienes equipos. Cuando crees uno, aparecerá aquí.</div></aside>`;
+const panel=`<svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><path d="M9.5 4.5v15"/></svg>`;
+const item=(t,on,col)=>`<div class="s2it ${on?'on':''}" title="${t[2]}"><i style="background:${t[1]}">${t[0]}</i>${col?'':`<span>${t[2]}</span><em>${t[3]}</em>`}</div>`;
+const addIt=(col)=>`<div class="s2it add"><b>${plus}</b>${col?'':'<span>Crear equipo</span>'}</div>`;
+const sidebar=(n,on,{col=false}={})=>`<aside class="s2sb ${col?'s2col':''}"><div class="s2top">${col?'':'<span class="s2ttl">Equipos</span>'}<span class="s2tg">${panel}</span></div><div class="s2list">${TEAMS.slice(0,n).map((t,i)=>item(t,i===on,col)).join('')}</div><div class="s2foot">${addIt(col)}</div></aside>`;
+const sbEmpty=`<aside class="s2sb"><div class="s2top"><span class="s2ttl">Equipos</span><span class="s2tg">${panel}</span></div><div class="s2list"><div class="s2none">Aún no tienes equipos.</div></div><div class="s2foot">${addIt(false)}</div></aside>`;
 const mrow=(a,n,c,s,cl)=>`<div class="mt">${AVb(a)}<b>${n}</b><span>${c}</span><span class="chip ${cl}">${s}</span><u>Quitar</u></div>`;
 const detMain=(extra='')=>`<main class="s2mn"><div class="ph1"><h2>Voleibol sub-17</h2><span class="chip gr">12 atletas</span><div style="margin-left:auto;display:flex;gap:10px;align-items:center"><span class="bn sec" style="height:40px">Agregar atletas</span><span class="bn" style="height:40px">Agregar rutina</span><span class="bn sec" style="height:40px;padding:0 12px">⋯</span></div></div>
  <div class="tbl"><div class="mt h"><span></span><span>Atleta</span><span>Ciclo</span><span>Estado</span><span></span></div>
  ${mrow('VS','Valentina Soto','Fuerza base, sem. 2','Al día','ok')}${mrow('CR','Camila Rojas','Fuerza base, sem. 2','Con avisos','sk')}${mrow('JP','Josefa Pino','Fuerza base, sem. 2','Al día','ok')}${mrow('MV','Matías Vera','Sin ciclo','Sin ciclo','gr')}${mrow('AD','Antonia Díaz','—','Invitación pendiente','gr')}</div>${extra}</main>`;
-const shell=(side,main,navOn='Equipos')=>`<div class="web sbw">${NAV(navOn)}<div class="s2sh">${side}${main}</div></div>`;
+const shell=(side,main,navOn='Equipos',w=260)=>`<div class="web sbw">${NAV(navOn)}<div class="s2sh" style="--sbw:${w}px">${side}${main}</div></div>`;
 function conEquipos(){
- return shell(sidebar(3,0),detMain(`<div class="wnote" style="margin-top:12px">La navegación de Equipos vive en el sidebar: el equipo elegido se resalta y su detalle se abre a la derecha, sin salir de la pestaña. Ya no hay una pantalla de lista aparte.</div>`));
+ return shell(sidebar(3,0),detMain(`<div class="wnote" style="margin-top:12px">Sidebar expandido: tus equipos, el elegido en gris, y «Crear equipo» al pie. El botón de arriba a la derecha lo contrae.</div>`));
+}
+function contraida(){
+ return shell(sidebar(3,0,{col:true}),detMain(`<div class="wnote" style="margin-top:12px">Contraído, el sidebar queda en una columna angosta con la inicial de cada equipo. El botón de arriba lo expande de nuevo, y al pasar el cursor sobre un equipo se ve su nombre.</div>`),'Equipos',72);
 }
 function vacio2(){
  return shell(sbEmpty,`<main class="s2mn"><div class="ph1"><h2>Equipos</h2></div><div class="emp"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5M15 15c3 0 6 1.5 6 4"/></svg></div><b>Crea tu primer equipo</b><p>Agrupa a tus atletas para darles la misma rutina a todos, cada uno con su propio peso.</p><span class="bn" style="height:44px;padding:0 24px">Crear equipo</span></div></main>`);
 }
 function muchos(){
- return shell(sidebar(9,2,{search:true,fade:true,max:true}),`<main class="s2mn"><div class="ph1"><h2>Selección regional</h2><span class="chip gr">8 atletas</span><div style="margin-left:auto;display:flex;gap:10px"><span class="bn sec" style="height:40px">Agregar atletas</span><span class="bn" style="height:40px">Agregar rutina</span><span class="bn sec" style="height:40px;padding:0 12px">⋯</span></div></div>
+ return shell(sidebar(9,2),`<main class="s2mn"><div class="ph1"><h2>Selección regional</h2><span class="chip gr">8 atletas</span><div style="margin-left:auto;display:flex;gap:10px"><span class="bn sec" style="height:40px">Agregar atletas</span><span class="bn" style="height:40px">Agregar rutina</span><span class="bn sec" style="height:40px;padding:0 12px">⋯</span></div></div>
  <div class="tbl"><div class="mt h"><span></span><span>Atleta</span><span>Ciclo</span><span>Estado</span><span></span></div>${mrow('FG','Fernanda Gil','Fuerza base, sem. 2','Al día','ok')}${mrow('IM','Isidora Mena','Fuerza base, sem. 2','Al día','ok')}${mrow('TL','Tomás León','Sin ciclo','Sin ciclo','gr')}</div>
- <div class="wnote" style="margin-top:12px">Con muchos equipos la lista del sidebar se desplaza sola y aparece un buscador. El equipo abierto se mantiene visible.</div></main>`);
+ <div class="wnote" style="margin-top:12px">Con muchos equipos la lista del sidebar se desplaza sola. El equipo abierto se mantiene visible y «Crear equipo» queda fijo abajo.</div></main>`);
 }
 function crearSb(){
  const row=(n,a,sel)=>`<div class="r ${sel?'sel':''}">${cbx(sel)}${AVb(a)}<span>${n}</span></div>`;
@@ -452,7 +463,7 @@ function crearSb(){
 }
 function nuevoSinAtletas(){
  const t=['B','#d9822b','Básquetbol femenino',0];
- return shell(`<aside class="s2sb"><div class="s2top"><h3>Mis equipos</h3></div><span class="s2new">${plus}Crear equipo</span><div class="s2list">${item(TEAMS[0],0)}${item(TEAMS[1],0)}${item(TEAMS[2],0)}${item(t,1)}</div></aside>`,`<main class="s2mn"><div class="ph1"><h2>Básquetbol femenino</h2><span class="chip gr">0 atletas</span><div style="margin-left:auto;display:flex;gap:10px"><span class="bn sec" style="height:40px;padding:0 12px">⋯</span></div></div>
+ return shell(`<aside class="s2sb"><div class="s2top"><span class="s2ttl">Equipos</span><span class="s2tg">${panel}</span></div><div class="s2list">${[TEAMS[0],TEAMS[1],TEAMS[2],t].map((x,i)=>item(x,i===3)).join('')}</div><div class="s2foot">${addIt(false)}</div></aside>`,`<main class="s2mn"><div class="ph1"><h2>Básquetbol femenino</h2><span class="chip gr">0 atletas</span><div style="margin-left:auto;display:flex;gap:10px"><span class="bn sec" style="height:40px;padding:0 12px">⋯</span></div></div>
  <div class="emp"><b>Este equipo aún no tiene atletas</b><p>Agrega a los que ya tienes para darles la misma rutina.</p><span class="bn" style="height:44px;padding:0 24px">Agregar atletas</span></div></main>`);
 }
 function angosto(open){
@@ -464,8 +475,8 @@ function angosto(open){
 }
 const out=document.getElementById('out');
 const add=(id,label,items)=>out.insertAdjacentHTML('beforeend',`<div class="lab">${label}</div><div class="row" id="${id}">${items.map(([c,h])=>`<div class="fr">${h}<div class="cap">${c}</div></div>`).join('')}</div>`);
-add('r1','1 · Equipos con sidebar',[['Con equipos: sidebar a la izquierda y el detalle del equipo elegido a la derecha',conEquipos()],['Sin equipos: el sidebar solo trae «Crear equipo»',vacio2()]]);
-add('r2','2 · Variantes del sidebar',[['Con muchos equipos: buscador y lista que se desplaza',muchos()],['Equipo recién creado, sin atletas',nuevoSinAtletas()]]);
+add('r1','1 · Sidebar expandido y contraído',[['Expandido: nombre y cantidad de atletas de cada equipo',conEquipos()],['Contraído: solo la inicial de cada equipo',contraida()]]);
+add('r2','2 · Otros estados',[['Sin equipos: el sidebar solo trae «Crear equipo»',vacio2()],['Con muchos equipos: la lista se desplaza',muchos()],['Equipo recién creado, sin atletas',nuevoSinAtletas()]]);
 add('r3','3 · Crear equipo desde el sidebar',[['Crear equipo: el mismo cuadro de CYC-308, sobre la pantalla con sidebar',crearSb()]]);
 add('r4','4 · Pantalla angosta (web en celular o ventana pequeña)',[['El sidebar se pliega en un selector de equipo',angosto(false)],['Selector abierto: lista de equipos y «Crear equipo»',angosto(true)]]);
 

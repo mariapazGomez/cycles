@@ -7,7 +7,7 @@ Rediseño de la pestaña Equipos (CYC-308): la navegación dentro de la pestaña
 | Antes (CYC-308) | Ahora |
 |---|---|
 | Pantalla de lista con tarjetas y pantalla de detalle aparte (`/equipos` y `/equipos/:id`) | Una sola pantalla: sidebar a la izquierda y detalle del equipo elegido a la derecha |
-| «Crear equipo» en el encabezado de la lista | «Crear equipo» arriba del sidebar; el cuadro de creación es el mismo |
+| «Crear equipo» en el encabezado de la lista | «Crear equipo» al pie del sidebar; el cuadro de creación es el mismo |
 | Botón «Agregar rutina al equipo» | «Agregar rutina» (el equipo ya está elegido en el sidebar) |
 | Botón «‹ Equipos» para volver a la lista | Ya no hace falta |
 
@@ -15,12 +15,13 @@ Todo lo demás del diseño aprobado se mantiene: cuadros de crear, agregar atlet
 
 ## Decisiones del diseño
 
-1. **Sidebar de 260 px** dentro de la pestaña, con «Crear equipo» arriba y la lista de equipos debajo. Cada equipo muestra su inicial con color, su nombre y cuántos atletas tiene. El elegido se resalta.
-2. **Al entrar a Equipos se abre el primer equipo.** Sin equipos, el sidebar solo trae «Crear equipo» y el área principal muestra el estado vacío.
-3. **Con muchos equipos** (más de 7) aparece un buscador y la lista se desplaza sola.
-4. **Equipo recién creado**: queda elegido y, si no tiene atletas, muestra «Este equipo aún no tiene atletas» con «Agregar atletas».
-5. **Pantalla angosta** (web en celular o ventana pequeña): el sidebar se pliega en un selector con el equipo actual; al abrirlo muestra «Crear equipo» y la lista.
-6. **La barra superior no cambia**: Equipos sigue siendo una pestaña más y el sidebar vive dentro de ella.
+1. **Sidebar simple**, como el ejemplo de la usuaria: encabezado «Equipos» con el botón que lo contrae, la lista de equipos (inicial con color, nombre y cantidad de atletas), el elegido en gris, y «Crear equipo» fijo al pie.
+2. **Expandido y contraído.** Contraído es una columna angosta con la inicial de cada equipo, el botón de expandir arriba y «+» al pie; el nombre se ve al pasar el cursor. Se recuerda la última elección.
+3. **Al entrar a Equipos se abre el primer equipo.** Sin equipos, el sidebar solo trae «Crear equipo» y el área principal muestra el estado vacío.
+4. **Con muchos equipos** la lista se desplaza y «Crear equipo» queda fijo abajo.
+5. **Equipo recién creado**: queda elegido y, sin atletas, muestra «Agregar atletas».
+6. **Pantalla angosta**: el sidebar se pliega en un selector con el equipo actual.
+7. **La barra superior no cambia**: Equipos sigue siendo una pestaña más.
 
 ## Para Desarrollo general
 
@@ -30,6 +31,6 @@ Todo lo demás del diseño aprobado se mantiene: cuadros de crear, agregar atlet
 
 ## Preguntas abiertas
 
-1. ¿«Crear equipo» arriba del sidebar, en vez de en el encabezado? Propongo que sí.
+1. ¿«Crear equipo» al pie del sidebar? Propongo que sí.
 2. ¿Al entrar se abre el primer equipo? Propongo que sí.
-3. ¿El buscador aparece con más de 7 equipos? Propongo ese umbral.
+3. ¿El sidebar recuerda si quedó contraído o expandido? Propongo que sí.
