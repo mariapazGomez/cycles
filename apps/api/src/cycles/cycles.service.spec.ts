@@ -255,9 +255,9 @@ describe("CyclesService: fechas del ciclo (CYC-314)", () => {
   it("no deja sesiones fuera al acortar el final ni al mover el inicio", async () => {
     const { prisma, service } = ready();
     prisma.trainingSession.findMany.mockResolvedValue([session("s1", 5, "2026-11-10")]);
-    await expect(service.update("c1", "y1", { endDate: "2026-11-08" })).rejects.toThrow("Hay sesiones fuera");
+    await expect(service.update("c1", "y1", { endDate: "2026-11-08" })).rejects.toThrow("queda 1 sesión fuera (10 nov)");
     prisma.trainingSession.findMany.mockResolvedValue([session("s2", 1, "2026-10-08")]);
-    await expect(service.update("c1", "y1", { startDate: "2026-10-26", today: "2026-10-20" })).rejects.toThrow("Hay sesiones fuera");
+    await expect(service.update("c1", "y1", { startDate: "2026-10-26", today: "2026-10-20" })).rejects.toThrow("queda 1 sesión fuera (8 oct)");
     expect(prisma.trainingCycle.update).not.toHaveBeenCalled();
   });
 

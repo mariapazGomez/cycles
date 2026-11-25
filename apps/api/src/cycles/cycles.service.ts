@@ -12,7 +12,7 @@ import { CreateTemplateDto } from "./dto/create-template.dto";
 import { UpdateTemplateDto } from "./dto/update-template.dto";
 import { AssignCycleDto } from "./dto/assign-cycle.dto";
 import { endDateForWeeks, templateDates } from "./template-dates";
-import { CYCLE_DATE_MESSAGES, isValidRange, renumberForStart, sessionsOutside, startDateError } from "./cycle-dates";
+import { CYCLE_DATE_MESSAGES, isValidRange, renumberForStart, sessionsOutside, outsideError, startDateError } from "./cycle-dates";
 
 type RemovalResult = "deleted" | "archived";
 
@@ -206,8 +206,9 @@ export class CyclesService {
         where: { cycleId: id },
         select: { id: true, weekNumber: true, slotNumber: true, scheduledDate: true, deletedAt: true },
       });
-      if (sessionsOutside(sessions, { startDate, endDate }).length > 0) {
-        throw new ConflictException(CYCLE_DATE_MESSAGES.sessionsOutside);
+      const outside = sessionsOutside(sessions, { startDate, endDate });
+      if (outside.length > 0) {
+        throw new ConflictException(outsideError(outside));
       }
       if (startMoved && sessions.length > 0) {
         const placed = renumberForStart(sessions, startDate);
