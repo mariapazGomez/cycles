@@ -4,6 +4,11 @@ Solo diseño, sin código ni migraciones. Parte de `origin/main` (c607b17). Maqu
 
 **Estado:** correo, versión de texto, textos de la página de inicio y pantalla de enlace que no sirve: **aprobados por la usuaria (26-11)**. El primer registro propuesto **no se aprobó** y lo reemplaza [registro.md](registro.md), **aprobado el 26-11**. El onboarding del atleta sigue postergado.
 
+## Cambios posteriores (26-11), pendientes de aprobación
+
+- [Invitaciones en admin](admin-invitaciones.md): lista con un botón para enviar cada invitación, cola para lo que supere las 15 diarias y registro de hasta 12 meses. **Falta confirmar** si el clic reemplaza el envío automático (puntos 1 y 3 de abajo) y cambia la confirmación y el aviso de la página.
+- [Encuesta para coaches actuales](encuesta-coaches.md).
+
 ## Decidido por la usuaria (26-11)
 
 1. Todos los que dejan su correo reciben la misma carta con el enlace. Sin personalizar por ahora.
@@ -35,7 +40,7 @@ La carta completa está en la maqueta, con su versión de texto plano. No usa el
 
 - `MAIL_REPLY_TO` debe apuntar a `hola@getcycles.app` (tiene regla de reenvío). **No verificado** qué valor tiene en producción; revisar también el efecto en los demás correos.
 - La confirmación es la misma en todos los casos: no revela si el correo ya tenía invitación o cuenta.
-- **Tope diario:** la confirmación da por hecho que la invitación sale. Las que superen las 15 diarias deben quedar en espera y enviarse después, o la usuaria debe poder enviarlas a mano. La propuesta de Desarrollo general no lo define.
+- **Tope diario (decidido):** lo que supere las 15 diarias queda en cola y sale solo en los días siguientes. Ver [admin-invitaciones.md](admin-invitaciones.md).
 - Enlace vencido, usado o inválido: una sola pantalla. Hoy `/register` sin código redirige al inicio de sesión.
 - Registro con invitación: ver [registro.md](registro.md). Sin pantalla «Revisa tu email», sin botón de Google, y con la sesión iniciada al crear la cuenta.
 - Guardar invitaciones requiere cambio en la base (tabla propuesta en CYC-295), con diagrama, respaldo y «apruebo» antes de migrar.
@@ -43,8 +48,10 @@ La carta completa está en la maqueta, con su versión de texto plano. No usa el
 
 ## Por decidir
 
-- Qué pasa con quienes ya escribieron antes. Propuesta de Desarrollo general: no enviar nada automático; envío manual por lote que revise la usuaria.
-- Cuánto tiempo se guarda el registro de la invitación. Hoy los mensajes se guardan hasta 12 meses; «una invitación por correo para siempre» obligaría a guardar más.
+- Si el clic en admin reemplaza el envío automático.
+- Qué pasa con una invitación vencida.
+
+Resuelto el 26-11: a quienes escribieron antes no se les envía nada automático (se invitan desde admin) y el registro de la invitación se guarda hasta 12 meses, con una invitación por correo en ese plazo.
 
 ## Novedad
 

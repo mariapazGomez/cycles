@@ -93,7 +93,7 @@ erDiagram
 
 ## Por decidir
 
-- Qué ven los coaches que ya tienen cuenta (propuesta: nada por ahora).
+- Los coaches que ya tienen cuenta responden las mismas preguntas al entrar (decidido el 26-11): ver [encuesta-coaches.md](encuesta-coaches.md), pendiente de aprobación.
 - Dónde consulta el equipo las respuestas (el portal interno no está diseñado para esto).
 - Si el coach puede ver o cambiar sus respuestas después.
 
