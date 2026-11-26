@@ -73,8 +73,10 @@ La forma de distinguirlos es **el nombre del ciclo** en cada sesión; no se inve
 - **Una empezada:** se ven sus ejercicios como hoy; la otra queda como tarjeta compacta arriba de la lista, con «Ver».
 - **Una hecha:** la pendiente pasa arriba y la hecha queda compacta, con «Compartir».
 - **Sin sesión hoy en un ciclo:** su tarjeta compacta muestra la próxima y su fecha.
+- **Sesión atrasada (web, aprobado el 26-11):** no se presenta como de hoy. Va después de las de hoy, con el título «Pendiente: <nombre de la sesión>» y su fecha.
 - **Web:** la primera sesión abierta con sus ejercicios; la segunda resumida con «Ver 4 ejercicios» y «Empezar sesión». «No puedo entrenar hoy» es de cada sesión.
 - Con un solo ciclo, «Hoy» queda igual que hoy.
+- **Fichas de novedad (aprobadas el 26-11):** [novedad-dos-ciclos.md](novedad-dos-ciclos.md).
 
 **Tarjeta del atleta para el coach** (`AthleteCard`)
 - Un bloque por ciclo: nombre (abre ese ciclo), semana, su tira de siete días y sus sesiones completadas.

@@ -1,6 +1,6 @@
 # Fichas de novedad: dos ciclos a la vez (CYC-316)
 
-Para el PR #276. **Pendientes de aprobación de la usuaria.** Maqueta animada en [novedad-dos-ciclos.html](novedad-dos-ciclos.html); capturas `capturas-novedad/dos-ciclos-1..4.png` (las dos primeras son del coach).
+**Aprobadas por la usuaria (26-11).** Ya están en `main` desde el PR #276, con estos mismos textos y claves. Maqueta animada en [novedad-dos-ciclos.html](novedad-dos-ciclos.html); capturas `capturas-novedad/dos-ciclos-1..4.png` (las dos primeras son del coach).
 
 Son **dos fichas**, una por rol, porque cada persona ve cosas distintas. Mismo popup de novedades; solo web (la app móvil no cambia en #276).
 
@@ -8,7 +8,7 @@ Son **dos fichas**, una por rol, porque cada persona ve cosas distintas. Mismo p
 
 ```ts
 {
-  key: "coach-two-cycles", version: 1, since: "<fecha en que se publica>",
+  key: "coach-two-cycles", version: 1, since: "2026-11-25",
   platforms: ["web"], roles: ["coach"], name: "Dos ciclos por atleta",
   slides: [
     { title: "Los dos ciclos, a la vista",
@@ -25,7 +25,7 @@ Son **dos fichas**, una por rol, porque cada persona ve cosas distintas. Mismo p
 
 ```ts
 {
-  key: "athlete-two-cycles", version: 1, since: "<fecha en que se publica>",
+  key: "athlete-two-cycles", version: 1, since: "2026-11-25",
   platforms: ["web"], roles: ["athlete"], name: "Dos ciclos en Hoy",
   slides: [
     { title: "Tus dos ciclos en Hoy",
@@ -49,8 +49,8 @@ Estado base = resultado final; con «reducir movimiento» queda la imagen final.
 
 En la maqueta las dos tarjetas de «Hoy» van lado a lado solo para caber en el escenario; en la pantalla real van una debajo de otra.
 
-## A decidir al publicar
+## Notas
 
-- **¿Siempre o solo si aplica?** Se propone mostrarlas a todos. Hoy `NoveltyCondition` no tiene una condición de «tiene dos ciclos».
+- Se muestran a todos los de cada rol, sin condición de «tiene dos ciclos».
 - El popup muestra solo la novedad sin ver más reciente: si estas salen junto con `cycle-calendar@1`, el coach verá una por vez.
 - Cuando la app móvil muestre los dos ciclos, conviene una ficha propia para la app.
