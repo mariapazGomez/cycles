@@ -9,10 +9,9 @@ import {
   visibleSlides,
   type Novelty,
 } from "@cycles/shared";
-import { canShowNovelty, isBuilderPath, noveltyConditions } from "../src/lib/novelty";
+import { canShowNovelty, conditionsReady, isBuilderPath, noveltyConditions } from "../src/lib/novelty";
 
 const coach = { role: "coach", platform: "web" } as const;
-const pendientes = (viewer: Parameters<typeof noveltiesFor>[0], n: number) => noveltiesFor(viewer).slice(0, n).map((x) => x.key);
 const fake = (over: Partial<Novelty>): Novelty => ({ ...NOVELTIES[0], ...over });
 
 describe("fichas de novedad (registro)", () => {
@@ -33,13 +32,13 @@ describe("fichas de novedad (registro)", () => {
 });
 
 describe("qué novedad toca mostrar", () => {
-  it("la coach ve las más recientes (calendario y Equipos), luego la de RM y la de bloques; la atleta, la suya en la web; el admin, ninguna", () => {
-    const recientes = pendientes(coach, 3);
-    expect(recientes.sort()).toEqual(["coach-team-cycle", "coach-teams", "cycle-calendar"]);
-    const vistas = ["coach-team-cycle@1", "coach-teams@1", "cycle-calendar@1"];
+  it("la coach ve las más recientes (Equipos, calendario, dos ciclos y ciclo del equipo), luego RM y bloques; la atleta, las suyas en la web; el admin, ninguna", () => {
+    expect(noveltiesFor(coach).slice(0, 4).map((n) => n.key).sort()).toEqual(["coach-team-cycle", "coach-teams", "coach-two-cycles", "cycle-calendar"]);
+    const vistas = ["coach-team-cycle@1", "coach-teams@1", "coach-two-cycles@1", "cycle-calendar@1"];
     expect(pendingNovelty(vistas, coach)?.key).toBe("coach-rm-percent");
     expect(pendingNovelty([...vistas, "coach-rm-percent@1"], coach)?.key).toBe("routine-blocks");
-    expect(pendingNovelty([], { role: "athlete", platform: "web" })?.key).toBe("athlete-rm-percent");
+    expect(pendingNovelty([], { role: "athlete", platform: "web" })?.key).toBe("athlete-two-cycles");
+    expect(pendingNovelty(["athlete-two-cycles@1"], { role: "athlete", platform: "web" })?.key).toBe("athlete-rm-percent");
     expect(pendingNovelty([], { role: "admin", platform: "web" })).toBeNull();
     expect(pendingNovelty([], { role: "coach", platform: "mobile" })).toBeNull();
   });
@@ -84,5 +83,13 @@ describe("cuándo puede salir el popup", () => {
   it("no sale donde hay un borrador abierto", () => {
     for (const p of ["/routines/new", "/routines/abc", "/sessions/s1"]) expect(isBuilderPath(p)).toBe(true);
     for (const p of ["/", "/routines", "/library", "/cycles/1"]) expect(isBuilderPath(p)).toBe(false);
+  });
+});
+
+describe("cuándo se puede abrir el popup", () => {
+  it("el atleta no espera las rutinas (no tiene acceso a ellas); el coach sí", () => {
+    expect(conditionsReady("athlete", false)).toBe(true);
+    expect(conditionsReady("coach", false)).toBe(false);
+    expect(conditionsReady("coach", true)).toBe(true);
   });
 });

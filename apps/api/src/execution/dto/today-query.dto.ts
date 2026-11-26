@@ -1,4 +1,4 @@
-import { IsOptional, IsUUID, Matches } from "class-validator";
+import { IsISO8601, IsOptional, IsUUID, Matches } from "class-validator";
 
 export class TodayQueryDto {
   // Día calendario del atleta (según su zona horaria) "YYYY-MM-DD": el
@@ -12,4 +12,15 @@ export class TodayQueryDto {
   @IsOptional()
   @IsUUID()
   sessionId?: string;
+}
+
+export class TodayCyclesQueryDto {
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: "La fecha debe tener el formato AAAA-MM-DD." })
+  date?: string;
+
+  // Instante en que empezó el día local del atleta, para saber qué cerró «hoy».
+  @IsOptional()
+  @IsISO8601({ strict: true }, { message: "La hora de inicio del día no es válida." })
+  since?: string;
 }

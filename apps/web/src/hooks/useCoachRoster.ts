@@ -9,7 +9,7 @@ import type { BoardRow } from "../components/CoachWeekBoard";
 import { buildAthleteRows, groupByAthlete } from "../lib/coachHome";
 import { toLocalDay } from "../lib/calendar";
 import { mondayOf } from "../lib/weekCalendar";
-import { painSessionIds } from "../lib/weekBoard";
+import { liveCycles, painSessionIds } from "../lib/weekBoard";
 
 // Todos los atletas del coach con lo que se muestra de cada uno: su ciclo
 // activo, sus sesiones de la semana y sus avisos de atención. Lo usan el Inicio
@@ -58,6 +58,7 @@ export function useCoachRoster() {
       status: row.status,
       cycleName: activeCycle?.name ?? null,
       cycle: activeCycle,
+      liveCycles: liveCycles(cyclesByAthlete.get(row.id) ?? [], monday),
       week: query.data ? query.data.map((s) => ({ ...s, pain: pain.has(s.id) })) : null,
       weekLoading: query.isLoading && query.fetchStatus !== "idle",
       attention: groups.find((g) => g.athlete.id === row.id)?.items ?? [],

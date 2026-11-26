@@ -77,7 +77,8 @@ export function AthletePage() {
   );
   // Se abren por defecto el ciclo en curso y el que pida el enlace (?ciclo=).
   const linked = params.get("ciclo");
-  const isOpen = (cycle: TrainingCycle) => toggled[cycle.id] ?? (cycle === current || cycle.id === linked);
+  // Los ciclos en curso van abiertos (pueden ser dos a la vez).
+  const isOpen = (cycle: TrainingCycle) => toggled[cycle.id] ?? (sectionKind(cycle, current, today) === "current" || cycle.id === linked);
 
   // Abre el ciclo (p. ej. el recién creado) y lo deja a la vista.
   function selectCycle(id: string) {

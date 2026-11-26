@@ -39,6 +39,11 @@ export type NoveltyDemoId =
   | "cycle-fields"
   | "cycle-guard"
   | "cycle-template"
+  // Dos ciclos a la vez (CYC-316): la tarjeta del atleta en la web del coach y «Hoy» en la web del atleta.
+  | "two-cycles-card"
+  | "two-cycles-alert"
+  | "two-cycles-today"
+  | "two-cycles-start"
   // Ciclo del equipo (CYC-314): web del coach.
   | "team-cycle";
 
@@ -281,6 +286,51 @@ export const NOVELTIES: Novelty[] = [
         text: "Define cuántas semanas dura. Al asignarla, eliges solo el primer día.",
         demoLabel: "Una plantilla de dos semanas: se elige el primer día y el calendario pinta el resto.",
         demo: "cycle-template",
+      },
+    ],
+  },
+  {
+    key: "coach-two-cycles",
+    version: 1,
+    since: "2026-11-25",
+    platforms: ["web"],
+    roles: ["coach"],
+    name: "Dos ciclos por atleta",
+    slides: [
+      {
+        title: "Los dos ciclos, a la vista",
+        text: "Si un atleta lleva dos ciclos, su tarjeta muestra ambos, con la semana y las sesiones completadas de cada uno.",
+        demoLabel: "La tarjeta de un atleta muestra un bloque por cada uno de sus dos ciclos.",
+        demo: "two-cycles-card",
+      },
+      {
+        title: "El aviso dice de qué ciclo es",
+        text: "Así sabes dónde mirar. Con «Ver ciclos» abres su ficha y revisas cada uno.",
+        demoLabel: "Sobre la tarjeta aparece el aviso de una sesión omitida con el nombre de su ciclo.",
+        demo: "two-cycles-alert",
+      },
+    ],
+  },
+  {
+    key: "athlete-two-cycles",
+    version: 1,
+    since: "2026-11-25",
+    // Solo web: la app todavía muestra un plan a la vez.
+    platforms: ["web"],
+    roles: ["athlete"],
+    name: "Dos ciclos en Hoy",
+    slides: [
+      {
+        title: "Tus dos ciclos en Hoy",
+        text: "Si llevas dos ciclos a la vez, ves las sesiones de ambos, cada una con el nombre de su ciclo.",
+        demoLabel: "En Hoy aparecen dos tarjetas, cada una con el nombre de su ciclo.",
+        demo: "two-cycles-today",
+      },
+      {
+        title: "Empieza la que quieras",
+        text: "Una va abierta con sus ejercicios. La otra aparece resumida, lista para ver o empezar.",
+        demoLabel: "Una tarjeta está abierta y la otra resumida, con su botón para empezar.",
+        demo: "two-cycles-start",
       },
     ],
   },
