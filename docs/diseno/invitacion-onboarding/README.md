@@ -6,7 +6,7 @@ Solo diseño, sin código ni migraciones. Parte de `origin/main` (c607b17). Maqu
 
 ## Cambios posteriores (26-11)
 
-**Maquetas aprobadas.** La usuaria escribió «apruebo las maquetas» en el chat de Organización (26-11), que lo trasladó a diseño. Se aprueba lo que muestran las maquetas y capturas. Siguen **pendientes** «Enviar de nuevo» en invitaciones vencidas y el cambio de «te damos acceso» sobre el formulario.
+**Maquetas aprobadas.** La usuaria escribió «apruebo las maquetas» en el chat de Organización (26-11), que lo trasladó a diseño. Se aprueba lo que muestran las maquetas y capturas. Después, en el chat de diseño, siguió las recomendaciones: «Enviar de nuevo» en las vencidas, la encuesta obligatoria y el cambio de «te damos acceso» sobre el formulario.
 
 - [Invitaciones en admin](admin-invitaciones.md): lista con un botón para enviar cada invitación, cola para lo que supere las 15 diarias y registro de hasta 12 meses. **Confirmado:** por ahora todas las solicitudes esperan el clic; reemplaza el envío automático. La confirmación y el aviso nuevos aparecen en las maquetas aprobadas.
 - [Encuesta para coaches actuales](encuesta-coaches.md) y [sus respuestas en admin](admin-respuestas.md).
@@ -27,6 +27,7 @@ Solo diseño, sin código ni migraciones. Parte de `origin/main` (c607b17). Maqu
 | Vista previa | Crea tu cuenta. El enlace es personal y dura 7 días. |
 | Botón | Crear mi cuenta |
 | Aviso bajo el botón | El enlace es personal, sirve una sola vez y vence en 7 días. Si no dejaste tu correo en getcycles.app, ignora este mensaje: no se crea ninguna cuenta. |
+| Sobre el formulario (parte que cambia) | Déjanos tu correo y cuéntanos cómo trabajas: revisamos cada mensaje para dar acceso, y tu experiencia nos ayuda a decidir qué sigue. |
 | Confirmación en la página | Recibido. Revisamos cada mensaje: si te damos acceso, la invitación llega a este correo. Si tienes dudas, escríbenos a hola@getcycles.app. |
 | Aviso del formulario | Usaremos tu correo para responderte y, si te damos acceso, enviarte una invitación a Cycles. Más en la política de privacidad. |
 | Enlace que no sirve | Esta invitación ya no sirve. Las invitaciones duran 7 días y sirven una sola vez. Si ya creaste tu cuenta, inicia sesión. Si no, escríbenos a hola@getcycles.app y te ayudamos. |
@@ -36,7 +37,7 @@ La carta completa está en la maqueta, con su versión de texto plano. No usa el
 ## Estilo
 
 - El correo conserva el motivo de proteína, con radios de 6 px, botón rectangular y sin negritas pesadas en el botón. Los demás correos siguen con el estilo anterior; cambiarlos no es parte de este diseño.
-- La página de inicio es una pantalla existente y se muestra como está. Cambian dos textos; el formulario no suma campos.
+- La página de inicio es una pantalla existente y se muestra como está. Cambian tres textos: el que va sobre el formulario, el aviso bajo el botón y la confirmación. El formulario no suma campos.
 
 ## Para la construcción
 
@@ -50,8 +51,7 @@ La carta completa está en la maqueta, con su versión de texto plano. No usa el
 
 ## Por decidir
 
-- Qué pasa con una invitación vencida («Enviar de nuevo»).
-- Si cambia «te damos acceso» en el texto sobre el formulario.
+Nada del correo ni de las invitaciones. Resuelto el 26-11: las vencidas se pueden enviar de nuevo ([detalle](admin-invitaciones.md)).
 
 Resuelto el 26-11: las solicitudes esperan el clic en admin; a quienes escribieron antes no se les envía nada automático (se invitan desde admin) y el registro de la invitación se guarda hasta 12 meses, con una invitación por correo en ese plazo.
 

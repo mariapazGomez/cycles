@@ -192,9 +192,10 @@ function stateCell(r){
 }
 function actCell(r,i,sv){
  const full=sv.sent>=CAP;
- if(sv.confirm===i)return `<div class="confirm"><span>${full?'¿Poner en la cola? Sale sola cuando haya cupo.':'¿Enviar la invitación a este correo?'}</span><button class="btn p sm" data-a="yes" data-i="${i}">${full?'Sí, poner en cola':'Sí, enviar'}</button><button class="btn sm" data-a="no">Cancelar</button></div>`;
+ if(sv.confirm===i)return `<div class="confirm"><span>${full?'¿Poner en la cola? Sale sola cuando haya cupo.':r.s==='exp'?'¿Enviar un enlace nuevo? El anterior deja de servir.':'¿Enviar la invitación a este correo?'}</span><button class="btn p sm" data-a="yes" data-i="${i}">${full?'Sí, poner en cola':'Sí, enviar'}</button><button class="btn sm" data-a="no">Cancelar</button></div>`;
  if(r.s==='pend')return `<button class="btn p sm" data-a="ask" data-i="${i}">${full?'Poner en cola':'Enviar invitación'}</button>`;
  if(r.s==='fail')return `<button class="btn sm" data-a="ask" data-i="${i}">${full?'Poner en cola':'Reintentar'}</button>`;
+ if(r.s==='exp')return `<button class="btn sm" data-a="ask" data-i="${i}">${full?'Poner en cola':'Enviar de nuevo'}</button>`;
  if(r.s==='queue')return `<button class="btn sm" data-a="out" data-i="${i}">Quitar de la cola</button>`;
  if(r.s==='sending')return '<button class="btn sm" disabled>Enviando…</button>';
  return '';
@@ -220,6 +221,7 @@ document.getElementById('stills').innerHTML=[
  still('tope','Ya salieron las 15 de hoy',S({sent:15})),
  still('cola','En cola',S({rows:queued,sent:15,tab:'queue'})),
  still('invitadas','Invitadas',S({tab:'done'})),
+ still('reenviar','Enviar de nuevo una vencida',S({tab:'done',confirm:7})),
  still('vacio','Sin solicitudes',S({rows:[]})),
  still('tel','En el teléfono',S({}),true)
 ].join('');
@@ -231,9 +233,9 @@ live.addEventListener('click',e=>{
  else if(a==='more')sv.open=sv.open===i?null:i;
  else if(a==='ask'){sv.confirm=i;sv.note=''}
  else if(a==='no')sv.confirm=null;
- else if(a==='out'){sv.rows[i].s='pend';sv.note='Quitada de la cola.'}
+ else if(a==='out'){const q=sv.rows[i];q.s=q.prev||'pend';q.w=q.pw;sv.note='Quitada de la cola.'}
  else if(a==='yes'){sv.confirm=null;const r=sv.rows[i];
-  if(sv.sent>=CAP){r.s='queue';r.w='Sale desde mañana, 27 nov';sv.note=`${r.m} quedó en cola.`}
+  if(sv.sent>=CAP){r.prev=r.s;r.pw=r.w;r.s='queue';r.w='Sale desde mañana, 27 nov';sv.note=`${r.m} quedó en cola.`}
   else{r.s='sending';paint();setTimeout(()=>{r.s='sent';r.w='Enviada el 26 nov';r.x='Vence el 3 dic';sv.sent++;sv.note=`Invitación enviada a ${r.m}.`;paint()},900);return}}
  paint();
 });

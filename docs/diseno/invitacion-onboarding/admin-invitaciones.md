@@ -1,6 +1,6 @@
 # Invitaciones en admin.getcycles.app (CYC-295)
 
-Solo diseño. **Maqueta aprobada.** La usuaria escribió «apruebo las maquetas» en el chat de Organización (26-11), que lo trasladó a diseño. Se aprueba lo que muestran las maquetas y capturas. Las reglas que no se ven en ellas siguen como se indica en este documento. «Enviar de nuevo» en vencidas y el texto sobre el formulario siguen **pendientes**. Maqueta que se puede probar en [admin-invitaciones.html](admin-invitaciones.html); capturas `capturas/admin-*.png`. Usa los estilos actuales del portal (`apps/admin`).
+Solo diseño. **Maqueta aprobada.** La usuaria escribió «apruebo las maquetas» en el chat de Organización (26-11), que lo trasladó a diseño. Se aprueba lo que muestran las maquetas y capturas. Las reglas que no se ven en ellas siguen como se indica en este documento. Después aprobó en el chat de diseño las recomendaciones sobre «Enviar de nuevo» y el texto sobre el formulario. Maqueta que se puede probar en [admin-invitaciones.html](admin-invitaciones.html); capturas `capturas/admin-*.png`. Usa los estilos actuales del portal (`apps/admin`).
 
 ## Pedido y decidido por la usuaria (26-11)
 
@@ -24,9 +24,9 @@ Lo respondió en el chat de Organización, que lo trasladó a diseño.
 | Regla 1 | Todos los que dejan su correo reciben la misma carta. | Todas las personas invitadas reciben la misma carta. |
 | Regla 3 | Se envía automáticamente. | Se envía cuando el equipo hace clic en admin. |
 
-No cambian el asunto, la vista previa, la carta, el botón, el aviso bajo el botón ni la pantalla del enlace que no sirve (ver la pregunta sobre vencidas). La maqueta [correo.html](correo.html) ya muestra la propuesta.
+No cambian el asunto, la vista previa, la carta, el botón, el aviso bajo el botón ni la pantalla del enlace que no sirve. La maqueta [correo.html](correo.html) ya muestra la propuesta.
 
-**Pendiente:** el texto que va sobre el formulario dice «cuéntanos cómo trabajas: te damos acceso». Con revisión, promete acceso a todas las personas. Propuesta: «cuéntanos cómo trabajas: revisamos cada mensaje para dar acceso». La maqueta lo muestra como está hoy.
+**Texto sobre el formulario.** Hoy dice «cuéntanos cómo trabajas: te damos acceso y tu experiencia nos ayuda a decidir qué sigue», que con revisión promete acceso a todas las personas. Cambia a «cuéntanos cómo trabajas: revisamos cada mensaje para dar acceso, y tu experiencia nos ayuda a decidir qué sigue». Decidido por la usuaria en el chat de diseño (26-11): «en cuanto a las preguntas, sigo tus recomendaciones».
 
 ## La pestaña
 
@@ -48,7 +48,7 @@ No cambian el asunto, la vista previa, la carta, el botón, el aviso bajo el bot
 | En cola | Sale desde mañana y su fecha | Quitar de la cola |
 | Enviada | Fecha de envío y de vencimiento | Ninguno |
 | Cuenta creada | Fecha en que usó la invitación | Ninguno |
-| Vencida | Fecha de vencimiento | Ninguno (ver pregunta) |
+| Vencida | Fecha de vencimiento | **Enviar de nuevo**, o Poner en cola si ya salieron las 15 |
 | Error de envío | No salió el correo. | Reintentar |
 | Ya tenía cuenta | Solo aparece en «Todas» | Ninguno |
 
@@ -64,11 +64,15 @@ No cambian el asunto, la vista previa, la carta, el botón, el aviso bajo el bot
 
 Fuera de este diseño: descartar u ocultar mensajes que no piden acceso, enviar varias a la vez y los rebotes posteriores al envío.
 
-## Pendiente: invitaciones vencidas
+## Invitaciones vencidas: «Enviar de nuevo»
 
-Con «una invitación por correo en 12 meses», una persona con la invitación vencida queda **sin salida** durante ese plazo, aunque la pantalla del enlace le dice «escríbenos y te ayudamos».
+Decidido por la usuaria en el chat de diseño (26-11): «en cuanto a las preguntas, sigo tus recomendaciones». Así la persona no queda sin salida y la pantalla del enlace puede seguir diciendo «escríbenos y te ayudamos».
 
-**Propuesta:** permitir «Enviar de nuevo» solo en las vencidas. Renueva la misma invitación (enlace nuevo, el anterior deja de servir), usa cupo y no crea un segundo registro. La maqueta sigue la regla actual y no muestra ese botón hasta que se decida.
+- Solo aparece en las vencidas. Pide confirmación: «¿Enviar un enlace nuevo? El anterior deja de servir.»
+- Renueva la misma invitación: enlace nuevo, 7 días desde el envío. No crea un segundo registro, así que sigue habiendo una por correo.
+- Usa cupo del día. Con el tope completo entra a la cola; si se quita de la cola, vuelve a «Vencida».
+- Si el envío falla, queda en «Error de envío» con «Reintentar».
+- Los 12 meses se siguen contando desde que se creó el registro (propuesta).
 
 ## Base de datos
 

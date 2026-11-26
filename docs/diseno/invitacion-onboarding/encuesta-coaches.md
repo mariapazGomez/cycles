@@ -4,7 +4,7 @@ Solo diseño. **Maqueta aprobada.** La usuaria escribió «apruebo las maquetas�
 
 ## Decidido por la usuaria (26-11)
 
-Los coaches que ya tienen cuenta deben responder la encuesta cuando entren, con un mensaje de mejora continua que explique por qué. La maqueta aprobada la muestra sin forma de saltarla.
+Los coaches que ya tienen cuenta deben responder la encuesta cuando entren, con un mensaje de mejora continua que explique por qué. **Obligatoria** (confirmado en el chat de diseño, 26-11); la maqueta la muestra sin forma de saltarla.
 
 ## Textos
 
