@@ -83,9 +83,9 @@ export class AccountService {
   }
 
   // Lo del registro (CYC-295), antes de perder el correo: se anota en el historial
-  // y se borran su invitación y su perfil. El perfil se borra aquí porque la fila
-  // de un coach se conserva anonimizada y la cascada no se activaría. Borrar la
-  // invitación está por confirmar.
+  // y se borran su invitación y su perfil (decidido el 26-11). El perfil se borra
+  // aquí porque la fila de un coach se conserva anonimizada y la cascada no se
+  // activaría.
   private async deleteSignupData(tx: Prisma.TransactionClient, userId: string, account: HistoryAccount): Promise<void> {
     await this.emailHistory.recordDeletion(tx, account);
     await tx.pilotInvitation.deleteMany({ where: { OR: [{ usedByUserId: userId }, { email: normalizeEmail(account.email) }] } });

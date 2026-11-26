@@ -1021,7 +1021,8 @@ model CoachProfile {
 // Historial de correos que tuvieron cuenta (CYC-295). Sobrevive a eliminar la
 // cuenta y a la purga de invitaciones, para que no se pueda volver a obtener el
 // mismo beneficio. Sin llave a User a propósito. Solo la huella HMAC del correo
-// (ver src/email-history) y dos fechas: sin correo, nombre ni otros datos.
+// (ver src/email-history) y dos fechas: sin correo legible, nombre ni otros datos.
+// Se conserva mientras existan el plan gratuito o las ofertas, con revisión anual.
 model RegisteredEmail {
   fingerprint          String    @id
   firstRegisteredAt    DateTime
