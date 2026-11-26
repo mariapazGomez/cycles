@@ -25,6 +25,7 @@ import { IdentityTokenVerifier, SocialProvider } from "./identity-token.verifier
 import { SocialLoginDto } from "./dto/tokens.dto";
 import { generateJti, generateRawToken, hashToken } from "./token.util";
 import { normalizeEmail } from "../common/validation/normalize-email";
+import { EmailHistoryService } from "../email-history/email-history.service";
 
 const ACCESS_TOKEN_TTL = "15m";
 const REFRESH_TOKEN_TTL_MS = 1000 * 60 * 60 * 24 * 30; // 30 días
@@ -74,6 +75,7 @@ export class AuthService {
     private readonly activity: ActivityNotifier,
     private readonly identityTokens: IdentityTokenVerifier,
     private readonly testflight: TestflightService,
+    private readonly emailHistory: EmailHistoryService,
   ) {}
 
   // Early adopters: el registro está cerrado salvo que REGISTRATION_OPEN=true.
@@ -117,6 +119,7 @@ export class AuthService {
       },
     });
 
+    await this.emailHistory.recordRegistration(user);
     if (dto.role === "athlete") {
       await this.testflight.recordRegistration(user.id, dto.phonePlatform, dto.appleIdEmail ?? user.email);
     }
@@ -171,6 +174,7 @@ export class AuthService {
         data: { emailVerifiedAt: new Date() },
       });
     }
+    await this.emailHistory.recordRegistration(user);
 
     return this.createOAuthExchangeCode(user.id);
   }
@@ -202,6 +206,7 @@ export class AuthService {
       await this.prisma.userIdentity.create({
         data: { userId: user.id, provider, subject: identity.subject, email },
       });
+      await this.emailHistory.recordRegistration(user);
       return this.issueTokenPair(user);
     }
 

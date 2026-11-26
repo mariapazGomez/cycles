@@ -20,7 +20,7 @@ function setup(existing: { id?: string; role?: string; athleteRelations?: Rel[] 
     sendAthleteInvitationEmail: mailFails ? jest.fn().mockRejectedValue(new Error("x")) : jest.fn().mockResolvedValue(undefined),
   };
   const activity = { invitationSent: jest.fn(), athleteJoined: jest.fn() };
-  const service = new AthletesService(prisma as never, mail as never, {} as never, activity as never, {} as never);
+  const service = new AthletesService(prisma as never, mail as never, {} as never, activity as never, {} as never, {} as never);
   return { service, prisma, mail };
 }
 
@@ -88,7 +88,7 @@ describe("AthletesService.acceptInvitation", () => {
       $transaction: jest.fn().mockImplementation((ops: unknown[]) => Promise.all(ops)),
     };
     const auth = { issueTokenPair: jest.fn().mockResolvedValue({ accessToken: "A", refreshToken: "R" }) };
-    const service = new AthletesService(prisma as never, {} as never, auth as never, { athleteJoined: jest.fn() } as never, {} as never);
+    const service = new AthletesService(prisma as never, {} as never, auth as never, { athleteJoined: jest.fn() } as never, {} as never, { recordRegistration: jest.fn() } as never);
     return { prisma, auth, run: () => service.acceptInvitation("raw", password) };
   }
 
@@ -135,7 +135,7 @@ describe("AthletesService.previewInvitation", () => {
         }),
       },
     };
-    return new AthletesService(prisma as never, {} as never, {} as never, {} as never, {} as never).previewInvitation("raw");
+    return new AthletesService(prisma as never, {} as never, {} as never, {} as never, {} as never, {} as never).previewInvitation("raw");
   };
 
   it("dice quién invita y si la persona ya tiene cuenta", async () => {

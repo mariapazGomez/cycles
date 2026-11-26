@@ -7,6 +7,7 @@ import { AuthService, AuthTokens } from "../auth/auth.service";
 import { generateRawToken, hashToken } from "../auth/token.util";
 import { InviteAthleteDto } from "./dto/invite-athlete.dto";
 import { POLICY_VERSION, policyAcceptanceData } from "../common/policy";
+import { EmailHistoryService } from "../email-history/email-history.service";
 import { TeamsService } from "../teams/teams.service";
 
 export type AcceptResult = { linked: true } | { linked: false; tokens: AuthTokens };
@@ -21,6 +22,7 @@ export class AthletesService {
     private readonly authService: AuthService,
     private readonly activity: ActivityNotifier,
     private readonly teams: TeamsService,
+    private readonly emailHistory: EmailHistoryService,
   ) {}
 
   async invite(coachId: string, dto: InviteAthleteDto): Promise<{ id: string; email: string }> {
@@ -136,6 +138,8 @@ export class AthletesService {
       }),
     ]);
 
+    // Un atleta nuevo se registra ahora: su fila nació cuando lo invitó el coach.
+    await this.emailHistory.recordRegistration(alreadyHasAccount ? athlete : { ...athlete, createdAt: new Date() });
     this.activity.athleteJoined(athlete.id, record.coachAthlete.coachId);
     if (alreadyHasAccount) {
       return { linked: true };

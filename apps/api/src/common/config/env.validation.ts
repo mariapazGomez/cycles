@@ -74,6 +74,19 @@ export function validateEnv(config: Record<string, unknown>): Record<string, unk
     errors.push(`ACTIVITY_CRON_SECRET debe tener al menos ${MIN_SECRET_LENGTH} caracteres.`);
   }
 
+  // Historial de correos registrados (CYC-295): para guardarlo hacen falta las dos.
+  // La clave no se puede cambiar: el historial guardado dejaría de coincidir.
+  const historyKey = value("EMAIL_HISTORY_HMAC_KEY");
+  if (value("EMAIL_HISTORY_ENABLED") === "true" && !historyKey) {
+    errors.push("EMAIL_HISTORY_ENABLED necesita EMAIL_HISTORY_HMAC_KEY.");
+  }
+  if (historyKey && historyKey.length < MIN_SECRET_LENGTH) {
+    errors.push(`EMAIL_HISTORY_HMAC_KEY debe tener al menos ${MIN_SECRET_LENGTH} caracteres.`);
+  }
+  if (historyKey && [value("JWT_ACCESS_SECRET"), value("JWT_REFRESH_SECRET")].includes(historyKey)) {
+    errors.push("EMAIL_HISTORY_HMAC_KEY debe ser distinta de los secretos de sesión.");
+  }
+
   // Invitaciones a TestFlight (CYC-194): las cuatro juntas o ninguna; sin ellas la
   // integración está apagada y las invitaciones quedan pendientes.
   const appleKeys = ["APP_STORE_CONNECT_KEY_ID", "APP_STORE_CONNECT_ISSUER_ID", "APP_STORE_CONNECT_PRIVATE_KEY", "TESTFLIGHT_GROUP_ID"];

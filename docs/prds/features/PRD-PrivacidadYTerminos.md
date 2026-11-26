@@ -98,6 +98,16 @@ Apple exige que una app con registro deje **iniciar el borrado de la cuenta dent
 - **Cuentas admin:** no se pueden eliminar desde la app.
 - **Excepción a «append-only»:** `ExerciseLog` y `SessionFeedback` no se editan ni se borran (SEGURIDAD.md, R7), salvo cuando la **persona dueña elimina su cuenta**. Desde 2026-11-01 la base de datos lo impone con triggers y el borrado de cuenta declara la excepción dentro de su transacción (`SET LOCAL cycles.allow_purge = 'on'`).
 
+**Historial de correos registrados (CYC-295): construido y APAGADO; lo de arriba sigue siendo lo vigente.**
+- **Pedido y aprobado por la usuaria (26-11):** mantener un historial de correos registrados que sobreviva a eliminar la cuenta, para que no se pueda volver a obtener el mismo mes gratis u oferta.
+- **Por confirmar:** guardar solo una huella HMAC del correo (clave `EMAIL_HISTORY_HMAC_KEY`) con la fecha del primer registro y del último borrado, sin correo, nombre ni otros datos (`RegisteredEmail`); borrar la invitación al eliminar la cuenta; **el plazo de conservación** (hoy no hay purga) y la revisión legal. La huella sigue siendo un dato personal seudonimizado.
+- **No encender `EMAIL_HISTORY_ENABLED`** hasta publicar qué se conserva, para qué y cuánto tiempo en `/privacidad` 1.6, en la pantalla Cuenta de la web y en la app. La app ya instalada dice «Se borran tu cuenta y todo tu historial» en su propio código: hace falta publicar una versión con el texto nuevo. Al encenderlo se actualiza esta sección.
+- **Cuentas existentes:** al encenderlo, la API carga al arrancar las cuentas activadas (fecha: la de creación de la cuenta). Las ya eliminadas no se pueden recuperar desde la base: el atleta se borró y el coach quedó anonimizado. Los respaldos no se usan para reconstruirlas.
+- **Demos:** no entran. **Alias:** en Gmail se ignoran puntos y «+…»; en Outlook, Hotmail, Live, iCloud, Proton y Fastmail se ignora «+…»; en otros dominios no se junta nada. No detecta otro buzón, «Ocultar mi correo» de Apple ni alias de dominios propios. Estas reglas y la clave no se pueden cambiar después sin perder las coincidencias.
+- **Beneficios:** no existen todavía. Cuando se definan, van en una tabla aparte (huella + clave del beneficio + fecha, única por par), con otra migración.
+
+**Ya vigente con la base de CYC-295:** eliminar la cuenta borra el perfil del coach y la invitación de esa persona (esto último por confirmar), y «Descargar mis datos» incluye el perfil y el estado y las fechas de la invitación. Hoy esas tablas están vacías.
+
 **Pendientes y límites:**
 - No se manda correo de aviso tras eliminar (se puede agregar).
 - El coach que elimina su cuenta no avisa a sus atletas; ellos siguen viendo sus planes con el coach anonimizado hasta vincularse con otro.
