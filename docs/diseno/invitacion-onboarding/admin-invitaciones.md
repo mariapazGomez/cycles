@@ -1,6 +1,6 @@
 # Invitaciones en admin.getcycles.app (CYC-295)
 
-Solo diseño. **Pendiente de aprobación de la usuaria.** Maqueta que se puede probar en [admin-invitaciones.html](admin-invitaciones.html); capturas `capturas/admin-*.png`. Usa los estilos actuales del portal (`apps/admin`).
+Solo diseño. **Maqueta aprobada.** La usuaria escribió «apruebo las maquetas» en el chat de Organización (26-11), que lo trasladó a diseño. Se aprueba lo que muestran las maquetas y capturas. Las reglas que no se ven en ellas siguen como se indica en este documento. «Enviar de nuevo» en vencidas y el texto sobre el formulario siguen **pendientes**. Maqueta que se puede probar en [admin-invitaciones.html](admin-invitaciones.html); capturas `capturas/admin-*.png`. Usa los estilos actuales del portal (`apps/admin`).
 
 ## Pedido y decidido por la usuaria (26-11)
 
@@ -15,7 +15,7 @@ Lo respondió en el chat de Organización, que lo trasladó a diseño.
 
 **Confirmado por la usuaria (26-11, trasladado por Organización):** por ahora, todas las solicitudes esperan su clic en admin.
 
-### Textos que cambian (los nuevos, pendientes de aprobación)
+### Textos que cambian (confirmación y aviso aprobados con las maquetas)
 
 | Pieza | Aprobado antes | Propuesta nueva |
 |---|---|---|
@@ -26,7 +26,7 @@ Lo respondió en el chat de Organización, que lo trasladó a diseño.
 
 No cambian el asunto, la vista previa, la carta, el botón, el aviso bajo el botón ni la pantalla del enlace que no sirve (ver la pregunta sobre vencidas). La maqueta [correo.html](correo.html) ya muestra la propuesta.
 
-**Por revisar:** el texto que va sobre el formulario dice «cuéntanos cómo trabajas: te damos acceso». Con revisión, promete acceso a todas las personas. Propuesta: «cuéntanos cómo trabajas: revisamos cada mensaje para dar acceso». La maqueta lo muestra como está hoy.
+**Pendiente:** el texto que va sobre el formulario dice «cuéntanos cómo trabajas: te damos acceso». Con revisión, promete acceso a todas las personas. Propuesta: «cuéntanos cómo trabajas: revisamos cada mensaje para dar acceso». La maqueta lo muestra como está hoy.
 
 ## La pestaña
 
@@ -54,8 +54,8 @@ No cambian el asunto, la vista previa, la carta, el botón, el aviso bajo el bot
 
 ## Reglas
 
-1. **Confirmación en la fila** (propuesta de diseño): «¿Enviar la invitación a este correo?», «Sí, enviar» y «Cancelar». Suma un clic al pedido; evita enviar un correo por error, que no se puede deshacer. Es el mismo patrón que «Quitar» en la pestaña Correos.
-2. **Cola:** sale en el orden en que se agregó, sin otro clic. El enlace vence 7 días después del envío, no del día en que entró a la cola. Quitar de la cola la devuelve a «Sin invitar» (propuesta).
+1. **Confirmación en la fila** (se ve en la maqueta): «¿Enviar la invitación a este correo?», «Sí, enviar» y «Cancelar». Suma un clic al pedido; evita enviar un correo por error, que no se puede deshacer. Es el mismo patrón que «Quitar» en la pestaña Correos.
+2. **Cola:** sale en el orden en que se agregó, sin otro clic. El enlace vence 7 días después del envío, no del día en que entró a la cola. «Quitar de la cola» la devuelve a «Sin invitar».
 3. **Tope:** 15 envíos por día. Desarrollo define la zona horaria y a qué hora sale la cola; la fecha que se muestra debe coincidir. Un envío con error no descuenta cupo (propuesta).
 4. **Error:** reintentar no cuenta como segunda invitación, porque la primera no salió. Si falla algo que estaba en cola, pasa a «Error de envío» y no se reintenta solo.
 5. **Cupo y doble clic:** el servidor decide si envía o encola; dos clics o dos sesiones no pueden crear dos envíos.
@@ -64,7 +64,7 @@ No cambian el asunto, la vista previa, la carta, el botón, el aviso bajo el bot
 
 Fuera de este diseño: descartar u ocultar mensajes que no piden acceso, enviar varias a la vez y los rebotes posteriores al envío.
 
-## Pregunta: invitaciones vencidas
+## Pendiente: invitaciones vencidas
 
 Con «una invitación por correo en 12 meses», una persona con la invitación vencida queda **sin salida** durante ese plazo, aunque la pantalla del enlace le dice «escríbenos y te ayudamos».
 

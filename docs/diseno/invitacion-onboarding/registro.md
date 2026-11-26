@@ -97,7 +97,7 @@ Decidido el 26-11: el equipo las ve en [el detalle de cada coach en admin](admin
 
 ## Coaches que ya tienen cuenta
 
-Responden las mismas preguntas al entrar (decidido el 26-11): ver [encuesta-coaches.md](encuesta-coaches.md), pendiente de aprobación.
+Responden las mismas preguntas al entrar (decidido el 26-11): ver [encuesta-coaches.md](encuesta-coaches.md), con maqueta aprobada.
 
 ## Novedad
 

@@ -1,6 +1,6 @@
 # Respuestas de la encuesta en admin (CYC-295)
 
-Solo diseño. **Maqueta pendiente de aprobación.** [admin-respuestas.html](admin-respuestas.html); capturas `capturas/respuestas-*.png`.
+Solo diseño. **Maqueta aprobada.** La usuaria escribió «apruebo las maquetas» en el chat de Organización (26-11), que lo trasladó a diseño. Se aprueba lo que muestran las maquetas y capturas. Las reglas que no se ven en ellas siguen como se indica en este documento. [admin-respuestas.html](admin-respuestas.html); capturas `capturas/respuestas-*.png`.
 
 ## Decidido por la usuaria (26-11, trasladado por Organización)
 

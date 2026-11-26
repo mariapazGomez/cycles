@@ -1,10 +1,10 @@
 # Encuesta para los coaches que ya tienen cuenta (CYC-295)
 
-Solo diseño. **Pendiente de aprobación de la usuaria.** Maqueta que se puede recorrer en [encuesta-coaches.html](encuesta-coaches.html); capturas `capturas/encuesta-*.png`. Es solo la web.
+Solo diseño. **Maqueta aprobada.** La usuaria escribió «apruebo las maquetas» en el chat de Organización (26-11), que lo trasladó a diseño. Se aprueba lo que muestran las maquetas y capturas. Las reglas que no se ven en ellas siguen como se indica en este documento. Maqueta que se puede recorrer en [encuesta-coaches.html](encuesta-coaches.html); capturas `capturas/encuesta-*.png`. Es solo la web.
 
 ## Decidido por la usuaria (26-11)
 
-Los coaches que ya tienen cuenta deben responder la encuesta cuando entren, con un mensaje de mejora continua que explique por qué. Obligatoria, igual que en el registro: Organización lo entiende así; **confirmarlo** al aprobar.
+Los coaches que ya tienen cuenta deben responder la encuesta cuando entren, con un mensaje de mejora continua que explique por qué. La maqueta aprobada la muestra sin forma de saltarla.
 
 ## Textos
 
