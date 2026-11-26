@@ -33,7 +33,19 @@ export type NoveltyDemoId =
   | "athlete-rm-percent"
   // Equipos del coach (CYC-310): solo la web del coach.
   | "teams-group"
-  | "teams-create";
+  | "teams-create"
+  // Nuevo ciclo por calendario (CYC-314): web del coach.
+  | "cycle-range"
+  | "cycle-fields"
+  | "cycle-guard"
+  | "cycle-template"
+  // Dos ciclos a la vez (CYC-316): la tarjeta del atleta en la web del coach y «Hoy» en la web del atleta.
+  | "two-cycles-card"
+  | "two-cycles-alert"
+  | "two-cycles-today"
+  | "two-cycles-start"
+  // Ciclo del equipo (CYC-314): web del coach.
+  | "team-cycle";
 
 export interface NoveltySlide {
   title: string;
@@ -240,6 +252,101 @@ export const NOVELTIES: Novelty[] = [
         text: "Tu coach puede indicar un % de tu RM. Verás el peso ya calculado y redondeado para que calce con los discos.",
         demoLabel: "80 % de tu RM se convierte en 72,5 kg, tu peso.",
         demo: "athlete-rm-percent",
+      },
+    ],
+  },
+  {
+    key: "cycle-calendar",
+    version: 1,
+    since: "2026-11-25",
+    platforms: ["web"],
+    roles: ["coach"],
+    name: "Nuevo ciclo por calendario",
+    slides: [
+      {
+        title: "Crea tu ciclo en un calendario",
+        text: "Escribe el nombre y toca el primer y el último día. La duración sale sola.",
+        demoLabel: "En un calendario se marca el primer día, se pinta el rango, se marca el último y aparece la duración.",
+        demo: "cycle-range",
+      },
+      {
+        title: "Menos cosas que rellenar",
+        text: "Ya no pedimos tipo de ciclo ni sesiones por semana. A mano van el nombre y, si quieres, el objetivo.",
+        demoLabel: "Los campos antiguos se apartan y quedan el nombre, el objetivo opcional y las fechas del ciclo.",
+        demo: "cycle-fields",
+      },
+      {
+        title: "Fechas sin sorpresas",
+        text: "Un ciclo nuevo empieza desde hoy. Si al cambiar las fechas quedan sesiones fuera, muévelas o quítalas.",
+        demoLabel: "Los días pasados no se pueden elegir. Al acortar el ciclo, tres sesiones quedan fuera y aparece un aviso.",
+        demo: "cycle-guard",
+      },
+      {
+        title: "Tus plantillas, por semanas",
+        text: "Define cuántas semanas dura. Al asignarla, eliges solo el primer día.",
+        demoLabel: "Una plantilla de dos semanas: se elige el primer día y el calendario pinta el resto.",
+        demo: "cycle-template",
+      },
+    ],
+  },
+  {
+    key: "coach-two-cycles",
+    version: 1,
+    since: "2026-11-25",
+    platforms: ["web"],
+    roles: ["coach"],
+    name: "Dos ciclos por atleta",
+    slides: [
+      {
+        title: "Los dos ciclos, a la vista",
+        text: "Si un atleta lleva dos ciclos, su tarjeta muestra ambos, con la semana y las sesiones completadas de cada uno.",
+        demoLabel: "La tarjeta de un atleta muestra un bloque por cada uno de sus dos ciclos.",
+        demo: "two-cycles-card",
+      },
+      {
+        title: "El aviso dice de qué ciclo es",
+        text: "Así sabes dónde mirar. Con «Ver ciclos» abres su ficha y revisas cada uno.",
+        demoLabel: "Sobre la tarjeta aparece el aviso de una sesión omitida con el nombre de su ciclo.",
+        demo: "two-cycles-alert",
+      },
+    ],
+  },
+  {
+    key: "athlete-two-cycles",
+    version: 1,
+    since: "2026-11-25",
+    // Solo web: la app todavía muestra un plan a la vez.
+    platforms: ["web"],
+    roles: ["athlete"],
+    name: "Dos ciclos en Hoy",
+    slides: [
+      {
+        title: "Tus dos ciclos en Hoy",
+        text: "Si llevas dos ciclos a la vez, ves las sesiones de ambos, cada una con el nombre de su ciclo.",
+        demoLabel: "En Hoy aparecen dos tarjetas, cada una con el nombre de su ciclo.",
+        demo: "two-cycles-today",
+      },
+      {
+        title: "Empieza la que quieras",
+        text: "Una va abierta con sus ejercicios. La otra aparece resumida, lista para ver o empezar.",
+        demoLabel: "Una tarjeta está abierta y la otra resumida, con su botón para empezar.",
+        demo: "two-cycles-start",
+      },
+    ],
+  },
+  {
+    key: "coach-team-cycle",
+    version: 1,
+    since: "2026-11-25",
+    platforms: ["web"],
+    roles: ["coach"],
+    name: "Ciclo del equipo",
+    slides: [
+      {
+        title: "Planifica el ciclo de tu equipo",
+        text: "Pon las sesiones una vez en el calendario del equipo y llegan a cada integrante.",
+        demoLabel: "Una sesión del equipo llega a cuatro atletas.",
+        demo: "team-cycle",
       },
     ],
   },

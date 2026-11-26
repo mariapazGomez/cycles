@@ -717,6 +717,580 @@
   background: #1a66dd;
 }
 
+/* Nuevo ciclo por calendario (CYC-314): piezas con las esquinas casi rectas de la interfaz nueva.
+   El estado base es el final; con «reducir movimiento» queda esa imagen. */
+.nd-cy * {
+  box-sizing: border-box;
+}
+
+.nd-cy-box {
+  position: absolute;
+  padding: 12px 14px;
+  border: 1px solid #dde4f0;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(48, 80, 160, 0.12);
+}
+
+.nd-cy-h {
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.nd-cy-cal {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 4px;
+  text-align: center;
+}
+
+.nd-cy-cal i {
+  color: #8d95a3;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+.nd-cy-cal span {
+  position: relative;
+  font-size: 13px;
+  line-height: 30px;
+}
+
+.nd-cy-cal span b {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: #2f9e5f;
+}
+
+.nd-cy-off {
+  color: #c3c8d1;
+}
+
+.nd-cy-in {
+  background: #e8effb;
+}
+
+.nd-cy-cal .nd-cy-edge {
+  border-radius: 4px;
+  background: #1a66dd;
+  color: #fff;
+  font-weight: 600;
+}
+
+.nd-cy-cal .nd-cy-out {
+  border-radius: 4px;
+  background: #fdeede;
+  color: #8f4410;
+}
+
+.nd-cy-sum,
+.nd-cy-warn {
+  position: absolute;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.nd-cy-sum {
+  padding: 10px 14px;
+  background: var(--ink);
+  color: #fff;
+  white-space: nowrap;
+}
+
+.nd-cy-warn {
+  width: 228px;
+  padding: 10px 12px;
+  border: 1px solid #f0c9a0;
+  background: #fdeede;
+  color: #5b2d0a;
+  line-height: 1.4;
+}
+
+.nd-cy-field + .nd-cy-field {
+  margin-top: 10px;
+}
+
+.nd-cy-field b {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.nd-cy-inp {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid #c9d2e4;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.nd-cy-inp-on {
+  border-color: #1a66dd;
+  background: #e8effb;
+}
+
+.nd-cy-old {
+  position: absolute;
+  width: 176px;
+  padding: 9px 11px;
+  border: 1px dashed #8d95a3;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink2);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: line-through;
+  opacity: 0.38;
+  transform: translateX(18px);
+}
+
+.nd-cy-start,
+.nd-cy-fill,
+.nd-cy-end,
+.nd-cy-up,
+.nd-cy-leave,
+.nd-cy-arrive {
+  animation: 4.8s ease infinite both;
+}
+
+.nd-cy-start {
+  animation-name: nd-cy-start;
+}
+
+.nd-cy-fill {
+  animation-name: nd-cy-fill;
+}
+
+.nd-cy-end {
+  animation-name: nd-cy-end;
+}
+
+.nd-cy-cal .nd-cy-up,
+.nd-cy-up {
+  animation-name: nd-cy-up;
+}
+
+.nd-cy-leave {
+  animation-name: nd-cy-leave;
+}
+
+.nd-cy-arrive {
+  animation-name: nd-cy-arrive;
+}
+
+@keyframes nd-cy-start {
+  0%,
+  8% {
+    background: transparent;
+    color: var(--ink);
+  }
+  16%,
+  100% {
+    background: #1a66dd;
+    color: #fff;
+  }
+}
+
+@keyframes nd-cy-fill {
+  0%,
+  22% {
+    background: transparent;
+  }
+  30%,
+  100% {
+    background: #e8effb;
+  }
+}
+
+@keyframes nd-cy-end {
+  0%,
+  46% {
+    background: transparent;
+    color: var(--ink);
+  }
+  54%,
+  100% {
+    background: #1a66dd;
+    color: #fff;
+  }
+}
+
+@keyframes nd-cy-up {
+  0%,
+  56% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  66%,
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes nd-cy-leave {
+  0%,
+  14% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  40%,
+  100% {
+    opacity: 0.38;
+    transform: translateX(18px);
+  }
+}
+
+@keyframes nd-cy-arrive {
+  0%,
+  30% {
+    opacity: 0.25;
+  }
+  55%,
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Dos ciclos a la vez (CYC-316) */
+.nd-tc-card,
+.nd-tc-ses {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1px solid #dde4f0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: var(--shadow-e1);
+  padding: 12px 14px;
+}
+
+.nd-tc-card *,
+.nd-tc-ses * {
+  box-sizing: border-box;
+}
+
+.nd-tc-card {
+  top: 14px;
+  left: 174px;
+  width: 300px;
+}
+
+.nd-tc-who {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.nd-tc-who span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #1f2228;
+  color: #fff;
+  font-size: 11px;
+}
+
+.nd-tc-card hr {
+  margin: 10px 0;
+  border: 0;
+  border-top: 1px solid #dde4f0;
+}
+
+.nd-tc-cy {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 7px;
+  color: #1a66dd;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.nd-tc-cy small,
+.nd-tc-count {
+  color: var(--ink2);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.nd-tc-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  align-items: center;
+  height: 14px;
+}
+
+.nd-tc-week i {
+  justify-self: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
+.nd-tc-week .nd-tc-n {
+  width: 5px;
+  height: 5px;
+  background: #c9d2e4;
+}
+
+.nd-tc-week .nd-tc-p {
+  border: 2px solid #8d95a3;
+}
+
+.nd-tc-week .nd-tc-d {
+  background: #2f9e5f;
+}
+
+.nd-tc-count {
+  margin-top: 7px;
+}
+
+.nd-tc-alert {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #fdeede;
+  color: #8f4410;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.nd-tc-ses {
+  width: 262px;
+}
+
+.nd-tc-left {
+  left: 50px;
+}
+
+.nd-tc-right {
+  left: 336px;
+}
+
+.nd-tc-ses > b {
+  display: block;
+  margin: 8px 0;
+  font-size: 17px;
+}
+
+.nd-tc-chip {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #e8effb;
+  color: #134fb0;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.nd-tc-li {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-top: 1px solid #dde4f0;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.nd-tc-primary,
+.nd-tc-secondary {
+  display: grid;
+  place-items: center;
+  height: 34px;
+  border-radius: 999px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.nd-tc-primary {
+  margin-top: 8px;
+  background: #1a66dd;
+  color: #fff;
+  font-size: 13px;
+}
+
+.nd-tc-secondary {
+  padding: 0 10px;
+  border: 1.5px solid #8d95a3;
+  font-size: 12px;
+}
+
+.nd-tc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.nd-tc-link {
+  color: #1a66dd;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.nd-tc-in1 {
+  animation: nd-tc-in1 4.8s ease infinite both;
+}
+
+.nd-tc-in2 {
+  animation: nd-tc-in2 4.8s ease infinite both;
+}
+
+.nd-tc-up {
+  animation: nd-tc-up 4.8s ease infinite both;
+}
+
+.nd-tc-press {
+  animation: nd-tc-press 4.8s ease infinite both;
+}
+
+@keyframes nd-tc-in1 {
+  0%,
+  8% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  22%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes nd-tc-in2 {
+  0%,
+  30% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  46%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes nd-tc-up {
+  0%,
+  56% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  66%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes nd-tc-press {
+  0%,
+  45%,
+  70%,
+  100% {
+    transform: none;
+  }
+  55% {
+    transform: scale(1.08);
+  }
+}
+
+/* Estas animaciones van después de la regla general de «reducir movimiento»: se apagan aquí. */
+@media (prefers-reduced-motion: reduce) {
+  .nd-tc-in1,
+  .nd-tc-in2,
+  .nd-tc-up,
+  .nd-tc-press {
+    animation: none;
+  }
+}
+
+/* Ciclo del equipo (CYC-314) */
+.nd-tmc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 26px;
+}
+
+.nd-tmc-card {
+  display: grid;
+  gap: 4px;
+  min-width: 170px;
+  padding: 12px 14px;
+  border: 1px solid #c9d2e4;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 15px;
+}
+
+.nd-tmc-card small {
+  color: var(--ink2);
+}
+
+.nd-tmc-arrow {
+  color: #1a66dd;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.nd-tmc-people {
+  display: flex;
+}
+
+.nd-tmc-people span {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  margin-left: -8px;
+  border-radius: 50%;
+  background: #1f2228;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  animation: nd-tmc-in 4.8s ease infinite both;
+}
+
+@keyframes nd-tmc-in {
+  0%,
+  10% {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+  30%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nd-tmc-people span {
+    animation: none;
+  }
+}
+
 /* Reactivo a la pantalla real (contenedor y alto de ventana) */
 @container (max-width: 479px) {
   .nv-body {

@@ -177,3 +177,19 @@ Ninguno adicional a los del PRD general.
 - **Arrastre en el constructor (2026-11-10, CYC-275 PR 2 de 4):** en la página del constructor se arrastran bloques (asa en su encabezado) y ejercicios (asa en cada fila), dentro de un bloque y de un bloque a otro; un bloque plegado ofrece «Soltar aquí» mientras arrastras un ejercicio. Librería `@hello-pangea/dnd` (React 18, teclado y táctil, unos 30 KB comprimidos): con teclado, Espacio levanta, ↑ ↓ mueven dentro de la lista, Espacio suelta y Escape cancela, con anuncios en español para lectores de pantalla. Mover un ejercicio **a otro bloque** con teclado no lo permite la librería con listas apiladas: para eso está el menú ⋯ («Mover a…»), que siempre funciona. Sin cambios de API ni de tablas.
 
 - **La sesión en el constructor (2026-11-10, CYC-275 PR 3 de 4):** `/sessions/:id` del coach es la misma página del constructor, en modo sesión: bloques y filas editables, arrastre, y en el panel nombre, fecha, estado, resumen, **Guardar cambios** (`PUT /sessions/:id/structure` y, si cambiaron, `PATCH /sessions/:id`) y **Borrar sesión** con confirmación. Una sesión completada, omitida o con series registradas se abre bloqueada, con lo que registró el atleta bajo cada ejercicio; **Editar** la desbloquea. Un ejercicio con series registradas no se quita ni se cambia por otro. El atleta ve su sesión de solo lectura, por bloques. Se retiran el formulario de agregar y quitar ejercicios y el editor de notas de la página anterior. Sin cambios de API ni de tablas.
+
+## Ciclos por fechas (CYC-314, 2026-11-25)
+
+Los ciclos se crean eligiendo las fechas en un calendario. A mano solo van el nombre (obligatorio) y el objetivo (opcional).
+
+- Ya no se piden el tipo de ciclo ni las sesiones por semana. La API los sigue aceptando y devolviendo; sin ellos, un ciclo queda como `mesocycle` y sin sesiones por semana. No se borran columnas.
+- El inicio no puede ser anterior a hoy (día local del coach), tampoco al asignar una plantilla ni al mover el inicio. Un ciclo ya empezado se sigue editando si no se mueve su inicio.
+- No hay ciclos de un solo día. La semana 1 empieza el día de inicio.
+- Al cambiar las fechas no puede quedar ninguna sesión fuera; si se mueve el inicio, la semana de cada sesión se recalcula.
+- No se crean macrociclos nuevos; los existentes se siguen leyendo.
+- Las plantillas se definen solo por su duración en semanas.
+
+## Ciclo del equipo (CYC-314, API)
+
+El equipo tiene un plan maestro (`TeamCycle`, `TeamSession`) y cada integrante que lo recibe tiene un ciclo y sesiones normales enlazados. Un cambio del equipo se aplica a las copias; un cambio en la sesión de una persona solo la afecta a ella y la separa del plan. Quien entra recibe las sesiones desde ese día y conserva el inicio del equipo. Quien sale conserva lo registrado y lo ajustado; se quitan sus demás sesiones futuras del ciclo del equipo. Un ciclo propio en las mismas fechas convive. No se puede acortar ni mover el ciclo si alguna sesión (del plan o de la ficha de un atleta) quedaría fuera; la respuesta dice cuántas y en qué fechas. Con dos ciclos a la vez se muestran los dos. Las reglas (confirmadas el 2026-11-25) están en `apps/api/src/team-cycles/rules.ts`.
+

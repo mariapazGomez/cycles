@@ -76,7 +76,7 @@ export class AccountService {
     // Un plan creado desde una plantilla ya tiene su plantilla en la Biblioteca;
     // un macrociclo es solo un contenedor y las plantillas no lo admiten.
     for (const cycle of cycles) {
-      if (cycle.templateId || cycle.cycleType === "macrocycle" || !cycle.sessionsPerWeek) {
+      if (cycle.templateId || cycle.cycleType === "macrocycle") {
         continue;
       }
       await tx.trainingCycle.create({

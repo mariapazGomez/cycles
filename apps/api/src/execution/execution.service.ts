@@ -15,7 +15,7 @@ import { LogSetDto } from "./dto/log-set.dto";
 import { SessionFeedbackDto } from "./dto/session-feedback.dto";
 import { ScheduleSessionDto } from "./dto/schedule-session.dto";
 import { buildExerciseProgress, type ExerciseProgressResponse, type RawSessionExercise } from "./exercise-progress";
-import { TodayQueryDto } from "./dto/today-query.dto";
+import { TodayCyclesQueryDto, TodayQueryDto } from "./dto/today-query.dto";
 import { buildWeeklySummary } from "./weekly-summary";
 
 // Registro de ejecución del atleta. ExerciseLog y SessionFeedback son
@@ -25,6 +25,20 @@ import { buildWeeklySummary } from "./weekly-summary";
 // ejercicios sin grupo quedan fuera.
 export const SUMMARY_GROUPS = ["legs", "back", "chest", "shoulders", "glutes", "arms", "core"] as const;
 type SummaryGroup = (typeof SUMMARY_GROUPS)[number];
+
+// Lo que «Hoy» trae de cada sesión.
+const TODAY_INCLUDE = {
+  sessionExercises: {
+    orderBy: { orderIndex: "asc" as const },
+    include: {
+      exercise: true,
+      logs: { where: CURRENT_LOG, orderBy: { setNumber: "asc" as const } },
+    },
+  },
+  // Bloques de esta sesión (CYC-272), en orden. Un ejercicio puede no tener bloque
+  // (blockId nulo) aunque la sesión tenga bloques; sin bloques, la lista va vacía.
+  blocks: { orderBy: { orderIndex: "asc" as const } },
+};
 
 @Injectable()
 export class ExecutionService {
@@ -41,30 +55,9 @@ export class ExecutionService {
   // con `query.sessionId` devuelve esa sesión pendiente en vez de la primera.
   async today(athleteId: string, query: TodayQueryDto = {}) {
     const now = new Date();
-    const cycles = await this.prisma.trainingCycle.findMany({
-      where: { athleteId, status: "active", cycleType: { not: "macrocycle" } },
-      orderBy: { startDate: "asc" },
-    });
-    const usable: typeof cycles = [];
-    for (const cycle of cycles) {
-      if (await this.hasActiveRelation(cycle.coachId, athleteId)) {
-        usable.push(cycle);
-      }
-    }
-
-    const include = {
-      sessionExercises: {
-        orderBy: { orderIndex: "asc" as const },
-        include: {
-          exercise: true,
-          logs: { where: CURRENT_LOG, orderBy: { setNumber: "asc" as const } },
-        },
-      },
-      // Bloques de esta sesión (CYC-272), en orden. Un ejercicio puede no tener bloque
-      // (blockId nulo) aunque la sesión tenga bloques; sin bloques, la lista va vacía.
-      blocks: { orderBy: { orderIndex: "asc" as const } },
-    };
-    const cycleInfo = (cycle: (typeof cycles)[number]) => ({
+    const usable = await this.usableCycles(athleteId);
+    const include = TODAY_INCLUDE;
+    const cycleInfo = (cycle: (typeof usable)[number]) => ({
       id: cycle.id,
       name: cycle.name,
       currentWeek: planWeekAt(cycle.startDate, now),
@@ -109,6 +102,100 @@ export class ExecutionService {
     }
 
     return null;
+  }
+
+  // «Hoy» con varios ciclos a la vez (CYC-314): una entrada por ciclo activo, con lo que le toca
+  // (las de hoy o, si no hay, su siguiente pendiente) y las que ya hizo hoy. Va aparte de
+  // /me/today, que sigue igual para la app instalada.
+  async todayByCycle(athleteId: string, query: TodayCyclesQueryDto = {}) {
+    const now = new Date();
+    const day = query.date ? parseDay(query.date) : startOfUtcDay(now);
+    if (!day) {
+      throw new BadRequestException("Esa fecha no existe.");
+    }
+    // «Hecha hoy» se mira por cuándo se cerró, en el día local del atleta: el cliente dice en qué
+    // instante empezó su día. Sin él se usa el día UTC.
+    const since = query.since ? new Date(query.since) : day;
+    const until = new Date(since.getTime() + 24 * 60 * 60 * 1000);
+
+    const entryOf = async (cycle: Awaited<ReturnType<ExecutionService["usableCycles"]>>[number]) => {
+      const pendingWhere = { cycleId: cycle.id, status: "pending" as const, deletedAt: null };
+      const order = [{ weekNumber: "asc" as const }, { slotNumber: "asc" as const }];
+      // Las de ese día y las que ya están en curso (aunque sean de otro día).
+      let pending = await this.prisma.trainingSession.findMany({
+        where: { ...pendingWhere, OR: [{ scheduledDate: day }, { startedAt: { not: null } }] },
+        orderBy: order,
+        include: TODAY_INCLUDE,
+      });
+      pending.sort((a, b) => Number(!!b.startedAt) - Number(!!a.startedAt));
+      if (pending.length === 0) {
+        const next = await this.prisma.trainingSession.findFirst({ where: pendingWhere, orderBy: order, include: TODAY_INCLUDE });
+        pending = next ? [next] : [];
+      }
+      const done = await this.prisma.trainingSession.findMany({
+        where: {
+          cycleId: cycle.id,
+          status: "completed",
+          deletedAt: null,
+          feedback: { some: { ...CURRENT_FEEDBACK, submittedAt: { gte: since, lt: until } } },
+        },
+        orderBy: order,
+        select: {
+          id: true,
+          name: true,
+          weekNumber: true,
+          slotNumber: true,
+          sessionExercises: { select: { targetSets: true, logs: { where: CURRENT_LOG, select: { id: true } } } },
+        },
+      });
+      if (pending.length === 0 && done.length === 0) return null;
+
+      // «Próxima»: lo que sigue tiene un día que todavía no llega.
+      const upcoming = pending.length > 0 && !pending[0].startedAt && pending[0].scheduledDate !== null && startOfUtcDay(pending[0].scheduledDate) > day;
+      const loaded = [];
+      for (const session of pending) loaded.push(await this.withLoads(session, athleteId));
+      return {
+        cycle: { id: cycle.id, name: cycle.name, currentWeek: planWeekAt(cycle.startDate, now) },
+        pending: loaded,
+        upcoming,
+        // De las hechas basta el resumen; el detalle sale de GET /sessions/:id.
+        done: done.map(({ sessionExercises, ...session }) => ({
+          ...session,
+          exercises: { done: sessionExercises.filter((e) => e.logs.length >= e.targetSets).length, total: sessionExercises.length },
+        })),
+      };
+    };
+
+    const all: Awaited<ReturnType<typeof entryOf>>[] = [];
+    for (const cycle of await this.usableCycles(athleteId)) {
+      all.push(await entryOf(cycle));
+    }
+    const entries = all.flatMap((entry) => (entry ? [entry] : []));
+
+    // Primero la sesión en curso, luego las de hoy, después las atrasadas y al final lo demás;
+    // dentro de cada grupo, el ciclo que empezó antes.
+    const rank = (e: (typeof entries)[number]) => {
+      const first = e.pending[0];
+      if (!first || e.upcoming) return 3;
+      if (first.startedAt) return 0;
+      return first.scheduledDate && startOfUtcDay(first.scheduledDate) < day ? 2 : 1;
+    };
+    return { cycles: entries.sort((a, b) => rank(a) - rank(b)) };
+  }
+
+  // Los ciclos activos del atleta con los que su coach lo sigue acompañando, del que empezó antes.
+  private async usableCycles(athleteId: string) {
+    const cycles = await this.prisma.trainingCycle.findMany({
+      where: { athleteId, status: "active", cycleType: { not: "macrocycle" } },
+      orderBy: { startDate: "asc" },
+    });
+    const usable: typeof cycles = [];
+    for (const cycle of cycles) {
+      if (await this.hasActiveRelation(cycle.coachId, athleteId)) {
+        usable.push(cycle);
+      }
+    }
+    return usable;
   }
 
   // Agrega rmStatus y resolvedWeightKg a los ejercicios con carga en % del RM (CYC-306).

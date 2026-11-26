@@ -1,11 +1,12 @@
 import { FormEvent, useState } from "react";
-import { CoachNote } from "../components/ExerciseNote";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as executionApi from "../services/executionApi";
 import { ApiError } from "../services/httpClient";
 import { EmptyState } from "../components/EmptyState";
-import { loadLabel } from "../lib/rmLoad";
+import { ExerciseList } from "../components/today/ExerciseList";
+import { TodayCycles } from "../components/today/TodayCycles";
+import { toLocalDay } from "../lib/calendar";
 import { track } from "../lib/analytics";
 import { useAuth } from "../hooks/useAuth";
 import * as cyclesApi from "../services/cyclesApi";
@@ -16,6 +17,14 @@ export function TodayPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const todayQuery = useQuery({ queryKey: ["today"], queryFn: executionApi.getToday });
+  // Con dos o más ciclos a la vez se muestran todos (CYC-314). Con uno solo, «Hoy» queda como siempre.
+  const now = new Date();
+  const todayIso = toLocalDay(now);
+  const cyclesTodayQuery = useQuery({
+    queryKey: ["today", "cycles", todayIso],
+    queryFn: () => executionApi.getTodayCycles(todayIso, new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString()),
+    retry: false,
+  });
   // Solo para distinguir «sin ciclo todavía» de «hoy no hay sesión».
   const cyclesQuery = useQuery({ queryKey: ["cycles"], queryFn: cyclesApi.listCycles, enabled: todayQuery.isSuccess && !todayQuery.data });
   const [skipping, setSkipping] = useState(false);
@@ -50,8 +59,12 @@ export function TodayPage() {
     );
   }
 
-  if (todayQuery.isLoading) return <p>Cargando…</p>;
+  if (todayQuery.isLoading || cyclesTodayQuery.isLoading) return <p>Cargando…</p>;
   if (todayQuery.isError) return <div className="error-banner">No se pudo cargar tu próxima sesión.</div>;
+
+  // Si no se pudo pedir, se muestra la vista de siempre.
+  const byCycle = cyclesTodayQuery.data?.cycles ?? [];
+  if (byCycle.length >= 2) return <TodayCycles entries={byCycle} todayIso={todayIso} />;
 
   const today = todayQuery.data;
   if (!today) {
@@ -91,19 +104,7 @@ export function TodayPage() {
 
       {error && <div className="error-banner">{error}</div>}
 
-      <ul className="today-list">
-        {session.sessionExercises.map((se) => (
-          <li key={se.id}>
-            <div className="today-ex">
-              <div>{se.exercise.name}</div>
-              <CoachNote note={se.note} />
-            </div>
-            <span>
-              {se.targetSets} × {se.targetReps} · {loadLabel(se)}
-            </span>
-          </li>
-        ))}
-      </ul>
+      <ExerciseList exercises={session.sessionExercises} />
 
       {skipping ? (
         <form onSubmit={handleSkip} noValidate className="stack" style={{ gap: 12 }}>

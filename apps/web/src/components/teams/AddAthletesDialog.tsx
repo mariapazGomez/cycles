@@ -5,9 +5,19 @@ import { ApiError } from "../../services/httpClient";
 import * as athletesApi from "../../services/athletesApi";
 import * as teamsApi from "../../services/teamsApi";
 import { AthletePicker } from "./AthletePicker";
+import type { Joining } from "./cycle/JoinTeamCycleDialog";
 
 // «Agregar atletas» a un equipo: solo aparecen los que aún no están en él.
-export function AddAthletesDialog({ team, onClose }: { team: teamsApi.TeamDetail; onClose: () => void }) {
+export function AddAthletesDialog({
+  team,
+  onClose,
+  onAddedToCycles,
+}: {
+  team: teamsApi.TeamDetail;
+  onClose: () => void;
+  // El equipo tiene ciclo en curso o por venir: se pregunta si los recién llegados lo reciben.
+  onAddedToCycles: (joining: Joining) => void;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   useDialogFocus(ref, onClose);
   const queryClient = useQueryClient();
@@ -19,10 +29,13 @@ export function AddAthletesDialog({ team, onClose }: { team: teamsApi.TeamDetail
 
   const mutation = useMutation({
     mutationFn: () => teamsApi.addTeamMembers(team.id, [...selected]),
-    onSuccess: () => {
+    onSuccess: (updated) => {
       queryClient.invalidateQueries({ queryKey: ["teams"] });
       queryClient.invalidateQueries({ queryKey: ["athletes"] });
-      onClose();
+      const cycles = updated.pendingTeamCycles ?? [];
+      const athletes = updated.athletes.filter((a) => selected.has(a.id)).map((a) => ({ id: a.id, name: a.name }));
+      if (cycles.length > 0 && athletes.length > 0) onAddedToCycles({ athletes, cycles });
+      else onClose();
     },
     onError: (e: unknown) => setError(e instanceof ApiError ? e.message : "No se pudo agregar a los atletas."),
   });
