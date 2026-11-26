@@ -59,9 +59,13 @@ Es una ventana con foco atrapado: el foco empieza en el título de cada paso y e
 - Usa el mismo perfil de coach del modelo del registro: pendiente mientras no tenga fecha de término. No requiere otro cambio en la base.
 - `/privacidad` debe actualizarse antes de publicarla, porque se pide a cuentas que ya aceptaron la versión actual. Desarrollo debe definir si esto exige una versión nueva de la política y volver a aceptarla.
 
-## Todavía sin diseñar
+## Para después
 
-Sin decidir: si las respuestas se ven en el portal de admin o en un archivo descargable, y si el coach tendrá una pantalla para verlas o cambiarlas. No se diseña aún. No se envían ofertas por ahora. Falta definir cómo se entregan las respuestas en la descarga de datos de la cuenta; deben incluirse y borrarse con ella.
+El resumen general de respuestas y la descarga de un archivo para el equipo quedan para después. No se envían ofertas por ahora.
+
+## Qué pasa con las respuestas
+
+Decidido por la usuaria (26-11): se guardan; el equipo las ve en [el detalle de cada coach en admin](admin-respuestas.md); el coach no tiene por ahora una pantalla para verlas o cambiarlas; se incluyen en «Descargar mis datos» y se borran al eliminar la cuenta.
 
 ## Novedad
 

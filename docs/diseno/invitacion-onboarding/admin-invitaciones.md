@@ -11,20 +11,22 @@ Lo respondió en el chat de Organización, que lo trasladó a diseño.
 - Máximo 15 al día. Lo que supere el tope queda en cola y sale solo en los días siguientes.
 - El registro de cada invitación se guarda hasta 12 meses, con una invitación por correo en ese plazo.
 
-## Por confirmar: ¿el clic reemplaza el envío automático?
+## El clic reemplaza el envío automático
 
-El 26-11 se había aprobado el **envío automático** a quienes dejan su correo. Este diseño asume que **las solicitudes nuevas también esperan el clic**. Es la lectura de Organización y la usuaria aún no la confirma. Si se mantiene el envío automático para las nuevas, la lista seguiría sirviendo para las anteriores y no cambiarían los textos de abajo.
+**Confirmado por la usuaria (26-11, trasladado por Organización):** por ahora, todas las solicitudes esperan su clic en admin.
 
-### Textos que cambiarían si se confirma
+### Textos que cambian (los nuevos, pendientes de aprobación)
 
-| Pieza | Aprobado antes | Propuesta con clic |
+| Pieza | Aprobado antes | Propuesta nueva |
 |---|---|---|
 | Confirmación en la página | Recibido. Tu invitación a Cycles va a tu correo. Si no la ves, revisa el spam o escríbenos a hola@getcycles.app. | Recibido. Revisamos cada mensaje: si te damos acceso, la invitación llega a este correo. Si tienes dudas, escríbenos a hola@getcycles.app. |
 | Aviso del formulario | Usaremos tu correo para enviarte tu invitación a Cycles y para responderte. Más en la política de privacidad. | Usaremos tu correo para responderte y, si te damos acceso, enviarte una invitación a Cycles. Más en la política de privacidad. |
 | Regla 1 | Todos los que dejan su correo reciben la misma carta. | Todas las personas invitadas reciben la misma carta. |
 | Regla 3 | Se envía automáticamente. | Se envía cuando el equipo hace clic en admin. |
 
-No cambian el asunto, la vista previa, la carta, el botón, el aviso bajo el botón ni la pantalla del enlace que no sirve (ver la pregunta sobre vencidas). La maqueta [correo.html](correo.html) conserva los textos aprobados hasta que se confirme.
+No cambian el asunto, la vista previa, la carta, el botón, el aviso bajo el botón ni la pantalla del enlace que no sirve (ver la pregunta sobre vencidas). La maqueta [correo.html](correo.html) ya muestra la propuesta.
+
+**Por revisar:** el texto que va sobre el formulario dice «cuéntanos cómo trabajas: te damos acceso». Con revisión, promete acceso a todas las personas. Propuesta: «cuéntanos cómo trabajas: revisamos cada mensaje para dar acceso». La maqueta lo muestra como está hoy.
 
 ## La pestaña
 

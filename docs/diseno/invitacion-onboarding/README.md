@@ -6,14 +6,14 @@ Solo diseño, sin código ni migraciones. Parte de `origin/main` (c607b17). Maqu
 
 ## Cambios posteriores (26-11), pendientes de aprobación
 
-- [Invitaciones en admin](admin-invitaciones.md): lista con un botón para enviar cada invitación, cola para lo que supere las 15 diarias y registro de hasta 12 meses. **Falta confirmar** si el clic reemplaza el envío automático (puntos 1 y 3 de abajo) y cambia la confirmación y el aviso de la página.
-- [Encuesta para coaches actuales](encuesta-coaches.md).
+- [Invitaciones en admin](admin-invitaciones.md): lista con un botón para enviar cada invitación, cola para lo que supere las 15 diarias y registro de hasta 12 meses. **Confirmado:** por ahora todas las solicitudes esperan el clic; reemplaza el envío automático. Los textos nuevos de la confirmación y del aviso de la página están **pendientes de aprobación**.
+- [Encuesta para coaches actuales](encuesta-coaches.md) y [sus respuestas en admin](admin-respuestas.md).
 
 ## Decidido por la usuaria (26-11)
 
-1. Todos los que dejan su correo reciben la misma carta con el enlace. Sin personalizar por ahora.
+1. Todas las personas invitadas reciben la misma carta con el enlace. Sin personalizar por ahora.
 2. Remitente `Cycles <hola@mail.getcycles.app>`. Firma «Cycles».
-3. Se envía automáticamente. Enlace personal, de un solo uso, vence en 7 días. Una invitación por correo. Máximo 15 al día.
+3. Se envía cuando el equipo hace clic en admin (reemplaza el envío automático). Enlace personal, de un solo uso, vence en 7 días. Una invitación por correo. Máximo 15 al día.
 4. Sin segunda verificación: el enlace prueba el correo y la persona entra directo a Cycles.
 5. En el registro puede elegir coach o atleta, con coach marcado.
 
@@ -25,8 +25,8 @@ Solo diseño, sin código ni migraciones. Parte de `origin/main` (c607b17). Maqu
 | Vista previa | Crea tu cuenta. El enlace es personal y dura 7 días. |
 | Botón | Crear mi cuenta |
 | Aviso bajo el botón | El enlace es personal, sirve una sola vez y vence en 7 días. Si no dejaste tu correo en getcycles.app, ignora este mensaje: no se crea ninguna cuenta. |
-| Confirmación en la página | Recibido. Tu invitación a Cycles va a tu correo. Si no la ves, revisa el spam o escríbenos a hola@getcycles.app. |
-| Aviso del formulario | Usaremos tu correo para enviarte tu invitación a Cycles y para responderte. Más en la política de privacidad. |
+| Confirmación en la página (pendiente de aprobación) | Recibido. Revisamos cada mensaje: si te damos acceso, la invitación llega a este correo. Si tienes dudas, escríbenos a hola@getcycles.app. |
+| Aviso del formulario (pendiente de aprobación) | Usaremos tu correo para responderte y, si te damos acceso, enviarte una invitación a Cycles. Más en la política de privacidad. |
 | Enlace que no sirve | Esta invitación ya no sirve. Las invitaciones duran 7 días y sirven una sola vez. Si ya creaste tu cuenta, inicia sesión. Si no, escríbenos a hola@getcycles.app y te ayudamos. |
 
 La carta completa está en la maqueta, con su versión de texto plano. No usa el nombre ni nada de lo que la persona escribió en el formulario.
@@ -39,7 +39,7 @@ La carta completa está en la maqueta, con su versión de texto plano. No usa el
 ## Para la construcción
 
 - `MAIL_REPLY_TO` debe apuntar a `hola@getcycles.app` (tiene regla de reenvío). **No verificado** qué valor tiene en producción; revisar también el efecto en los demás correos.
-- La confirmación es la misma en todos los casos: no revela si el correo ya tenía invitación o cuenta.
+- La confirmación es la misma en todos los casos: no revela si el correo ya tenía invitación o cuenta ni promete una invitación.
 - **Tope diario (decidido):** lo que supere las 15 diarias queda en cola y sale solo en los días siguientes. Ver [admin-invitaciones.md](admin-invitaciones.md).
 - Enlace vencido, usado o inválido: una sola pantalla. Hoy `/register` sin código redirige al inicio de sesión.
 - Registro con invitación: ver [registro.md](registro.md). Sin pantalla «Revisa tu email», sin botón de Google, y con la sesión iniciada al crear la cuenta.
@@ -48,10 +48,9 @@ La carta completa está en la maqueta, con su versión de texto plano. No usa el
 
 ## Por decidir
 
-- Si el clic en admin reemplaza el envío automático.
 - Qué pasa con una invitación vencida.
 
-Resuelto el 26-11: a quienes escribieron antes no se les envía nada automático (se invitan desde admin) y el registro de la invitación se guarda hasta 12 meses, con una invitación por correo en ese plazo.
+Resuelto el 26-11: las solicitudes esperan el clic en admin; a quienes escribieron antes no se les envía nada automático (se invitan desde admin) y el registro de la invitación se guarda hasta 12 meses, con una invitación por correo en ese plazo.
 
 ## Novedad
 
