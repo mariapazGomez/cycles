@@ -658,3 +658,14 @@
   font-size: 0.8125rem;
   color: var(--color-ink-secondary);
 }
+
+/* «Hoy» con dos ciclos a la vez (CYC-314): una tarjeta por ciclo. */
+.tc-list { gap: 14px; }
+.tc-card { display: flex; flex-direction: column; align-items: stretch; gap: 10px; padding: 18px; border: 1px solid var(--color-gray-border); border-radius: 16px; background: var(--color-bg); }
+.tc-card > .pill { align-self: flex-start; }
+.tc-cycle { max-width: 100%; white-space: normal; }
+.tc-card h2 { margin: 0; font-size: 1.35rem; line-height: 1.25; overflow-wrap: anywhere; }
+.tc-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.tc-toggle { padding-left: 0; }
+.tc-second { width: auto; margin-left: auto; padding: 10px 20px; }
+.tc-skip { justify-content: center; }

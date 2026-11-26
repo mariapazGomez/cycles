@@ -9,6 +9,11 @@ export function isBuilderPath(pathname: string): boolean {
   return /^\/(routines|sessions)\/[^/]+/.test(pathname);
 }
 
+// Solo las condiciones del coach dependen de datos (sus rutinas); el atleta no tiene que esperar nada.
+export function conditionsReady(role: string | null | undefined, routinesLoaded: boolean): boolean {
+  return role === "athlete" || routinesLoaded;
+}
+
 export function canShowNovelty(state: { pathname: string; tourActive: boolean; modalOpen: boolean }): boolean {
   return !state.tourActive && !state.modalOpen && !isBuilderPath(state.pathname);
 }
