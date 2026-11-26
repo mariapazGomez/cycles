@@ -4,6 +4,7 @@ export * from "./types/summary";
 export * from "./notifications";
 export * from "./types/exercise-progress";
 export * from "./types/athlete-event";
+export * from "./types/team-event";
 export * from "./types/work-block";
 export * from "./novelties";
 export * from "./work-block-view";

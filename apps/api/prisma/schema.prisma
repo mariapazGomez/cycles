@@ -119,6 +119,7 @@ model User {
   exerciseLogs            ExerciseLog[]
   athleteMaxes            AthleteMax[]             @relation("MaxOfAthlete")
   teamsAsCoach            Team[]                   @relation("TeamsAsCoach")
+  teamEventsCreated       TeamEvent[]              @relation("TeamEventsCreated")
   teamMemberships         TeamMember[]             @relation("TeamMemberships")
   recordedMaxes           AthleteMax[]             @relation("MaxRecordedBy")
   sessionFeedback         SessionFeedback[]
@@ -526,8 +527,37 @@ model Team {
   coach   User         @relation("TeamsAsCoach", fields: [coachId], references: [id])
   members TeamMember[]
   cycles  TeamCycle[]
+  events  TeamEvent[]
 
   @@unique([coachId, name])
+}
+
+// Evento del equipo (CYC-317): lo crea el coach y lo leen los atletas del equipo, sin copiarlo.
+model TeamEvent {
+  id          String    @id @default(uuid())
+  teamId      String
+  createdById String
+  type        EventType
+  title       String
+  // Día de inicio de la serie, sin zona horaria.
+  date        DateTime  @db.Date
+  // «HH:mm»; nulo si es de todo el día o no tiene hora.
+  startTime   String?
+  durationMin Int?
+  allDay      Boolean   @default(false)
+  // La ven todos los atletas del equipo: no debe llevar datos de salud (R7).
+  notes       String?
+  // 0 = lunes … 6 = domingo; vacío = no se repite.
+  repeatDays  Int[]
+  // Último día de la repetición; nulo = sin fin.
+  repeatUntil DateTime? @db.Date
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  team      Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  createdBy User @relation("TeamEventsCreated", fields: [createdById], references: [id])
+
+  @@index([teamId, date])
 }
 
 model TeamMember {

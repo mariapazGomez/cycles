@@ -218,7 +218,7 @@ export class AccountService {
       return { exportedAt, profile: user, plans, setLogs: logs, sessionFeedback: feedback, athleteEvents: events, maxes };
     }
 
-    const [routines, exercises, plans, summaryLayout] = await Promise.all([
+    const [routines, exercises, plans, summaryLayout, teamEvents] = await Promise.all([
       this.prisma.routine.findMany({ where: { coachId: userId }, include: { routineExercises: true, blocks: true } }),
       this.prisma.exercise.findMany({ where: { createdBy: userId } }),
       // Solo la estructura de los planes: lo que los atletas registraron es de ellos.
@@ -227,7 +227,9 @@ export class AccountService {
         include: { sessions: { include: { blocks: true, sessionExercises: true } } },
       }),
       this.prisma.coachSummaryLayout.findUnique({ where: { coachId: userId }, select: { charts: true, updatedAt: true } }),
+      // Los eventos que creó para sus equipos (CYC-317).
+      this.prisma.teamEvent.findMany({ where: { createdById: userId }, orderBy: { date: "asc" } }),
     ]);
-    return { exportedAt, profile: user, routines, exercises, plans, summaryLayout };
+    return { exportedAt, profile: user, routines, exercises, plans, summaryLayout, teamEvents };
   }
 }

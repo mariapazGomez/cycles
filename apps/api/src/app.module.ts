@@ -25,6 +25,7 @@ import { ContactModule } from "./contact/contact.module";
 import { AdminModule } from "./admin/admin.module";
 import { MaxesModule } from "./maxes/maxes.module";
 import { TeamsModule } from "./teams/teams.module";
+import { TeamEventsModule } from "./team-events/team-events.module";
 import { TeamCyclesModule } from "./team-cycles/team-cycles.module";
 import { HealthController } from "./health/health.controller";
 
@@ -47,6 +48,7 @@ import { HealthController } from "./health/health.controller";
     ExecutionModule,
     MaxesModule,
     TeamsModule,
+    TeamEventsModule,
     TeamCyclesModule,
     TrackingModule,
     EventsModule,
