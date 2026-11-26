@@ -91,11 +91,13 @@ erDiagram
   }
 ```
 
-## Por decidir
+## Respuestas guardadas
 
-- Qué ven los coaches que ya tienen cuenta (propuesta: nada por ahora).
-- Dónde consulta el equipo las respuestas (el portal interno no está diseñado para esto).
-- Si el coach puede ver o cambiar sus respuestas después.
+Decidido el 26-11: el equipo las ve en [el detalle de cada coach en admin](admin-respuestas.md). El coach no tiene por ahora pantalla para verlas o cambiarlas; van en «Descargar mis datos» y se borran al eliminar la cuenta.
+
+## Coaches que ya tienen cuenta
+
+Responden las mismas preguntas al entrar (decidido el 26-11): ver [encuesta-coaches.md](encuesta-coaches.md), con maqueta aprobada.
 
 ## Novedad
 
