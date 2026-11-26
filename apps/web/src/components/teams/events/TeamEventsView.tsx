@@ -62,7 +62,7 @@ export function TeamEventsView({ team, cycles, anchor }: { team: TeamDetail; cyc
       {rows.length === 0 ? (
         <div className="tms-empty">
           <h2>No hay eventos esta semana</h2>
-          <p>Agrega un partido o un viaje una vez y cada atleta del equipo lo tiene en su calendario.</p>
+          <p>Agrega un partido o un viaje una vez para todo el equipo.</p>
         </div>
       ) : (
         <div className="tme-box">
@@ -155,7 +155,7 @@ export function TeamEventsView({ team, cycles, anchor }: { team: TeamDetail; cyc
             {deleting.repeat
               ? `Es un evento que se repite: se eliminan todas sus fechas, no solo la del ${fullDayLabel(deleting.date).toLowerCase()}.`
               : `Es el evento del ${fullDayLabel(deleting.date).toLowerCase()}.`}{" "}
-            Los atletas del equipo dejan de verlo.
+            Se quita para todo el equipo.
           </p>
         </ConfirmDialog>
       )}
