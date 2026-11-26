@@ -8,21 +8,34 @@ import * as cyclesApi from "../../services/cyclesApi";
 import * as rmApi from "../../services/rmApi";
 import * as routinesApi from "../../services/routinesApi";
 import * as sessionsApi from "../../services/sessionsApi";
+import * as teamsApi from "../../services/teamsApi";
 import { toLocalDay } from "../../lib/calendar";
-import { buildPreview, missingRmCount, type PercentExercise } from "../../lib/addToMany";
+import { buildPreview, missingRmCount, whatHappens, type Candidate, type PercentExercise } from "../../lib/addToMany";
 
-type Pick = "all" | "some";
+type Pick = "all" | "team" | "some";
 
 // «Agregar a varios atletas» (CYC-312): la misma rutina, en una fecha, para varios atletas. Cada
 // uno recibe su peso según su RM; a quien le falta se le agrega igual, con el % sin peso, y se
 // avisa al coach. Hoy no existen los equipos como grupo con nombre: se elige a los atletas.
-export function AddToManyDialog({ routineId, routineName, onClose }: { routineId: string; routineName: string; onClose: () => void }) {
+export function AddToManyDialog({
+  routineId,
+  routineName,
+  initialTeamId,
+  onClose,
+}: {
+  routineId: string;
+  routineName: string;
+  // «Agregar rutina al equipo»: abre este mismo flujo con el equipo ya elegido.
+  initialTeamId?: string;
+  onClose: () => void;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   useDialogFocus(ref, onClose);
   const queryClient = useQueryClient();
   const today = toLocalDay(new Date());
   const [date, setDate] = useState(today);
-  const [pick, setPick] = useState<Pick>("all");
+  const [pick, setPick] = useState<Pick>(initialTeamId ? "team" : "all");
+  const [teamId, setTeamId] = useState(initialTeamId ?? "");
   const [chosen, setChosen] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [outcome, setOutcome] = useState<sessionsApi.BatchSessionResult[] | null>(null);
@@ -30,6 +43,10 @@ export function AddToManyDialog({ routineId, routineName, onClose }: { routineId
   const routineQuery = useQuery({ queryKey: ["routines", routineId], queryFn: () => routinesApi.getRoutine(routineId) });
   const athletesQuery = useQuery({ queryKey: ["athletes"], queryFn: athletesApi.listAthletes });
   const cyclesQuery = useQuery({ queryKey: ["cycles"], queryFn: cyclesApi.listCycles });
+  const teamsQuery = useQuery({ queryKey: ["teams"], queryFn: teamsApi.listTeams });
+  const teams = teamsQuery.data ?? [];
+  // Sin vínculo vivo: el equipo se lee ahora, al agregar la rutina.
+  const teamQuery = useQuery({ queryKey: ["teams", teamId], queryFn: () => teamsApi.getTeam(teamId), enabled: pick === "team" && teamId !== "" });
   const athletes = useMemo(() => (athletesQuery.data ?? []).filter((r) => r.status === "active").map((r) => r.athlete), [athletesQuery.data]);
   const rmQueries = useQueries({ queries: athletes.map((a) => ({ queryKey: ["rm", a.id], queryFn: () => rmApi.listAthleteRm(a.id) })) });
 
@@ -39,14 +56,19 @@ export function AddToManyDialog({ routineId, routineName, onClose }: { routineId
 
   const loading = routineQuery.isLoading || athletesQuery.isLoading || cyclesQuery.isLoading || rmQueries.some((q) => q.isLoading);
   const rmByAthlete = new Map(athletes.map((a, i) => [a.id, new Map((rmQueries[i]?.data?.withMax ?? []).map((m) => [m.exerciseId, m.weightKg]))]));
+  const teamMembers = pick === "team" ? (teamQuery.data?.athletes ?? []) : [];
+  const candidates: Candidate[] =
+    pick === "team"
+      ? teamMembers.map((m) => ({ athleteId: m.id, name: m.name, pending: m.status === "pending" }))
+      : athletes.map((a) => ({ athleteId: a.id, name: a.name }));
   const rows = buildPreview({
-    candidates: athletes.map((a) => ({ athleteId: a.id, name: a.name })),
+    candidates,
     cycles: cyclesQuery.data ?? [],
     date,
     percentExercises,
     rmByAthlete,
   });
-  const selected = rows.filter((r) => (pick === "all" ? true : chosen.has(r.athleteId)));
+  const selected = rows.filter((r) => (pick === "some" ? chosen.has(r.athleteId) : true));
   const addable = selected.filter((r) => r.cycleId);
   const noCycle = selected.length - addable.length;
   const { missing } = missingRmCount(addable);
@@ -131,11 +153,38 @@ export function AddToManyDialog({ routineId, routineName, onClose }: { routineId
             <button type="button" className={pick === "all" ? "rm-chip rm-chip-on" : "rm-chip"} aria-pressed={pick === "all"} onClick={() => setPick("all")}>
               Todos mis atletas
             </button>
+            {teams.length > 0 && (
+              <button
+                type="button"
+                className={pick === "team" ? "rm-chip rm-chip-on" : "rm-chip"}
+                aria-pressed={pick === "team"}
+                onClick={() => {
+                  setPick("team");
+                  if (!teamId) setTeamId(teams[0].id);
+                }}
+              >
+                Equipo{pick === "team" && teamId ? `: ${teams.find((t) => t.id === teamId)?.name ?? ""}` : ""}
+              </button>
+            )}
             <button type="button" className={pick === "some" ? "rm-chip rm-chip-on" : "rm-chip"} aria-pressed={pick === "some"} onClick={() => setPick("some")}>
               Elegir atletas
             </button>
           </div>
-          {loading ? (
+          {pick === "team" && teams.length > 0 && (
+            <div>
+              <label className="bd-lbl" htmlFor="rm-many-team">
+                Equipo
+              </label>
+              <select id="rm-many-team" className="bd-inp" value={teamId} onChange={(e) => setTeamId(e.target.value)}>
+                {teams.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name} · {t.memberCount}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          {loading || (pick === "team" && teamQuery.isLoading) ? (
             <p>Cargando…</p>
           ) : rows.length === 0 ? (
             <p className="rm-note">Todavía no tienes atletas activos.</p>
@@ -147,6 +196,7 @@ export function AddToManyDialog({ routineId, routineName, onClose }: { routineId
                     <span className="sr-only">Incluir</span>
                   </th>
                   <th scope="col">Atleta</th>
+                  <th scope="col">Qué pasa</th>
                   {percentExercises.map((e) => (
                     <th key={e.exerciseId} scope="col">
                       {e.name} {e.percent} %
@@ -157,23 +207,26 @@ export function AddToManyDialog({ routineId, routineName, onClose }: { routineId
               </thead>
               <tbody>
                 {rows.map((r) => {
-                  const included = pick === "all" || chosen.has(r.athleteId);
+                  const included = pick !== "some" || chosen.has(r.athleteId);
                   return (
                     <tr key={r.athleteId} className={included ? undefined : "rm-off"}>
                       <td>
-                        <input type="checkbox" aria-label={`Incluir a ${r.name}`} checked={included} disabled={pick === "all"} onChange={() => toggle(r.athleteId)} />
+                        <input type="checkbox" aria-label={`Incluir a ${r.name}`} checked={included} disabled={pick !== "some"} onChange={() => toggle(r.athleteId)} />
                       </td>
                       <td>
                         <b>{r.name}</b>
                       </td>
+                      <td>{whatHappens(r).text}</td>
                       {r.cells.map((c) => (
                         <td key={c.exerciseId}>
                           <span className={c.kg != null ? "rm-cell rm-cell-ok" : "rm-cell rm-cell-off"}>{c.kg != null ? formatLoad(c.kg) : "Sin RM"}</span>
                         </td>
                       ))}
                       <td>
-                        {r.cycleId == null ? (
-                          <span className="rm-cell rm-cell-off">Sin ciclo en esa fecha</span>
+                        {r.pending ? (
+                          <span className="rm-cell rm-cell-off">Pendiente</span>
+                        ) : r.cycleId == null ? (
+                          <span className="rm-cell rm-cell-off">Sin ciclo</span>
                         ) : (
                           <span className={r.missingRm ? "rm-cell rm-cell-off" : "rm-cell rm-cell-ok"}>{r.missingRm ? "Falta RM" : "Lista"}</span>
                         )}

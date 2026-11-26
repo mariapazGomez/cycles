@@ -13,6 +13,7 @@ import { RmContext } from "../components/builder/RmContext";
 import * as athletesApi from "../services/athletesApi";
 import * as rmApi from "../services/rmApi";
 import { BuilderSidePanel } from "../components/builder/BuilderSidePanel";
+import { teamMark } from "../lib/teamCycle";
 
 const STATUS_LABEL: Record<SessionStatus, string> = { pending: "Pendiente", completed: "Completada", skipped: "Salteada" };
 
@@ -127,6 +128,12 @@ export function SessionBuilderPage({ session }: { session: sessionsApi.SessionDe
         ← {session.cycle.name}
       </button>
       <h1 className="page-title">{session.name}</h1>
+
+      {teamMark(session.cycle, session) === "Del equipo" && (
+        <p className="cy-warn">
+          Este cambio es solo para {rmContext?.athleteName ?? "esta persona"}. La planificación del equipo no cambia, y esta sesión deja de recibir los cambios del equipo.
+        </p>
+      )}
 
       {notice && (
         <div className="success-banner" role="status">

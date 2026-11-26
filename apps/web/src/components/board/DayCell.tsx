@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
-import type { BoardDay } from "../../lib/board";
+import type { DayState } from "../../lib/board";
 import { dayOfMonth, weekdayShort } from "../../lib/weekCalendar";
 import { PlusIcon } from "./icons";
 
 interface DayCellProps {
-  day: BoardDay;
+  // Solo importa cuántas sesiones hay: sirve a la pizarra de un atleta y a la del equipo.
+  day: { iso: string; state: DayState; sessions: unknown[] };
   isToday: boolean;
   readOnly: boolean;
   // Estado del arrastre sobre este día: se puede soltar, o no.

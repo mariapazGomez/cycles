@@ -22,6 +22,7 @@ import "./styles/tour.css";
 import "./styles/novelty.css";
 import "./styles/board.css";
 import "./styles/athletes.css";
+import "./styles/teams.css";
 import "./styles/library.css";
 import "./styles/exercises.css";
 import "./styles/account.css";

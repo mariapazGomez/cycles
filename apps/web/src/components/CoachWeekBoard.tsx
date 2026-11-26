@@ -29,6 +29,8 @@ export interface BoardRow {
   week: BoardSession[] | null;
   weekLoading: boolean;
   attention: AttentionItem[];
+  // Equipos del coach a los que pertenece (CYC-310); vacío o ausente si no está en ninguno.
+  teams?: { id: string; name: string }[];
 }
 
 interface CoachWeekBoardProps {

@@ -10,6 +10,7 @@ import * as trackingApi from "../../services/trackingApi";
 import { useBoardActions } from "../../hooks/useBoardActions";
 import { buildWeeks, canMove, canRemove, currentDayOf, isTentative, validDaysByWeek, type BoardDay } from "../../lib/board";
 import { toLocalDay } from "../../lib/calendar";
+import { teamMark } from "../../lib/teamCycle";
 import { routineBuilderPath } from "../../lib/library";
 import { addDays, dayOfMonth, shortDate, weekRangeLabel, weekdayShort } from "../../lib/weekCalendar";
 import { AttentionList, useDismissedAlerts } from "../AttentionList";
@@ -351,6 +352,7 @@ export function CycleBoard({ cycle, athlete }: { cycle: TrainingCycle; athlete: 
                             <SessionCard
                               key={session.id}
                               session={session}
+                              mark={teamMark(cycle, session)}
                               progress={progressById.get(session.id)}
                               dayLabel={dayText(day.iso)}
                               tentative={isTentative(range.startDate, session)}
@@ -464,6 +466,9 @@ export function CycleBoard({ cycle, athlete }: { cycle: TrainingCycle; athlete: 
               >
                 <TrashIcon /> Quitar de este día
               </button>
+              {teamMark(cycle, sessionPop.session) === "Del equipo" && (
+                <p className="bd-hint">Es del equipo: lo que cambies aquí es solo para {athlete?.name.split(" ")[0] ?? "esta persona"}, y la sesión deja de recibir los cambios del equipo.</p>
+              )}
               {!canMove(sessionPop.session) && (
                 <p className="bd-hint">Esta sesión ya tiene el cierre del atleta: no se mueve.</p>
               )}

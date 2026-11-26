@@ -63,6 +63,7 @@ describe("Ciclo del equipo", () => {
         await post(`/team-cycles/${id}/sessions`, { routineId: c.routineB, scheduledDate: day(4), today: day(0) }, b),
         await app.http("patch", `/team-sessions/${s}`, b).send({ name: "Mío" }),
         await app.http("delete", `/team-sessions/${s}`, b),
+        await post(`/team-sessions/${s}/duplicate`, { scheduledDate: day(5), today: day(0) }, b),
         await app.http("delete", `/team-cycles/${id}`, b),
         await post(`/team-cycles/${id}/members`, { athleteIds: [c.userId.athleteB] }, b),
       ]) {
@@ -145,6 +146,19 @@ describe("Ciclo del equipo", () => {
       const res = await app.http("put", `/team-sessions/${master.id}/structure`, coach()).send(structureOf(current, { targetSets: 4 }));
       expect(res.body).toMatchObject({ updated: 0, skipped: { adjusted: 1, recorded: 1 } });
       expect((await sessionRow(mine)).sessionExercises[0].targetSets).toBe(9);
+    });
+
+    it("duplicar copia el contenido actual del plan y llega a todos, sin los ajustes de nadie", async () => {
+      const source = (await detail(cycleId)).sessions.find((x: any) => x.id === master.id);
+      const res = await post(`/team-sessions/${master.id}/duplicate`, { scheduledDate: day(12), today: day(0) });
+      expect(res.status).toBe(201);
+      expect(res.body.delivered).toBe(2);
+      const twin = (await detail(cycleId)).sessions.find((x: any) => x.id === res.body.sessionId);
+      expect(twin.exercises.map((e: any) => e.targetSets)).toEqual(source.exercises.map((e: any) => e.targetSets));
+      expect(twin.adjusted).toBe(0);
+      expect((await post(`/team-sessions/${master.id}/duplicate`, { scheduledDate: day(-1), today: day(0) })).status).toBe(400);
+      expect((await post(`/team-sessions/${master.id}/duplicate`, { scheduledDate: day(60), today: day(0) })).status).toBe(400);
+      expect((await app.http("delete", `/team-sessions/${twin.id}`, coach())).status).toBe(200);
     });
 
     it("mover y eliminar la sesión del equipo alcanza solo a las que la admiten", async () => {

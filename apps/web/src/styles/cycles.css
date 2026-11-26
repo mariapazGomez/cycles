@@ -18,6 +18,7 @@ button.cy-nav:hover:not(:disabled) { background: var(--color-gray-light); }
 .cy-day-edge, .cy-day-edge:hover:not(.cy-day-off) { background: var(--color-blue); border-radius: 5px; color: #fff; }
 .cy-day-off { color: var(--color-control-border); cursor: not-allowed; }
 .cy-day-edge.cy-day-off { color: #fff; }
+.cy-day-busy { background: var(--color-warn-bg, #fdeede); color: #8f4410; }
 .cy-dot { position: absolute; left: 50%; bottom: 3px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--color-warn-fill); }
 .cy-summary { margin: 0; font-size: 0.92rem; font-weight: 600; }
 .cy-note { margin: 0; padding: 10px 14px; border: 1px solid #b9c8ec; border-radius: 6px; background: var(--color-blue-bg, #e8eefb); font-size: 0.9rem; }

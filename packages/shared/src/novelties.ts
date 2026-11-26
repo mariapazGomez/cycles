@@ -31,6 +31,9 @@ export type NoveltyDemoId =
   | "rm-athlete-sheet"
   | "rm-multi-add"
   | "athlete-rm-percent"
+  // Equipos del coach (CYC-310): solo la web del coach.
+  | "teams-group"
+  | "teams-create"
   // Nuevo ciclo por calendario (CYC-314): web del coach.
   | "cycle-range"
   | "cycle-fields"
@@ -40,7 +43,9 @@ export type NoveltyDemoId =
   | "two-cycles-card"
   | "two-cycles-alert"
   | "two-cycles-today"
-  | "two-cycles-start";
+  | "two-cycles-start"
+  // Ciclo del equipo (CYC-314): web del coach.
+  | "team-cycle";
 
 export interface NoveltySlide {
   title: string;
@@ -212,6 +217,28 @@ export const NOVELTIES: Novelty[] = [
     ],
   },
   {
+    key: "coach-teams",
+    version: 1,
+    since: "2026-11-25",
+    platforms: ["web"],
+    roles: ["coach"],
+    name: "Equipos",
+    slides: [
+      {
+        title: "Ahora puedes crear equipos",
+        text: "Agrupa a tus atletas y dales la misma rutina a todos, cada uno con su peso.",
+        demoLabel: "El selector de equipo abierto: los equipos con su cantidad de atletas y «Crear equipo» al final.",
+        demo: "teams-group",
+      },
+      {
+        title: "Crea uno desde Equipos",
+        text: "Elige a los atletas que ya tienes. Invitar sigue en Atletas.",
+        demoLabel: "Se escribe el nombre del equipo y se marcan tres atletas con casillas.",
+        demo: "teams-create",
+      },
+    ],
+  },
+  {
     key: "athlete-rm-percent",
     version: 1,
     since: "2026-11-20",
@@ -304,6 +331,22 @@ export const NOVELTIES: Novelty[] = [
         text: "Una va abierta con sus ejercicios. La otra aparece resumida, lista para ver o empezar.",
         demoLabel: "Una tarjeta está abierta y la otra resumida, con su botón para empezar.",
         demo: "two-cycles-start",
+      },
+    ],
+  },
+  {
+    key: "coach-team-cycle",
+    version: 1,
+    since: "2026-11-25",
+    platforms: ["web"],
+    roles: ["coach"],
+    name: "Ciclo del equipo",
+    slides: [
+      {
+        title: "Planifica el ciclo de tu equipo",
+        text: "Pon las sesiones una vez en el calendario del equipo y llegan a cada integrante.",
+        demoLabel: "Una sesión del equipo llega a cuatro atletas.",
+        demo: "team-cycle",
       },
     ],
   },

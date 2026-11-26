@@ -171,6 +171,51 @@ function RmMultiAdd() {
   );
 }
 
+// Equipos del coach (CYC-310).
+// El selector de equipo del sidebar, abierto: los equipos con su cantidad y «Crear equipo».
+function TeamsGroup() {
+  const teams: [string, string, string, number][] = [
+    ["V", "Voleibol sub-17", "#2f9e5f", 12],
+    ["F", "Fuerza mañana", "#1a66dd", 5],
+    ["S", "Selección regional", "#7a4bd6", 8],
+  ];
+  return (
+    <div className="nd nd-rm nd-tm">
+      <div className="nd-tm-field">Voleibol sub-17 ⌄</div>
+      <div className="nd-tm-menu">
+        {teams.map(([i, n, c, count], k) => (
+          <div key={n} className={`nd-tm-opt${k === 0 ? " nd-tm-opt-on" : ""}`}>
+            <span className="nd-tm-i" style={{ background: c }}>{i}</span>
+            <b>{n}</b>
+            <small>{count}</small>
+          </div>
+        ))}
+        <div className="nd-tm-opt nd-rm-pop">+ Crear equipo</div>
+      </div>
+    </div>
+  );
+}
+
+function TeamsCreate() {
+  const rows: [string, boolean][] = [
+    ["Valentina Soto", true],
+    ["Camila Rojas", true],
+    ["Josefa Pino", true],
+    ["Matías Vera", false],
+  ];
+  return (
+    <div className="nd nd-rm nd-tm">
+      <div className="nd-tm-field">Voleibol sub-17</div>
+      {rows.map(([n, on], i) => (
+        <div key={n} className={`nd-rw nd-tm-pick${on ? " nd-rm-pop" : ""}`} style={{ top: 70 + i * 52, height: 44 }}>
+          <span className={on ? "nd-tm-box nd-tm-box-on" : "nd-tm-box"}>{on ? "✓" : ""}</span>
+          <b>{n}</b>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function AthleteRmPercent() {
   return (
     <div className="nd nd-rm nd-rm-center">
@@ -374,6 +419,25 @@ function TwoCyclesToday({ start }: { start?: boolean }) {
   );
 }
 
+function TeamCycleDemo() {
+  return (
+    <div className="nd nd-tmc">
+      <div className="nd-tmc-card">
+        <b>Piernas base</b>
+        <small>Equipo</small>
+      </div>
+      <span className="nd-tmc-arrow">→</span>
+      <div className="nd-tmc-people">
+        {["VS", "CR", "JP", "MV"].map((who, i) => (
+          <span key={who} style={{ animationDelay: `${i * 0.25}s` }}>
+            {who}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function NoveltyDemo({ slide }: { slide: NoveltySlide }) {
   const [ref, width] = useElementWidth<HTMLDivElement>();
   if (slide.video) {
@@ -384,7 +448,7 @@ export function NoveltyDemo({ slide }: { slide: NoveltySlide }) {
     );
   }
   const CycleDemo = slide.demo ? CYCLE_DEMOS[slide.demo] : undefined;
-  const art = CycleDemo ? <CycleDemo /> : slide.demo === "blocks-group" ? <Group /> : slide.demo === "blocks-move" ? <Move /> : slide.demo === "blocks-legacy" ? <Legacy /> : slide.demo === "blocks-page" ? <Page /> : slide.demo === "rm-percent-row" ? <RmPercentRow /> : slide.demo === "rm-athlete-sheet" ? <RmAthleteSheet /> : slide.demo === "rm-multi-add" ? <RmMultiAdd /> : slide.demo === "athlete-rm-percent" ? <AthleteRmPercent /> : slide.demo === "two-cycles-card" ? <TwoCyclesCard /> : slide.demo === "two-cycles-alert" ? <TwoCyclesCard alert /> : slide.demo === "two-cycles-today" ? <TwoCyclesToday /> : slide.demo === "two-cycles-start" ? <TwoCyclesToday start /> : null;
+  const art = CycleDemo ? <CycleDemo /> : slide.demo === "blocks-group" ? <Group /> : slide.demo === "blocks-move" ? <Move /> : slide.demo === "blocks-legacy" ? <Legacy /> : slide.demo === "blocks-page" ? <Page /> : slide.demo === "rm-percent-row" ? <RmPercentRow /> : slide.demo === "rm-athlete-sheet" ? <RmAthleteSheet /> : slide.demo === "rm-multi-add" ? <RmMultiAdd /> : slide.demo === "athlete-rm-percent" ? <AthleteRmPercent /> : slide.demo === "two-cycles-card" ? <TwoCyclesCard /> : slide.demo === "two-cycles-alert" ? <TwoCyclesCard alert /> : slide.demo === "two-cycles-today" ? <TwoCyclesToday /> : slide.demo === "two-cycles-start" ? <TwoCyclesToday start /> : slide.demo === "teams-group" ? <TeamsGroup /> : slide.demo === "teams-create" ? <TeamsCreate /> : slide.demo === "team-cycle" ? <TeamCycleDemo /> : null;
   // Escala del escenario al ancho disponible (nunca se agranda ni se recorta).
   const scale = width === 0 ? 1 : Math.min(1, Math.max(0.3, width / STAGE_W));
   return (

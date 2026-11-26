@@ -27,6 +27,9 @@ export function AppLayout() {
               <NavLink to="/athletes" className={navLinkClass} data-tour="nav-athletes">
                 Atletas
               </NavLink>
+              <NavLink to="/equipos" className={navLinkClass}>
+                Equipos
+              </NavLink>
               <NavLink to="/biblioteca" className={navLinkClass}>
                 Biblioteca
               </NavLink>

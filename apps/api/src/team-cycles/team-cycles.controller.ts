@@ -5,7 +5,7 @@ import { Roles } from "../common/decorators/roles.decorator";
 import { AuthenticatedUser, CurrentUser } from "../common/decorators/current-user.decorator";
 import { SaveSessionStructureDto } from "../sessions/dto/save-session-structure.dto";
 import { TeamCyclesService } from "./team-cycles.service";
-import { AddTeamSessionDto, CreateTeamCycleDto, JoinTeamCycleDto, TeamCycleDatesDto, TodayQueryDto, UpdateTeamCycleDto, UpdateTeamSessionDto } from "./dto/team-cycle.dto";
+import { AddTeamSessionDto, CreateTeamCycleDto, DuplicateTeamSessionDto, JoinTeamCycleDto, TeamCycleDatesDto, TodayQueryDto, UpdateTeamCycleDto, UpdateTeamSessionDto } from "./dto/team-cycle.dto";
 
 // Ciclo del equipo (CYC-314). Solo el coach dueño; lo ajeno responde 404.
 @Controller()
@@ -59,6 +59,11 @@ export class TeamCyclesController {
   @Post("team-cycles/:id/sessions")
   addSession(@CurrentUser() user: AuthenticatedUser, @Param("id", ParseUUIDPipe) id: string, @Body() dto: AddTeamSessionDto) {
     return this.service.addSession(user.id, id, dto);
+  }
+
+  @Post("team-sessions/:id/duplicate")
+  duplicate(@CurrentUser() user: AuthenticatedUser, @Param("id", ParseUUIDPipe) id: string, @Body() dto: DuplicateTeamSessionDto) {
+    return this.service.duplicateSession(user.id, id, dto);
   }
 
   @Post("team-cycles/:id/members")

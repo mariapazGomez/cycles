@@ -10,7 +10,7 @@ import { earliestAllowedDay, reassignSlots, weekOfDate } from "../sessions/slots
 import { CYCLE_DATE_MESSAGES, isValidRange, outsideError, renumberForStart, sessionsOutside, startDateError } from "../cycles/cycle-dates";
 import type { SaveSessionStructureDto, SessionStructureExerciseDto } from "../sessions/dto/save-session-structure.dto";
 import { addToSummary, emptySummary, rangesOverlap, removalFate, skipReason, TEAM_RULES, type CopyState, type PropagationSummary } from "./rules";
-import type { AddTeamSessionDto, CreateTeamCycleDto, TeamCycleDatesDto, UpdateTeamCycleDto, UpdateTeamSessionDto } from "./dto/team-cycle.dto";
+import type { AddTeamSessionDto, CreateTeamCycleDto, DuplicateTeamSessionDto, TeamCycleDatesDto, UpdateTeamCycleDto, UpdateTeamSessionDto } from "./dto/team-cycle.dto";
 
 type Tx = Prisma.TransactionClient;
 
@@ -400,15 +400,56 @@ export class TeamCyclesService {
           },
         });
       }
-      const master = await tx.teamSession.findUniqueOrThrow({ where: { id: created.id }, include: MASTER_INCLUDE });
-      const copies = await tx.trainingCycle.findMany({
-        where: { teamCycleId, status: "active", athlete: { athleteRelations: { some: { coachId, status: "active" } } } },
-        select: { id: true, startDate: true, athleteId: true },
-      });
-      for (const copy of copies) changed.push({ id: await this.createCopySession(tx, copy, master), athleteId: copy.athleteId! });
+      await this.deliver(tx, coachId, teamCycleId, created.id, changed);
       return created.id;
     });
     this.announce(coachId, changed, "added", routine.routineExercises.some((r) => r.defaultPercentRm != null));
+    return { sessionId: id, delivered: changed.length };
+  }
+
+  // Una sesión nueva del plan llega como copia a quienes reciben el ciclo y siguen activos.
+  private async deliver(tx: Tx, coachId: string, teamCycleId: string, teamSessionId: string, changed: { id: string; athleteId: string }[]) {
+    const master = await tx.teamSession.findUniqueOrThrow({ where: { id: teamSessionId }, include: MASTER_INCLUDE });
+    const copies = await tx.trainingCycle.findMany({
+      where: { teamCycleId, status: "active", athlete: { athleteRelations: { some: { coachId, status: "active" } } } },
+      select: { id: true, startDate: true, athleteId: true },
+    });
+    for (const copy of copies) changed.push({ id: await this.createCopySession(tx, copy, master), athleteId: copy.athleteId! });
+  }
+
+  // «Duplicar en otro día»: copia el contenido actual del plan (no la rutina de origen), y la nueva
+  // sesión llega a todos como cualquier otra; los ajustes de una persona no se arrastran.
+  async duplicateSession(coachId: string, teamSessionId: string, dto: DuplicateTeamSessionDto) {
+    const session = await this.ownedSession(coachId, teamSessionId);
+    const today = this.today(dto.today);
+    const day = startOfUtcDay(new Date(dto.scheduledDate));
+    this.assertDayInCycle(session.teamCycle, day, today);
+
+    const changed: { id: string; athleteId: string }[] = [];
+    let hasPercent = false;
+    const id = await this.prisma.$transaction(async (tx) => {
+      const source = await tx.teamSession.findUniqueOrThrow({ where: { id: teamSessionId }, include: MASTER_INCLUDE });
+      hasPercent = source.exercises.some((e) => e.targetPercentRm != null);
+      const blockIdOf = new Map(source.blocks.map((b) => [b.id, randomUUID()]));
+      const created = await tx.teamSession.create({
+        data: {
+          teamCycleId: source.teamCycleId,
+          name: source.name,
+          scheduledDate: day,
+          routineId: source.routineId,
+          blocks: { create: source.blocks.map((b) => ({ id: blockIdOf.get(b.id)!, name: b.name, type: b.type, color: b.color, orderIndex: b.orderIndex, note: b.note })) },
+        },
+        select: { id: true },
+      });
+      for (const e of source.exercises) {
+        await tx.teamSessionExercise.create({
+          data: { ...this.exerciseData(e, e.blockId ? (blockIdOf.get(e.blockId) ?? null) : null), teamSessionId: created.id },
+        });
+      }
+      await this.deliver(tx, coachId, source.teamCycleId, created.id, changed);
+      return created.id;
+    });
+    this.announce(coachId, changed, "added", hasPercent);
     return { sessionId: id, delivered: changed.length };
   }
 
