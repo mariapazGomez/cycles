@@ -13,6 +13,7 @@ Tarea de origen: CYC-116. El script es `apps/api/scripts/seed-demo.ts`.
 | Cuenta | Correo | Para qué sirve |
 |---|---|---|
 | Coach | `coach.demo@example.com` (Camila Reyes) | Todo lo del coach: Atletas, Biblioteca, calendario del ciclo |
+| 2 equipos | «Grupo mañana» (Valentina, Matías, Javiera, Diego) y «Grupo tarde» (Renata, Tomás, Antonia, Sebastián) | Equipos: calendario, ciclos, eventos y rankings |
 | 8 atletas | `valentina.soto@`, `matias.fuentes@`, `javiera.munoz@`, `diego.paredes@`, `renata.aguirre@`, `tomas.villalobos@`, `antonia.cardenas@`, `sebastian.rojas@` (todos `@example.com`) | La app del atleta |
 
 - **Contraseña:** una sola para las nueve cuentas, guardada **fuera del repo** en `~/.cycles-secretos/demo/DEMO_PASSWORD` (permisos 600). Nunca la escribas en el repo, en un chat, en Linear ni en Notion, y cuida que no salga a cuadro al grabar.
@@ -43,10 +44,10 @@ dropdb cycles_demo && createdb cycles_demo
 export DATABASE_URL=postgresql://$USER@localhost:5432/cycles_demo
 npx prisma migrate deploy
 npx prisma db seed
-DEMO_PASSWORD="$(cat ~/.cycles-secretos/demo/DEMO_PASSWORD)" npx tsx scripts/seed-demo.ts
+DEMO_PASSWORD="$(cat ~/.cycles-secretos/demo/DEMO_PASSWORD)" TS_NODE_COMPILER_OPTIONS='{"esModuleInterop":true}' npx ts-node scripts/seed-demo.ts
 ```
 
-Debe terminar con `Demo lista: 1 coach, 8 atletas, 8 planes.` El script se niega a correr si el nombre de la base no contiene `cycles_demo`, para que nunca toque la de desarrollo ni la de producción.
+Debe terminar con `Demo lista: 1 coach, 8 atletas, 8 planes y 2 equipos con su ciclo.` El script se niega a correr si el nombre de la base no contiene `cycles_demo`, para que nunca toque la de desarrollo ni la de producción.
 
 Notas:
 
@@ -127,7 +128,7 @@ Desde 2026-10-28 la seed fija la fecha (`scheduledDate`) de cada sesión: lunes,
 ## 6. Checklist rápido
 
 - [ ] Hoy es el día de grabar (jueves o viernes antes de las 18:30 es lo ideal).
-- [ ] Regeneré la demo hoy (sección 2) y dijo `Demo lista: 1 coach, 8 atletas, 8 planes.`
+- [ ] Regeneré la demo hoy (sección 2) y dijo `Demo lista: …` con 2 equipos.
 - [ ] Mi API de desarrollo está apagada y la de la demo corre en el puerto 3000, **sin** claves de Resend ni de Slack (sección 3).
 - [ ] La web no tiene `VITE_POSTHOG_KEY`.
 - [ ] Probé el inicio de sesión del coach y del atleta que voy a usar.
@@ -148,10 +149,10 @@ cd apps/api
 DATABASE_URL="$(cat <donde guardas la URL de producción>)" \
 DEMO_EN_PRODUCCION=si \
 DEMO_PASSWORD="$(cat ~/.cycles-secretos/demo/DEMO_PASSWORD)" \
-npx tsx scripts/seed-demo.ts
+TS_NODE_COMPILER_OPTIONS='{"esModuleInterop":true}' npx ts-node scripts/seed-demo.ts
 ```
 
-Debe terminar con `Demo lista: 1 coach, 8 atletas, 8 planes.`
+Debe terminar con `Demo lista: 1 coach, 8 atletas, 8 planes y 2 equipos con su ciclo.`
 
 Ten presente:
 
@@ -188,4 +189,22 @@ Cada atleta de la demo practica un deporte y tiene **actividades paralelas** a l
   Termina con `Eventos de la demo: N nuevos para 8 atletas…` y comprueba que las actividades de cuentas reales no cambiaron.
 - **Las fechas son relativas al día en que se cargan:** pasadas unas semanas la demo queda atrasada. Se arregla recargando la demo (sección 6), que trae los mismos eventos con las fechas de ese día.
 - Para ver las actividades en la web del coach hace falta que el Inicio (CYC-253) y el perfil del atleta estén desplegados.
+
+## 8. Equipos de la demo
+
+Hay dos equipos de cuatro atletas, cada uno con un **ciclo del equipo de 4 semanas desde el día en que se carga**, con sesiones los **martes, jueves y viernes** (rutinas «Equipo · Potencia», «Equipo · Fuerza general» y «Equipo · Core y acondicionamiento», con bloques). Los atletas conservan su ciclo individual de lunes, miércoles y viernes, así que se ven **dos ciclos** y los viernes hay una sesión de cada uno. Cada equipo trae **una sesión «Ajustada»** (a una persona se le baja el peso de un ejercicio) y **dos eventos** (un partido amistoso el sábado de la semana siguiente y una jornada de evaluación después). Los ciclos del equipo no traen ejecución registrada: empiezan el día de la carga.
+
+Las copias de cada atleta se crean con la misma lógica de la API, sin avisos ni correos.
+
+- **Demo recién generada** (sección 2 o 6): `seed-demo.ts` ya los trae.
+- **Demo existente, sin recargarla** (`apps/api/scripts/seed-demo-equipos.ts`): solo **agrega**, solo en cuentas `isDemo` (si un coach, atleta o integrante no lo es, se niega) y se puede repetir sin duplicar. No toca los ciclos individuales ni las contraseñas. **Por defecto solo revisa** y no escribe:
+
+  ```bash
+  cd apps/api
+  DATABASE_URL="$(cat <donde guardas la URL de producción>)" DEMO_EN_PRODUCCION=si TS_NODE_COMPILER_OPTIONS='{"esModuleInterop":true}' npx ts-node scripts/seed-demo-equipos.ts
+  ```
+
+  Lee el resultado: dice qué existe, qué crearía y hasta cuándo dura el ciclo individual de cada atleta. Para aplicar, primero haz un respaldo (`apps/api/scripts/respaldo-supabase.sh`) y repite el comando con `DEMO_APLICAR=si`. `DEMO_PASSWORD` solo hace falta si falta algún atleta; una cuenta creada así queda **sin ciclo individual**.
+- Cuando el ciclo del equipo termina, volver a aplicar crea otro desde ese día, sin borrar el anterior.
+- La API y la base deben tener las migraciones de equipos, ciclo del equipo y eventos. Los eventos del equipo se ven en la web del coach con las vistas de CYC-319; los atletas todavía no los ven en pantalla.
 
