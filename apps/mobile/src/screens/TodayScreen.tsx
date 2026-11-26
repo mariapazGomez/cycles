@@ -13,9 +13,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import type { TodaySession } from '@cycles/shared';
-import { fetchToday, startSession } from '../services/executionApi';
-import { fetchCycles } from '../services/planApi';
+import type { TodayCycleEntry, TodaySession } from '@cycles/shared';
+import { fetchToday, fetchTodayCycles, startSession } from '../services/executionApi';
+import { fetchCycles, fetchSessionDetail } from '../services/planApi';
+import { CycleCompact, CycleHero } from '../components/today/CycleCards';
+import { layoutCycles, type OpenCard } from '../utils/todayCycles';
 import { ApiError } from '../services/httpClient';
 import { toLocalDay } from '../utils/planCalendar';
 import { RestBar } from '../components/RestTimer';
@@ -67,6 +69,10 @@ export function TodayScreen({ navigation }: Props) {
   // la siguiente pendiente del plan.
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { routineStarted, setRoutineStarted, autoRest, setAutoRest } = useRestTimer();
+  // Un bloque por ciclo (CYC-314). Con dos o más, «Hoy» muestra una tarjeta por ciclo; con uno
+  // (o si este pedido falla) queda como siempre. `focusId` es la tarjeta que se tocó con «Ver».
+  const [entries, setEntries] = useState<TodayCycleEntry[]>([]);
+  const [focusId, setFocusId] = useState<string | null>(null);
   // Aviso del coach y actividades del día (CYC-256): extras que nunca rompen Hoy.
   const extras = useTodayExtras(toLocalDay(new Date()));
   // Resumen de la semana (CYC-256): extra que nunca rompe Hoy.
@@ -74,8 +80,19 @@ export function TodayScreen({ navigation }: Props) {
 
   const load = useCallback(async () => {
     setError(null);
+    const now = new Date();
+    const since = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    const byCycle = Promise.resolve()
+      .then(() => fetchTodayCycles(toLocalDay(now), since))
+      .then(result => (Array.isArray(result?.cycles) ? result.cycles : []))
+      .catch(() => [] as TodayCycleEntry[]);
     try {
-      setData(await fetchToday({ date: toLocalDay(new Date()), sessionId: selectedId ?? undefined }));
+      const [today, cycles] = await Promise.all([
+        fetchToday({ date: toLocalDay(now), sessionId: selectedId ?? undefined }),
+        byCycle,
+      ]);
+      setEntries(cycles);
+      setData(today);
     } catch (err) {
       if (selectedId && err instanceof ApiError && err.status === 404) {
         // La sesión elegida ya no está pendiente (p. ej. la terminaste): se
@@ -113,22 +130,41 @@ export function TodayScreen({ navigation }: Props) {
     };
   }, [noSession, withoutCoach]);
 
-  const sessionStarted = data?.session.startedAt != null;
+  const multi = entries.length >= 2;
+  const layout = multi ? layoutCycles(entries, toLocalDay(new Date()), focusId) : null;
+  // La sesión cuyos ejercicios se ven abajo: la de siempre, o la tarjeta activa con dos ciclos.
+  const view: TodaySession | null | undefined = layout
+    ? layout.active
+      ? { cycle: layout.active.cycle, session: layout.active.session }
+      : null
+    : data;
+  const sessionStarted = multi
+    ? entries.some(entry => entry.pending.some(session => session.startedAt != null))
+    : data?.session.startedAt != null;
   useEffect(() => {
     setRoutineStarted(sessionStarted);
   }, [sessionStarted, setRoutineStarted]);
 
-  const handleStart = async () => {
-    if (!data || starting) {
+  // El orden en que se entrena: el de la sesión, con los ejercicios sueltos donde los dejó el coach.
+  const orderedOf = (session: TodaySession['session']) => {
+    const grouped = sessionSections(session.blocks, session.sessionExercises);
+    return grouped ? grouped.flatMap(section => section.items.map(item => item.exercise)) : session.sessionExercises;
+  };
+
+  const handleStart = async (target: TodaySession['session'] | undefined = view?.session) => {
+    if (!target || starting) {
       return;
     }
     setStarting(true);
     setError(null);
     try {
-      await startSession(data.session.id);
+      await startSession(target.id);
+      if (multi) {
+        setFocusId(target.id);
+      }
       await load();
       // Al iniciar la rutina se pasa directo al primer ejercicio pendiente.
-      const first = ordered.find(e => !isComplete(e));
+      const first = orderedOf(target).find(e => !isComplete(e));
       if (first) {
         openExercise(first);
       }
@@ -151,43 +187,54 @@ export function TodayScreen({ navigation }: Props) {
     setRefreshing(false);
   };
 
-  const exercises = data?.session.sessionExercises ?? [];
+  const exercises = view?.session.sessionExercises ?? [];
   // Bloques de la sesión (CYC-272): llegan con /me/today; sin bloques, la sesión se ve como siempre.
-  const sections = sessionSections(data?.session.blocks, exercises);
-  // El orden en que se entrena: el de la sesión, con los ejercicios sueltos donde los dejó el coach.
+  const sections = sessionSections(view?.session.blocks, exercises);
+  // Si se está mirando una sesión sin empezar mientras otra está en curso, sus ejercicios no se abren.
+  const inProgress = multi ? view?.session.startedAt != null : routineStarted;
   const ordered = sections ? sections.flatMap(section => section.items.map(item => item.exercise)) : exercises;
   const isComplete = (e: (typeof exercises)[number]) => e.logs.length >= e.targetSets;
   const doneCount = exercises.filter(isComplete).length;
-  const doneExercises = doneCount;
   const currentIndex = ordered.findIndex(e => !isComplete(e));
   const doneSets = exercises.reduce((sum, e) => sum + Math.min(e.logs.length, e.targetSets), 0);
-  const plannedSets = exercises.reduce((sum, e) => sum + e.targetSets, 0);
   // La guía de primer uso señala el botón de la sesión (o la tarjeta vacía si no hay sesión).
-  const startLabel = routineStarted ? (currentIndex === -1 ? 'Cerrar sesión' : 'Continuar') : 'Iniciar rutina';
+  const startLabel = inProgress ? (currentIndex === -1 ? 'Cerrar sesión' : 'Continuar') : 'Iniciar rutina';
   const emptyRef = useTourAnchor('todayEmpty', 18);
-  const startedAtMs = data?.session.startedAt ? Date.parse(data.session.startedAt) : NaN;
+  const startedAtMs = view?.session.startedAt ? Date.parse(view.session.startedAt) : NaN;
   const elapsedMinutes = Number.isFinite(startedAtMs)
     ? Math.max(1, Math.round((Date.now() - startedAtMs) / 60000))
     : null;
-  const openFeedback = () => {
-    if (!data) {
-      return;
-    }
+  const openFeedbackFor = (session: TodaySession['session']) => {
+    const items = session.sessionExercises;
     navigation.navigate('SessionFeedback', {
-      sessionId: data.session.id,
-      startedAt: data.session.startedAt,
-      doneSets,
-      plannedSets,
-      doneExercises,
-      totalExercises: exercises.length,
-      share: buildShareData(data.session.name, exercises, data.session.startedAt),
+      sessionId: session.id,
+      startedAt: session.startedAt,
+      doneSets: items.reduce((sum, e) => sum + Math.min(e.logs.length, e.targetSets), 0),
+      plannedSets: items.reduce((sum, e) => sum + e.targetSets, 0),
+      doneExercises: items.filter(isComplete).length,
+      totalExercises: items.length,
+      share: buildShareData(session.name, items, session.startedAt),
     });
   };
+  const openFeedback = () => {
+    if (view) {
+      openFeedbackFor(view.session);
+    }
+  };
   const openShare = () => {
-    if (!data) {
+    if (!view) {
       return;
     }
-    navigation.navigate('ShareSession', buildShareData(data.session.name, exercises, data.session.startedAt));
+    navigation.navigate('ShareSession', buildShareData(view.session.name, exercises, view.session.startedAt));
+  };
+  // Una sesión ya hecha: su detalle se pide al tocar «Compartir».
+  const shareDone = async (sessionId: string) => {
+    try {
+      const detail = await fetchSessionDetail(sessionId);
+      navigation.navigate('ShareSession', buildShareData(detail.name, detail.sessionExercises, detail.startedAt));
+    } catch {
+      setError('No pudimos preparar la imagen. Intenta de nuevo.');
+    }
   };
 
   if (data === undefined && !error) {
@@ -228,7 +275,7 @@ export function TodayScreen({ navigation }: Props) {
   const renderExercise = (sessionExercise: (typeof exercises)[number], index: number) => {
     const loggedSets = sessionExercise.logs.length;
     const complete = isComplete(sessionExercise);
-    const current = routineStarted && !complete && index === currentIndex;
+    const current = inProgress && !complete && index === currentIndex;
     return (
       <PressableScale
         key={sessionExercise.id}
@@ -238,7 +285,7 @@ export function TodayScreen({ navigation }: Props) {
           current && styles.exerciseCardCurrent,
           !complete && !current && styles.exerciseCardPending,
         ]}
-        disabled={!routineStarted}
+        disabled={!inProgress}
         onPress={() => openExercise(sessionExercise)}>
         <View
           style={[
@@ -279,6 +326,31 @@ export function TodayScreen({ navigation }: Props) {
     );
   };
 
+  const autoRestCard = (
+    <View style={[styles.card, styles.restCard]}>
+      <View style={styles.restText}>
+        <Text style={styles.restTitle}>Pausas automáticas</Text>
+        <Text style={styles.restHint}>Usa el descanso que planificó tu coach</Text>
+      </View>
+      <Switch
+        value={autoRest}
+        onValueChange={setAutoRest}
+        trackColor={{ true: colors.blue, false: colors.grayBorder }}
+      />
+    </View>
+  );
+
+  // Botón de cada tarjeta grande cuando hay dos ciclos.
+  const heroAction = (card: OpenCard) => {
+    if (!card.session.startedAt) {
+      return { label: 'Iniciar rutina', onPress: () => handleStart(card.session) };
+    }
+    const next = orderedOf(card.session).find(e => !isComplete(e));
+    return next
+      ? { label: `Continuar: ${next.exercise.name}`, onPress: () => openExercise(next) }
+      : { label: 'Cerrar sesión', onPress: () => openFeedbackFor(card.session) };
+  };
+
   return (
     <ScrollView
       style={styles.container}
@@ -298,7 +370,7 @@ export function TodayScreen({ navigation }: Props) {
 
       {error && <Text style={styles.error}>{error}</Text>}
 
-      {data === null && !error && (
+      {!multi && data === null && !error && (
         <View ref={emptyRef} collapsable={false} style={[styles.card, styles.emptyCard]}>
           <ChainBackground />
           <View style={styles.emptyBox}>
@@ -316,9 +388,42 @@ export function TodayScreen({ navigation }: Props) {
         </View>
       )}
 
-      {data === null && !error && extrasBlock}
+      {!multi && data === null && !error && extrasBlock}
 
-      {data && (
+      {layout && (
+        <>
+          {layout.heroes.map((card, index) => {
+            const hero = (
+              <CycleHero
+                key={card.key}
+                card={card}
+                todayIso={toLocalDay(new Date())}
+                primary={index === 0}
+                starting={starting}
+                action={heroAction(card)}
+              />
+            );
+            return index === 0 ? (
+              <TourAnchor key={card.key} id="start" radius={22} label={heroAction(card).label}>
+                {hero}
+              </TourAnchor>
+            ) : (
+              hero
+            );
+          })}
+          {layout.compacts.map(card => (
+            <CycleCompact
+              key={card.key}
+              card={card}
+              todayIso={toLocalDay(new Date())}
+              onPress={() => (card.kind === 'done' ? shareDone(card.session.id) : setFocusId(card.key))}
+            />
+          ))}
+          {extrasBlock}
+        </>
+      )}
+
+      {!multi && data && (
         <>
           <View style={styles.hero}>
             <BeadChain />
@@ -344,7 +449,7 @@ export function TodayScreen({ navigation }: Props) {
             </View>
 
             <TourAnchor id="start" radius={999} label={startLabel}>
-            {routineStarted ? (
+            {inProgress ? (
               nextExercise ? (
                 <PressableScale style={styles.heroButton} onPress={() => openExercise(nextExercise)}>
                   <Text style={styles.heroButtonText} numberOfLines={1}>
@@ -361,7 +466,7 @@ export function TodayScreen({ navigation }: Props) {
             ) : (
               <PressableScale
                 style={[styles.heroButton, starting && styles.disabled]}
-                onPress={handleStart}
+                onPress={() => handleStart()}
                 disabled={starting}>
                 {starting ? (
                   <Spinner size={22} color={colors.ink} />
@@ -377,8 +482,12 @@ export function TodayScreen({ navigation }: Props) {
           </View>
 
           {extrasBlock}
+        </>
+      )}
 
-          {routineStarted && !nextExercise && (
+      {view && (
+        <>
+          {inProgress && !nextExercise && (
             <>
               <View style={styles.statsRow}>
                 <View style={[styles.card, styles.statCard]}>
@@ -401,7 +510,7 @@ export function TodayScreen({ navigation }: Props) {
             </>
           )}
 
-          {(otherAssigned.length > 0 || selectedId) && !routineStarted && (
+          {!multi && (otherAssigned.length > 0 || selectedId) && !inProgress && (
             <View style={styles.card}>
               {otherAssigned.length > 0 && (
                 <>
@@ -429,19 +538,7 @@ export function TodayScreen({ navigation }: Props) {
             </View>
           )}
 
-          {!routineStarted && (
-            <View style={[styles.card, styles.restCard]}>
-              <View style={styles.restText}>
-                <Text style={styles.restTitle}>Pausas automáticas</Text>
-                <Text style={styles.restHint}>Usa el descanso que planificó tu coach</Text>
-              </View>
-              <Switch
-                value={autoRest}
-                onValueChange={setAutoRest}
-                trackColor={{ true: colors.blue, false: colors.grayBorder }}
-              />
-            </View>
-          )}
+          {!multi && !inProgress && autoRestCard}
 
           {sections
             ? sections.map(section => (
@@ -455,9 +552,9 @@ export function TodayScreen({ navigation }: Props) {
               ))
             : exercises.map((sessionExercise, index) => renderExercise(sessionExercise, index))}
 
-          {routineStarted && <RestBar />}
+          {inProgress && <RestBar />}
 
-          {routineStarted && nextExercise && (
+          {inProgress && nextExercise && (
             <TouchableOpacity
               style={styles.closeLink}
               onPress={openFeedback}>
@@ -466,6 +563,8 @@ export function TodayScreen({ navigation }: Props) {
           )}
         </>
       )}
+
+      {multi && !sessionStarted && autoRestCard}
 
     </ScrollView>
   );

@@ -38,6 +38,15 @@ test('total de semanas toma el mayor entre fechas y sesiones', () => {
   expect(totalWeeks(cycle, [session({ weekNumber: 7 })])).toBe(7);
 });
 
+test('las semanas cuentan el último día y no dependen de las sesiones por semana (CYC-314)', () => {
+  const cycle = (endDate: string) =>
+    ({ startDate: '2026-11-02T00:00:00Z', endDate, sessionsPerWeek: null }) as unknown as TrainingCycle;
+  expect(totalWeeks(cycle('2026-11-08T00:00:00Z'), [])).toBe(1); // 7 días
+  expect(totalWeeks(cycle('2026-11-09T00:00:00Z'), [])).toBe(2); // 8 días
+  expect(totalWeeks(cycle('2026-11-29T00:00:00Z'), [])).toBe(4); // 28 días
+  expect(totalWeeks(cycle('2026-11-30T00:00:00Z'), [])).toBe(5); // 29 días
+});
+
 test('estado de cada sesión y primera pendiente', () => {
   const a = session({ id: 'a', status: 'completed' });
   const b = session({ id: 'b', status: 'skipped', slotNumber: 2 });

@@ -19,7 +19,9 @@ export function planWeekAt(startDate: string, now: Date): number {
 }
 
 export function totalWeeks(cycle: TrainingCycle, sessions: TrainingSession[]): number {
-  const fromDates = Math.ceil((Date.parse(cycle.endDate) - Date.parse(cycle.startDate)) / WEEK_MS);
+  // Semanas de 7 días desde el inicio, con el último día incluido (un ciclo de 8 días tiene 2).
+  // Misma regla que la web (lib/planGrid.ts).
+  const fromDates = Math.floor((Date.parse(cycle.endDate) - Date.parse(cycle.startDate)) / WEEK_MS) + 1;
   const fromSessions = sessions.reduce((max, s) => Math.max(max, s.weekNumber), 0);
   return Math.max(fromDates, fromSessions, 1);
 }
