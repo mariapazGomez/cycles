@@ -32,9 +32,10 @@ describe("fichas de novedad (registro)", () => {
 });
 
 describe("qué novedad toca mostrar", () => {
-  it("la coach ve las más recientes (Equipos, calendario, dos ciclos y ciclo del equipo), luego RM y bloques; la atleta, las suyas en la web; el admin, ninguna", () => {
-    expect(noveltiesFor(coach).slice(0, 4).map((n) => n.key).sort()).toEqual(["coach-team-cycle", "coach-teams", "coach-two-cycles", "cycle-calendar"]);
-    const vistas = ["coach-team-cycle@1", "coach-teams@1", "coach-two-cycles@1", "cycle-calendar@1"];
+  it("la coach ve las más recientes (Eventos del equipo; Equipos, calendario, dos ciclos y ciclo del equipo), luego RM y bloques; la atleta, las suyas en la web; el admin, ninguna", () => {
+    expect(pendingNovelty([], coach)?.key).toBe("coach-team-events");
+    expect(noveltiesFor(coach).slice(1, 5).map((n) => n.key).sort()).toEqual(["coach-team-cycle", "coach-teams", "coach-two-cycles", "cycle-calendar"]);
+    const vistas = ["coach-team-events@1", "coach-team-cycle@1", "coach-teams@1", "coach-two-cycles@1", "cycle-calendar@1"];
     expect(pendingNovelty(vistas, coach)?.key).toBe("coach-rm-percent");
     expect(pendingNovelty([...vistas, "coach-rm-percent@1"], coach)?.key).toBe("routine-blocks");
     expect(pendingNovelty([], { role: "athlete", platform: "web" })?.key).toBe("athlete-two-cycles");

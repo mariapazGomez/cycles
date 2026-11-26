@@ -3,11 +3,13 @@ import { Link } from "react-router-dom";
 import type { TeamSummary } from "../../services/teamsApi";
 import { initialOf, teamColor } from "../../lib/teams";
 
-export type TeamTool = "calendario" | "ciclos";
+export type TeamTool = "calendario" | "ciclos" | "eventos" | "rankings";
 
 const ICON: Record<string, JSX.Element> = {
   calendario: <path d="M5 6h14a1 1 0 011 1v12a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1zM4 10h16M8 3.5V7M16 3.5V7" />,
   ciclos: <path d="M18.5 8A7 7 0 006 9.5M5.5 16A7 7 0 0018 14.5M19 4v4.5h-4.5M5 20v-4.5h4.5" />,
+  eventos: <path d="M5 6h14a1 1 0 011 1v12a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1zM4 10h16M8 3.5V7M16 3.5V7M12 12.4l.9 1.8 2 .3-1.4 1.4.3 2-1.8-.9-1.8.9.3-2-1.4-1.4 2-.3z" />,
+  rankings: <path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0zM7 6H4v2a3 3 0 003 3M17 6h3v2a3 3 0 01-3 3" />,
 };
 
 function ToolIcon({ name }: { name: string }) {
@@ -18,10 +20,11 @@ function ToolIcon({ name }: { name: string }) {
   );
 }
 
-// Solo las herramientas que ya existen: Eventos y Rankings se agregan aquí con CYC-319.
 const TOOLS: { id: TeamTool; label: string }[] = [
   { id: "calendario", label: "Calendario" },
   { id: "ciclos", label: "Ciclos" },
+  { id: "eventos", label: "Eventos" },
+  { id: "rankings", label: "Rankings" },
 ];
 
 // Sidebar de Equipos (CYC-318): contraer, selector del equipo y herramientas. En pantalla

@@ -186,3 +186,68 @@ a.tms-tool:hover { background: var(--color-gray-light); }
   .tmc-members thead { display: none; }
   .tmc-members tr { display: flex; flex-wrap: wrap; gap: 6px; }
 }
+
+/* Eventos y Rankings del equipo (CYC-319, docs/diseno/equipos-sidebar). */
+.tme-pill-team { background: var(--color-blue-bg, #e8eefb); color: #134fb0; }
+.tme-weeknav { display: flex; align-items: center; gap: 10px; font-weight: 500; font-size: 0.92rem; }
+.tme-weeknav .tms-btn { min-width: 38px; padding: 0; }
+.tme-clash { display: flex; align-items: baseline; gap: 10px; padding: 11px 14px; border: 1px solid var(--color-warn-fill); border-radius: 6px; background: var(--color-warn-bg); color: var(--color-warn-ink); font-size: 0.92rem; }
+.tme-clash b { flex-shrink: 0; font-weight: 600; }
+.tme-clash p { margin: 0 0 2px; }
+.tme-more { border: 0; padding: 4px 0 0; background: none; color: inherit; font: inherit; font-weight: 500; text-decoration: underline; cursor: pointer; }
+.tme-box { border: 1px solid var(--color-gray-border); border-radius: 6px; background: var(--color-bg); }
+.tme-table { width: 100%; border-collapse: collapse; }
+.tme-table th, .tme-table td { padding: 11px 12px; border-top: 1px solid var(--color-gray-border); text-align: left; vertical-align: middle; }
+.tme-table thead th { border-top: 0; background: var(--color-gray-light); color: var(--color-ink-secondary); font-size: 0.78rem; font-weight: 500; }
+.tme-table tbody th { font-weight: 500; }
+.tme-own { background: var(--color-blue-bg, #f5f8fd); }
+.tme-day { width: 76px; white-space: nowrap; font-weight: 500; font-size: 0.92rem; }
+.tme-event { display: flex; align-items: center; gap: 14px; }
+.tme-event b { display: block; font-weight: 500; overflow-wrap: break-word; }
+.tme-event small { display: block; margin-top: 3px; color: var(--color-ink-secondary); font-size: 0.8rem; }
+.tme-dot { flex-shrink: 0; width: 20px; height: 20px; margin-left: 3px; border-radius: 50%; }
+.tme-who { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+.tme-who-team { color: #134fb0; font-weight: 500; white-space: nowrap; }
+.tme-stack { display: flex; flex-shrink: 0; }
+.tme-stack .hm-avatar + .hm-avatar { margin-left: -6px; box-shadow: 0 0 0 2px var(--color-bg); }
+.tme-actions { width: 44px; }
+.tme-rank th:first-child, .tme-place { width: 44px; text-align: center; color: var(--color-ink-secondary); font-weight: 500; }
+.tme-barcell { width: 40%; }
+.tme-bar { height: 6px; border-radius: 3px; background: var(--color-gray-light); overflow: hidden; }
+.tme-bar i { display: block; height: 100%; background: var(--color-blue); }
+.tme-percent { width: 64px; white-space: nowrap; text-align: right !important; font-weight: 500; }
+.tme-nofig { color: var(--color-ink-secondary); font-size: 0.88rem; }
+
+.tme-modal.bd-modal { width: min(600px, 100%); }
+.tme-field { margin: 0; padding: 0; border: 0; min-width: 0; }
+.tme-types { display: flex; flex-wrap: wrap; gap: 8px; }
+.tme-type { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border: 1px solid var(--color-control-border); border-radius: 6px; font-size: 0.9rem; font-weight: 500; cursor: pointer; }
+.tme-type i { width: 11px; height: 11px; border-radius: 50%; }
+.tme-type-on { border-color: var(--color-ink); background: var(--color-gray-light); }
+.tme-type:focus-within { outline: 2px solid var(--color-blue); outline-offset: 2px; }
+.tme-when { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.tme-check { display: flex; align-items: center; gap: 10px; font-size: 0.92rem; cursor: pointer; }
+.tme-check input { width: 20px; height: 20px; accent-color: var(--color-blue); }
+.tme-days { display: flex; flex-wrap: wrap; gap: 6px; }
+.tme-days button { width: 40px; height: 40px; border: 1px solid var(--color-control-border); border-radius: 6px; background: var(--color-bg); font: inherit; font-weight: 500; cursor: pointer; }
+.tme-days button[aria-pressed="true"] { border-color: var(--color-blue); background: var(--color-blue); color: #fff; }
+.tme-until { max-width: 220px; }
+.tme-modal .bd-modal-body footer.tme-footer { justify-content: flex-start; }
+
+@media (max-width: 760px) {
+  .tms-head-actions { flex-wrap: wrap; max-width: 100%; }
+  .tms-head-actions .tms-btn, .tms-head-actions .tms-primary, .tms-head-actions .tms-seg button { white-space: nowrap; }
+  .tme-weeknav { flex-basis: 100%; justify-content: space-between; }
+  .tme-dot { width: 12px; height: 12px; }
+  .tme-when { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .tme-when > div:first-child { grid-column: 1 / -1; }
+  .tme-clash { flex-direction: column; gap: 4px; }
+  .tme-table th, .tme-table td { padding: 10px 6px; }
+  .tme-day { width: 52px; white-space: normal; }
+  .tme-event { gap: 10px; }
+  .tme-stack { display: none; }
+  .tme-who-team { white-space: normal; }
+  .tme-who .tms-badge { display: none; }
+  .tme-rank .hm-avatar { display: none; }
+  .tme-barcell { width: 26%; }
+}
