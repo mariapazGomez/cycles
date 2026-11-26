@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import type { TrainingCycle } from "@cycles/shared";
+import * as sessionsApi from "../services/sessionsApi";
 import type { AthleteStatus } from "../lib/coachHome";
 import { planWeekOf } from "../lib/format";
 import { newCyclePath } from "../lib/library";
 import { totalWeeks } from "../lib/planGrid";
-import { attentionBadge, sessionsByDay, weekDays, type BoardSession } from "../lib/weekBoard";
+import { attentionBadge, cycleCardData, sessionsByDay, weekDays, type BoardSession } from "../lib/weekBoard";
 import { dayOfMonth, weekdayShort } from "../lib/weekCalendar";
 import { CheckBadge } from "./CheckBadge";
 import { Skeleton } from "./Skeleton";
@@ -80,12 +83,54 @@ function WeekStrip({ week, monday, todayIso, loading }: { week: BoardSession[] |
   );
 }
 
+// Con dos o más ciclos a la vez, un bloque por ciclo: nombre, semana, su tira y sus completadas.
+function CycleBlock({ cycle, monday, todayIso }: { cycle: TrainingCycle; monday: string; todayIso: string }) {
+  const query = useQuery({ queryKey: ["cycles", cycle.id, "sessions"], queryFn: () => sessionsApi.listSessions(cycle.id), staleTime: 60_000 });
+  const data = query.data ? cycleCardData(cycle.startDate, cycle.sessionsPerWeek ?? 0, query.data, monday) : null;
+  return (
+    <div className="at-block">
+      <div className="at-cycle">
+        <Link to={`/cycles/${cycle.id}`}>{cycle.name}</Link>
+        <CycleWeek cycle={cycle} />
+      </div>
+      <WeekStrip week={data?.week ?? null} monday={monday} todayIso={todayIso} loading={query.isLoading} />
+      <div className="at-adherence">
+        {query.isError ? (
+          <span>No se pudieron cargar sus sesiones.</span>
+        ) : !data ? (
+          <Skeleton height={8} />
+        ) : data.of > 0 ? (
+          <span>
+            {data.done} de {data.of} {data.of === 1 ? "sesión completada" : "sesiones completadas"}
+          </span>
+        ) : (
+          <span>Aún sin sesiones completadas.</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CycleWeek({ cycle }: { cycle: TrainingCycle }) {
+  const week = planWeekOf(cycle.startDate);
+  if (week < 1 || cycle.cycleType === "macrocycle") return null;
+  const total = totalWeeks(cycle.startDate, cycle.endDate);
+  return (
+    <span>
+      Semana {Math.min(week, total)} de {total}
+    </span>
+  );
+}
+
 // Una tarjeta por atleta (docs/diseno/ciclo-en-calendario): quién es, cómo va su
 // ciclo y su semana, y a dónde ir desde aquí.
 export function AthleteCard({ row, monday, todayIso, adherence, adherenceLoading }: AthleteCardProps) {
   const badge = attentionBadge(row.attention);
   const summaryPath = `/athletes/${row.id}`;
   const cycle = row.cycle;
+  const several = row.status !== "pending" && row.liveCycles.length >= 2;
+  // Con varios ciclos, el aviso dice de cuál es.
+  const badgeCycle = several ? row.attention[0]?.cycle.name : undefined;
   const percent = adherence && adherence.of > 0 ? Math.round((adherence.done / adherence.of) * 100) : null;
 
   return (
@@ -104,6 +149,7 @@ export function AthleteCard({ row, monday, todayIso, adherence, adherenceLoading
       {badge && (
         <Link className={`pill ${badge.kind === "pain" ? "pill-pain" : "pill-warn"} at-badge`} to={summaryPath}>
           {badge.label}
+          {badgeCycle ? ` en ${badgeCycle}` : ""}
           {badge.extra > 0 ? ` y ${badge.extra} más` : ""}
         </Link>
       )}
@@ -114,15 +160,13 @@ export function AthleteCard({ row, monday, todayIso, adherence, adherenceLoading
 
       {row.status === "no_plan" && <p className="at-note">Todavía no tiene un ciclo activo.</p>}
 
-      {cycle && row.status !== "pending" && (
+      {several && row.liveCycles.map((c) => <CycleBlock key={c.id} cycle={c} monday={monday} todayIso={todayIso} />)}
+
+      {!several && cycle && row.status !== "pending" && (
         <>
           <div className="at-cycle">
             <Link to={`/cycles/${cycle.id}`}>{cycle.name}</Link>
-            {planWeekOf(cycle.startDate) >= 1 && cycle.cycleType !== "macrocycle" && (
-              <span>
-                Semana {Math.min(planWeekOf(cycle.startDate), totalWeeks(cycle.startDate, cycle.endDate))} de {totalWeeks(cycle.startDate, cycle.endDate)}
-              </span>
-            )}
+            <CycleWeek cycle={cycle} />
           </div>
 
           <WeekStrip week={row.week} monday={monday} todayIso={todayIso} loading={row.weekLoading} />
@@ -153,8 +197,8 @@ export function AthleteCard({ row, monday, todayIso, adherence, adherenceLoading
           </Link>
         )}
         {cycle && row.status !== "pending" && (
-          <Link className="button-ghost" to={`/cycles/${cycle.id}`}>
-            Ver ciclo
+          <Link className="button-ghost" to={several ? summaryPath : `/cycles/${cycle.id}`}>
+            {several ? "Ver ciclos" : "Ver ciclo"}
           </Link>
         )}
         {row.status === "no_plan" && (

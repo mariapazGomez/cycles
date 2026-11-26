@@ -23,6 +23,8 @@ export interface BoardRow {
   cycleName: string | null;
   // Ciclo activo del atleta (el de más arriba si vive dentro de un macrociclo).
   cycle: TrainingCycle | null;
+  // Los ciclos que están corriendo esta semana: con dos o más, la tarjeta muestra uno por bloque.
+  liveCycles: TrainingCycle[];
   // null mientras no se sabe (cargando) o si el atleta no tiene ciclo.
   week: BoardSession[] | null;
   weekLoading: boolean;

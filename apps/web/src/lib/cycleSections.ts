@@ -35,21 +35,26 @@ export function currentCycle<T extends Range>(cycles: T[], today: string): T | n
 
 export type SectionKind = "current" | "future" | "past";
 
+// Con dos ciclos a la vez (CYC-314), todo activo cuyas fechas incluyen hoy está «En curso», no solo
+// el principal de la ficha.
 export function sectionKind(cycle: Range, current: Range | null, today: string): SectionKind {
-  if (cycle === current) return "current";
+  if (cycle === current || (cycle.status === "active" && distance(cycle, today) === 0)) return "current";
   return cycle.status === "active" && bounds(cycle).start > today ? "future" : "past";
 }
 
-// Orden de la ficha: el ciclo en curso arriba; después los que vienen, del más
+// Orden de la ficha: el ciclo principal arriba, seguido de los otros en curso; después los que vienen, del más
 // próximo al más lejano; al final los pasados, del más reciente al más antiguo.
 export function orderSections<T extends Range>(cycles: T[], today: string): { cycles: T[]; current: T | null } {
   const current = currentCycle(cycles, today);
   const rest = cycles.filter((c) => c !== current);
+  const alsoCurrent = rest
+    .filter((c) => sectionKind(c, current, today) === "current")
+    .sort((a, b) => bounds(b).start.localeCompare(bounds(a).start));
   const future = rest
     .filter((c) => sectionKind(c, current, today) === "future")
     .sort((a, b) => bounds(a).start.localeCompare(bounds(b).start));
   const past = rest
     .filter((c) => sectionKind(c, current, today) === "past")
     .sort((a, b) => bounds(b).start.localeCompare(bounds(a).start));
-  return { cycles: [...(current ? [current] : []), ...future, ...past], current };
+  return { cycles: [...(current ? [current] : []), ...alsoCurrent, ...future, ...past], current };
 }

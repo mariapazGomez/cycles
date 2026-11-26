@@ -227,6 +227,19 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Varios ciclos a la vez: un bloque por ciclo, separados por una línea. */
+.at-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-gray-border);
+}
+
+.at-block .at-cycle a {
+  color: var(--color-blue);
+}
+
 /* Semana: siete casillas con la marca de cada sesión. */
 .at-week {
   display: grid;
