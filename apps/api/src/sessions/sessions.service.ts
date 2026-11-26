@@ -23,6 +23,7 @@ import { UpdateSessionDto } from "./dto/update-session.dto";
 import { DuplicateSessionDto } from "./dto/duplicate-session.dto";
 import { SaveSessionStructureDto, SessionStructureExerciseDto } from "./dto/save-session-structure.dto";
 import { cleanBlocks } from "../common/work-blocks";
+import { detachFromTeam, detachIfChanged } from "../common/team-detach";
 import { AddSessionExerciseDto } from "./dto/add-session-exercise.dto";
 import { UpdateSessionExerciseDto } from "./dto/update-session-exercise.dto";
 
@@ -370,6 +371,10 @@ export class SessionsService {
     } else {
       updated = await this.prisma.trainingSession.update({ where: { id: session.id }, data });
     }
+    // En la copia de una sesión del equipo, cambiar nombre o día la separa del plan.
+    if (session.teamSessionId && ((dto.name !== undefined && dto.name !== session.name) || moves)) {
+      await detachFromTeam(this.prisma, [session.id]);
+    }
     if (dto.name !== undefined || moves) {
       this.notifications.coachEditedSession(session.id, "changed");
     }
@@ -391,6 +396,7 @@ export class SessionsService {
       throw new ConflictException("No se puede quitar: el atleta ya registró ejecución de esta sesión.");
     }
 
+    if (session.teamSessionId) await detachFromTeam(this.prisma, [session.id]);
     await this.prisma.trainingSession.update({ where: { id: session.id }, data: { deletedAt: new Date() } });
     await this.purgeDeleted(session.cycleId);
   }
@@ -545,6 +551,7 @@ export class SessionsService {
       },
       include: { exercise: true },
     });
+    if (session.teamSessionId) await detachFromTeam(this.prisma, [session.id]);
     this.notifications.coachEditedSession(session.id, "changed");
     return (await this.maxes.withResolvedLoads([created], session.cycle.athleteId))[0];
   }
@@ -606,7 +613,7 @@ export class SessionsService {
       blockId,
     });
 
-    await this.prisma.$transaction(async (tx) => {
+    await detachIfChanged(this.prisma, session, () => this.prisma.$transaction(async (tx) => {
       if (removed.length > 0) await tx.sessionExercise.deleteMany({ where: { id: { in: removed.map((e) => e.id) } } });
       const keepBlocks = cleaned.map((b) => b.id).filter((x): x is string => Boolean(x));
       // Sus ejercicios quedan sueltos (ON DELETE SET NULL) y se reubican abajo.
@@ -626,7 +633,7 @@ export class SessionsService {
         for (const ex of blocks[index].exercises) await place(ex, saved.id);
       }
       for (const ex of loose) await place(ex, null);
-    });
+    }));
 
     this.notifications.coachEditedSession(session.id, "changed");
     const saved = await this.prisma.trainingSession.findUniqueOrThrow({
@@ -669,7 +676,7 @@ export class SessionsService {
           ? { targetWeight: dto.targetWeight, targetPercentRm: null }
           : {};
 
-    const updated = await this.prisma.sessionExercise.update({
+    const updated = await detachIfChanged(this.prisma, sessionExercise.session, () => this.prisma.sessionExercise.update({
       where: { id: sessionExercise.id },
       data: {
         ...(dto.targetSets !== undefined ? { targetSets: dto.targetSets } : {}),
@@ -680,7 +687,7 @@ export class SessionsService {
         ...(dto.note !== undefined ? { note: cleanNote(dto.note) } : {}),
       },
       include: { exercise: true },
-    });
+    }));
     this.notifications.coachEditedSession(sessionExercise.sessionId, "changed");
     return (await this.maxes.withResolvedLoads([updated], sessionExercise.session.cycle.athleteId))[0];
   }
@@ -697,6 +704,7 @@ export class SessionsService {
     }
 
     await this.prisma.sessionExercise.delete({ where: { id: sessionExercise.id } });
+    if (sessionExercise.session.teamSessionId) await detachFromTeam(this.prisma, [sessionExercise.sessionId]);
     this.notifications.coachEditedSession(sessionExercise.sessionId, "changed");
   }
 

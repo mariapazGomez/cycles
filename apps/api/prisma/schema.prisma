@@ -289,6 +289,12 @@ model TrainingCycle {
   childCycles     TrainingCycle[]   @relation("CycleContainer")
   sessions        TrainingSession[]
   loadAdjustments LoadAdjustment[]
+
+  // Copia de un ciclo del equipo (CYC-314); nulo en un ciclo propio.
+  teamCycleId String?
+  teamCycle   TeamCycle? @relation(fields: [teamCycleId], references: [id], onDelete: SetNull)
+
+  @@index([teamCycleId])
 }
 
 // Biblioteca de rutinas reutilizables del coach — ver PRD-RutinasYProgramacion.
@@ -302,6 +308,7 @@ model Routine {
   routineExercises RoutineExercise[]
   blocks           RoutineBlock[]
   sessions         TrainingSession[]
+  teamSessions     TeamSession[]
 }
 
 // Tipo de un bloque de trabajo de una rutina o sesión (docs/diseno/sesion-por-bloques).
@@ -390,8 +397,15 @@ model TrainingSession {
   blocks           SessionBlock[]
   feedback         SessionFeedback[]
 
+  // Copia enlazada de una sesión del equipo. Con detachedAt, el coach la ajustó para esta persona y
+  // ya no recibe cambios del equipo.
+  teamSessionId String?
+  detachedAt    DateTime?
+  teamSession   TeamSession? @relation(fields: [teamSessionId], references: [id], onDelete: SetNull)
+
   @@unique([cycleId, weekNumber, slotNumber])
   @@index([deletedAt])
+  @@index([teamSessionId])
 }
 
 // Lo que un ejercicio necesita para hacerse. Lista cerrada (ver EQUIPMENT en
@@ -432,11 +446,12 @@ model Exercise {
   isActive              Boolean       @default(true)
   createdAt             DateTime      @default(now())
 
-  creator          User?             @relation(fields: [createdBy], references: [id])
-  sessionExercises SessionExercise[]
-  routineExercises RoutineExercise[]
-  loadAdjustments  LoadAdjustment[]
-  athleteMaxes     AthleteMax[]
+  creator              User?                 @relation(fields: [createdBy], references: [id])
+  sessionExercises     SessionExercise[]
+  routineExercises     RoutineExercise[]
+  loadAdjustments      LoadAdjustment[]
+  athleteMaxes         AthleteMax[]
+  teamSessionExercises TeamSessionExercise[]
 }
 
 // Un bloque de la sesión: copia de los de la rutina al asignarla, editable por sesión.
@@ -482,6 +497,10 @@ model SessionExercise {
   exercise Exercise        @relation(fields: [exerciseId], references: [id])
   block    SessionBlock?   @relation(fields: [blockId], references: [id], onDelete: SetNull)
   logs     ExerciseLog[]
+
+  // De qué ejercicio de la sesión del equipo viene: los cambios se aplican en su lugar.
+  teamSessionExerciseId String?
+  teamSessionExercise   TeamSessionExercise? @relation(fields: [teamSessionExerciseId], references: [id], onDelete: SetNull)
 }
 
 // Quién anotó un RM. «estimated» queda reservado (CYC-306): no hay cálculo automático.
@@ -506,6 +525,7 @@ model Team {
 
   coach   User         @relation("TeamsAsCoach", fields: [coachId], references: [id])
   members TeamMember[]
+  cycles  TeamCycle[]
 
   @@unique([coachId, name])
 }
@@ -523,17 +543,92 @@ model TeamMember {
   @@index([athleteId])
 }
 
+// Ciclo del equipo (CYC-314): el plan maestro. No tiene atleta: cada integrante que lo recibe tiene
+// un ciclo y sesiones normales (copias) enlazados a él.
+model TeamCycle {
+  id        String      @id @default(uuid())
+  teamId    String
+  coachId   String
+  name      String
+  objective String?
+  startDate DateTime
+  endDate   DateTime
+  status    CycleStatus @default(active)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  team     Team            @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  sessions TeamSession[]
+  copies   TrainingCycle[]
+
+  @@index([teamId])
+}
+
+model TeamSession {
+  id            String   @id @default(uuid())
+  teamCycleId   String
+  name          String
+  scheduledDate DateTime
+  routineId     String?
+  createdAt     DateTime @default(now())
+
+  teamCycle TeamCycle             @relation(fields: [teamCycleId], references: [id], onDelete: Cascade)
+  routine   Routine?              @relation(fields: [routineId], references: [id], onDelete: SetNull)
+  blocks    TeamSessionBlock[]
+  exercises TeamSessionExercise[]
+  copies    TrainingSession[]
+
+  @@index([teamCycleId])
+}
+
+model TeamSessionBlock {
+  id            String    @id @default(uuid())
+  teamSessionId String
+  name          String
+  type          BlockType
+  color         String?
+  orderIndex    Int
+  note          String?
+
+  teamSession TeamSession           @relation(fields: [teamSessionId], references: [id], onDelete: Cascade)
+  exercises   TeamSessionExercise[]
+
+  @@index([teamSessionId])
+}
+
+model TeamSessionExercise {
+  id                String  @id @default(uuid())
+  teamSessionId     String
+  blockId           String?
+  exerciseId        String
+  orderIndex        Int
+  targetSets        Int
+  targetReps        Int
+  targetWeight      Float?
+  targetPercentRm   Int?
+  targetRestSeconds Int?
+  targetRir         Int?
+  note              String?
+
+  teamSession TeamSession       @relation(fields: [teamSessionId], references: [id], onDelete: Cascade)
+  block       TeamSessionBlock? @relation(fields: [blockId], references: [id], onDelete: SetNull)
+  exercise    Exercise          @relation(fields: [exerciseId], references: [id])
+  copies      SessionExercise[]
+
+  @@index([teamSessionId])
+}
+
 model AthleteMax {
-  id           String    @id @default(uuid())
-  athleteId    String
-  exerciseId   String
-  weightKg     Float
-  measuredAt   DateTime
-  createdAt    DateTime  @default(now())
-  source       MaxSource
-  recordedById String
+  id                    String    @id @default(uuid())
+  athleteId             String
+  exerciseId            String
+  weightKg              Float
+  measuredAt            DateTime
+  createdAt             DateTime  @default(now())
+  source                MaxSource
+  recordedById          String
   // Solo para «estimated» (reservado).
-  basedOnLogId String?
+  basedOnLogId          String?
   // Solo para «estimated»: la serie con la que el coach calculó el RM aproximado (Epley).
   // El RM guardado es weightKg; estos dos solo dejan constancia de la base del cálculo.
   estimatedFromWeightKg Float?

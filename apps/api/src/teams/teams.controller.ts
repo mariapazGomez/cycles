@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Patch, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 import { RolesGuard } from "../common/guards/roles.guard";
 import { Roles } from "../common/decorators/roles.decorator";
 import { AuthenticatedUser, CurrentUser } from "../common/decorators/current-user.decorator";
 import { TeamsService } from "./teams.service";
+import { TodayQueryDto } from "../team-cycles/dto/team-cycle.dto";
 import { AddTeamMembersDto, CreateTeamDto, RenameTeamDto } from "./dto/team.dto";
 
 // Equipos del coach (CYC-309). Solo web del coach: el atleta no ve equipos.
@@ -35,8 +36,8 @@ export class TeamsController {
 
   @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@CurrentUser() user: AuthenticatedUser, @Param("id", ParseUUIDPipe) id: string) {
-    await this.teams.remove(user.id, id);
+  async remove(@CurrentUser() user: AuthenticatedUser, @Param("id", ParseUUIDPipe) id: string, @Query() q: TodayQueryDto) {
+    await this.teams.remove(user.id, id, q.today);
   }
 
   @Post(":id/members")
@@ -50,7 +51,8 @@ export class TeamsController {
     @CurrentUser() user: AuthenticatedUser,
     @Param("id", ParseUUIDPipe) id: string,
     @Param("athleteId", ParseUUIDPipe) athleteId: string,
+    @Query() q: TodayQueryDto,
   ) {
-    await this.teams.removeMember(user.id, id, athleteId);
+    await this.teams.removeMember(user.id, id, athleteId, q.today);
   }
 }

@@ -1,5 +1,6 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { TeamCyclesService } from "../team-cycles/team-cycles.service";
 
 // Cuántos atletas trae la lista de equipos para el apilado de avatares.
 const PREVIEW_MEMBERS = 5;
@@ -9,7 +10,10 @@ const PREVIEW_MEMBERS = 5;
 // (relación activa o pendiente). Quitar un atleta o eliminar un equipo no borra nada del atleta.
 @Injectable()
 export class TeamsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly teamCycles: TeamCyclesService,
+  ) {}
 
   private async ownedTeam(coachId: string, teamId: string) {
     const team = await this.prisma.team.findFirst({ where: { id: teamId, coachId } });
@@ -108,8 +112,10 @@ export class TeamsService {
   }
 
   // Borra el equipo y sus filas de TeamMember (en cascada); los atletas no se tocan.
-  async remove(coachId: string, teamId: string) {
+  async remove(coachId: string, teamId: string, today?: string) {
     await this.ownedTeam(coachId, teamId);
+    // Antes de borrar: se quitan las sesiones futuras de sus ciclos de equipo (misma regla que al sacar a alguien).
+    await this.teamCycles.releaseTeam(teamId, today);
     await this.prisma.team.delete({ where: { id: teamId } });
   }
 
@@ -118,11 +124,16 @@ export class TeamsService {
     await this.ownedTeam(coachId, teamId);
     const ids = await this.assertOwnAthletes(coachId, athleteIds);
     await this.prisma.teamMember.createMany({ data: ids.map((athleteId) => ({ teamId, athleteId })), skipDuplicates: true });
-    return this.detail(coachId, teamId);
+    // Si hay ciclos del equipo vigentes o futuros, la web pregunta si se les asignan.
+    return { ...(await this.detail(coachId, teamId)), pendingTeamCycles: await this.teamCycles.pendingFor(teamId) };
   }
 
-  async removeMember(coachId: string, teamId: string, athleteId: string) {
+  async removeMember(coachId: string, teamId: string, athleteId: string, today?: string) {
     await this.ownedTeam(coachId, teamId);
+    if (!(await this.prisma.teamMember.findUnique({ where: { teamId_athleteId: { teamId, athleteId } } }))) {
+      throw new NotFoundException("Ese atleta no está en el equipo.");
+    }
+    await this.teamCycles.releaseMember(teamId, athleteId, today);
     const { count } = await this.prisma.teamMember.deleteMany({ where: { teamId, athleteId } });
     if (count === 0) throw new NotFoundException("Ese atleta no está en el equipo.");
   }
