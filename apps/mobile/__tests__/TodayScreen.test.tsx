@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import { TodayScreen } from '../src/screens/TodayScreen';
-import { fetchToday, fetchWeeklySummary } from '../src/services/executionApi';
-import { fetchCycles } from '../src/services/planApi';
+import { fetchToday, fetchTodayCycles, fetchWeeklySummary, startSession } from '../src/services/executionApi';
+import { fetchCycles, fetchSessionDetail } from '../src/services/planApi';
 import { fetchNotifications, markNotificationRead } from '../src/services/notificationsApi';
 import { fetchEvents } from '../src/services/eventsApi';
 import { toLocalDay } from '../src/utils/planCalendar';
@@ -16,8 +16,8 @@ jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
 }));
 jest.mock('../src/services/tokenStore', () => ({ tokenStore: { getAccessToken: jest.fn(), getRefreshToken: jest.fn() } }));
-jest.mock('../src/services/executionApi', () => ({ fetchToday: jest.fn(), startSession: jest.fn(), fetchWeeklySummary: jest.fn() }));
-jest.mock('../src/services/planApi', () => ({ fetchCycles: jest.fn() }));
+jest.mock('../src/services/executionApi', () => ({ fetchToday: jest.fn(), fetchTodayCycles: jest.fn(), startSession: jest.fn(), fetchWeeklySummary: jest.fn() }));
+jest.mock('../src/services/planApi', () => ({ fetchCycles: jest.fn(), fetchSessionDetail: jest.fn() }));
 jest.mock('../src/services/notificationsApi', () => ({ fetchNotifications: jest.fn(), markNotificationRead: jest.fn() }));
 jest.mock('../src/services/eventsApi', () => ({ fetchEvents: jest.fn() }));
 jest.mock('../src/store/RestTimerContext', () => ({
@@ -29,6 +29,7 @@ let mockUser: { email: string; hasActiveCoach?: boolean } = { email: 'v@example.
 jest.mock('../src/store/AuthContext', () => ({ useAuth: () => ({ user: mockUser }) }));
 
 const fetchTodayMock = fetchToday as jest.Mock;
+const byCycleMock = fetchTodayCycles as jest.Mock;
 const weeklyMock = fetchWeeklySummary as jest.Mock;
 const { weeklySummaryFixture } = require('../../../packages/shared/src/fixtures/weeklySummary');
 const fetchCyclesMock = fetchCycles as jest.Mock;
@@ -66,6 +67,114 @@ beforeEach(() => {
   notificationsMock.mockResolvedValue([]);
   eventsMock.mockResolvedValue([]);
   markReadMock.mockResolvedValue(undefined);
+  byCycleMock.mockReset();
+  byCycleMock.mockResolvedValue({ cycles: [] });
+});
+
+describe('Hoy con dos ciclos a la vez (CYC-314)', () => {
+  const exercise = (id: string, name: string, logs: unknown[] = []) => ({
+    id, sessionId: 's', exerciseId: id, orderIndex: 1, targetSets: 1, targetReps: 8, logs, exercise: { id, name, equipment: [], isActive: true },
+  });
+  const cycleSession = (id: string, name: string, over: object = {}) => ({
+    ...session(id, name, 1),
+    scheduledDate: `${toLocalDay(new Date())}T00:00:00.000Z`,
+    sessionExercises: [exercise(`${id}-1`, `Primero de ${name}`), exercise(`${id}-2`, `Segundo de ${name}`)],
+    ...over,
+  });
+  const entry = (name: string, over: object = {}) => ({ cycle: { id: name, name, currentWeek: 2 }, pending: [], upcoming: false, done: [], ...over });
+  const startMock = startSession as jest.Mock;
+  const button = (tree: ReactTestRenderer.ReactTestRenderer, label: string) =>
+    tree.root.find(n => n.props.accessibilityLabel === label && typeof n.props.onPress === 'function');
+  const all = (tree: ReactTestRenderer.ReactTestRenderer) =>
+    tree.root.findAll(n => (n.type as unknown) === 'Text').map(n => [n.props.children].flat(Infinity).join('')).join(' | ');
+
+  beforeEach(() => {
+    fetchTodayMock.mockResolvedValue(payload(session('a', 'Torso', 1), []));
+    startMock.mockResolvedValue({});
+  });
+
+  test('pide los ciclos con el día local y desde el inicio de ese día', async () => {
+    await mount();
+    const [date, since] = byCycleMock.mock.calls[0];
+    expect(date).toBe(toLocalDay(new Date()));
+    const now = new Date();
+    expect(since).toBe(new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString());
+  });
+
+  test('dos pendientes: una tarjeta por ciclo con su nombre, sin lista de ejercicios', async () => {
+    byCycleMock.mockResolvedValue({ cycles: [entry('Fuerza base', { pending: [cycleSession('a', 'Torso')] }), entry('Rehabilitación', { pending: [cycleSession('b', 'Movilidad')] })] });
+    const tree = await mount();
+    const t = all(tree);
+    ['Fuerza base', 'Rehabilitación', 'Torso', 'Movilidad', 'Semana 2'].forEach(x => expect(t).toContain(x));
+    expect(t).not.toContain('Primero de Torso');
+    expect(button(tree, 'Iniciar rutina, Fuerza base')).toBeTruthy();
+    expect(button(tree, 'Iniciar rutina, Rehabilitación')).toBeTruthy();
+    expect(t).toContain('Pausas automáticas');
+  });
+
+  test('iniciar la segunda empieza esa sesión y abre su primer ejercicio', async () => {
+    const first = cycleSession('a', 'Torso');
+    const second = cycleSession('b', 'Movilidad');
+    byCycleMock.mockResolvedValueOnce({ cycles: [entry('Fuerza base', { pending: [first] }), entry('Rehabilitación', { pending: [second] })] });
+    byCycleMock.mockResolvedValue({ cycles: [entry('Fuerza base', { pending: [first] }), entry('Rehabilitación', { pending: [{ ...second, startedAt: new Date().toISOString() }] })] });
+    const tree = await mount();
+    await ReactTestRenderer.act(async () => {
+      await button(tree, 'Iniciar rutina, Rehabilitación').props.onPress();
+    });
+    expect(startMock).toHaveBeenCalledWith('b');
+    expect(navigateMock).toHaveBeenCalledWith('ExerciseLog', { sessionExercise: expect.objectContaining({ id: 'b-1' }) });
+    const t = all(tree);
+    expect(t).toContain('Continuar: Primero de Movilidad');
+    expect(t).toContain('Segundo de Movilidad');
+    expect(t).toContain('Para hoy, 2 ejercicios');
+  });
+
+  test('«Ver» muestra la otra sesión con sus ejercicios y su botón', async () => {
+    byCycleMock.mockResolvedValue({ cycles: [entry('Fuerza base', { pending: [cycleSession('a', 'Torso', { startedAt: new Date().toISOString() })] }), entry('Rehabilitación', { pending: [cycleSession('b', 'Movilidad')] })] });
+    const tree = await mount();
+    expect(all(tree)).toContain('Primero de Torso');
+    await ReactTestRenderer.act(async () => {
+      button(tree, 'Ver Movilidad, Rehabilitación').props.onPress();
+    });
+    const t = all(tree);
+    expect(t).toContain('Primero de Movilidad');
+    expect(t).not.toContain('Primero de Torso');
+    expect(button(tree, 'Iniciar rutina, Rehabilitación')).toBeTruthy();
+    expect(button(tree, 'Ver Torso, Fuerza base')).toBeTruthy();
+  });
+
+  test('una atrasada se muestra como «Pendiente: …» y una hecha se puede compartir', async () => {
+    byCycleMock.mockResolvedValue({
+      cycles: [
+        entry('Fuerza base', { pending: [cycleSession('v', 'Piernas', { scheduledDate: '2020-01-06T00:00:00.000Z' })] }),
+        entry('Rehabilitación', { done: [{ id: 'z', name: 'Movilidad', weekNumber: 1, slotNumber: 1, exercises: { done: 2, total: 2 } }] }),
+      ],
+    });
+    (fetchSessionDetail as jest.Mock).mockResolvedValue({ name: 'Movilidad', startedAt: null, sessionExercises: [] });
+    const tree = await mount();
+    const t = all(tree);
+    expect(t).toContain('Pendiente: Piernas');
+    expect(t).toContain('Hecha hoy');
+    await ReactTestRenderer.act(async () => {
+      await button(tree, 'Compartir Movilidad, Rehabilitación').props.onPress();
+    });
+    expect(fetchSessionDetail).toHaveBeenCalledWith('z');
+    expect(navigateMock).toHaveBeenCalledWith('ShareSession', expect.objectContaining({ name: 'Movilidad' }));
+  });
+
+  test('con un solo ciclo «Hoy» queda como siempre', async () => {
+    byCycleMock.mockResolvedValue({ cycles: [entry('Fuerza base', { pending: [cycleSession('a', 'Torso')] })] });
+    const t = all(await mount());
+    expect(t).toContain('Iniciar rutina');
+    expect(t).not.toContain('Fuerza base');
+  });
+
+  test('si el pedido nuevo falla, «Hoy» queda como siempre', async () => {
+    byCycleMock.mockRejectedValue(new ApiError(404, 'no existe'));
+    const t = all(await mount());
+    expect(t).toContain('Torso');
+    expect(t).not.toContain('No pudimos cargar');
+  });
 });
 
 test('pide Hoy con el día local del atleta', async () => {
