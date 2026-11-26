@@ -169,6 +169,10 @@ async function borrarDemo() {
     await tx.sessionBlock.deleteMany({ where: { session: sesiones } });
     await tx.trainingSession.deleteMany({ where: sesiones });
     await tx.trainingCycle.deleteMany({ where: ciclos });
+    // Sus equipos, antes que sus ejercicios y su cuenta; con cada uno caen en cascada sus ciclos de
+    // equipo y sus eventos (CYC-317).
+    await tx.teamMember.deleteMany({ where: { OR: [{ athleteId: { in: ids } }, { team: { coachId: { in: ids } } }] } });
+    await tx.team.deleteMany({ where: { coachId: { in: ids } } });
     await tx.routineExercise.deleteMany({ where: { routine: { coachId: { in: ids } } } });
     await tx.routineBlock.deleteMany({ where: { routine: { coachId: { in: ids } } } });
     await tx.routine.deleteMany({ where: { coachId: { in: ids } } });
