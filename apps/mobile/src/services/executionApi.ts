@@ -1,4 +1,4 @@
-import type { SessionFeedback, SessionOutcome, TodaySession, TrainingSession, WeeklySummary } from '@cycles/shared';
+import type { SessionFeedback, SessionOutcome, TodayCycleEntry, TodaySession, TrainingSession, WeeklySummary } from '@cycles/shared';
 import { apiRequest } from './httpClient';
 
 // `date` es el día local del atleta (AAAA-MM-DD): el servidor no conoce su
@@ -10,6 +10,12 @@ export function fetchToday(opts: { date?: string; sessionId?: string } = {}) {
     .map(([key, value]) => `${key}=${encodeURIComponent(value as string)}`)
     .join('&');
   return apiRequest<TodaySession | null>(`/me/today${params ? `?${params}` : ''}`);
+}
+
+// Un bloque por ciclo, para «Hoy» con dos ciclos a la vez (CYC-314). `date` y `since` describen
+// el día local del atleta.
+export function fetchTodayCycles(date: string, since: string) {
+  return apiRequest<{ cycles: TodayCycleEntry[] }>(`/me/today/cycles?date=${date}&since=${encodeURIComponent(since)}`);
 }
 
 // El coach define cuántas sesiones por semana; el atleta elige el día de cada

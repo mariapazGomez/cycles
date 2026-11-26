@@ -198,3 +198,19 @@ export interface TodaySession {
     slotNumber: number;
   }>;
 }
+
+// Lo que devuelve GET /me/today/cycles (CYC-314): una entrada por ciclo con lo que queda por
+// hacer (las en curso y las del día; si no hay, la siguiente pendiente) y lo ya hecho hoy.
+export interface TodayCycleEntry {
+  cycle: TodaySession["cycle"];
+  pending: TodaySession["session"][];
+  // La de `pending` tiene un día que aún no llega: se muestra como «Próxima».
+  upcoming: boolean;
+  done: Array<{
+    id: string;
+    name: string;
+    weekNumber: number;
+    slotNumber: number;
+    exercises: { done: number; total: number };
+  }>;
+}
