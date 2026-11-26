@@ -1,17 +1,18 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useQueries } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import type { TeamAthlete } from "../../services/teamsApi";
 import type { TrainingCycle } from "@cycles/shared";
 import { loadAthleteSessions } from "../../services/boardApi";
-import { getAthleteEvents } from "../../services/eventsApi";
+import { getTeamCalendar } from "../../services/teamEventsApi";
+import { hourLabel, TYPE_COLOR } from "../../lib/teamEvents";
 import { calendarWeek, monthGrid, monthOf, monthRange, monthTitle, shiftMonth, startOfWeek, addDays, shortDate, WEEKDAY_SHORT, type CalendarDay } from "../../lib/eventCalendar";
 import { eventLines, gmtLabel, sessionBadge, sessionCards, type MemberEvents, type MemberSessions } from "../../lib/teamCalendar";
 import { initialsOf } from "../../lib/teams";
 import type { BoardSession } from "../../lib/weekBoard";
 
 type Mode = "week" | "month";
-type TypeFilter = "all" | "sessions" | "events";
+type TypeFilter = "all" | "sessions" | "team" | "events";
 
 const WEEK_LETTERS = ["L", "M", "M", "J", "V", "S", "D"];
 
@@ -31,7 +32,7 @@ function Mark({ sessions, isToday }: { sessions: BoardSession[]; isToday: boolea
 // Calendario del equipo: cuadrícula mensual (vista inicial) o semana por atleta. Las sesiones del
 // equipo dicen cuántos atletas las hicieron; lo que agregaron los atletas va en una línea por tipo
 // (sin sus notas, R7).
-export function TeamCalendar({ athletes, cycles, todayIso }: { athletes: TeamAthlete[]; cycles: TrainingCycle[]; todayIso: string }) {
+export function TeamCalendar({ teamId, athletes, cycles, todayIso }: { teamId: string; athletes: TeamAthlete[]; cycles: TrainingCycle[]; todayIso: string }) {
   // En pantalla angosta el calendario abre por semana (una fila por atleta), como en el diseño.
   const [mode, setMode] = useState<Mode>(() => (window.matchMedia("(max-width: 760px)").matches ? "week" : "month"));
   const [anchor, setAnchor] = useState(todayIso);
@@ -50,20 +51,17 @@ export function TeamCalendar({ athletes, cycles, todayIso }: { athletes: TeamAth
       staleTime: 60_000,
     })),
   });
-  const eventQueries = useQueries({
-    queries: members.map((a) => ({
-      queryKey: ["athletes", a.id, "events", range.from, range.to],
-      queryFn: () => getAthleteEvents(a.id, range.from, range.to),
-      staleTime: 60_000,
-    })),
-  });
+  // Los eventos del equipo y lo que agregaron sus atletas, en una sola consulta (CYC-319).
+  const calendarQuery = useQuery({ queryKey: ["teams", teamId, "calendar", range.from, range.to], queryFn: () => getTeamCalendar(teamId, range.from, range.to), staleTime: 60_000 });
 
-  const loading = sessionQueries.some((q) => q.isLoading) || eventQueries.some((q) => q.isLoading);
-  const failed = sessionQueries.some((q) => q.isError) || eventQueries.some((q) => q.isError);
+  const loading = sessionQueries.some((q) => q.isLoading) || calendarQuery.isLoading;
+  const failed = sessionQueries.some((q) => q.isError) || calendarQuery.isError;
   const memberSessions: MemberSessions[] = members.map((a, i) => ({ athleteId: a.id, sessions: sessionQueries[i]?.data ?? [] }));
-  const memberEvents: MemberEvents[] = members.map((a, i) => ({ athleteId: a.id, athleteName: a.name, events: eventQueries[i]?.data?.events ?? [] }));
-  const showSessions = typeFilter !== "events";
-  const showEvents = typeFilter !== "sessions";
+  const memberEvents: MemberEvents[] = members.map((a) => ({ athleteId: a.id, athleteName: a.name, events: (calendarQuery.data?.athleteEvents ?? []).filter((e) => e.athleteId === a.id) }));
+  const teamEvents = calendarQuery.data?.teamEvents ?? [];
+  const showSessions = typeFilter === "all" || typeFilter === "sessions";
+  const showTeamEvents = typeFilter === "all" || typeFilter === "team";
+  const showEvents = typeFilter === "all" || typeFilter === "events";
 
   function move(delta: number) {
     if (mode === "week") return setAnchor(addDays(anchor, delta * 7));
@@ -84,6 +82,7 @@ export function TeamCalendar({ athletes, cycles, todayIso }: { athletes: TeamAth
           <select id="tms-type" className="tms-filter" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}>
             <option value="all">Todos los tipos</option>
             <option value="sessions">Sesiones</option>
+            <option value="team">Eventos del equipo</option>
             <option value="events">Actividades de los atletas</option>
           </select>
           <label className="sr-only" htmlFor="tms-person">
@@ -146,6 +145,7 @@ export function TeamCalendar({ athletes, cycles, todayIso }: { athletes: TeamAth
                   {row.map((day: CalendarDay) => {
                     const isToday = day.iso === todayIso;
                     const cards = showSessions && day.inMonth ? sessionCards(memberSessions, day.iso) : [];
+                    const own = showTeamEvents && day.inMonth ? teamEvents.filter((e) => e.date === day.iso) : [];
                     const lines = showEvents && day.inMonth ? eventLines(memberEvents, day.iso) : [];
                     return (
                       <td key={day.iso} className={day.inMonth ? undefined : "tms-out"}>
@@ -170,6 +170,15 @@ export function TeamCalendar({ athletes, cycles, todayIso }: { athletes: TeamAth
                             </Link>
                           );
                         })}
+                        {own.map((event) => (
+                          <Link key={event.seriesId} className="tms-card" to={`/equipos/${teamId}/eventos?semana=${event.date}`} title={`${event.title}: ${hourLabel(event)}`}>
+                            <span className="tms-card-name">
+                              <i aria-hidden="true" style={{ background: TYPE_COLOR[event.type] }} />
+                              {event.title}
+                            </span>
+                            <span className="tms-pill tme-pill-team">Equipo</span>
+                          </Link>
+                        ))}
                         {lines.map((line) => (
                           <p key={line} className="tms-line">
                             {line}

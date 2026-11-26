@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import type { RankingPeriod } from "@cycles/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as teamsApi from "../services/teamsApi";
 import * as athletesApi from "../services/athletesApi";
@@ -21,10 +22,15 @@ import { CreateTeamDialog } from "../components/teams/CreateTeamDialog";
 import { AddAthletesDialog } from "../components/teams/AddAthletesDialog";
 import { RenameTeamDialog } from "../components/teams/RenameTeamDialog";
 import { DeleteTeamDialog } from "../components/teams/DeleteTeamDialog";
+import { TeamEventsView } from "../components/teams/events/TeamEventsView";
+import { TeamEventDialog } from "../components/teams/events/TeamEventDialog";
+import { TeamRankingsView } from "../components/teams/events/TeamRankingsView";
 import { toLocalDay } from "../lib/calendar";
+import { addDays, shiftWeek, startOfWeek } from "../lib/eventCalendar";
+import { weekTitle } from "../lib/teamEvents";
 import { athletesCount } from "../lib/teams";
 
-type Dialog = "create" | "athletes" | "add" | "rename" | "delete" | "routine" | "cycle" | "join" | null;
+type Dialog = "create" | "athletes" | "add" | "rename" | "delete" | "routine" | "cycle" | "join" | "event" | null;
 
 const COLLAPSED_KEY = "cycles.teams.sidebar-collapsed";
 
@@ -36,9 +42,13 @@ function readCollapsed(): boolean {
   }
 }
 
-const TOOL_TITLE: Record<TeamTool, string> = { calendario: "Calendario", ciclos: "Ciclos" };
+const TOOL_TITLE: Record<TeamTool, string> = { calendario: "Calendario", ciclos: "Ciclos", eventos: "Eventos", rankings: "Rankings" };
+const PERIODS: { id: RankingPeriod; label: string }[] = [
+  { id: "weeks4", label: "Últimas 4 semanas" },
+  { id: "cycle", label: "Este ciclo" },
+];
 
-// Pestaña Equipos (CYC-318, docs/diseno/equipos-sidebar): un sidebar con el selector del equipo y
+// Pestaña Equipos (CYC-318 y CYC-319, docs/diseno/equipos-sidebar): un sidebar con el selector del equipo y
 // las herramientas. `/equipos` abre el primer equipo en Calendario.
 export function TeamsWorkspace() {
   usePageBackground();
@@ -49,6 +59,12 @@ export function TeamsWorkspace() {
   const [dialog, setDialog] = useState<Dialog>(null);
   const [collapsed, setCollapsed] = useState(readCollapsed);
   const todayIso = toLocalDay(new Date());
+  // La semana de Eventos va en la dirección: el calendario puede abrir la de un evento.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const asked = searchParams.get("semana") ?? "";
+  const eventsWeek = /^\d{4}-\d{2}-\d{2}$/.test(asked) && !Number.isNaN(Date.parse(asked)) ? asked : todayIso;
+  const showWeek = (iso: string) => setSearchParams({ semana: iso }, { replace: true });
+  const [period, setPeriod] = useState<RankingPeriod>("weeks4");
 
   // El sidebar recuerda si quedó contraído.
   useEffect(() => {
@@ -72,7 +88,7 @@ export function TeamsWorkspace() {
   if (teamsQuery.isLoading) return <LoadingScreen />;
   if (teamsQuery.isError) return <div className="error-banner">No se pudieron cargar tus equipos.</div>;
 
-  const activeTool: TeamTool = tool === "ciclos" ? "ciclos" : "calendario";
+  const activeTool: TeamTool = tool !== undefined && Object.keys(TOOL_TITLE).includes(tool) ? (tool as TeamTool) : "calendario";
   // «/equipos», un equipo borrado o una herramienta que no existe: al primero, en Calendario.
   if (teams.length > 0 && (!id || !known)) return <Navigate to={`/equipos/${teams[0].id}/calendario`} replace />;
   if (teams.length > 0 && id && tool !== activeTool) return <Navigate to={`/equipos/${id}/${activeTool}`} replace />;
@@ -122,16 +138,40 @@ export function TeamsWorkspace() {
             <header className="tms-head">
               <h1 className="tms-title">{TOOL_TITLE[activeTool]}</h1>
               <div className="tms-head-actions">
-                {activeTool === "calendario" ? (
+                {activeTool === "calendario" && (
                   <button type="button" className="tms-primary" disabled={team.athletes.length === 0} onClick={() => setDialog("routine")}>
                     Agregar rutina
                   </button>
-                ) : (
-                  shownCycle && (
-                    <button type="button" className="tms-btn" onClick={() => setDialog("cycle")}>
-                      Agregar ciclo
+                )}
+                {activeTool === "ciclos" && shownCycle && (
+                  <button type="button" className="tms-btn" onClick={() => setDialog("cycle")}>
+                    Agregar ciclo
+                  </button>
+                )}
+                {activeTool === "eventos" && (
+                  <>
+                    <div className="tme-weeknav">
+                      <button type="button" className="tms-btn" aria-label="Semana anterior" onClick={() => showWeek(shiftWeek(eventsWeek, -1))}>
+                        ‹
+                      </button>
+                      <span aria-live="polite">{weekTitle(eventsWeek)}</span>
+                      <button type="button" className="tms-btn" aria-label="Semana siguiente" onClick={() => showWeek(shiftWeek(eventsWeek, 1))}>
+                        ›
+                      </button>
+                    </div>
+                    <button type="button" className="tms-primary" onClick={() => setDialog("event")}>
+                      Agregar evento
                     </button>
-                  )
+                  </>
+                )}
+                {activeTool === "rankings" && (
+                  <div className="tms-seg" role="group" aria-label="Período">
+                    {PERIODS.map((p) => (
+                      <button key={p.id} type="button" aria-pressed={period === p.id} onClick={() => setPeriod(p.id)}>
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
                 )}
                 <button type="button" className="tms-btn" onClick={() => setDialog("athletes")}>
                   {athletesCount(team.athletes.length)}
@@ -147,7 +187,11 @@ export function TeamsWorkspace() {
             </header>
 
             {activeTool === "calendario" ? (
-              <TeamCalendar key={team.id} athletes={team.athletes} cycles={cyclesQuery.data ?? []} todayIso={todayIso} />
+              <TeamCalendar key={team.id} teamId={team.id} athletes={team.athletes} cycles={cyclesQuery.data ?? []} todayIso={todayIso} />
+            ) : activeTool === "eventos" ? (
+              <TeamEventsView key={team.id} team={team} cycles={cyclesQuery.data ?? []} anchor={eventsWeek} />
+            ) : activeTool === "rankings" ? (
+              <TeamRankingsView teamId={team.id} memberCount={team.athletes.length} period={period} />
             ) : teamCyclesQuery.isError ? (
               <div className="error-banner">No se pudieron cargar los ciclos del equipo.</div>
             ) : !teamCyclesQuery.data ? (
@@ -189,6 +233,18 @@ export function TeamsWorkspace() {
       )}
       {team && dialog === "join" && joining && <JoinTeamCycleDialog team={team} joining={joining} today={todayIso} onClose={() => setDialog(null)} />}
       {team && dialog === "routine" && <TeamRoutineFlow teamId={team.id} onClose={() => setDialog(null)} />}
+      {team && dialog === "event" && (
+        <TeamEventDialog
+          team={team}
+          // Hoy si se está mirando esta semana; si no, el lunes de la que se mira.
+          initialDate={todayIso >= startOfWeek(eventsWeek) && todayIso <= addDays(startOfWeek(eventsWeek), 6) ? todayIso : startOfWeek(eventsWeek)}
+          onClose={() => setDialog(null)}
+          onSaved={(saved) => {
+            setDialog(null);
+            showWeek(saved.date);
+          }}
+        />
+      )}
       {team && dialog === "cycle" && (
         <NewTeamCycleDialog
           team={team}

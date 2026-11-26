@@ -45,7 +45,9 @@ export type NoveltyDemoId =
   | "two-cycles-today"
   | "two-cycles-start"
   // Ciclo del equipo (CYC-314): web del coach.
-  | "team-cycle";
+  | "team-cycle"
+  // Eventos del equipo (CYC-319): web del coach.
+  | "team-events";
 
 export interface NoveltySlide {
   title: string;
@@ -347,6 +349,24 @@ export const NOVELTIES: Novelty[] = [
         text: "Pon las sesiones una vez en el calendario del equipo y llegan a cada integrante.",
         demoLabel: "Una sesión del equipo llega a cuatro atletas.",
         demo: "team-cycle",
+      },
+    ],
+  },
+  {
+    key: "coach-team-events",
+    version: 1,
+    since: "2026-11-26",
+    platforms: ["web"],
+    roles: ["coach"],
+    name: "Eventos del equipo",
+    slides: [
+      {
+        title: "Crea eventos para todo el equipo",
+        // El diseño cierra con «y cada atleta lo ve en su calendario»; el atleta aún no tiene
+        // pantalla para verlos (web en tarjeta aparte, app en CYC-322).
+        text: "Agrega un partido o un viaje una vez y queda en el calendario del equipo.",
+        demoLabel: "Un partido se agrega una vez y aparece para todo el equipo.",
+        demo: "team-events",
       },
     ],
   },

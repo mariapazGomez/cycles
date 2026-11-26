@@ -438,6 +438,25 @@ function TeamCycleDemo() {
   );
 }
 
+function TeamEventsDemo() {
+  return (
+    <div className="nd nd-tmc">
+      <div className="nd-tmc-card">
+        <b>Partido de liga</b>
+        <small>Equipo</small>
+      </div>
+      <span className="nd-tmc-arrow">→</span>
+      <div className="nd-tmc-people">
+        {["VS", "CR", "JP", "MV"].map((who, i) => (
+          <span key={who} style={{ animationDelay: `${i * 0.25}s` }}>
+            {who}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function NoveltyDemo({ slide }: { slide: NoveltySlide }) {
   const [ref, width] = useElementWidth<HTMLDivElement>();
   if (slide.video) {
@@ -448,7 +467,7 @@ export function NoveltyDemo({ slide }: { slide: NoveltySlide }) {
     );
   }
   const CycleDemo = slide.demo ? CYCLE_DEMOS[slide.demo] : undefined;
-  const art = CycleDemo ? <CycleDemo /> : slide.demo === "blocks-group" ? <Group /> : slide.demo === "blocks-move" ? <Move /> : slide.demo === "blocks-legacy" ? <Legacy /> : slide.demo === "blocks-page" ? <Page /> : slide.demo === "rm-percent-row" ? <RmPercentRow /> : slide.demo === "rm-athlete-sheet" ? <RmAthleteSheet /> : slide.demo === "rm-multi-add" ? <RmMultiAdd /> : slide.demo === "athlete-rm-percent" ? <AthleteRmPercent /> : slide.demo === "two-cycles-card" ? <TwoCyclesCard /> : slide.demo === "two-cycles-alert" ? <TwoCyclesCard alert /> : slide.demo === "two-cycles-today" ? <TwoCyclesToday /> : slide.demo === "two-cycles-start" ? <TwoCyclesToday start /> : slide.demo === "teams-group" ? <TeamsGroup /> : slide.demo === "teams-create" ? <TeamsCreate /> : slide.demo === "team-cycle" ? <TeamCycleDemo /> : null;
+  const art = CycleDemo ? <CycleDemo /> : slide.demo === "blocks-group" ? <Group /> : slide.demo === "blocks-move" ? <Move /> : slide.demo === "blocks-legacy" ? <Legacy /> : slide.demo === "blocks-page" ? <Page /> : slide.demo === "rm-percent-row" ? <RmPercentRow /> : slide.demo === "rm-athlete-sheet" ? <RmAthleteSheet /> : slide.demo === "rm-multi-add" ? <RmMultiAdd /> : slide.demo === "athlete-rm-percent" ? <AthleteRmPercent /> : slide.demo === "two-cycles-card" ? <TwoCyclesCard /> : slide.demo === "two-cycles-alert" ? <TwoCyclesCard alert /> : slide.demo === "two-cycles-today" ? <TwoCyclesToday /> : slide.demo === "two-cycles-start" ? <TwoCyclesToday start /> : slide.demo === "teams-group" ? <TeamsGroup /> : slide.demo === "teams-create" ? <TeamsCreate /> : slide.demo === "team-cycle" ? <TeamCycleDemo /> : slide.demo === "team-events" ? <TeamEventsDemo /> : null;
   // Escala del escenario al ancho disponible (nunca se agranda ni se recorta).
   const scale = width === 0 ? 1 : Math.min(1, Math.max(0.3, width / STAGE_W));
   return (
