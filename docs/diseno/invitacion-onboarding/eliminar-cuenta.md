@@ -1,6 +1,10 @@
 # Textos de «Eliminar mi cuenta» (CYC-295)
 
-**Propuesta pendiente de aprobación de la usuaria. Sin revisión legal.** Contrastada el 26-11 con `origin/main` (a9d46b4) y con el PR #285, que está abierto.
+**Borrador en pausa: no está listo para aprobar ni publicar. Sin revisión legal.** La usuaria aún no decide si cambia alguno de los comportamientos de abajo (plantillas, ejercicios, avisos y datos de la cuenta anonimizada); el texto no se cierra hasta entonces. En cualquier versión, no debe prometer «sin tu nombre» ni que se borra toda la Biblioteca.
+
+**Frases que dependen de esa decisión:** «tus avisos» (solo se eliminan los que la persona recibió), «tu nombre» en el texto del coach (sigue en avisos de sus atletas), «donde apareces como «Coach eliminado»» y las frases sobre plantillas y ejercicios.
+
+ Contrastada el 26-11 con `origin/main` (a9d46b4) y con el PR #285, que está abierto.
 
 ## Decidido por la usuaria (26-11, trasladado por Organización)
 
@@ -32,7 +36,8 @@ La app es solo para atletas (`AuthContext.startSession` rechaza otros roles): no
 |---|---|
 | Atleta: los planes quedan «sin tu nombre» | La plantilla copia el nombre y el objetivo que escribió el coach. Si incluyen el nombre del atleta, queda. No todos los planes se copian: los que venían de una plantilla y los macrociclos no. |
 | Atleta: «series, cierres de sesión y avisos» | También se eliminan los RM y las actividades paralelas. |
-| Coach: «tus datos personales» | La fila de la cuenta se conserva anonimizada. Quedan datos sin nombre ni correo, como fechas, unidad de peso y estado de la guía. |
+| Coach: «tus datos personales» | La fila de la cuenta se conserva anonimizada. Quedan datos sin nombre ni correo, como las fechas de creación y de último ingreso, la unidad de peso y el estado de la guía. |
+| No menciona los avisos que reciben otras personas | Los avisos del coach guardan el nombre del atleta, y los del atleta el nombre del coach. Al eliminar la cuenta no se borran. La campana solo muestra los de los últimos 30 días, pero la fila se borra recién cuando esa persona recibe un aviso nuevo (o al superar 50); si no llega ninguno, queda guardada sin plazo. |
 | Coach: no menciona equipos ni ejercicios | Se eliminan sus equipos. **Todos** sus ejercicios propios se ocultan y se conservan, los use o no un atleta. |
 
 El perfil de coach se elimina solo con el PR #285. La eliminación de la invitación, que también trae ese PR, sigue **por confirmar** y no se menciona en los textos.
