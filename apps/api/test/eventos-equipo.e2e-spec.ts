@@ -136,4 +136,28 @@ describe("Eventos del equipo", () => {
     expect((await app.http("delete", `/teams/${other}`, coach())).status).toBe(204);
     expect(await app.prisma.teamEvent.count()).toBe(0);
   });
+
+  // Va al final: elimina la cuenta del coach B. La fila queda anonimizada (los planes de sus
+  // atletas apuntan a ella) y sus equipos se borran antes, así que la relación del evento con su
+  // autor no lo impide.
+  it("el coach con eventos puede eliminar su cuenta, y sus equipos y eventos se van con ella", async () => {
+    const b = c.token.coachB;
+    const own = (await app.http("post", "/teams", b).send({ name: "De B", athleteIds: [c.userId.athleteB] })).body.id;
+    expect((await app.http("post", `/teams/${own}/events`, b).send(match())).status).toBe(201);
+    const cycle = await app.http("post", `/teams/${own}/cycles`, b).send({ name: "Ciclo B", athleteIds: [c.userId.athleteB], startDate: day(0), endDate: day(13), today: day(0) });
+    expect(cycle.status).toBe(201);
+    const res = await app.http("delete", "/users/me", b).send({ confirmation: "ELIMINAR" });
+    expect(res.status).toBe(204);
+    expect(await app.prisma.teamEvent.count({ where: { createdById: c.userId.coachB } })).toBe(0);
+    expect(await app.prisma.team.count({ where: { coachId: c.userId.coachB } })).toBe(0);
+    expect(await mine(c.token.athleteB)).toEqual([]);
+  });
+
+  it("el atleta de un equipo con eventos también puede eliminar su cuenta", async () => {
+    await create(match());
+    const res = await app.http("delete", "/users/me", c.token.athleteA).send({ confirmation: "ELIMINAR" });
+    expect(res.status).toBe(204);
+    expect(await app.prisma.teamEvent.count({ where: { teamId } })).toBe(1);
+    expect(await app.prisma.teamMember.count({ where: { athleteId: c.userId.athleteA } })).toBe(0);
+  });
 });
