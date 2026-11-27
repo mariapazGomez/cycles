@@ -27,6 +27,7 @@ import { SocialLoginDto } from "./dto/tokens.dto";
 import { generateJti, generateRawToken, hashToken } from "./token.util";
 import { normalizeEmail } from "../common/validation/normalize-email";
 import { INVITATION_GONE_MESSAGE, InvitationsService } from "../invitations/invitations.service";
+import { CoachProfileService } from "../coach-profile/coach-profile.service";
 import { EmailHistoryService } from "../email-history/email-history.service";
 
 const ACCESS_TOKEN_TTL = "15m";
@@ -79,6 +80,7 @@ export class AuthService {
     private readonly testflight: TestflightService,
     private readonly emailHistory: EmailHistoryService,
     private readonly invitations: InvitationsService,
+    private readonly coachProfiles: CoachProfileService,
   ) {}
 
   // Early adopters: el registro está cerrado salvo que REGISTRATION_OPEN=true.
@@ -134,6 +136,8 @@ export class AuthService {
       ? await this.prisma.$transaction(async (tx) => {
           const created = await tx.user.create({ data: { ...data, emailVerifiedAt: new Date() } });
           await this.invitations.claim(tx, invitation, created.id);
+          // Un coach invitado responde sus preguntas como parte del registro.
+          if (dto.role === "coach") await this.coachProfiles.startAtRegistration(tx, created.id);
           return created;
         })
       : await this.prisma.user.create({ data });

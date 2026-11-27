@@ -31,5 +31,7 @@ export interface User {
   policyAcceptedAt?: string | null;
   policyVersion?: string;
   needsPolicyAcceptance?: boolean;
+  // Preguntas del perfil de coach pendientes (CYC-295): del registro o de la encuesta.
+  coachSurvey?: "register" | "survey" | null;
   createdAt: string;
 }

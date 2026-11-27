@@ -2,11 +2,15 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { TourStatus } from "@prisma/client";
 import { MAX_NEWS_SEEN } from "../common/novelties";
 import { PrismaService } from "../prisma/prisma.service";
+import { CoachProfileService } from "../coach-profile/coach-profile.service";
 import { POLICY_VERSION, policyAcceptanceData } from "../common/policy";
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly coachProfiles: CoachProfileService,
+  ) {}
 
   async findPublicProfile(id: string) {
     const user = await this.prisma.user.findUnique({ where: { id } });
@@ -46,6 +50,8 @@ export class UsersService {
       policyAcceptedAt: accepted?.acceptedAt ?? null,
       policyVersion: POLICY_VERSION,
       needsPolicyAcceptance: !accepted,
+      // ¿Le quedan preguntas del perfil de coach? (CYC-295). La web las pide; la app las ignora.
+      coachSurvey: await this.coachProfiles.pendingFor(user),
       createdAt: user.createdAt,
     };
   }
