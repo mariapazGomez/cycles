@@ -36,6 +36,13 @@ export class RegisterDto {
   @MaxLength(200)
   accessCode?: string;
 
+  // Invitación personal (CYC-295): deja crear la cuenta del correo invitado con
+  // el registro cerrado, sin verificar el correo aparte.
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  invitationToken?: string;
+
   // Solo atletas (CYC-194): qué teléfono usa. Con iPhone se invita a TestFlight al
   // correo del Apple ID, que puede ser distinto del de Cycles y solo se usa para eso.
   @IsOptional()

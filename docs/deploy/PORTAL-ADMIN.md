@@ -21,6 +21,9 @@ Portal independiente, solo para el equipo de desarrollo, en **`admin.getcycles.a
 | `GET /admin/usage?days=7\|30` | Uso desde PostHog por usuario y por pantalla, sin demo. `{ status: "not_connected" }` sin clave; **503** `posthog_error` si PostHog falla. |
 | `GET /admin/access-log` | Últimas 50 consultas. |
 | `GET/POST/PUT/DELETE /admin/emails` | Directorio de correos, editable sin tocar el código. |
+| `GET /admin/invitations` | Una fila por correo que escribió: último mensaje y estado de su invitación, enviadas hoy y tope. Funciona apagado (`enabled: false`). |
+| `POST /admin/invitations` con `{email}` | Envía la invitación, o la deja en cola si el cupo del día está tomado. Sirve para enviar, «Enviar de nuevo» y «Reintentar». Apagado responde **409**. |
+| `DELETE /admin/invitations/:id/queue` | Quita de la cola. |
 | `GET /admin/versions` | Commit de la API, última migración, política vigente y versión de iOS. |
 | `PUT /admin/settings/ios-version` | Versión de la app iOS (a mano; vacío la borra). |
 

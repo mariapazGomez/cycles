@@ -42,6 +42,10 @@ Dos campos: correo y "Cuéntanos quién eres". `POST /contact`, público:
 
 Cada mensaje se guarda en `ContactRequest` (sin IP) y se avisa al canal privado de Slack `#cycles-early-adopters` con el texto escapado (`&`, `<`, `>`). Si Slack falla, el mensaje no se pierde: queda con `slackSentAt` nulo.
 
+### Invitación a registrarse (CYC-295) — API construida y APAGADA
+
+Diseño aprobado en `docs/diseno/invitacion-onboarding/`. `POST /contact` **no cambia**: no crea ni envía nada. El equipo envía desde admin (máximo 15 al día; el resto queda en cola y sale solo entre las 10:00 y las 20:00 de Chile), una invitación por correo, con enlace de un solo uso que vence en 7 días y respuesta a `hola@getcycles.app`. **No encender `INVITATIONS_ENABLED`** hasta que estén publicados el registro por invitación en la web, la pantalla de admin, `/privacidad` 1.6 y los textos nuevos del formulario. La fecha del aviso nuevo (`NEW_CONTACT_NOTICE_SINCE`) se fija al publicarlo.
+
 ## 4. Fuera de alcance (por ahora)
 
 - Reintentar el aviso a Slack de los mensajes con `slackSentAt` nulo.

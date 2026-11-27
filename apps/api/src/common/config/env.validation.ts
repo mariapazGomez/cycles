@@ -74,6 +74,11 @@ export function validateEnv(config: Record<string, unknown>): Record<string, unk
     errors.push(`ACTIVITY_CRON_SECRET debe tener al menos ${MIN_SECRET_LENGTH} caracteres.`);
   }
 
+  // Protege el disparador de la cola de invitaciones (CYC-295).
+  if (value("INVITATIONS_CRON_SECRET") && value("INVITATIONS_CRON_SECRET").length < MIN_SECRET_LENGTH) {
+    errors.push(`INVITATIONS_CRON_SECRET debe tener al menos ${MIN_SECRET_LENGTH} caracteres.`);
+  }
+
   // Historial de correos registrados (CYC-295): para guardarlo hacen falta las dos.
   // La clave no se puede cambiar: el historial guardado dejaría de coincidir.
   const historyKey = value("EMAIL_HISTORY_HMAC_KEY");
