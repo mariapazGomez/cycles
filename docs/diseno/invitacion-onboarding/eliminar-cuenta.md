@@ -1,6 +1,6 @@
 # Textos de «Eliminar mi cuenta» (CYC-295)
 
-**Propuesta pendiente de aprobación de la usuaria. Sin revisión legal.**
+**Textos aprobados por la usuaria (26-11). Sin revisión legal.** Las condiciones de publicación de abajo siguen vigentes.
 
 **Solo vale cuando el PR #286 esté publicado.** Hoy está abierto. Antes de eso estos textos prometerían borrados que no ocurren. Contrastada el 26-11 con su código y con el PR #285, también abierto, sobre `origin/main` (a9d46b4).
 
