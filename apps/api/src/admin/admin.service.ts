@@ -1,3 +1,4 @@
+import { CoachProfileService } from "../coach-profile/coach-profile.service";
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma, UserRole } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
@@ -23,6 +24,7 @@ export class AdminService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly posthog: PosthogService,
+    private readonly coachProfiles: CoachProfileService,
   ) {}
 
   // Cada consulta de datos de personas queda registrada con el correo del token.
@@ -117,6 +119,8 @@ export class AdminService {
       tourStatus: user.tourStatus,
       createdAt: user.createdAt,
       lastLoginAt: user.lastLoginAt,
+      // Sus respuestas del registro o la encuesta (CYC-295); null si no es un coach real.
+      coachProfile: await this.coachProfiles.forAdmin(user),
       athletes: user.coachRelations.map((r) => ({ name: r.athlete.name, status: r.status })),
       coaches: user.athleteRelations.map((r) => ({ name: r.coach.name, status: r.status })),
     };

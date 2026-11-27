@@ -46,6 +46,10 @@ Cada mensaje se guarda en `ContactRequest` (sin IP) y se avisa al canal privado 
 
 Diseño aprobado en `docs/diseno/invitacion-onboarding/`. `POST /contact` **no cambia**: no crea ni envía nada. El equipo envía desde admin (máximo 15 al día; el resto queda en cola y sale solo entre las 10:00 y las 20:00 de Chile), una invitación por correo, con enlace de un solo uso que vence en 7 días y respuesta a `hola@getcycles.app`. **No encender `INVITATIONS_ENABLED`** hasta que estén publicados el registro por invitación en la web, la pantalla de admin, `/privacidad` 1.6 y los textos nuevos del formulario. La fecha del aviso nuevo (`NEW_CONTACT_NOTICE_SINCE`) se fija al publicarlo.
 
+### Perfil del coach (CYC-295) — API construida; encuesta APAGADA
+
+`GET` y `PATCH /users/me/coach-profile` guardan una pregunta por vez; `GET /users/me` dice si quedan pendientes (`coachSurvey`: `register` o `survey`). Un coach que se registra con invitación responde como parte del registro; a las cuentas anteriores solo se les pide con `COACH_SURVEY_ENABLED=true`. **No encenderla** hasta publicar `/privacidad` 1.6 y la encuesta en la web. Las opciones se guardan como claves en español; las preguntas y opciones viven en `apps/api/src/coach-profile/questions.ts`. Sin datos de salud; no van a analítica.
+
 ## 4. Fuera de alcance (por ahora)
 
 - Reintentar el aviso a Slack de los mensajes con `slackSentAt` nulo.

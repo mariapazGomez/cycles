@@ -9,6 +9,7 @@ import { SecurityAlertModule } from "./common/alerts/security-alert.module";
 import { ActivityModule } from "./activity/activity.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { MailModule } from "./mail/mail.module";
+import { CoachProfileModule } from "./coach-profile/coach-profile.module";
 import { InvitationsModule } from "./invitations/invitations.module";
 import { EmailHistoryModule } from "./email-history/email-history.module";
 import { TestflightModule } from "./testflight/testflight.module";
@@ -41,6 +42,7 @@ import { HealthController } from "./health/health.controller";
     MailModule,
     EmailHistoryModule,
     InvitationsModule,
+    CoachProfileModule,
     TestflightModule,
     AuthModule,
     UsersModule,
