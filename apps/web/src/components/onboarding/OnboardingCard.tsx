@@ -82,6 +82,7 @@ export function OnboardingCard({
   transition,
   announce,
   links,
+  overlay,
   children,
 }: {
   stage: ReactNode;
@@ -89,7 +90,10 @@ export function OnboardingCard({
   step: number;
   transition: ReturnType<typeof useStepTransition>;
   announce: string;
+  // Salidas bajo la tarjeta («Mi cuenta», «Cerrar sesión»).
   links?: ReactNode;
+  // Encima de la app, borrosa, como las novedades (la encuesta).
+  overlay?: boolean;
   children: ReactNode;
 }) {
   const card = useRef<HTMLDivElement>(null);
@@ -115,22 +119,27 @@ export function OnboardingCard({
     height.current = card.current?.offsetHeight ?? 0;
   });
 
-  return (
-    <div className="ob-shell">
-      <div className="ob-bg" style={{ backgroundImage: `url(${PATTERNS.a})` }} aria-hidden="true" />
-      <main className="ob-wrap">
-        <div className="ob-card" ref={card}>
-          {stage}
-          <ProgressBar percent={percent} />
-          <div className="ob-slot" ref={transition.slot}>
-            {children}
-          </div>
+  const content = (
+    <>
+      <div className="ob-card" ref={card}>
+        {stage}
+        <ProgressBar percent={percent} />
+        <div className="ob-slot" ref={transition.slot}>
+          {children}
         </div>
-        {links && <div className="ob-links">{links}</div>}
-      </main>
+        {links && <div className="ob-out">{links}</div>}
+      </div>
       <p className="sr-only" role="status">
         {announce}
       </p>
+    </>
+  );
+
+  if (overlay) return <div className="ob-wrap">{content}</div>;
+  return (
+    <div className="ob-shell">
+      <div className="ob-bg" style={{ backgroundImage: `url(${PATTERNS.a})` }} aria-hidden="true" />
+      <main className="ob-wrap">{content}</main>
     </div>
   );
 }

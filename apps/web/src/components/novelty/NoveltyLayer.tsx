@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { noveltyKey, pendingNovelty, visibleSlides, type Novelty } from "@cycles/shared";
 import { useAuth } from "../../hooks/useAuth";
+import { noveltiesWait } from "../../lib/coachGate";
 import { useTour } from "../../hooks/useTour";
 import { useNoveltyConditions } from "../../hooks/useNoveltyConditions";
 import * as tourApi from "../../services/tourApi";
@@ -16,7 +17,7 @@ export function NoveltyLayer() {
   const { user, refreshCurrentUser } = useAuth();
   const { pathname } = useLocation();
   const tour = useTour();
-  const pending = user?.tourNewsSeen && user.coachSurvey !== "register" ? pendingNovelty(user.tourNewsSeen, { role: user.role, platform: "web" }) : null;
+  const pending = user?.tourNewsSeen && !noveltiesWait(user) ? pendingNovelty(user.tourNewsSeen, { role: user.role, platform: "web" }) : null;
   const { ready, conditions } = useNoveltyConditions(Boolean(pending));
   const [shown, setShown] = useState<Novelty | null>(null);
   const [dismissed, setDismissed] = useState<string | null>(null);

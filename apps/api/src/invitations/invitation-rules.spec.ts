@@ -1,4 +1,4 @@
-import { chileHour, expiryFrom, invitationState, purgeBefore, queueDay, queueWindowOpen } from "./invitation-rules";
+import { chileHour, expiryFrom, invitationState, purgeBefore, queueDay, queueWindowOpen, contactNoticeSince } from "./invitation-rules";
 import { pilotInvitationEmail } from "../mail/templates";
 
 // Chile en noviembre está en UTC-3.
@@ -63,5 +63,14 @@ describe("correo de invitación del piloto", () => {
     expect(mail.html).toContain("invitacion=abc&amp;x=%26");
     expect(mail.html).not.toContain("border-radius:999px");
     expect(mail.html).not.toContain("border-radius:16px");
+  });
+});
+
+describe("aviso nuevo del formulario", () => {
+  it("sin fecha o con una ilegible no hay aviso publicado", () => {
+    expect(contactNoticeSince(undefined)).toBeNull();
+    expect(contactNoticeSince("  ")).toBeNull();
+    expect(contactNoticeSince("pronto")).toBeNull();
+    expect(contactNoticeSince("2026-12-01T10:00:00-03:00")?.toISOString()).toBe("2026-12-01T13:00:00.000Z");
   });
 });

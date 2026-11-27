@@ -1,5 +1,5 @@
-import { FINAL_STEP, isBlocked, profileTags, progressOf, QUESTIONS, resumeAt, searchSports, toggle } from "../src/lib/coachQuestions";
-import { needsCoachQuestions } from "../src/lib/coachGate";
+import { FINAL_STEP, isBlocked, profileTags, progressOf, QUESTIONS, resumeAt, searchSports, surveyProgressOf, toggle } from "../src/lib/coachQuestions";
+import { finishSurvey, needsCoachQuestions, noveltiesWait, showsSurvey } from "../src/lib/coachGate";
 
 const q = (id: string) => QUESTIONS.find((x) => x.id === id)!;
 
@@ -57,5 +57,26 @@ describe("registro por pasos (CYC-295)", () => {
     expect(needsCoachQuestions({ coachSurvey: "survey" }, "/")).toBe(false);
     expect(needsCoachQuestions({ coachSurvey: null }, "/")).toBe(false);
     expect(needsCoachQuestions(null, "/")).toBe(false);
+  });
+
+  it("en la encuesta el avance cuenta solo las siete preguntas, como en su diseño", () => {
+    expect(Array.from({ length: FINAL_STEP + 1 }, (_, i) => surveyProgressOf(i))).toEqual([0, 0, 14, 29, 43, 57, 71, 86, 100]);
+  });
+
+  it("la encuesta va encima de la app salvo en «Mi cuenta» y después de aceptar la política", () => {
+    const pending = { coachSurvey: "survey" as const, needsPolicyAcceptance: false };
+    expect(showsSurvey(pending, "/")).toBe(true);
+    expect(showsSurvey(pending, "/equipos")).toBe(true);
+    expect(showsSurvey(pending, "/account")).toBe(false);
+    expect(showsSurvey({ ...pending, needsPolicyAcceptance: true }, "/")).toBe(false);
+    expect(showsSurvey({ coachSurvey: "register" }, "/")).toBe(false);
+    expect(showsSurvey(null, "/")).toBe(false);
+  });
+
+  it("las novedades esperan mientras hay preguntas y, al terminar la encuesta, hasta la próxima carga", () => {
+    expect(noveltiesWait({ coachSurvey: "survey" })).toBe(true);
+    expect(noveltiesWait({ coachSurvey: null })).toBe(false);
+    finishSurvey();
+    expect(noveltiesWait({ coachSurvey: null })).toBe(true);
   });
 });

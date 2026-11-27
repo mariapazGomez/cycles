@@ -5,7 +5,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { MailService } from "../mail/mail.service";
 import { generateRawToken, hashToken } from "../auth/token.util";
 import { chileDate, chileDayRange } from "../activity/chile-time";
-import { DAILY_CAP, expiryFrom, invitationState, InvitationState, NEW_CONTACT_NOTICE_SINCE, purgeBefore, queueDay, queueWindowOpen, STALE_SENDING_MS } from "./invitation-rules";
+import { DAILY_CAP, expiryFrom, invitationState, InvitationState, purgeBefore, queueDay, queueWindowOpen, STALE_SENDING_MS, contactNoticeSince } from "./invitation-rules";
 
 export const SENDING_OFF_MESSAGE = "El envío de invitaciones todavía no está activado.";
 export const INVITATION_GONE_MESSAGE = "Esta invitación ya no sirve.";
@@ -85,6 +85,7 @@ export class InvitationsService implements OnApplicationBootstrap, OnModuleDestr
     );
     const invitationOf = new Map(invitations.map((i) => [i.email, i]));
     const queue = invitations.filter((i) => i.status === "queued").sort(byQueueOrder);
+    const noticeSince = contactNoticeSince(this.config.get<string>("CONTACT_NOTICE_SINCE"));
     const items = [...byEmail.entries()].map(([email, info]) => {
       const invitation = invitationOf.get(email) ?? null;
       const state = invitationState(invitation, accounts.has(email), now);
@@ -93,7 +94,7 @@ export class InvitationsService implements OnApplicationBootstrap, OnModuleDestr
         messages: info.count,
         lastMessage: info.message,
         lastMessageAt: info.at,
-        beforeNewNotice: info.at !== null && (NEW_CONTACT_NOTICE_SINCE === null || info.at < NEW_CONTACT_NOTICE_SINCE),
+        beforeNewNotice: info.at !== null && (noticeSince === null || info.at < noticeSince),
         state,
         invitationId: invitation?.id ?? null,
         queuedAt: invitation?.queuedAt ?? null,

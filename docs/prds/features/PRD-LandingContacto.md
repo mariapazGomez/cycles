@@ -5,7 +5,7 @@ parent: "[[PRD-General]]"
 status: complete
 phase: "Fase 3.5 — Piloto"
 created: 2026-10-03
-updated: 2026-10-06
+updated: 2026-11-27
 tags: [prd, feature/landing]
 related: ["[[landing]]", "[[speech]]", "[[PRD-Autenticacion]]"]
 ---
@@ -49,6 +49,13 @@ Diseño aprobado en `docs/diseno/invitacion-onboarding/`. `POST /contact` **no c
 ### Perfil del coach (CYC-295) — API construida; encuesta APAGADA
 
 `GET` y `PATCH /users/me/coach-profile` guardan una pregunta por vez; `GET /users/me` dice si quedan pendientes (`coachSurvey`: `register` o `survey`). Un coach que se registra con invitación responde como parte del registro; a las cuentas anteriores solo se les pide con `COACH_SURVEY_ENABLED=true`. **No encenderla** hasta publicar `/privacidad` 1.6 y la encuesta en la web. Las opciones se guardan como claves en español; las preguntas y opciones viven en `apps/api/src/coach-profile/questions.ts`. Sin datos de salud; no van a analítica.
+
+### Textos nuevos y registro por invitación (CYC-295, 2026-11-27)
+
+- La página dice que el equipo revisa cada mensaje: texto sobre el formulario, aviso bajo el botón y confirmación, los aprobados en `docs/diseno/invitacion-onboarding/`. El formulario no suma campos.
+- `CONTACT_NOTICE_SINCE` (fecha y hora en que se publicó el aviso) reemplaza la fecha fija en el código: admin marca como «Escribió antes del aviso nuevo» lo anterior; sin la variable, todo.
+- El enlace del correo abre `/register?invitacion=…`: registro por pasos en la web. La encuesta a coaches con cuenta sale en la web solo con `COACH_SURVEY_ENABLED=true`.
+- Cómo activarlo: `docs/deploy/ACTIVAR-INVITACIONES.md`.
 
 ## 4. Fuera de alcance (por ahora)
 
