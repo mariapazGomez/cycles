@@ -16,7 +16,13 @@ export interface AthleteClashes {
 
 // Choque de carga de la semana, con la misma regla que el Inicio del coach (CYC-253). Las sesiones
 // se piden solo para quien tiene esa semana algo exigente (partido o intensidad alta).
-export function useTeamClashes(athletes: TeamAthlete[], cycles: TrainingCycle[], data: TeamCalendarResponse | undefined, from: string, to: string): AthleteClashes[] {
+export function useTeamClashes(
+  athletes: TeamAthlete[],
+  cycles: TrainingCycle[],
+  data: TeamCalendarResponse | undefined,
+  from: string,
+  to: string,
+): { clashes: AthleteClashes[]; failed: boolean; retry: () => void } {
   const candidates = athletes
     .filter((a) => a.status === "active")
     .map((a) => ({ athlete: a, events: data ? eventsForClash(data, a.id).filter(isDemanding) : [] }))
@@ -37,7 +43,8 @@ export function useTeamClashes(athletes: TeamAthlete[], cycles: TrainingCycle[],
     queries: pairs.map((p) => ({ queryKey: ["cycles", p.cycleId, "progress"], queryFn: () => trackingApi.getCycleProgress(p.cycleId) })),
   });
 
-  return candidates
+  const broken = [...sessionQueries, ...progressQueries].filter((q) => q.isError);
+  const clashes = candidates
     .map((c) => ({
       athleteId: c.athlete.id,
       name: c.athlete.name,
@@ -48,4 +55,5 @@ export function useTeamClashes(athletes: TeamAthlete[], cycles: TrainingCycle[],
     }))
     .filter((c) => c.clashes.length > 0)
     .sort((a, b) => a.name.localeCompare(b.name, "es"));
+  return { clashes, failed: broken.length > 0, retry: () => broken.forEach((q) => void q.refetch()) };
 }

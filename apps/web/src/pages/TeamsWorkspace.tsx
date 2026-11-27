@@ -195,6 +195,11 @@ export function TeamsWorkspace() {
                 cycles={cyclesQuery.data ?? []}
                 teamCycles={teamCyclesQuery.data}
                 todayIso={todayIso}
+                baseErrors={[cyclesQuery.error, teamCyclesQuery.error].filter(Boolean)}
+                onRetryBase={() => {
+                  if (cyclesQuery.isError) void cyclesQuery.refetch();
+                  if (teamCyclesQuery.isError) void teamCyclesQuery.refetch();
+                }}
                 created={createdCycle}
                 onCreatedSeen={() => setCreatedCycle(null)}
                 onNewCycle={() => setDialog("cycle")}

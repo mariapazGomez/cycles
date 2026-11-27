@@ -28,6 +28,8 @@ export interface BoardRow {
   // null mientras no se sabe (cargando) o si el atleta no tiene ciclo.
   week: BoardSession[] | null;
   weekLoading: boolean;
+  // Las sesiones de la semana no llegaron: no es lo mismo que no tener ninguna.
+  weekFailed?: boolean;
   attention: AttentionItem[];
   // Equipos del coach a los que pertenece (CYC-310); vacío o ausente si no está en ninguno.
   teams?: { id: string; name: string }[];
@@ -153,6 +155,14 @@ export function CoachWeekBoard({ rows, monday, todayIso, onDismiss, onApplied }:
           <input type="checkbox" role="switch" checked={layerOn} onChange={(e) => toggleLayer(e.target.checked)} />
           <span>Actividades de los atletas</span>
         </label>
+        {board.clashError && (
+          <span className="ev-note" role="alert">
+            No se pudieron revisar algunos choques de carga.{" "}
+            <button type="button" className="tour-link" onClick={board.refetch}>
+              Reintentar
+            </button>
+          </span>
+        )}
         {board.anyError && (
           <span className="ev-note" role="alert">
             No se pudieron cargar algunas actividades.{" "}

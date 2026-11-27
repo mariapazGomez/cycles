@@ -34,6 +34,7 @@ export function AttentionPage() {
         )}
       </div>
 
+      {roster.listError && <div className="error-banner">No se pudo cargar la lista.</div>}
       {roster.attentionError && <div className="error-banner">No pudimos cargar tus avisos. Revisa tu conexión e inténtalo de nuevo.</div>}
 
       {roster.loading ? (

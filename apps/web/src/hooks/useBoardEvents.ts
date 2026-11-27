@@ -23,7 +23,7 @@ export function useBoardEvents(
   athletes: Array<{ id: string; cycle: TrainingCycle | null; enabled: boolean }>,
   monday: string,
   layerOn: boolean,
-): { byAthlete: Map<string, BoardEvents>; anyError: boolean; refetch: () => void } {
+): { byAthlete: Map<string, BoardEvents>; anyError: boolean; clashError: boolean; refetch: () => void } {
   const sunday = addDays(monday, 6);
   const eventQueries = useQueries({
     queries: athletes.map((a) => ({
@@ -67,9 +67,12 @@ export function useBoardEvents(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [athletes.map((a) => a.id).join(), layerOn, stamp]);
 
+  const clashQueries = [...sessionQueries, ...progressQueries];
   return {
     byAthlete,
     anyError: layerOn && eventQueries.some((q) => q.isError),
-    refetch: () => eventQueries.forEach((q) => void q.refetch()),
+    // Sin las sesiones no se pueden revisar los choques: que no parezca que no hay.
+    clashError: layerOn && clashQueries.some((q) => q.isError),
+    refetch: () => [...eventQueries, ...clashQueries].filter((q) => q.isError).forEach((q) => void q.refetch()),
   };
 }

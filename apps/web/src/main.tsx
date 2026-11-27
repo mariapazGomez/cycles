@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./store/AuthContext";
 import { App } from "./App";
 import { warmUpApi } from "./services/warmUp";
+import { shouldRetry } from "./services/queryRetry";
 import "./styles/global.css";
 import "./styles/auth.css";
 import "./styles/layout.css";
@@ -35,7 +36,7 @@ import "./styles/landing.css";
 warmUpApi();
 initAnalytics();
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({ defaultOptions: { queries: { retry: shouldRetry } } });
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>

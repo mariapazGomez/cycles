@@ -7,6 +7,7 @@ import { loadAthleteSessions } from "../../services/boardApi";
 import { getTeamCalendar } from "../../services/teamEventsApi";
 import * as teamCyclesApi from "../../services/teamCyclesApi";
 import * as routinesApi from "../../services/routinesApi";
+import { limitMessage } from "../../services/queryRetry";
 import { useTeamPlanActions, dayText } from "../../hooks/useTeamPlanActions";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { hourLabel, TYPE_COLOR } from "../../lib/teamEvents";
@@ -68,6 +69,8 @@ export function TeamCalendar({
   onCreatedSeen,
   onNewCycle,
   onViewCycle,
+  baseErrors,
+  onRetryBase,
 }: {
   teamId: string;
   athletes: TeamAthlete[];
@@ -78,6 +81,9 @@ export function TeamCalendar({
   onCreatedSeen: () => void;
   onNewCycle: () => void;
   onViewCycle: (cycleId: string) => void;
+  // Fallos de lo que pide la página (ciclos de los atletas y ciclos del equipo).
+  baseErrors: unknown[];
+  onRetryBase: () => void;
 }) {
   const navigate = useNavigate();
   const phone = useMediaQuery("(max-width: 720px)");
@@ -130,7 +136,14 @@ export function TeamCalendar({
   const routinesQuery = useQuery({ queryKey: ["routines"], queryFn: routinesApi.listRoutines });
 
   const loading = sessionQueries.some((q) => q.isLoading) || calendarQuery.isLoading || !planReady;
-  const failed = sessionQueries.some((q) => q.isError) || calendarQuery.isError || planQueries.some((q) => q.isError);
+  // Ningún fallo deja huecos sin avisar: lo que no llegó se dice y se puede volver a pedir.
+  const queries = [...sessionQueries, calendarQuery, ...planQueries];
+  const errors = [...baseErrors, ...queries.flatMap((q) => (q.error ? [q.error] : []))];
+  const failed = errors.length > 0;
+  const retry = () => {
+    onRetryBase();
+    queries.filter((q) => q.isError).forEach((q) => void q.refetch());
+  };
   const memberSessions: MemberSessions[] = members.map((a, i) => ({ athleteId: a.id, sessions: sessionQueries[i]?.data ?? [] }));
   const memberEvents: MemberEvents[] = members.map((a) => ({ athleteId: a.id, athleteName: a.name, events: (calendarQuery.data?.athleteEvents ?? []).filter((e) => e.athleteId === a.id) }));
   const teamEvents = calendarQuery.data?.teamEvents ?? [];
@@ -300,7 +313,14 @@ export function TeamCalendar({
         </div>
       )}
 
-      {failed && <div className="error-banner">Parte del calendario no se pudo cargar.</div>}
+      {failed && (
+        <div className="error-banner" role="alert">
+          Parte del calendario no se pudo cargar. {limitMessage(errors)}{" "}
+          <button type="button" className="tour-link" onClick={retry}>
+            Reintentar
+          </button>
+        </div>
+      )}
 
       <div className="bd tmc-board tcx-board">
         {actions.failure && (
