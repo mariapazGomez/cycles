@@ -31,6 +31,10 @@ export interface TeamSessionCopy {
   athleteId: string;
   status: SessionStatus;
   adjusted: boolean;
+  // El día de ESTA copia (puede no ser el del plan) y, con la misma regla de un cambio del equipo,
+  // por qué no lo recibiría hoy; null si lo recibiría (CYC-325).
+  scheduledDate: string | null;
+  skip: "adjusted" | "recorded" | "past" | "removed" | null;
 }
 
 export interface TeamSession {
@@ -80,6 +84,11 @@ export interface RemovalImpact {
 
 export function listTeamCycles(teamId: string) {
   return apiRequest<TeamCycleSummary[]>(`/teams/${teamId}/cycles`);
+}
+
+// Los planes de los ciclos que se cruzan con un tramo, en una sola consulta (CYC-325).
+export async function getTeamCycleDetails(teamId: string, from: string, to: string, today: string) {
+  return (await apiRequest<{ cycles: TeamCycleDetail[] }>(`/teams/${teamId}/cycle-details?from=${from}&to=${to}&today=${today}`)).cycles;
 }
 
 export function getTeamCycle(id: string) {

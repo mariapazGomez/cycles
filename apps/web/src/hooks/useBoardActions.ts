@@ -106,6 +106,8 @@ export function useBoardActions(cycleId: string, range: BoardRange) {
         }
         void queryClient.invalidateQueries({ queryKey: key });
         void queryClient.invalidateQueries({ queryKey: ["cycles", cycleId, "progress"] });
+        // Inicio, Atletas y el calendario del equipo (CYC-325).
+        void queryClient.invalidateQueries({ queryKey: ["cycles", "board"] });
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

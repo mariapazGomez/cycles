@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as athletesApi from "../services/athletesApi";
-import * as trackingApi from "../services/trackingApi";
+import * as boardApi from "../services/boardApi";
 import { useCoachRoster } from "../hooks/useCoachRoster";
 import { AthleteCard, AthleteCardSkeleton, type Adherence } from "./AthleteCard";
 import { SlowNotice } from "./Skeleton";
@@ -66,22 +66,21 @@ export function AthletesPanel() {
     if (showInvite) nameRef.current?.focus();
   }, [showInvite]);
 
-  // Sesiones completadas de las asignadas en las últimas semanas, por atleta.
-  const summaryQueries = useQueries({
-    queries: rows.map((row) => ({
-      queryKey: ["athletes", row.id, "summary", 4],
-      queryFn: () => trackingApi.getAthleteSummary(row.id, 4),
-      enabled: Boolean(row.cycle) && row.status !== "pending",
-      staleTime: 60_000,
-    })),
+  // Sesiones completadas de las asignadas en las últimas semanas: una consulta para todos.
+  const hasAdherence = (row: (typeof rows)[number]) => Boolean(row.cycle) && row.status !== "pending";
+  const adherenceQuery = useQuery({
+    queryKey: ["athletes", "adherence", 4],
+    queryFn: () => boardApi.getBoardAdherence(4),
+    enabled: rows.some(hasAdherence),
+    staleTime: 60_000,
   });
+  const totals = new Map((adherenceQuery.data ?? []).map((a) => [a.athleteId, a]));
   const adherenceById = new Map<string, { value: Adherence | null; loading: boolean }>();
-  rows.forEach((row, i) => {
-    const query = summaryQueries[i];
-    const weeks = query.data?.weeks ?? [];
+  rows.forEach((row) => {
+    const total = hasAdherence(row) ? totals.get(row.id) : undefined;
     adherenceById.set(row.id, {
-      value: query.data ? { done: weeks.reduce((n, w) => n + w.completed, 0), of: weeks.reduce((n, w) => n + w.assigned, 0) } : null,
-      loading: query.isLoading && query.fetchStatus !== "idle",
+      value: total ? { done: total.completed, of: total.assigned } : null,
+      loading: hasAdherence(row) && adherenceQuery.isLoading && adherenceQuery.fetchStatus !== "idle",
     });
   });
 

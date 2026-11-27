@@ -30,6 +30,7 @@ import { MaxesModule } from "./maxes/maxes.module";
 import { TeamsModule } from "./teams/teams.module";
 import { TeamEventsModule } from "./team-events/team-events.module";
 import { TeamCyclesModule } from "./team-cycles/team-cycles.module";
+import { CoachBoardModule } from "./coach-board/coach-board.module";
 import { HealthController } from "./health/health.controller";
 
 @Module({
@@ -57,6 +58,7 @@ import { HealthController } from "./health/health.controller";
     TeamEventsModule,
     TeamCyclesModule,
     TrackingModule,
+    CoachBoardModule,
     EventsModule,
     ContactModule,
     NotificationsModule,

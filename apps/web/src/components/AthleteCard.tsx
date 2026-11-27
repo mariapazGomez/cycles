@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useRosterSessions } from "../hooks/useBoardSessions";
 import type { TrainingCycle } from "@cycles/shared";
-import * as sessionsApi from "../services/sessionsApi";
 import type { AthleteStatus } from "../lib/coachHome";
 import { planWeekOf } from "../lib/format";
 import { newCyclePath } from "../lib/library";
@@ -85,8 +84,11 @@ function WeekStrip({ week, monday, todayIso, loading }: { week: BoardSession[] |
 
 // Con dos o más ciclos a la vez, un bloque por ciclo: nombre, semana, su tira y sus completadas.
 function CycleBlock({ cycle, monday, todayIso }: { cycle: TrainingCycle; monday: string; todayIso: string }) {
-  const query = useQuery({ queryKey: ["cycles", cycle.id, "sessions"], queryFn: () => sessionsApi.listSessions(cycle.id), staleTime: 60_000 });
-  const data = query.data ? cycleCardData(cycle.startDate, cycle.sessionsPerWeek ?? 0, query.data, monday) : null;
+  // La misma consulta de las semanas de todos: cada bloque no pide nada propio.
+  const query = useRosterSessions(monday);
+  const data = query.data
+    ? cycleCardData(cycle.startDate, cycle.sessionsPerWeek ?? 0, query.data.sessions.filter((s) => s.cycleId === cycle.id), monday)
+    : null;
   return (
     <div className="at-block">
       <div className="at-cycle">

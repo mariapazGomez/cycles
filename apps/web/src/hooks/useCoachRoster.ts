@@ -1,9 +1,10 @@
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import type { TrainingCycle } from "@cycles/shared";
 import * as trackingApi from "../services/trackingApi";
 import * as athletesApi from "../services/athletesApi";
 import * as cyclesApi from "../services/cyclesApi";
-import { loadAthleteWeek } from "../services/boardApi";
+import { athleteWeek } from "../services/boardApi";
+import { useRosterSessions } from "./useBoardSessions";
 import { useDismissedAlerts } from "../components/AttentionList";
 import type { BoardRow } from "../components/CoachWeekBoard";
 import { buildAthleteRows, groupByAthlete } from "../lib/coachHome";
@@ -36,20 +37,13 @@ export function useCoachRoster() {
     cyclesByAthlete.set(cycle.athleteId, [...(cyclesByAthlete.get(cycle.athleteId) ?? []), cycle]);
   }
 
-  // La semana de cada atleta con ciclo activo; se pide aparte para que la
-  // lista aparezca de inmediato y cada tarjeta se llene cuando llegue.
-  const weekQueries = useQueries({
-    queries: baseRows.map((row) => ({
-      queryKey: ["athletes", row.id, "board-week", monday],
-      queryFn: () => loadAthleteWeek(cyclesByAthlete.get(row.id) ?? [], monday),
-      enabled: row.hasPlan && row.status !== "pending" && cyclesQuery.isSuccess,
-      staleTime: 60_000,
-    })),
-  });
+  // Las semanas de todos llegan en una sola consulta, aparte, para que la lista
+  // aparezca de inmediato y las tarjetas se llenen cuando llegue.
+  const hasWeek = (row: (typeof baseRows)[number]) => row.hasPlan && row.status !== "pending";
+  const board = useRosterSessions(monday, cyclesQuery.isSuccess && baseRows.some(hasWeek));
 
   const pain = painSessionIds(visible);
-  const rows: BoardRow[] = baseRows.map((row, i) => {
-    const query = weekQueries[i];
+  const rows: BoardRow[] = baseRows.map((row) => {
     const activeCycle = (cyclesByAthlete.get(row.id) ?? []).find((c) => c.status === "active") ?? null;
     return {
       id: row.id,
@@ -59,9 +53,9 @@ export function useCoachRoster() {
       cycleName: activeCycle?.name ?? null,
       cycle: activeCycle,
       liveCycles: liveCycles(cyclesByAthlete.get(row.id) ?? [], monday),
-      week: query.data ? query.data.map((s) => ({ ...s, pain: pain.has(s.id) })) : null,
-      weekLoading: query.isLoading && query.fetchStatus !== "idle",
-      weekFailed: query.isError,
+      week: hasWeek(row) && board.data ? athleteWeek(board.data, row.id, monday).map((s) => ({ ...s, pain: pain.has(s.id) })) : null,
+      weekLoading: hasWeek(row) && board.isLoading && board.fetchStatus !== "idle",
+      weekFailed: hasWeek(row) && board.isError,
       attention: groups.find((g) => g.athlete.id === row.id)?.items ?? [],
       teams: athletesQuery.data?.find((r) => r.athlete.id === row.id)?.teams ?? [],
     };

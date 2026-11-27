@@ -32,6 +32,8 @@ export function AddAthletesDialog({
     onSuccess: (updated) => {
       queryClient.invalidateQueries({ queryKey: ["teams"] });
       queryClient.invalidateQueries({ queryKey: ["athletes"] });
+      // Las sesiones del equipo llegan juntas: quien entra tiene que aparecer en el calendario.
+      queryClient.invalidateQueries({ queryKey: ["cycles", "board"] });
       const cycles = updated.pendingTeamCycles ?? [];
       const athletes = updated.athletes.filter((a) => selected.has(a.id)).map((a) => ({ id: a.id, name: a.name }));
       if (cycles.length > 0 && athletes.length > 0) onAddedToCycles({ athletes, cycles });
