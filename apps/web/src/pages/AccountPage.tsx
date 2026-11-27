@@ -103,17 +103,40 @@ export function AccountPage() {
 
       <section className="ac-card ac-danger">
         <h2>Eliminar mi cuenta</h2>
+        {/* Textos aprobados (docs/diseno/invitacion-onboarding/eliminar-cuenta.md). Cada frase describe lo
+            que hace account.service: si cambia el borrado, cambian aquí. El párrafo de la huella del correo se
+            agrega solo cuando el historial esté encendido y /privacidad lo diga. */}
         {isAthlete ? (
-          <p>
-            Se borran tu cuenta y todo tu historial: series, cierres de sesión y avisos. No se puede deshacer. Los planes que tu coach creó para
-            ti se quedan en su Biblioteca, sin tu nombre.
-          </p>
+          <>
+            <p>
+              Se eliminan tu cuenta, tus entrenamientos registrados, tus RM, tus actividades fuera del plan, tus avisos y los avisos de tus coaches
+              que te nombran. No se puede deshacer.
+            </p>
+            <p>
+              De los planes que tu coach creó para ti, puede quedarle una plantilla con un nombre genérico, sin objetivo ni vínculo con tu cuenta. Lo
+              que ya tenía guardado en su Biblioteca no cambia.
+            </p>
+          </>
         ) : (
-          <p>
-            Se borran tu Biblioteca, tus plantillas y tus datos personales, y tus atletas quedan desvinculados de ti. Ellos conservan su
-            historial y podrán vincularse con otro coach. No se puede deshacer.
-          </p>
+          <>
+            <p>
+              Se eliminan tu acceso, tus equipos con sus eventos, tus rutinas, tus plantillas, tus avisos y los avisos de tus atletas sobre los planes
+              que les hiciste. Tu nombre y tu correo se quitan de la cuenta, y se elimina tu perfil de coach. No se puede deshacer.
+            </p>
+            <p>
+              Tus atletas quedan desvinculados de ti y conservan sus planes y su historial, donde apareces como «Coach eliminado». También se conserva
+              lo que escribiste en esos planes.
+            </p>
+            <p>
+              Se borran los ejercicios que creaste y que nada usa. Los demás dejan de mostrarse y se conservan con su nombre, descripción, video,
+              músculos e implementos.
+            </p>
+            <p>De tu cuenta quedan algunos datos sin tu nombre ni tu correo, como las fechas de creación y de último ingreso y la unidad de peso.</p>
+          </>
         )}
+        <p>
+          Las copias de respaldo se eliminan en un máximo de 90 días. Más en la <a href="/privacidad">política de privacidad</a>.
+        </p>
         <form onSubmit={handleDelete} noValidate>
           <label className="ac-confirm">
             <span>
