@@ -1,0 +1,94 @@
+/* PROPUESTA: Equipos a todo el ancho (solo desde 761 px) */
+@media (min-width: 761px) {
+  body .app-main:has(.tms-shell) { max-width: none; margin: 0; padding: 0; }
+  .app-main .tms-shell { min-height: calc(100vh - 73px); }
+  .tms-side { position: sticky; top: 73px; align-self: start; box-sizing: border-box; height: calc(100vh - 73px); overflow-y: auto; }
+  .tms-side-col { overflow: visible; }
+}
+@media (min-width: 761px) and (pointer: fine) {
+  /* El logo y los iconos del sidebar quedan en la misma línea (24 px) */
+  .tms-side:not(.tms-side-col) { padding: 12px 12px; }
+  .tms-shell .tms-tool { padding: 0 12px; }
+  .tms-side-col .tms-tool { padding: 0; }
+  .tms-current { padding: 4px 8px 4px 11px; }
+
+  .app-main .tms-main { gap: 10px; padding: 12px 24px 32px 20px; align-content: start; }
+  .tms-title { font-size: 1.25rem; line-height: 1.3; }
+
+  /* Una sola altura (32 px) y una sola letra (13 px) para botones y selectores */
+  .tms-shell .tms-primary, .tms-shell .tms-btn { min-height: 32px; height: 32px; padding: 0 12px; font-size: 0.8125rem; white-space: nowrap; }
+  .tms-shell .tms-seg { height: 32px; box-sizing: border-box; }
+  .tms-shell .tms-seg button { min-height: 30px; height: 30px; padding: 0 12px; font-size: 0.8125rem; }
+  .tms-shell .tms-head-actions .bld-icon { width: 32px; height: 32px; }
+  .tms-shell .tms-filter { -webkit-appearance: none; appearance: none; box-sizing: border-box; width: 164px; min-width: 0; height: 32px; padding: 0 28px 0 10px; border-color: var(--color-control-border); font-size: 0.8125rem; text-overflow: ellipsis; cursor: pointer;
+    background: var(--color-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5l3 3 3-3' fill='none' stroke='%234b5160' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 10px center; }
+  .tms-shell .tme-weeknav { font-size: 0.8125rem; gap: 8px; }
+  .tms-shell .tme-weeknav .tms-btn { min-width: 32px; padding: 0; }
+
+  /* Calendario: mes, navegación y filtros en una sola barra */
+  .tms-cal-bar { justify-content: flex-start; gap: 8px; padding: 8px 12px; }
+  .tms-cal-title { font-size: 0.9375rem; white-space: nowrap; }
+  .tms-cal-tools { flex: 1; }
+  .tms-cal-tools .tms-seg { margin-left: auto; order: 9; }
+  .tms-cal-tools { gap: 6px; }
+  .tms-cal-tools .tcx-arrows { gap: 4px; }
+  .tms-cal-tools .tms-filters { gap: 6px; flex-wrap: nowrap; }
+  .tms-shell .tms-cal-tools .tms-filters .tms-filter:first-child { width: 132px; }
+  .tms-shell .tms-cal-tools .tms-seg button { padding: 0 10px; }
+  .tcx-cycle { padding: 0 12px 8px; font-size: 0.8125rem; }
+  .tcx-cycle button { height: 28px; min-height: 28px; }
+  .tms-month th { padding: 6px 8px; }
+
+  /* Vista Semana: misma escala */
+  .tms-shell .tms-week th, .tms-shell .tms-week td { padding: 6px 8px; }
+  .tms-shell .tms-week th:first-child, .tms-shell .tms-week .tm-athlete, .tms-shell .tms-week .tm-athlete b { font-size: 0.8125rem; }
+  .tms-shell .tms-week .hm-avatar { width: 26px; height: 26px; font-size: 0.6875rem; }
+  .tms-shell .tms-week .tms-mark, .tms-shell .tms-week .tms-mark-none { width: 20px; height: 20px; font-size: 0.75rem; }
+
+  /* Panel de rutinas: las tarjetas usan todo el ancho; «Editar» aparece encima */
+  .tms-shell .bd-rrow { position: relative; }
+  .tms-shell .bd-redit { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); height: 26px; padding: 0 8px; border-radius: 5px; background: var(--color-bg); box-shadow: 0 0 0 1px var(--color-gray-border); pointer-events: none; }
+  .tms-shell .bd-rrow:hover .bd-redit, .tms-shell .bd-rrow:focus-within .bd-redit { pointer-events: auto; }
+  .tms-shell .bd-rail { top: calc(73px + 8px); max-height: calc(100vh - 73px - 16px); }
+  .tms-shell .bd-new { height: 32px; font-weight: 500; }
+
+  /* Ciclos */
+  .tms-shell .tmc-head { padding: 8px 12px; border-radius: 6px; }
+  .tms-shell .tmc-head h2 { font-size: 0.9375rem; }
+  .tms-shell .tmc-chip, .tms-shell .tmc-objective { font-size: 0.8125rem; }
+
+  /* Pizarra de Ciclos: el nombre de la rutina usa el ancho del día y «⋯» baja a la esquina */
+  .tms-shell .bd-gh, .tms-shell .bd-wr { grid-template-columns: 92px repeat(7, minmax(0, 1fr)); gap: 4px; padding-left: 6px; padding-right: 6px; }
+  .tms-shell .bd-wr { padding-top: 6px; padding-bottom: 6px; border-radius: 6px; }
+  .tms-shell .bd-dc { padding: 4px; border-radius: 5px; }
+  .tms-shell .bd-ses { position: relative; padding: 6px 6px 20px; gap: 4px; border-radius: 5px; }
+  .tms-shell .bd-nr b, .tms-shell .bd-ses-name { font-size: 0.8125rem; word-break: normal; overflow-wrap: break-word; }
+  .tms-shell .bd-ses .bd-mn { position: absolute; right: 2px; bottom: 1px; margin: 0; width: 20px; height: 20px; }
+  .tms-shell .bd-facts, .tms-shell .tmc-facts, .tms-shell .bd-ses .tmc-tag { font-size: 0.75rem; }
+  .tms-shell .bd-wl b { font-size: 0.8125rem; }
+
+  /* Eventos y Rankings: ancho de lectura y filas compactas */
+  .tms-main:has(.tme-box), .tms-main:has(.tme-clash) { width: 100%; max-width: 1200px; box-sizing: border-box; }
+  .tms-shell .tme-table th, .tms-shell .tme-table td { padding: 6px 12px; }
+  .tms-shell .tme-table thead th { font-size: 0.75rem; }
+  .tms-shell .tme-day, .tms-shell .tme-event b, .tms-shell .tme-who, .tms-shell .tme-table tbody th, .tms-shell .tme-table tbody td { font-size: 0.8125rem; }
+  .tms-shell .tme-event small { margin-top: 1px; font-size: 0.75rem; }
+  .tms-shell .tme-event { gap: 10px; }
+  .tms-shell .tme-dot { width: 10px; height: 10px; }
+  .tms-shell .tme-table .hm-avatar, .tms-shell .tme-table .tms-badge { width: 26px; height: 26px; font-size: 0.6875rem; }
+  .tms-shell .tme-rank td { height: 28px; }
+  .tms-shell .tme-clash { padding: 8px 12px; font-size: 0.8125rem; }
+}
+
+/* Bajo 1280 px la barra no cabe en una fila: los filtros pasan completos a la segunda. */
+@media (min-width: 761px) and (max-width: 1279px) and (pointer: fine) {
+  .tms-cal-tools { flex: 1 1 auto; justify-content: flex-start; }
+  .tms-cal-bar { flex-wrap: wrap; }
+  .tms-cal-bar > .tms-cal-tools { display: contents; }
+  .tms-cal-bar .tms-seg { margin-left: auto; order: 5; }
+  .tms-cal-bar .tms-filters { order: 10; flex-basis: 100%; }
+}
+
+/* Los rótulos del mes no se salen del día en anchos angostos */
+@media (min-width: 761px) { .tms-month .tms-line { overflow-wrap: anywhere; } }
+/* Nota: con la parte 2 queda un solo selector en la barra; las reglas para dos selectores sobran. */
