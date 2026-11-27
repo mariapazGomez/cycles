@@ -69,7 +69,7 @@ Se puede ver al final de la maqueta. Con «reducir movimiento», la animación q
 - El calendario necesita el detalle de **todos los ciclos del equipo que crucen el rango visible**, no solo uno, y resolver el ciclo según el día.
 - Conviene compartir la lógica de guardar, deshacer, mensajes y menú con `TeamBoard`, para que las dos pantallas se comporten igual.
 - Mover o duplicar desde el calendario ofrece días del mismo ciclo.
-- Agrupar las sesiones propias sin incluir las copias del ciclo del equipo. **No verificado** si los datos que hoy carga el calendario permiten distinguirlas.
+- Agrupar las sesiones propias sin incluir las copias del ciclo del equipo. Según Desarrollo general (26-11, revisado en el esquema, **sin probar**), se distinguen: el ciclo del atleta tiene `teamCycleId` y la sesión copiada, `teamSessionId`. Hay que conservar de qué ciclo viene cada sesión, porque hoy el calendario junta las de todos, y tratar aparte las copias del ciclo de otro equipo si la persona está en dos.
 - No parece requerir cambios en la base. Sin verificar en la API.
 
 ## Cambia respecto de lo aprobado antes
