@@ -1,58 +1,67 @@
 # Textos de «Eliminar mi cuenta» (CYC-295)
 
-**Borrador en pausa: no está listo para aprobar ni publicar. Sin revisión legal.** La usuaria aún no decide si cambia alguno de los comportamientos de abajo (plantillas, ejercicios, avisos y datos de la cuenta anonimizada); el texto no se cierra hasta entonces. En cualquier versión, no debe prometer «sin tu nombre» ni que se borra toda la Biblioteca.
+**Propuesta pendiente de aprobación de la usuaria. Sin revisión legal.**
 
-**Frases que dependen de esa decisión:** «tus avisos» (solo se eliminan los que la persona recibió), «tu nombre» en el texto del coach (sigue en avisos de sus atletas), «donde apareces como «Coach eliminado»» y las frases sobre plantillas y ejercicios.
+**Solo vale cuando el PR #286 esté publicado.** Hoy está abierto. Antes de eso estos textos prometerían borrados que no ocurren. Contrastada el 26-11 con su código y con el PR #285, también abierto, sobre `origin/main` (a9d46b4).
 
- Contrastada el 26-11 con `origin/main` (a9d46b4) y con el PR #285, que está abierto.
+## Decidido por la usuaria (26-11, trasladado por Organización y descrito en el PR #286)
 
-## Decidido por la usuaria (26-11, trasladado por Organización)
-
-Se conserva un historial de correos registrados aunque se elimine la cuenta: solo una huella no legible del correo con las fechas del primer registro y del último borrado, mientras existan el plan gratuito o las ofertas, con revisión anual.
+- Se borran los avisos de otras personas que nombran a la cuenta eliminada.
+- La plantilla que queda al eliminar un atleta se llama «Plantilla de un ciclo anterior» y no tiene objetivo. El nombre genérico lo propuso Desarrollo general.
+- Al eliminar un coach se borran sus ejercicios que nada usa; los demás se ocultan y se conservan.
+- Se conserva un historial de correos registrados: una huella no legible del correo con las fechas del primer registro y del último borrado, mientras existan el plan gratuito o las ofertas, con revisión anual.
 
 ## Atleta (web y app, el mismo texto)
 
-Se eliminan tu cuenta, tus entrenamientos registrados, tus RM, tus actividades fuera del plan y tus avisos. No se puede deshacer.
+Se eliminan tu cuenta, tus entrenamientos registrados, tus RM, tus actividades fuera del plan, tus avisos y los avisos de tus coaches que te nombran. No se puede deshacer.
 
-Tu coach puede conservar en su Biblioteca datos generales de los planes que creó para ti, como el nombre y el objetivo, sin vincularlos con tu cuenta.
+De los planes que tu coach creó para ti, puede quedarle una plantilla con un nombre genérico, sin objetivo ni vínculo con tu cuenta. Lo que ya tenía guardado en su Biblioteca no cambia.
 
-Para no repetir beneficios, como un mes gratis u ofertas, guardamos una huella de tu correo y las fechas de tu primer registro y de la última vez que eliminaste tu cuenta. La huella no permite leer tu correo, pero sí reconocerlo si vuelve a registrarse. La conservamos mientras exista el plan gratuito o haya ofertas, y cada año revisamos si todavía hace falta.
+**[Huella]** Para no repetir beneficios, como un mes gratis u ofertas, guardamos una huella de tu correo y las fechas de tu primer registro y de la última vez que eliminaste tu cuenta. La huella no permite leer tu correo, pero sí reconocerlo si vuelve a registrarse. La conservamos mientras exista el plan gratuito o haya ofertas, y cada año revisamos si todavía hace falta.
 
 Las copias de respaldo se eliminan en un máximo de 90 días. Más en la política de privacidad.
 
 ## Coach (solo web)
 
-Se eliminan tu acceso, tu nombre y tu correo de la cuenta, tu perfil de coach, tus equipos con sus eventos, tus rutinas y tus plantillas. No se puede deshacer.
+Se eliminan tu acceso, tus equipos con sus eventos, tus rutinas, tus plantillas, tus avisos y los avisos de tus atletas sobre los planes que les hiciste. Tu nombre y tu correo se quitan de la cuenta, y se elimina tu perfil de coach. No se puede deshacer.
 
-Tus atletas quedan desvinculados de ti y conservan sus planes y su historial, donde apareces como «Coach eliminado». También se conserva lo que escribiste en esos planes. Los ejercicios que creaste dejan de mostrarse, pero no se borran.
+Tus atletas quedan desvinculados de ti y conservan sus planes y su historial, donde apareces como «Coach eliminado». También se conserva lo que escribiste en esos planes.
 
-*(Los dos últimos párrafos son iguales a los del atleta.)*
+Se borran los ejercicios que creaste y que nada usa. Los demás dejan de mostrarse y se conservan con su nombre, descripción, video, músculos e implementos.
+
+De tu cuenta quedan algunos datos sin tu nombre ni tu correo, como las fechas de creación y de último ingreso y la unidad de peso.
+
+**[Huella]** *(El mismo párrafo del atleta.)*
+
+Las copias de respaldo se eliminan en un máximo de 90 días. Más en la política de privacidad.
 
 La app es solo para atletas (`AuthContext.startSession` rechaza otros roles): no necesita texto de coach.
 
-## Por qué cambia más que el historial
+## Qué se puede mostrar y cuándo
 
-| Texto actual | Lo que hace el código |
+| Parte | Condición |
 |---|---|
-| Atleta: los planes quedan «sin tu nombre» | La plantilla copia el nombre y el objetivo que escribió el coach. Si incluyen el nombre del atleta, queda. No todos los planes se copian: los que venían de una plantilla y los macrociclos no. |
-| Atleta: «series, cierres de sesión y avisos» | También se eliminan los RM y las actividades paralelas. |
-| Coach: «tus datos personales» | La fila de la cuenta se conserva anonimizada. Quedan datos sin nombre ni correo, como las fechas de creación y de último ingreso, la unidad de peso y el estado de la guía. |
-| No menciona los avisos que reciben otras personas | Los avisos del coach guardan el nombre del atleta, y los del atleta el nombre del coach. Al eliminar la cuenta no se borran. La campana solo muestra los de los últimos 30 días, pero la fila se borra recién cuando esa persona recibe un aviso nuevo (o al superar 50); si no llega ninguno, queda guardada sin plazo. |
-| Coach: no menciona equipos ni ejercicios | Se eliminan sus equipos. **Todos** sus ejercicios propios se ocultan y se conservan, los use o no un atleta. |
+| Todo el texto | PR #286 publicado |
+| «y se elimina tu perfil de coach» | PR #285 publicado; antes se quita la frase |
+| Párrafo **[Huella]** (la marca no se muestra) | Historial encendido, y `/privacidad` actualizada **antes** de encenderlo. Con el historial apagado no se muestra |
 
-El perfil de coach se elimina solo con el PR #285. La eliminación de la invitación, que también trae ese PR, sigue **por confirmar** y no se menciona en los textos.
+La app instalada tiene el texto en su código («sin tu nombre»): necesita una versión nueva.
 
-## Fuera de la tarjeta, para `/privacidad`
+## Límites que el texto no debe ocultar
+
+- **No es retroactivo.** Lo que dejaron las cuentas eliminadas antes del PR #286 sigue igual.
+- **No promete «sin tu nombre» ni que se borra toda la Biblioteca del coach.** La plantilla nueva es genérica, pero lo que el coach ya tenía guardado o escribió en otros lugares puede nombrar al atleta.
+- El PR #285 también elimina la invitación de la persona; está por confirmar y los textos no la mencionan.
+
+## Fuera de la tarjeta, para `/privacidad` 1.6
 
 - Los mensajes del formulario de la página no se borran al eliminar la cuenta; la política publicada (1.5) dice que se guardan hasta 12 meses o hasta que se pida borrarlos.
-- La política dice que ante un pedido de eliminación se borran los datos personales en un máximo de 30 días. Debe explicar la excepción de la huella.
+- La política dice que ante un pedido de eliminación se borran los datos personales en un máximo de 30 días. Debe explicar lo que se conserva.
 - La huella sigue siendo un dato personal seudonimizado: **no presentarla como anónima**.
 - La revisión anual es un compromiso manual: el PR #285 no purga el historial. Falta definir quién la hace.
-- Hoy el plan gratuito y las ofertas no están definidos; confirmar que esa finalidad y ese plazo resisten la revisión legal.
+- El plan gratuito y las ofertas no están definidos; confirmar que esa finalidad y ese plazo resisten la revisión legal.
 
-## Cuándo publicarlos
-
-Junto con `/privacidad` y **antes** de encender `EMAIL_HISTORY_ENABLED`. Mientras esté apagado, los párrafos de la huella no se deben mostrar. Las demás correcciones se pueden publicar antes. La app instalada tiene el texto en su código: necesita una versión nueva.
+## Estilo
 
 El estilo de las tarjetas no cambia. En la web y la app, el texto pasa de un párrafo a varios.
 
