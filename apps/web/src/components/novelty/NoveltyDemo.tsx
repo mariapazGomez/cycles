@@ -472,6 +472,54 @@ function TeamCalendarDemo() {
   );
 }
 
+function TeamPanelDemo({ edit }: { edit?: boolean }) {
+  return (
+    <div className={`nd nd-tpanel${edit ? " nd-tpanel-edit" : ""}`}>
+      <div className="nd-tpanel-cal">
+        <span className="nd-tpanel-card">Fuerza base</span>
+      </div>
+      <div className="nd-tpanel-side">
+        <b>Fuerza base</b>
+        {edit ? (
+          <>
+            <small>El cambio llega a 9 atletas.</small>
+            <div className="nd-tpanel-row">
+              <span>Sentadilla</span>
+              <i>
+                <em>3</em>
+                <em>4</em>
+              </i>
+            </div>
+            <span className="nd-tpanel-save">Guardar para 9 atletas</span>
+          </>
+        ) : (
+          <>
+            <div className="nd-tpanel-row">
+              <span>Sentadilla</span>
+              <i>3 × 8</i>
+            </div>
+            <div className="nd-tpanel-row">
+              <span>Peso muerto</span>
+              <i>3 × 6</i>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function TeamOnlyDemo() {
+  return (
+    <div className="nd nd-tonly">
+      <span>Fuerza base</span>
+      <span className="nd-tonly-out">Ciclo propio</span>
+      <span>Partido de liga</span>
+      <span className="nd-tonly-out">Viaje de un atleta</span>
+    </div>
+  );
+}
+
 export function NoveltyDemo({ slide }: { slide: NoveltySlide }) {
   const [ref, width] = useElementWidth<HTMLDivElement>();
   if (slide.video) {
@@ -482,7 +530,7 @@ export function NoveltyDemo({ slide }: { slide: NoveltySlide }) {
     );
   }
   const CycleDemo = slide.demo ? CYCLE_DEMOS[slide.demo] : undefined;
-  const art = CycleDemo ? <CycleDemo /> : slide.demo === "blocks-group" ? <Group /> : slide.demo === "blocks-move" ? <Move /> : slide.demo === "blocks-legacy" ? <Legacy /> : slide.demo === "blocks-page" ? <Page /> : slide.demo === "rm-percent-row" ? <RmPercentRow /> : slide.demo === "rm-athlete-sheet" ? <RmAthleteSheet /> : slide.demo === "rm-multi-add" ? <RmMultiAdd /> : slide.demo === "athlete-rm-percent" ? <AthleteRmPercent /> : slide.demo === "two-cycles-card" ? <TwoCyclesCard /> : slide.demo === "two-cycles-alert" ? <TwoCyclesCard alert /> : slide.demo === "two-cycles-today" ? <TwoCyclesToday /> : slide.demo === "two-cycles-start" ? <TwoCyclesToday start /> : slide.demo === "teams-group" ? <TeamsGroup /> : slide.demo === "teams-create" ? <TeamsCreate /> : slide.demo === "team-cycle" ? <TeamCycleDemo /> : slide.demo === "team-events" ? <TeamEventsDemo /> : slide.demo === "team-calendar" ? <TeamCalendarDemo /> : null;
+  const art = CycleDemo ? <CycleDemo /> : slide.demo === "blocks-group" ? <Group /> : slide.demo === "blocks-move" ? <Move /> : slide.demo === "blocks-legacy" ? <Legacy /> : slide.demo === "blocks-page" ? <Page /> : slide.demo === "rm-percent-row" ? <RmPercentRow /> : slide.demo === "rm-athlete-sheet" ? <RmAthleteSheet /> : slide.demo === "rm-multi-add" ? <RmMultiAdd /> : slide.demo === "athlete-rm-percent" ? <AthleteRmPercent /> : slide.demo === "two-cycles-card" ? <TwoCyclesCard /> : slide.demo === "two-cycles-alert" ? <TwoCyclesCard alert /> : slide.demo === "two-cycles-today" ? <TwoCyclesToday /> : slide.demo === "two-cycles-start" ? <TwoCyclesToday start /> : slide.demo === "teams-group" ? <TeamsGroup /> : slide.demo === "teams-create" ? <TeamsCreate /> : slide.demo === "team-cycle" ? <TeamCycleDemo /> : slide.demo === "team-events" ? <TeamEventsDemo /> : slide.demo === "team-calendar" ? <TeamCalendarDemo /> : slide.demo === "team-panel-open" ? <TeamPanelDemo /> : slide.demo === "team-panel-edit" ? <TeamPanelDemo edit /> : slide.demo === "team-panel-only" ? <TeamOnlyDemo /> : null;
   // Escala del escenario al ancho disponible (nunca se agranda ni se recorta).
   const scale = width === 0 ? 1 : Math.min(1, Math.max(0.3, width / STAGE_W));
   return (

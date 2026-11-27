@@ -1,10 +1,8 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import type { TeamAthlete } from "../../services/teamsApi";
-import { athleteSessions } from "../../services/boardApi";
-import { useBoardSessions } from "../../hooks/useBoardSessions";
-import { getTeamCalendar } from "../../services/teamEventsApi";
+import { listTeamEvents } from "../../services/teamEventsApi";
 import * as teamCyclesApi from "../../services/teamCyclesApi";
 import * as routinesApi from "../../services/routinesApi";
 import { limitMessage } from "../../services/queryRetry";
@@ -12,11 +10,11 @@ import { useTeamPlanActions, dayText } from "../../hooks/useTeamPlanActions";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { hourLabel, TYPE_COLOR } from "../../lib/teamEvents";
 import { calendarWeek, monthGrid, monthOf, monthRange, monthTitle, shiftMonth, startOfWeek, addDays, shortDate, WEEKDAY_SHORT, type CalendarDay } from "../../lib/eventCalendar";
-import { eventLines, gmtLabel, sessionBadge, sessionCards, type MemberEvents, type MemberSessions, type TeamSessionCard } from "../../lib/teamCalendar";
-import { activeCycleOn, crossingCycles, cycleReach, DAY_WHY, dayRule, hasOpenCycle, inTeamCycle, ownSessions, pickableDays, planBadge, planBlock, planOn, type PlanItem } from "../../lib/teamPlanCalendar";
+import { gmtLabel } from "../../lib/teamCalendar";
+import { activeCycleOn, athleteMarks, bandSegments, crossingCycles, DAY_WHY, dayRule, hasOpenCycle, pickableDays, planBadge, planBlock, planOn, type PlanItem, type TeamMark } from "../../lib/teamPlanCalendar";
+import { PANEL_HISTORY, pushPanelHistory, TeamSessionPanel } from "./panel/TeamSessionPanel";
 import { routineBuilderPath } from "../../lib/library";
 import { initialsOf } from "../../lib/teams";
-import type { BoardSession } from "../../lib/weekBoard";
 import { Popover } from "../board/Popover";
 import { DayPicker } from "../board/DayPicker";
 import { RoutinePicker } from "../board/RoutinePicker";
@@ -27,7 +25,7 @@ import { PlusIcon } from "../board/icons";
 import { SessionMenuButton, TeamSessionActions } from "./cycle/TeamSessionActions";
 
 type Mode = "week" | "month";
-type TypeFilter = "all" | "sessions" | "team" | "events";
+type TypeFilter = "all" | "sessions" | "team";
 type Drag = { kind: "routine"; routine: routinesApi.RoutineDetail } | ({ kind: "session" } & PlanItem) | null;
 type Pop =
   | { kind: "add"; day: string; anchor: HTMLElement }
@@ -42,10 +40,10 @@ export interface CreatedCycle {
 
 const WEEK_LETTERS = ["L", "M", "M", "J", "V", "S", "D"];
 
-function Mark({ sessions, isToday }: { sessions: BoardSession[]; isToday: boolean }) {
-  if (sessions.length === 0) return <span className="tms-mark tms-mark-none" aria-hidden="true" />;
-  const s = sessions[0];
-  const extra = sessions.length > 1 ? ` y ${sessions.length - 1} más` : "";
+function Mark({ marks, isToday }: { marks: TeamMark[]; isToday: boolean }) {
+  if (marks.length === 0) return <span className="tms-mark tms-mark-none" aria-hidden="true" />;
+  const s = marks[0];
+  const extra = marks.length > 1 ? ` y ${marks.length - 1} más` : "";
   const label = `${s.name}: ${s.status === "completed" ? "hecha" : s.status === "skipped" ? "omitida" : isToday ? "pendiente, hoy" : "pendiente"}${extra}`;
   const cls = s.status === "completed" ? "tms-mark tms-mark-done" : s.status === "skipped" ? "tms-mark tms-mark-skip" : isToday ? "tms-mark tms-mark-today" : "tms-mark tms-mark-pending";
   return (
@@ -55,10 +53,38 @@ function Mark({ sessions, isToday }: { sessions: BoardSession[]; isToday: boolea
   );
 }
 
-// Calendario del equipo: cuadrícula mensual (vista inicial) o semana por atleta. Desde aquí se
-// planifica el ciclo del equipo: las rutinas se arrastran a un día (o con «+») y cada sesión del
-// plan dice a cuántos llega o cuántos la hicieron (docs/diseno/calendario-equipo-arrastre). Lo
-// que agregaron los atletas va en una línea por tipo (sin sus notas, R7).
+// «del 21 dic al 31 ene 2027»: la fecha no se muestra, pero los lectores de pantalla la oyen.
+const cycleDates = (c: { startDate: string; endDate: string }) => `del ${shortDate(c.startDate.slice(0, 10))} al ${shortDate(c.endDate.slice(0, 10))} ${c.endDate.slice(0, 4)}`;
+
+// La barra de cada ciclo sobre los días de una fila. Informativa: no recibe clics ni tapa el
+// destino al arrastrar; el nombre y las fechas se leen en el encabezado.
+function Band({ cycles, week, lead = 0 }: { cycles: teamCyclesApi.TeamCycleSummary[]; week: string[]; lead?: number }) {
+  const segments = bandSegments(cycles, week);
+  if (segments.length === 0) return null;
+  return (
+    <tr className="tcx-bandrow" aria-hidden="true">
+      {lead > 0 && <td colSpan={lead} />}
+      <td colSpan={7}>
+        <div className="tcx-band">
+          {segments.map((seg) => (
+            <span
+              key={seg.cycle.id}
+              className={`tcx-bandseg${seg.starts ? " tcx-bandseg-start" : ""}${seg.ends ? " tcx-bandseg-end" : ""}`}
+              style={{ gridColumn: `${seg.from} / ${seg.to + 1}` }}
+              title={seg.cycle.name}
+            >
+              {seg.cycle.name}
+            </span>
+          ))}
+        </div>
+      </td>
+    </tr>
+  );
+}
+
+// Calendario del equipo: cuadrícula mensual (vista inicial) o semana por atleta. Muestra solo lo
+// del equipo (docs/diseno/equipos-ancho-completo): el plan de sus ciclos y sus eventos. Desde aquí
+// se planifica arrastrando rutinas o con «+», y cada sesión se abre en un panel lateral.
 export function TeamCalendar({
   teamId,
   athletes,
@@ -89,7 +115,8 @@ export function TeamCalendar({
   const [mode, setMode] = useState<Mode>(() => (window.matchMedia("(max-width: 760px)").matches ? "week" : "month"));
   const [anchor, setAnchor] = useState(todayIso);
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
-  const [personId, setPersonId] = useState("");
+  // La sesión abierta en el panel lateral.
+  const [openId, setOpenId] = useState<string | null>(null);
   const [drag, setDrag] = useState<Drag>(null);
   const [hover, setHover] = useState<string | null>(null);
   const [pop, setPop] = useState<Pop>(null);
@@ -108,13 +135,9 @@ export function TeamCalendar({
 
   const { year, month } = monthOf(anchor);
   const range = mode === "month" ? monthRange(year, month) : { from: startOfWeek(anchor), to: addDays(startOfWeek(anchor), 6) };
-  // La invitación pendiente todavía no tiene ciclos ni actividades. El filtro de persona es del mes.
-  const members = athletes.filter((a) => a.status === "active" && (mode === "week" || personId === "" || a.id === personId));
-
-  // Las sesiones de todo el equipo llegan en una sola consulta (CYC-325).
-  const board = useBoardSessions(range.from, range.to, { teamId, enabled: athletes.some((a) => a.status === "active") });
-  // Los eventos del equipo y lo que agregaron sus atletas, en una sola consulta (CYC-319).
-  const calendarQuery = useQuery({ queryKey: ["teams", teamId, "calendar", range.from, range.to], queryFn: () => getTeamCalendar(teamId, range.from, range.to), staleTime: 60_000 });
+  // Solo lo del equipo: sus eventos y el plan de sus ciclos. Nada de esto crece con los atletas.
+  // La clave empieza como la de Eventos, así lo que se guarda allá también renueva esto.
+  const eventsQuery = useQuery({ queryKey: ["teams", teamId, "calendar", "equipo", range.from, range.to], queryFn: () => listTeamEvents(teamId, range.from, range.to), staleTime: 60_000 });
   // El plan de cada ciclo del equipo que se ve.
   const summaries = teamCycles ?? [];
   const visibleCycles = crossingCycles(summaries, range.from, range.to);
@@ -128,28 +151,21 @@ export function TeamCalendar({
   const planReady = teamCycles !== undefined && (visibleCycles.length === 0 || plansQuery.data !== undefined);
   const routinesQuery = useQuery({ queryKey: ["routines"], queryFn: routinesApi.listRoutines });
 
-  const loading = board.isLoading || calendarQuery.isLoading || !planReady;
+  const loading = eventsQuery.isLoading || !planReady;
   // Ningún fallo deja huecos sin avisar: lo que no llegó se dice y se puede volver a pedir.
-  const queries = [board, calendarQuery, plansQuery];
+  const queries = [eventsQuery, plansQuery];
   const errors = [...baseErrors, ...queries.flatMap((q) => (q.error ? [q.error] : []))];
   const failed = errors.length > 0;
   const retry = () => {
     onRetryBase();
     queries.filter((q) => q.isError).forEach((q) => void q.refetch());
   };
-  const memberSessions: MemberSessions[] = members.map((a) => ({ athleteId: a.id, sessions: board.data ? athleteSessions(board.data, a.id, range.from, range.to) : [] }));
-  const memberEvents: MemberEvents[] = members.map((a) => ({ athleteId: a.id, athleteName: a.name, events: (calendarQuery.data?.athleteEvents ?? []).filter((e) => e.athleteId === a.id) }));
-  const teamEvents = calendarQuery.data?.teamEvents ?? [];
-  // Los filtros solo existen en el mes.
+  const teamEvents = eventsQuery.data ?? [];
+  // El filtro solo existe en el mes.
   const showSessions = mode === "week" || typeFilter === "all" || typeFilter === "sessions";
   const showTeamEvents = typeFilter === "all" || typeFilter === "team";
-  const showEvents = typeFilter === "all" || typeFilter === "events";
-  // Hasta tener los planes no se muestran las sesiones de cada uno: las copias saldrían repetidas.
-  const others = planReady
-    ? ownSessions(memberSessions, new Set(details.flatMap((d) => d.sessions.map((s) => s.id))), new Set(summaries.map((c) => c.id)))
-    : { own: [], otherTeam: [] };
 
-  const block = planBlock({ mode, personId, typeFilter });
+  const block = planBlock({ mode, typeFilter });
   const open = hasOpenCycle(summaries, todayIso);
   const canEdit = teamCycles !== undefined && !block && open;
   const canDrag = canEdit && !phone && !busy;
@@ -166,6 +182,16 @@ export function TeamCalendar({
     const cycle = activeCycleOn(summaries, iso);
     if (cycle) actions.add(cycle.id, routine, iso);
   }
+
+  function openSession(sessionId: string) {
+    setPop(null);
+    announce(null);
+    actions.clearFailure();
+    if (!window.history.state?.[PANEL_HISTORY]) pushPanelHistory();
+    setOpenId(sessionId);
+  }
+
+  const opened = openId ? details.flatMap((cycle) => cycle.sessions.map((session) => ({ cycle, session }))).find((x) => x.session.id === openId) : undefined;
 
   function endDrag() {
     setDrag(null);
@@ -206,8 +232,7 @@ export function TeamCalendar({
   }
 
   function dayClass(iso: string): string {
-    const hovered = drag !== null && hover === iso;
-    return [inTeamCycle(summaries, iso) && "tcx-in", hovered && (dropWhy(iso) ? "tcx-bad" : "tcx-ok")].filter(Boolean).join(" ");
+    return drag !== null && hover === iso ? (dropWhy(iso) ? "tcx-bad" : "tcx-ok") : "";
   }
 
   const dropLabel = (iso: string) => (drag !== null && hover === iso ? <span className="tcx-why">{dropWhy(iso) ?? "Soltar aquí"}</span> : null);
@@ -245,11 +270,13 @@ export function TeamCalendar({
               }}
               onDragEnd={endDrag}
             >
-              <span className="tms-card-name" title={session.name}>
-                {session.name}
-              </span>
-              <span className={`tms-pill tms-pill-${badge.tone}`}>{badge.text}</span>
-              {session.adjusted > 0 && <span className="tmc-tag tmc-tag-warn">{session.adjusted === 1 ? "1 ajustada" : `${session.adjusted} ajustadas`}</span>}
+              <button type="button" className="tcx-open" aria-haspopup="dialog" onClick={() => openSession(session.id)}>
+                <span className="tms-card-name" title={session.name}>
+                  {session.name}
+                </span>
+                <span className={`tms-pill tms-pill-${badge.tone}`}>{badge.text}</span>
+                {session.adjusted > 0 && <span className="tmc-tag tmc-tag-warn">{session.adjusted === 1 ? "1 ajustada" : `${session.adjusted} ajustadas`}</span>}
+              </button>
               {editable && (
                 <SessionMenuButton
                   session={session}
@@ -263,49 +290,12 @@ export function TeamCalendar({
         })
       : [];
 
-  const ownCard = (card: TeamSessionCard, iso: string, origin: string) => {
-    const badge = sessionBadge(card, iso, todayIso);
-    return (
-      <Link key={`${origin}-${card.key}`} className="tms-card" to={`/sessions/${card.sessionIds[0]}`} title={`${card.name}: ${badge.text}`}>
-        <span className="tms-card-name">{card.name}</span>
-        <span className={`tms-pill tms-pill-${badge.tone}`}>{badge.text}</span>
-        <span className="tcx-own">{origin}</span>
-      </Link>
-    );
-  };
-
   const week = calendarWeek(anchor);
   const title = mode === "month" ? monthTitle(year, month) : `Semana del ${shortDate(week[0].iso)} al ${shortDate(week[6].iso)}`;
   const menu = pop?.kind === "menu" ? pop : null;
-  const strips = visibleCycles.flatMap((c) => details.filter((d) => d.id === c.id));
 
   return (
     <>
-      {mode === "month" && (
-        <div className="tms-filters">
-          <label className="sr-only" htmlFor="tms-type">
-            Tipo
-          </label>
-          <select id="tms-type" className="tms-filter" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}>
-            <option value="all">Todos los tipos</option>
-            <option value="sessions">Sesiones</option>
-            <option value="team">Eventos del equipo</option>
-            <option value="events">Actividades de los atletas</option>
-          </select>
-          <label className="sr-only" htmlFor="tms-person">
-            Persona
-          </label>
-          <select id="tms-person" className="tms-filter" value={personId} onChange={(e) => setPersonId(e.target.value)}>
-            <option value="">Todas las personas</option>
-            {athletes.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.name}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-
       {failed && (
         <div className="error-banner" role="alert">
           Parte del calendario no se pudo cargar. {limitMessage(errors)}{" "}
@@ -340,15 +330,6 @@ export function TeamCalendar({
                   {mode === "month" && <small> ({gmtLabel(new Date().getTimezoneOffset())})</small>}
                 </h2>
                 <div className="tms-cal-tools">
-                  <SaveIndicator status={actions.status} />
-                  <div className="tms-seg" role="group" aria-label="Vista">
-                    <button type="button" aria-pressed={mode === "week"} onClick={() => setMode("week")}>
-                      Semana
-                    </button>
-                    <button type="button" aria-pressed={mode === "month"} onClick={() => setMode("month")}>
-                      Mes
-                    </button>
-                  </div>
                   <button type="button" className="tms-btn" onClick={() => setAnchor(todayIso)}>
                     Hoy
                   </button>
@@ -360,6 +341,27 @@ export function TeamCalendar({
                       ›
                     </button>
                   </span>
+                  {mode === "month" && (
+                    <div className="tms-filters">
+                      <label className="sr-only" htmlFor="tms-type">
+                        Tipo
+                      </label>
+                      <select id="tms-type" className="tms-filter" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}>
+                        <option value="all">Todos los tipos</option>
+                        <option value="sessions">Sesiones</option>
+                        <option value="team">Eventos del equipo</option>
+                      </select>
+                    </div>
+                  )}
+                  <SaveIndicator status={actions.status} />
+                  <div className="tms-seg" role="group" aria-label="Vista">
+                    <button type="button" aria-pressed={mode === "week"} onClick={() => setMode("week")}>
+                      Semana
+                    </button>
+                    <button type="button" aria-pressed={mode === "month"} onClick={() => setMode("month")}>
+                      Mes
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -371,25 +373,15 @@ export function TeamCalendar({
                   </button>
                 </div>
               )}
-              {strips.map((cycle) => {
-                const start = cycle.startDate.slice(0, 10);
-                const end = cycle.endDate.slice(0, 10);
-                const reach = cycleReach(cycle, athletes);
-                return (
-                  <div key={cycle.id} className="tcx-cycle">
-                    <b>{cycle.name}</b>
-                    <span className="tmc-chip">
-                      {shortDate(start)} – {shortDate(end)} {end.slice(0, 4)}
-                    </span>
-                    <span className="tmc-chip">
-                      {reach.receiving} de {reach.of} atletas
-                    </span>
-                    <button type="button" className="tms-btn" aria-label={`Ver ciclo ${cycle.name}`} onClick={() => onViewCycle(cycle.id)}>
-                      Ver ciclo
+              {visibleCycles.length > 0 && (
+                <div className="tcx-cycle">
+                  {visibleCycles.map((cycle) => (
+                    <button key={cycle.id} type="button" className="tcx-name" aria-label={`Ciclo ${cycle.name}, ${cycleDates(cycle)}`} title={cycle.name} onClick={() => onViewCycle(cycle.id)}>
+                      {cycle.name}
                     </button>
-                  </div>
-                );
-              })}
+                  ))}
+                </div>
+              )}
 
               {mode === "month" ? (
                 <table className="tms-month">
@@ -404,13 +396,13 @@ export function TeamCalendar({
                   </thead>
                   <tbody>
                     {monthGrid(year, month).map((row) => (
-                      <tr key={row[0].iso}>
+                      <Fragment key={row[0].iso}>
+                      <Band cycles={summaries} week={row.map((d) => d.iso)} />
+                      <tr>
                         {row.map((day: CalendarDay) => {
                           const isToday = day.iso === todayIso;
                           const inMonth = day.inMonth;
-                          const showOwn = showSessions && inMonth;
                           const own = showTeamEvents && inMonth ? teamEvents.filter((e) => e.date === day.iso) : [];
-                          const lines = showEvents && inMonth ? eventLines(memberEvents, day.iso) : [];
                           return (
                             <td key={day.iso} className={inMonth ? dayClass(day.iso) : "tms-out"} {...(inMonth ? dropProps(day.iso) : {})}>
                               <div className="tcx-top">
@@ -426,8 +418,6 @@ export function TeamCalendar({
                                 </div>
                               </div>
                               {inMonth && planCards(day.iso)}
-                              {showOwn && sessionCards(others.own, day.iso).map((card) => ownCard(card, day.iso, "Ciclo propio"))}
-                              {showOwn && sessionCards(others.otherTeam, day.iso).map((card) => ownCard(card, day.iso, "De otro equipo"))}
                               {own.map((event) => (
                                 <Link key={event.seriesId} className="tms-card" to={`/equipos/${teamId}/eventos?semana=${event.date}`} title={`${event.title}: ${hourLabel(event)}`}>
                                   <span className="tms-card-name">
@@ -437,16 +427,12 @@ export function TeamCalendar({
                                   <span className="tms-pill tme-pill-team">Equipo</span>
                                 </Link>
                               ))}
-                              {lines.map((line) => (
-                                <p key={line} className="tms-line">
-                                  {line}
-                                </p>
-                              ))}
                               {inMonth && dropLabel(day.iso)}
                             </td>
                           );
                         })}
                       </tr>
+                      </Fragment>
                     ))}
                   </tbody>
                 </table>
@@ -484,6 +470,7 @@ export function TeamCalendar({
                       </tr>
                     </thead>
                     <tbody>
+                      {!phone && <Band cycles={summaries} week={week.map((d) => d.iso)} lead={1} />}
                       {!phone && (
                         <tr className="tcx-plan">
                           <th scope="row">Plan del equipo</th>
@@ -496,26 +483,23 @@ export function TeamCalendar({
                           ))}
                         </tr>
                       )}
-                      {athletes.map((a) => {
-                        const own = memberSessions.find((m) => m.athleteId === a.id)?.sessions ?? [];
-                        return (
-                          <tr key={a.id}>
-                            <th scope="row">
-                              <Link className="tm-athlete" to={`/athletes/${a.id}`}>
-                                <span className="hm-avatar hm-avatar-sm" aria-hidden="true">
-                                  {initialsOf(a.name)}
-                                </span>
-                                <span>{a.name}</span>
-                              </Link>
-                            </th>
-                            {week.map((d) => (
-                              <td key={d.iso}>
-                                <Mark sessions={own.filter((s) => s.dayIso === d.iso)} isToday={d.iso === todayIso} />
-                              </td>
-                            ))}
-                          </tr>
-                        );
-                      })}
+                      {athletes.map((a) => (
+                        <tr key={a.id}>
+                          <th scope="row">
+                            <Link className="tm-athlete" to={`/athletes/${a.id}`}>
+                              <span className="hm-avatar hm-avatar-sm" aria-hidden="true">
+                                {initialsOf(a.name)}
+                              </span>
+                              <span>{a.name}</span>
+                            </Link>
+                          </th>
+                          {week.map((d) => (
+                            <td key={d.iso}>
+                              <Mark marks={athleteMarks(details, a.id, d.iso)} isToday={d.iso === todayIso} />
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </>
@@ -569,8 +553,9 @@ export function TeamCalendar({
             <DayPicker label={`Agregar «${pop.routine.name}» el…`} confirmLabel="Agregar" options={pickableDays(summaries, todayIso)} onPick={(iso) => add(pop.routine, iso)} onCancel={() => setPop(null)} />
           </Popover>
         )}
-        <TeamSessionActions target={menu ? { cycle: menu.cycle, session: menu.session, anchor: menu.anchor } : null} today={todayIso} actions={actions} onClose={() => setPop(null)} />
-        <UndoToast toast={actions.toast} onDismiss={() => announce(null)} />
+        <TeamSessionActions target={menu ? { cycle: menu.cycle, session: menu.session, anchor: menu.anchor } : null} today={todayIso} actions={actions} onView={(target) => openSession(target.session.id)} onClose={() => setPop(null)} />
+        {!opened && <UndoToast toast={actions.toast} onDismiss={() => announce(null)} />}
+        {opened && <TeamSessionPanel key={opened.session.id} cycle={opened.cycle} session={opened.session} today={todayIso} actions={actions} onClosed={() => setOpenId(null)} />}
       </div>
       {athletes.length === 0 && <p className="rm-note">Este equipo todavía no tiene atletas. Agrégalos desde el botón de atletas.</p>}
     </>

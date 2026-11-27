@@ -12,6 +12,8 @@ export function useDialogFocus(ref: RefObject<HTMLElement>, onClose: () => void)
     target?.focus();
     function onKey(event: KeyboardEvent) {
       if (event.key === "Escape") {
+        // Si hay un menú abierto dentro del diálogo, Escape lo cierra primero (lo maneja el menú).
+        if (root?.querySelector(".bld-load-menu, .bld-menu-list")) return;
         event.stopPropagation();
         onClose();
         return;

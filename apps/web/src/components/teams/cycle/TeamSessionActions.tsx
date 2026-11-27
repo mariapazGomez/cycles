@@ -15,6 +15,8 @@ export interface SessionTarget {
   cycle: teamCyclesApi.TeamCycleDetail;
   session: TeamSession;
   anchor: HTMLElement;
+  // Para abrir directo en el selector de días.
+  start?: "duplicate";
 }
 
 export function SessionMenuButton({ session, open, disabled, onOpen }: { session: TeamSession; open: boolean; disabled: boolean; onOpen: (anchor: HTMLElement) => void }) {
@@ -35,14 +37,33 @@ export function SessionMenuButton({ session, open, disabled, onOpen }: { session
 
 // El menú «⋯» de una sesión del equipo y lo que abre (editar, mover, duplicar y quitar), igual en
 // la pizarra de Ciclos y en el Calendario.
-export function TeamSessionActions({ target, today, actions, onClose }: { target: SessionTarget | null; today: string; actions: TeamPlanActions; onClose: () => void }) {
-  const [step, setStep] = useState<"menu" | "move" | "duplicate">("menu");
+export function TeamSessionActions({
+  target,
+  today,
+  actions,
+  onClose,
+  onView,
+  inPanel = false,
+  onRemoved,
+}: {
+  target: SessionTarget | null;
+  today: string;
+  actions: TeamPlanActions;
+  onClose: () => void;
+  // En el Calendario, «Ver y editar» abre el panel lateral en vez del cuadro.
+  onView?: (target: SessionTarget) => void;
+  // Dentro del panel: sin la opción de editar, porque ya se está en él.
+  inPanel?: boolean;
+  onRemoved?: () => void;
+}) {
+  const [picked, setStep] = useState<"move" | "duplicate" | null>(null);
+  const step = picked ?? target?.start ?? "menu";
   const [editing, setEditing] = useState<SessionTarget | null>(null);
   const [removing, setRemoving] = useState<SessionTarget | null>(null);
   const nameOf = (cycle: teamCyclesApi.TeamCycleDetail) => (athleteId: string) => cycle.athletes.find((a) => a.athleteId === athleteId)?.name ?? "un atleta";
 
   const close = () => {
-    setStep("menu");
+    setStep(null);
     onClose();
   };
   // Una sesión de un día pasado no se mueve: su historia ya es la de cada atleta.
@@ -61,15 +82,18 @@ export function TeamSessionActions({ target, today, actions, onClose }: { target
         <Popover anchor={target.anchor} label={`Acciones de ${target.session.name}`} onClose={close}>
           {step === "menu" ? (
             <div className="bd-mlist">
-              <button
-                type="button"
-                onClick={() => {
-                  setEditing(target);
-                  close();
-                }}
-              >
-                Editar ejercicios
-              </button>
+              {!inPanel && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onView) onView(target);
+                    else setEditing(target);
+                    close();
+                  }}
+                >
+                  {onView ? "Ver y editar" : "Editar ejercicios"}
+                </button>
+              )}
               <button type="button" disabled={!movable} onClick={() => setStep("move")}>
                 <MoveIcon /> Mover a otro día…
               </button>
@@ -132,6 +156,7 @@ export function TeamSessionActions({ target, today, actions, onClose }: { target
             const { session } = removing;
             setRemoving(null);
             actions.remove(session);
+            onRemoved?.();
           }}
         >
           <p>
