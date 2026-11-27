@@ -61,6 +61,7 @@ export function useCoachRoster() {
       liveCycles: liveCycles(cyclesByAthlete.get(row.id) ?? [], monday),
       week: query.data ? query.data.map((s) => ({ ...s, pain: pain.has(s.id) })) : null,
       weekLoading: query.isLoading && query.fetchStatus !== "idle",
+      weekFailed: query.isError,
       attention: groups.find((g) => g.athlete.id === row.id)?.items ?? [],
       teams: athletesQuery.data?.find((r) => r.athlete.id === row.id)?.teams ?? [],
     };
@@ -72,7 +73,8 @@ export function useCoachRoster() {
     monday,
     attentionGroups: groups,
     attentionError: attentionQuery.isError,
-    listError: athletesQuery.isError,
+    // Sin los ciclos, las tarjetas dirían «sin ciclo activo»: también es un fallo de la lista.
+    listError: athletesQuery.isError || cyclesQuery.isError,
     loading: attentionQuery.isLoading || athletesQuery.isLoading || cyclesQuery.isLoading,
     dismiss,
   };

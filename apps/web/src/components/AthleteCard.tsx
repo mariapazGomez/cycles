@@ -182,6 +182,11 @@ export function AthleteCard({ row, monday, todayIso, adherence, adherenceLoading
           </div>
 
           <WeekStrip week={row.week} monday={monday} todayIso={todayIso} loading={row.weekLoading} />
+          {row.weekFailed && (
+            <p className="at-note" role="alert">
+              No se pudieron cargar sus sesiones.
+            </p>
+          )}
 
           <div className="at-adherence">
             {adherenceLoading ? (

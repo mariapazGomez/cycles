@@ -56,6 +56,7 @@ export function AthleteEventsPanel({ athleteId, athleteName, cycles }: { athlete
     return map;
   }, [coachSessions]);
 
+  const failedClash = [...sessionQueries, ...progressQueries].filter((q) => q.isError);
   const clashes = useMemo(() => (layerOn ? loadClashes(coachSessions, eventsQuery.events) : []), [coachSessions, eventsQuery.events, layerOn]);
   const flagged = useMemo(() => clashDays(clashes), [clashes]);
   const [showClash, setShowClash] = useState(false);
@@ -176,6 +177,15 @@ export function AthleteEventsPanel({ athleteId, athleteName, cycles }: { athlete
         <div className="error-banner" role="alert">
           No se pudieron cargar las actividades.{" "}
           <button type="button" className="tour-link" onClick={eventsQuery.refetch}>Reintentar</button>
+        </div>
+      )}
+
+      {layerOn && failedClash.length > 0 && (
+        <div className="error-banner" role="alert">
+          No se pudieron revisar los choques de carga.{" "}
+          <button type="button" className="tour-link" onClick={() => failedClash.forEach((q) => void q.refetch())}>
+            Reintentar
+          </button>
         </div>
       )}
 

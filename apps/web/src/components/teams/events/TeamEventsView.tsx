@@ -25,7 +25,7 @@ export function TeamEventsView({ team, cycles, anchor }: { team: TeamDetail; cyc
   const [allClashes, setAllClashes] = useState(false);
   // Un día de margen a cada lado: una actividad del lunes siguiente también choca con el domingo.
   const query = useQuery({ queryKey: ["teams", team.id, "calendar", addDays(from, -1), addDays(to, 1)], queryFn: () => teamEventsApi.getTeamCalendar(team.id, addDays(from, -1), addDays(to, 1)) });
-  const clashes = useTeamClashes(team.athletes, cycles, query.data, from, to);
+  const { clashes, failed: clashFailed, retry: retryClashes } = useTeamClashes(team.athletes, cycles, query.data, from, to);
 
   const remove = useMutation({
     mutationFn: (event: TeamEventOccurrence) => teamEventsApi.deleteTeamEvent(team.id, event.seriesId),
@@ -43,6 +43,14 @@ export function TeamEventsView({ team, cycles, anchor }: { team: TeamDetail; cyc
 
   return (
     <>
+      {clashFailed && (
+        <div className="error-banner" role="alert">
+          No se pudieron revisar los choques de carga.{" "}
+          <button type="button" className="tour-link" onClick={retryClashes}>
+            Reintentar
+          </button>
+        </div>
+      )}
       {clashes.length > 0 && (
         <div className="tme-clash" role="status">
           <b>Choque de carga:</b>
