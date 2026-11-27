@@ -9,6 +9,8 @@ import { cleanBlocks } from "../common/work-blocks";
 import { earliestAllowedDay, reassignSlots, weekOfDate } from "../sessions/slots";
 import { CYCLE_DATE_MESSAGES, isValidRange, outsideError, renumberForStart, sessionsOutside, startDateError } from "../cycles/cycle-dates";
 import type { SaveSessionStructureDto, SessionStructureExerciseDto } from "../sessions/dto/save-session-structure.dto";
+import { BOARD_LIMITS } from "../coach-board/coach-board.service";
+import { parseRange } from "../events/recurrence";
 import { addToSummary, emptySummary, rangesOverlap, removalFate, skipReason, TEAM_RULES, type CopyState, type PropagationSummary } from "./rules";
 import type { AddTeamSessionDto, CreateTeamCycleDto, DuplicateTeamSessionDto, TeamCycleDatesDto, UpdateTeamCycleDto, UpdateTeamSessionDto } from "./dto/team-cycle.dto";
 
@@ -196,15 +198,37 @@ export class TeamCyclesService {
     });
   }
 
+  // Los planes de los ciclos que se cruzan con un tramo de fechas, en una sola petición (CYC-325):
+  // el calendario no pide uno por ciclo. El tramo está acotado y el equipo no tiene ciclos
+  // superpuestos, así que son pocos.
+  async details(coachId: string, teamId: string, query: { from: string; to: string; today?: string }) {
+    await this.ownedTeam(coachId, teamId);
+    const { from, to } = parseRange(query.from, query.to);
+    if ((Date.parse(to) - Date.parse(from)) / 86_400_000 + 1 > BOARD_LIMITS.maxDays) {
+      throw new BadRequestException(`El rango puede abarcar como máximo ${BOARD_LIMITS.maxDays} días.`);
+    }
+    const cycles = await this.prisma.teamCycle.findMany({
+      where: { teamId, coachId, status: { not: "archived" }, startDate: { lte: new Date(`${to}T23:59:59.999Z`) }, endDate: { gte: new Date(`${from}T00:00:00.000Z`) } },
+      select: { id: true },
+      orderBy: [{ startDate: "asc" }, { id: "asc" }],
+    });
+    const details = [];
+    for (const cycle of cycles) details.push(await this.detail(coachId, cycle.id, query.today));
+    return { cycles: details };
+  }
+
   // El plan con sus sesiones. Las cifras por sesión salen de las copias (el plan no tiene atleta).
-  async detail(coachId: string, teamCycleId: string) {
+  // Cada copia dice su día (que puede no ser el del plan) y, con la misma regla que usa un cambio
+  // (skipReason), si recibiría uno hecho hoy o por qué no.
+  async detail(coachId: string, teamCycleId: string, todayInput?: string) {
     const cycle = await this.ownedCycle(coachId, teamCycleId);
+    const today = this.today(todayInput);
     const [sessions, copies, copySessions] = await Promise.all([
       this.prisma.teamSession.findMany({ where: { teamCycleId }, include: MASTER_INCLUDE, orderBy: [{ scheduledDate: "asc" }, { createdAt: "asc" }] }),
       this.prisma.trainingCycle.findMany({ where: { teamCycleId }, select: { id: true, athleteId: true, status: true, athlete: { select: { name: true } } } }),
       this.prisma.trainingSession.findMany({
         where: { teamSession: { teamCycleId }, deletedAt: null },
-        select: { id: true, teamSessionId: true, status: true, detachedAt: true, cycle: { select: { athleteId: true, teamCycleId: true } } },
+        include: COPY_INCLUDE,
       }),
     ]);
     const current = new Set(copies.map((c) => c.athleteId!));
@@ -225,7 +249,14 @@ export class TeamCyclesService {
           recipients: own.length,
           completed: own.filter((c) => c.status === "completed").length,
           adjusted: own.filter((c) => c.detachedAt).length,
-          copies: own.map((c) => ({ sessionId: c.id, athleteId: c.cycle.athleteId, status: c.status, adjusted: c.detachedAt !== null })),
+          copies: own.map((c) => ({
+            sessionId: c.id,
+            athleteId: c.cycle.athleteId,
+            status: c.status,
+            adjusted: c.detachedAt !== null,
+            scheduledDate: c.scheduledDate,
+            skip: skipReason(stateOf(c), today),
+          })),
         };
       }),
     };

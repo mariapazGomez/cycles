@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import type { TeamAthlete } from "../../services/teamsApi";
-import type { TrainingCycle } from "@cycles/shared";
-import { loadAthleteSessions } from "../../services/boardApi";
+import { athleteSessions } from "../../services/boardApi";
+import { useBoardSessions } from "../../hooks/useBoardSessions";
 import { getTeamCalendar } from "../../services/teamEventsApi";
 import * as teamCyclesApi from "../../services/teamCyclesApi";
 import * as routinesApi from "../../services/routinesApi";
@@ -62,7 +62,6 @@ function Mark({ sessions, isToday }: { sessions: BoardSession[]; isToday: boolea
 export function TeamCalendar({
   teamId,
   athletes,
-  cycles,
   teamCycles,
   todayIso,
   created,
@@ -74,14 +73,13 @@ export function TeamCalendar({
 }: {
   teamId: string;
   athletes: TeamAthlete[];
-  cycles: TrainingCycle[];
   teamCycles: teamCyclesApi.TeamCycleSummary[] | undefined;
   todayIso: string;
   created: CreatedCycle | null;
   onCreatedSeen: () => void;
   onNewCycle: () => void;
   onViewCycle: (cycleId: string) => void;
-  // Fallos de lo que pide la página (ciclos de los atletas y ciclos del equipo).
+  // Fallos de lo que pide la página (los ciclos del equipo).
   baseErrors: unknown[];
   onRetryBase: () => void;
 }) {
@@ -113,38 +111,33 @@ export function TeamCalendar({
   // La invitación pendiente todavía no tiene ciclos ni actividades. El filtro de persona es del mes.
   const members = athletes.filter((a) => a.status === "active" && (mode === "week" || personId === "" || a.id === personId));
 
-  const sessionQueries = useQueries({
-    queries: members.map((a) => {
-      const own = cycles.filter((c) => c.athleteId === a.id);
-      return {
-        queryKey: ["athletes", a.id, "sessions-range", range.from, range.to, own.map((c) => c.id).join()],
-        queryFn: () => loadAthleteSessions(own, range.from, range.to),
-        staleTime: 60_000,
-      };
-    }),
-  });
+  // Las sesiones de todo el equipo llegan en una sola consulta (CYC-325).
+  const board = useBoardSessions(range.from, range.to, { teamId, enabled: athletes.some((a) => a.status === "active") });
   // Los eventos del equipo y lo que agregaron sus atletas, en una sola consulta (CYC-319).
   const calendarQuery = useQuery({ queryKey: ["teams", teamId, "calendar", range.from, range.to], queryFn: () => getTeamCalendar(teamId, range.from, range.to), staleTime: 60_000 });
   // El plan de cada ciclo del equipo que se ve.
   const summaries = teamCycles ?? [];
   const visibleCycles = crossingCycles(summaries, range.from, range.to);
-  const planQueries = useQueries({
-    queries: visibleCycles.map((c) => ({ queryKey: ["team-cycles", c.id], queryFn: () => teamCyclesApi.getTeamCycle(c.id) })),
+  const planIdsShown = visibleCycles.map((c) => c.id).join();
+  const plansQuery = useQuery({
+    queryKey: ["team-cycles", "range", teamId, range.from, range.to, planIdsShown],
+    queryFn: () => teamCyclesApi.getTeamCycleDetails(teamId, range.from, range.to, todayIso),
+    enabled: visibleCycles.length > 0,
   });
-  const details = planQueries.flatMap((q) => (q.data ? [q.data] : []));
-  const planReady = teamCycles !== undefined && planQueries.every((q) => q.data !== undefined);
+  const details = visibleCycles.length > 0 ? (plansQuery.data ?? []) : [];
+  const planReady = teamCycles !== undefined && (visibleCycles.length === 0 || plansQuery.data !== undefined);
   const routinesQuery = useQuery({ queryKey: ["routines"], queryFn: routinesApi.listRoutines });
 
-  const loading = sessionQueries.some((q) => q.isLoading) || calendarQuery.isLoading || !planReady;
+  const loading = board.isLoading || calendarQuery.isLoading || !planReady;
   // Ningún fallo deja huecos sin avisar: lo que no llegó se dice y se puede volver a pedir.
-  const queries = [...sessionQueries, calendarQuery, ...planQueries];
+  const queries = [board, calendarQuery, plansQuery];
   const errors = [...baseErrors, ...queries.flatMap((q) => (q.error ? [q.error] : []))];
   const failed = errors.length > 0;
   const retry = () => {
     onRetryBase();
     queries.filter((q) => q.isError).forEach((q) => void q.refetch());
   };
-  const memberSessions: MemberSessions[] = members.map((a, i) => ({ athleteId: a.id, sessions: sessionQueries[i]?.data ?? [] }));
+  const memberSessions: MemberSessions[] = members.map((a) => ({ athleteId: a.id, sessions: board.data ? athleteSessions(board.data, a.id, range.from, range.to) : [] }));
   const memberEvents: MemberEvents[] = members.map((a) => ({ athleteId: a.id, athleteName: a.name, events: (calendarQuery.data?.athleteEvents ?? []).filter((e) => e.athleteId === a.id) }));
   const teamEvents = calendarQuery.data?.teamEvents ?? [];
   // Los filtros solo existen en el mes.

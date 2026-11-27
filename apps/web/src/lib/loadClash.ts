@@ -26,7 +26,7 @@ export interface LoadClash {
 const MIN_SESSIONS = 3;
 
 // Umbral de volumen del tercio más alto: el menor volumen que aún queda en ese tercio.
-export function heavyThreshold(sessions: CoachSession[]): number | null {
+export function heavyThreshold(sessions: Array<Pick<CoachSession, "volume">>): number | null {
   const volumes = sessions.map((s) => s.volume).filter((v) => v > 0).sort((a, b) => b - a);
   if (volumes.length < MIN_SESSIONS) return null;
   const topCount = Math.ceil(volumes.length / 3);
@@ -44,8 +44,9 @@ export const isHeavy = (session: CoachSession, threshold: number | null) => thre
 // Actividades que cuentan para un choque: intensidad alta o partido.
 export const isDemanding = (event: Pick<AthleteEventOccurrence, "type" | "intensity">) => event.type === "match" || event.intensity === "high";
 
-export function loadClashes(sessions: CoachSession[], events: AthleteEventOccurrence[]): LoadClash[] {
-  const threshold = heavyThreshold(sessions);
+// El umbral sale de las sesiones de todo el ciclo; quien solo trae las de unos días lo entrega
+// calculado.
+export function loadClashes(sessions: CoachSession[], events: AthleteEventOccurrence[], threshold: number | null = heavyThreshold(sessions)): LoadClash[] {
   if (threshold === null) return [];
   const result: LoadClash[] = [];
   for (const session of sessions.filter((s) => isHeavy(s, threshold))) {

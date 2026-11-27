@@ -25,7 +25,7 @@ export function TeamEventsView({ team, cycles, anchor }: { team: TeamDetail; cyc
   const [allClashes, setAllClashes] = useState(false);
   // Un día de margen a cada lado: una actividad del lunes siguiente también choca con el domingo.
   const query = useQuery({ queryKey: ["teams", team.id, "calendar", addDays(from, -1), addDays(to, 1)], queryFn: () => teamEventsApi.getTeamCalendar(team.id, addDays(from, -1), addDays(to, 1)) });
-  const { clashes, failed: clashFailed, retry: retryClashes } = useTeamClashes(team.athletes, cycles, query.data, from, to);
+  const { clashes, failed: clashFailed, retry: retryClashes } = useTeamClashes(team.id, team.athletes, cycles, query.data, from, to);
 
   const remove = useMutation({
     mutationFn: (event: TeamEventOccurrence) => teamEventsApi.deleteTeamEvent(team.id, event.seriesId),

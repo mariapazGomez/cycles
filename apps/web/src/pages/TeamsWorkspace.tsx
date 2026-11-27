@@ -192,12 +192,10 @@ export function TeamsWorkspace() {
                 key={team.id}
                 teamId={team.id}
                 athletes={team.athletes}
-                cycles={cyclesQuery.data ?? []}
                 teamCycles={teamCyclesQuery.data}
                 todayIso={todayIso}
-                baseErrors={[cyclesQuery.error, teamCyclesQuery.error].filter(Boolean)}
+                baseErrors={[teamCyclesQuery.error].filter(Boolean)}
                 onRetryBase={() => {
-                  if (cyclesQuery.isError) void cyclesQuery.refetch();
                   if (teamCyclesQuery.isError) void teamCyclesQuery.refetch();
                 }}
                 created={createdCycle}

@@ -116,3 +116,11 @@ export class TodayQueryDto {
   @Matches(DAY)
   today?: string;
 }
+
+export class TeamCycleDetailsQueryDto extends TodayQueryDto {
+  @IsString()
+  from!: string;
+
+  @IsString()
+  to!: string;
+}

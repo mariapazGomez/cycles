@@ -56,11 +56,10 @@ function dataOf(f: EventFields) {
 export class EventsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // Ocurrencias del rango con la repetición ya resuelta.
-  private async occurrences(athleteId: string, from: string, to: string, hideNotes: boolean): Promise<AthleteEventsResponse> {
-    const rows = await this.prisma.athleteEvent.findMany({
+  private async rows(athleteIds: string[], from: string, to: string) {
+    return this.prisma.athleteEvent.findMany({
       where: {
-        athleteId,
+        athleteId: { in: athleteIds },
         date: { lte: at(to) },
         OR: [
           { repeatDays: { isEmpty: true }, date: { gte: at(from) } },
@@ -69,6 +68,10 @@ export class EventsService {
       },
       include: { exceptions: { where: { date: { gte: at(from), lte: at(to) } } } },
     });
+  }
+
+  // Ocurrencias de las filas de un atleta con la repetición ya resuelta.
+  private expandRows(rows: Awaited<ReturnType<EventsService["rows"]>>, from: string, to: string, hideNotes: boolean): AthleteEventOccurrence[] {
     const series: SeriesRow[] = rows.map((r) => ({ id: r.id, ...toFields(r) }));
     const exceptions = new Map<string, ExceptionRow[]>(
       rows.map((r) => [
@@ -76,8 +79,21 @@ export class EventsService {
         r.exceptions.map((e) => ({ date: day(e.date), cancelled: e.cancelled, overrides: (e.overrides ?? null) as Partial<EventFields> | null })),
       ]),
     );
-    const events = expand(series, exceptions, from, to).map<AthleteEventOccurrence>((o) => (hideNotes ? { ...o, notes: null } : o));
-    return { events };
+    return expand(series, exceptions, from, to).map<AthleteEventOccurrence>((o) => (hideNotes ? { ...o, notes: null } : o));
+  }
+
+  private async occurrences(athleteId: string, from: string, to: string, hideNotes: boolean): Promise<AthleteEventsResponse> {
+    return { events: this.expandRows(await this.rows([athleteId], from, to), from, to, hideNotes) };
+  }
+
+  // Varios atletas en una sola consulta (CYC-325), siempre sin notas. Solo quienes siguen con una
+  // relación activa con este coach (R5).
+  async listForAthletes(coachId: string, athleteIds: string[], from: string, to: string): Promise<(AthleteEventOccurrence & { athleteId: string })[]> {
+    const active = await this.prisma.coachAthlete.findMany({ where: { coachId, athleteId: { in: athleteIds }, status: "active" }, select: { athleteId: true } });
+    const rows = await this.rows(active.map((r) => r.athleteId), from, to);
+    const byAthlete = new Map<string, typeof rows>();
+    for (const row of rows) byAthlete.set(row.athleteId, [...(byAthlete.get(row.athleteId) ?? []), row]);
+    return [...byAthlete].flatMap(([athleteId, own]) => this.expandRows(own, from, to, true).map((e) => ({ ...e, athleteId })));
   }
 
   listMine(athleteId: string, query: { from?: unknown; to?: unknown }) {
