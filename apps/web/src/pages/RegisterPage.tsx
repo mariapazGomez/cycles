@@ -10,6 +10,7 @@ import { PolicyCheckbox } from "../components/PolicyCheckbox";
 import { REGISTRATION_OPEN, clearAccessCode } from "../lib/features";
 import { track } from "../lib/analytics";
 import { PasswordField } from "../components/PasswordField";
+import { PhoneChoice } from "../components/PhoneChoice";
 
 // `accessCode` viene del enlace privado del piloto; con el registro abierto no hace falta.
 export function RegisterPage({ accessCode }: { accessCode?: string | null }) {
@@ -107,41 +108,7 @@ export function RegisterPage({ accessCode }: { accessCode?: string | null }) {
 
         <PasswordField id="password" label="Contraseña" autoComplete="new-password" minLength={8} value={password} onChange={setPassword} />
 
-        {role === "athlete" && (
-          <fieldset className="field phone-choice">
-            <legend>¿Qué teléfono usas?</legend>
-            <label className="checkbox-field">
-              <input type="radio" name="phone" checked={phone === "ios"} onChange={() => setPhone("ios")} />
-              <span>iPhone</span>
-            </label>
-            <label className="checkbox-field">
-              <input type="radio" name="phone" checked={phone === "android"} onChange={() => setPhone("android")} />
-              <span>Android</span>
-            </label>
-            {phone === "ios" && (
-              <>
-                <label htmlFor="appleEmail">Correo de tu Apple ID</label>
-                <input
-                  id="appleEmail"
-                  type="email"
-                  autoComplete="off"
-                  value={appleEmail ?? email}
-                  onChange={(e) => setAppleEmail(e.target.value)}
-                />
-                <p className="auth-note">
-                  Lo usamos solo para invitarte a instalar la app con TestFlight de Apple. Puede ser distinto del
-                  correo de tu cuenta de Cycles.
-                </p>
-              </>
-            )}
-            {phone === "android" && (
-              <p className="auth-note">
-                La app para Android aún no está en Google Play. Te enviamos un correo para que uses Cycles desde el
-                navegador de tu celular.
-              </p>
-            )}
-          </fieldset>
-        )}
+        {role === "athlete" && <PhoneChoice phone={phone} onPhone={setPhone} appleEmail={appleEmail ?? email} onAppleEmail={setAppleEmail} />}
 
         <label className="checkbox-field">
           <input

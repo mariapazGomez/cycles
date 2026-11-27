@@ -32,6 +32,7 @@ import "./styles/events.css";
 import "./styles/coach-radii.css";
 import { initAnalytics } from "./lib/analytics";
 import "./styles/landing.css";
+import "./styles/onboarding.css";
 
 warmUpApi();
 initAnalytics();

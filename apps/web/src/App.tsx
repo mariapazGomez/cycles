@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Navigate, Route, Routes, useLocation, useSearchParams } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { PublicOnlyRoute } from "./components/PublicOnlyRoute";
@@ -10,7 +10,9 @@ import { RegisterPage } from "./pages/RegisterPage";
 import { CalendarPage } from "./pages/CalendarPage";
 import { AcceptPolicyPage } from "./pages/AcceptPolicyPage";
 import { AnalyticsBridge } from "./components/AnalyticsBridge";
-import { ACCESS_CODE_PARAM, REGISTRATION_OPEN, loadAccessCode, storeAccessCode } from "./lib/features";
+import { ACCESS_CODE_PARAM, INVITATION_PARAM, REGISTRATION_OPEN, loadAccessCode, loadInvitation, storeAccessCode, storeInvitation } from "./lib/features";
+import { InvitedRegisterPage } from "./pages/InvitedRegisterPage";
+import { CoachQuestionsPage } from "./pages/CoachQuestionsPage";
 import { CheckEmailPage } from "./pages/CheckEmailPage";
 import { VerifyEmailPage } from "./pages/VerifyEmailPage";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
@@ -62,20 +64,24 @@ function CyclesRoute() {
   return <CyclesPage />;
 }
 
-// El registro está cerrado al público (early adopters): se entra con el enlace
-// privado del piloto, /register?codigo=…, que el equipo da a cada coach.
+// El registro está cerrado al público (early adopters): se entra con la invitación personal,
+// /register?invitacion=… (CYC-295), o con el enlace privado del piloto, /register?codigo=…
 function RegisterRoute() {
   const [params, setParams] = useSearchParams();
   const fromUrl = params.get(ACCESS_CODE_PARAM);
+  const invitedFromUrl = params.get(INVITATION_PARAM);
+  // La invitación se conserva en el estado: al crear la cuenta se borra del almacenamiento y la
+  // pantalla tiene que seguir siendo la misma. Un enlace con código manda sobre una guardada.
+  const [invitation] = useState(() => invitedFromUrl ?? (fromUrl ? null : loadInvitation()));
 
   useEffect(() => {
-    if (fromUrl) {
-      storeAccessCode(fromUrl);
-      // El código no se queda en la barra de direcciones ni en el historial.
-      setParams({}, { replace: true });
-    }
-  }, [fromUrl, setParams]);
+    if (invitedFromUrl) storeInvitation(invitedFromUrl);
+    if (fromUrl) storeAccessCode(fromUrl);
+    // Ni el código ni la invitación se quedan en la barra de direcciones ni en el historial.
+    if (invitedFromUrl || fromUrl) setParams({}, { replace: true });
+  }, [invitedFromUrl, fromUrl, setParams]);
 
+  if (invitation) return <InvitedRegisterPage token={invitation} />;
   const code = fromUrl ?? loadAccessCode();
   if (!REGISTRATION_OPEN && !code) return <Navigate to="/login" replace />;
   return (
@@ -108,6 +114,14 @@ export function App() {
           <PublicOnlyRoute>
             <ForgotPasswordPage />
           </PublicOnlyRoute>
+        }
+      />
+      <Route
+        path="/register/preguntas"
+        element={
+          <ProtectedRoute>
+            <CoachQuestionsPage />
+          </ProtectedRoute>
         }
       />
       <Route path="/check-email" element={<CheckEmailPage />} />

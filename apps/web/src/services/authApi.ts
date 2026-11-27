@@ -26,12 +26,19 @@ export function register(data: {
   // Solo atletas: con iPhone se invita a TestFlight al correo del Apple ID.
   phonePlatform?: "ios" | "android";
   appleIdEmail?: string;
+  // Enlace personal (CYC-295): crea la cuenta con el correo ya verificado y devuelve la sesión.
+  invitationToken?: string;
 }) {
-  return apiRequest<{ id: string; email: string }>("/auth/register", {
+  return apiRequest<{ id: string; email: string; accessToken?: string }>("/auth/register", {
     method: "POST",
     auth: false,
     body: data,
   });
+}
+
+// ¿Sirve este enlace de invitación? Responde con el correo invitado, o 410 si ya no sirve.
+export function checkInvitation(token: string) {
+  return apiRequest<{ email: string }>("/auth/invitation/check", { method: "POST", auth: false, body: { token } });
 }
 
 export function login(data: { email: string; password: string }) {

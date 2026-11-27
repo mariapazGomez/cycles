@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
+import { needsCoachQuestions } from "../lib/coachGate";
 import { useAuth } from "../hooks/useAuth";
 import { LoadingScreen } from "./LoadingScreen";
 
@@ -13,6 +14,7 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, require = "withRole" }: ProtectedRouteProps) {
   const { status, user } = useAuth();
+  const { pathname } = useLocation();
 
   if (status === "loading") {
     return <LoadingScreen />;
@@ -30,6 +32,11 @@ export function ProtectedRoute({ children, require = "withRole" }: ProtectedRout
   // sigue hasta aceptarla (T-147).
   if (require === "withRole" && user?.needsPolicyAcceptance) {
     return <Navigate to="/accept-policy" replace />;
+  }
+
+  // Quien dejó a medias las preguntas de su registro las retoma antes de seguir (CYC-295).
+  if (require === "withRole" && needsCoachQuestions(user, pathname)) {
+    return <Navigate to="/register/preguntas" replace />;
   }
 
   if (require === "withoutRole" && user?.role) {
