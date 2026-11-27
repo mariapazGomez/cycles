@@ -66,7 +66,7 @@ Fuera de este diseño: descartar u ocultar mensajes que no piden acceso, enviar 
 
 ## Envío sin activar
 
-**Propuesta pendiente de aprobación de la usuaria.** La pidió Desarrollo general (a través de Organización, 26-11): el diseño no decía qué mostrar mientras el envío está apagado. La API ya informa si está activo (`enabled` en la lista, `origin/main`). Capturas `capturas/admin-apagado*.png`.
+**Aprobado por la usuaria (26-11): «Sí, apruebo».** Lo pidió Desarrollo general (a través de Organización, 26-11): el diseño no decía qué mostrar mientras el envío está apagado. La API ya informa si está activo (`enabled` en la lista, `origin/main`). Capturas `capturas/admin-apagado*.png`.
 
 | Caso | Qué se ve |
 |---|---|
