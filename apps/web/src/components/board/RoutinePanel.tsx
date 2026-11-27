@@ -19,10 +19,12 @@ interface RoutinePanelProps {
   onActivate: (routine: RoutineDetail, anchor: HTMLElement) => void;
   onDragStart: (routine: RoutineDetail) => void;
   onDragEnd: () => void;
+  // Aviso bajo el título (por ejemplo, por qué las rutinas están apagadas).
+  note?: string | null;
 }
 
 // Panel de rutinas (variante A): buscador, lista arrastrable y «Crear rutina nueva».
-export function RoutinePanel({ routines, isLoading, isError, disabled, draggingId, onRetry, onOpenBuilder, onActivate, onDragStart, onDragEnd }: RoutinePanelProps) {
+export function RoutinePanel({ routines, isLoading, isError, disabled, draggingId, onRetry, onOpenBuilder, onActivate, onDragStart, onDragEnd, note }: RoutinePanelProps) {
   const [query, setQuery] = useState("");
   const filtered = useMemo(() => {
     const needle = normalize(query.trim());
@@ -34,6 +36,7 @@ export function RoutinePanel({ routines, isLoading, isError, disabled, draggingI
       <header className="bd-rail-head">
         <h2>Rutinas</h2>
       </header>
+      {note && <p className="tcx-note">{note}</p>}
       <label className="bd-search">
         <SearchIcon />
         <input

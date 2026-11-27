@@ -5,7 +5,7 @@ interface DayPickerProps {
   label: string;
   confirmLabel: string;
   // Días válidos por semana (ya sin el día actual ni los pasados).
-  options: { week: number; days: string[] }[];
+  options: { week: number; days: string[]; label?: string }[];
   onPick: (dayIso: string) => void;
   onCancel: () => void;
 }
@@ -37,7 +37,7 @@ export function DayPicker({ label, confirmLabel, options, onPick, onCancel }: Da
       </label>
       <select id="bd-day-select" className="bd-inp" value={day} onChange={(e) => setDay(e.target.value)}>
         {options.map((group) => (
-          <optgroup key={group.week} label={`Semana ${group.week}`}>
+          <optgroup key={`${group.days[0]}-${group.week}`} label={group.label ?? `Semana ${group.week}`}>
             {group.days.map((iso) => (
               <option key={iso} value={iso}>
                 {weekdayName(iso)} {dayOfMonth(iso)} · {shortDate(iso)}

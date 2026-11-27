@@ -1291,6 +1291,24 @@
   }
 }
 
+/* Calendario del equipo: una rutina se arrastra a un día */
+.nd-tcal { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+.nd-tcal-days { display: grid; grid-template-columns: repeat(4, 74px); gap: 6px; }
+.nd-tcal-days span { height: 86px; padding: 8px; border: 1px solid #c9d2e4; border-radius: 6px; background: #fff; font-size: 13px; }
+.nd-tcal-days .nd-tcal-target { animation: nd-tcal-target 4.8s ease infinite; }
+.nd-tcal-routine { position: absolute; top: 18px; right: 12%; padding: 10px 14px; border: 1px solid #1a66dd; border-radius: 6px; background: #fff; font-size: 14px; font-weight: 600; animation: nd-tcal-drag 4.8s ease infinite; }
+@keyframes nd-tcal-drag {
+  0%, 20% { transform: none; }
+  55%, 100% { transform: translate(-70px, 96px) scale(0.72); }
+}
+@keyframes nd-tcal-target {
+  0%, 35% { background: #fff; border-color: #c9d2e4; }
+  55%, 100% { background: #f3f8ff; border-color: #3080fc; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nd-tcal-routine, .nd-tcal-days .nd-tcal-target { animation: none; }
+}
+
 /* Reactivo a la pantalla real (contenedor y alto de ventana) */
 @container (max-width: 479px) {
   .nv-body {

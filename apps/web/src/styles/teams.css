@@ -74,7 +74,10 @@ a.tms-tool:hover { background: var(--color-gray-light); }
 .tms-cal-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 16px; }
 .tms-cal-title { margin: 0; font-size: 1.15rem; font-weight: 600; }
 .tms-cal-title small { color: var(--color-gray-mid); font-size: 0.8rem; font-weight: 400; }
-.tms-cal-tools { display: flex; align-items: center; gap: 8px; }
+.tms-cal-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.tms-cal-tools .bd-save:empty { display: none; }
+.tcx-arrows { display: inline-flex; gap: 8px; }
+.tms-shell .bd-pop { box-sizing: border-box; max-width: calc(100vw - 16px); }
 .tms-seg { display: inline-flex; border: 1px solid var(--color-control-border); border-radius: 6px; overflow: hidden; }
 .tms-seg button { min-height: 36px; padding: 0 14px; border: 0; background: var(--color-bg); font: inherit; font-weight: 500; cursor: pointer; }
 .tms-seg button[aria-pressed="true"] { background: var(--color-gray-light); }
@@ -250,4 +253,103 @@ a.tms-tool:hover { background: var(--color-gray-light); }
   .tme-who .tms-badge { display: none; }
   .tme-rank .hm-avatar { display: none; }
   .tme-barcell { width: 26%; }
+}
+
+/* Planificar desde el calendario (docs/diseno/calendario-equipo-arrastre). El panel de rutinas es
+   el mismo de la pizarra. */
+@media (min-width: 1101px) {
+  .tcx-bar { display: none; }
+}
+.tcx-cycle { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 0 16px 12px; }
+.tcx-cycle b { font-weight: 600; }
+.tcx-cycle .tmc-chip { font-size: 0.8rem; }
+.tcx-cycle button { margin-left: auto; }
+.tms-month td.tcx-in { box-shadow: inset 0 3px 0 var(--color-brand); }
+.tms-month td.tcx-ok { background: var(--color-blue-50); box-shadow: inset 0 0 0 2px var(--color-brand); }
+.tms-month td.tcx-bad { background: var(--color-pain-bg); box-shadow: inset 0 0 0 2px #e6a3a6; cursor: not-allowed; }
+.tcx-why { display: block; margin-top: 6px; padding: 2px 6px; border-radius: 4px; background: var(--color-blue); color: #fff; font-size: 0.75rem; font-weight: 600; text-align: center; pointer-events: none; }
+.tcx-bad .tcx-why { background: var(--color-pain-ink); }
+.tcx-top { display: flex; align-items: center; justify-content: space-between; gap: 4px; min-height: 24px; }
+.tcx-top .tms-daynum { margin-left: auto; }
+.tcx-ses { position: relative; cursor: default; }
+.tcx-ses:hover { background: transparent; }
+.tcx-ses[draggable="true"] { cursor: grab; }
+.tcx-ses[draggable="true"]:hover { background: var(--color-gray-light); }
+.tcx-ses .tms-card-name { display: block; white-space: normal; overflow-wrap: anywhere; }
+.tcx-ses .bd-mn { position: absolute; right: 6px; bottom: 5px; margin: 0; }
+.tcx-ses .tms-pill { margin-right: 22px; }
+.tcx-own { color: var(--color-ink-secondary); font-size: 0.75rem; }
+.tcx-empty { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 0 16px 12px; padding: 12px 14px; border: 1px solid #b9ccee; border-radius: 6px; background: var(--color-blue-50); font-size: 0.92rem; }
+.tcx-note { margin: 0; padding: 10px 12px; border-radius: 6px; background: var(--color-gray-light); font-size: 0.84rem; line-height: 1.45; color: var(--color-ink-secondary); }
+.tms-week tr.tcx-plan th, .tms-week tr.tcx-plan td { background: var(--color-bg); vertical-align: top; border-bottom: 2px solid var(--color-gray-border); }
+.tms-week tr.tcx-plan th { width: 132px; font-weight: 600; }
+.tms-week tr.tcx-plan td { width: 11.5%; padding: 8px 2px; text-align: left; }
+.tms-week tr.tcx-plan td.tcx-in { box-shadow: inset 0 3px 0 var(--color-brand); }
+.tms-week tr.tcx-plan td.tcx-ok { background: var(--color-blue-50); box-shadow: inset 0 0 0 2px var(--color-brand); }
+.tms-week tr.tcx-plan td.tcx-bad { background: var(--color-pain-bg); box-shadow: inset 0 0 0 2px #e6a3a6; }
+.tms-week .tcx-top { justify-content: center; }
+.tms-week tr.tcx-plan .tms-card { padding: 6px 5px; }
+.tms-week tr.tcx-plan .tms-card-name { font-size: 0.75rem; line-height: 1.3; word-break: normal; overflow-wrap: break-word; }
+.tms-week tr.tcx-plan .tms-pill { margin-right: 0; padding: 2px 4px; font-size: 0.75rem; }
+.tms-week tr.tcx-plan .tcx-ses .bd-mn { position: static; align-self: flex-end; height: 18px; margin: -4px 0 -3px; }
+.tms-week tr.tcx-plan .tmc-tag { padding: 2px 4px; font-size: 0.75rem; }
+.tcx-h { margin: 0; padding: 10px 12px 6px; font-size: 0.95rem; font-weight: 600; }
+.tcx-list { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--color-gray-border); }
+.tcx-list li { display: grid; grid-template-columns: 56px minmax(0, 1fr) 32px; gap: 8px; align-items: start; padding: 8px 12px; border-bottom: 1px solid var(--color-gray-border); font-size: 0.86rem; }
+.tcx-list li > b { font-weight: 600; }
+.tcx-list .tms-card { margin: 0 0 6px; }
+.tms-shell .bd-ritem, .tms-shell .bd-rail { border-radius: 6px; }
+@media (max-width: 720px) {
+  .tms-month td .tcx-top { flex-wrap: wrap; }
+}
+
+/* Sidebar y letra compactos (docs/diseno/equipos-sidebar-compacto, opción A). Solo con puntero
+   fino y sobre 760 px: en teléfono y pantallas táctiles se mantienen las medidas de siempre. */
+@media (min-width: 761px) and (pointer: fine) {
+  .tms-shell { grid-template-columns: 208px minmax(0, 1fr); }
+  .tms-shell-col { grid-template-columns: 60px minmax(0, 1fr); }
+  .tms-side { gap: 8px; padding: 10px 8px; }
+  /* Contraer va en la fila de «Herramientas»: el nombre del equipo conserva todo el ancho. */
+  .tms-side:not(.tms-side-col) { display: grid; grid-template-columns: minmax(0, 1fr) 32px; grid-auto-rows: max-content; align-content: start; column-gap: 6px; }
+  .tms-side:not(.tms-side-col) .tms-select { grid-column: 1 / -1; grid-row: 1; }
+  .tms-side:not(.tms-side-col) .tms-collapse { grid-column: 2; grid-row: 2; align-self: center; }
+  .tms-side:not(.tms-side-col) .tms-heading { grid-column: 1; grid-row: 2; align-self: center; margin: 0 8px; }
+  .tms-side:not(.tms-side-col) .tms-tools { grid-column: 1 / -1; grid-row: 3; }
+  .tms-collapse { width: 32px; height: 32px; }
+  .tms-current { min-height: 40px; gap: 8px; padding: 4px 8px; font-size: 0.875rem; }
+  .tms-badge { width: 24px; height: 24px; font-size: 0.75rem; }
+  .tms-heading { margin: 6px 8px 0; font-size: 0.75rem; }
+  .tms-tool { min-height: 36px; gap: 10px; padding: 0 10px; font-size: 0.875rem; }
+  .tms-tool svg { width: 18px; height: 18px; }
+  .tms-side-col { padding: 10px 6px; }
+  .tms-side-col .tms-tool { justify-content: center; width: 44px; padding: 0; }
+  .tms-side-col .tms-current { width: 44px; padding: 4px; }
+  .tms-option { font-size: 0.875rem; }
+  .tms-main { gap: 10px; padding: 14px 16px 32px; }
+  .tms-title { font-size: 1.5rem; }
+  .tms-primary { min-height: 36px; padding: 0 14px; font-size: 0.875rem; }
+  .tms-btn { min-height: 34px; padding: 0 10px; font-size: 0.875rem; }
+  .tms-seg button { min-height: 32px; padding: 0 10px; font-size: 0.875rem; }
+  .tms-head-actions .bld-icon { width: 36px; height: 36px; }
+  .tms-filter { height: 34px; min-width: 150px; font-size: 0.875rem; }
+  .tms-cal-bar { padding: 10px 12px; }
+  .tms-cal-title { font-size: 1rem; }
+  .tcx-cycle { padding: 0 12px 10px; font-size: 0.875rem; }
+  .tms-month td { height: 96px; padding: 4px; }
+  .tms-card-name { font-size: 0.8125rem; }
+  .tms-pill, .tcx-own, .tms-month th, .tcx-cycle .tmc-chip, .tms-line { font-size: 0.75rem; }
+  .tms-month .tms-pill { white-space: nowrap; }
+  .tms-month .tcx-ses .tms-pill { margin-right: 18px; padding: 2px 5px; }
+  .tms-month .tcx-ses .bd-mn { right: 1px; width: 20px; }
+  .tms-shell .bd-rail { gap: 10px; padding: 10px; }
+  .tms-shell .bd-rail-head h2 { font-size: 0.9375rem; }
+  .tms-shell .bd-ritem { gap: 8px; padding: 6px 8px; }
+  .tms-shell .bd-nm b { font-size: 0.8125rem; }
+  .tms-shell .bd-nm small { font-size: 0.75rem; }
+  .tms-shell .bd-search input, .tms-shell .bd-btn { font-size: 0.8125rem; }
+}
+/* El panel de rutinas angosto es solo de Equipos; bajo 1100 px se abre como panel lateral. */
+@media (min-width: 1101px) and (pointer: fine) {
+  .tms-shell .bd-layout { grid-template-columns: minmax(0, 1fr) 232px; gap: 12px; }
+  .tms-shell .bd-layout-ro { grid-template-columns: minmax(0, 1fr); }
 }

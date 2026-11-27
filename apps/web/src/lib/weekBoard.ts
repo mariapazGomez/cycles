@@ -12,6 +12,9 @@ export interface BoardSession {
   // "AAAA-MM-DD"
   dayIso: string;
   pain: boolean;
+  // Solo las que vienen de un ciclo del equipo (CYC-314).
+  teamCycleId?: string | null;
+  teamSessionId?: string | null;
 }
 
 // Los siete días (lunes a domingo) de la semana que empieza en `monday`.

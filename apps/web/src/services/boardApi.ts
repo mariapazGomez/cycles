@@ -31,7 +31,7 @@ export async function loadAthleteSessions(athleteCycles: TrainingCycle[], from: 
     for (const session of lists[i]) {
       const dayIso = sessionDayIso(cycle.startDate, session, cycle.sessionsPerWeek ?? 0);
       if (utcDay(dayIso) < utcDay(from) || utcDay(dayIso) > utcDay(to)) continue;
-      result.push({ id: session.id, name: session.name, status: session.status, dayIso, pain: false });
+      result.push({ id: session.id, name: session.name, status: session.status, dayIso, pain: false, teamCycleId: cycle.teamCycleId, teamSessionId: session.teamSessionId });
     }
   });
   return result;

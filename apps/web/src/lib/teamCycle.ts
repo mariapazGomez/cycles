@@ -9,6 +9,11 @@ import { addDays, weekStartIso } from "./weekCalendar";
 const day = (iso: string) => iso.slice(0, 10);
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
+export interface BadgeInfo {
+  text: string;
+  tone: "ok" | "warn" | "pending";
+}
+
 export type CyclePhase = "current" | "next" | "past";
 export const PHASE_LABEL: Record<CyclePhase, string> = { current: "En curso", next: "Próximo", past: "Terminado" };
 
