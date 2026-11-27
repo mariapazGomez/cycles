@@ -1,5 +1,5 @@
 import { ForbiddenException } from "@nestjs/common";
-import { AccountService, weeksBetween } from "./account.service";
+import { AccountService, KEPT_TEMPLATE_NAME, weeksBetween } from "./account.service";
 
 const d = (iso: string) => new Date(`${iso}T00:00:00Z`);
 
@@ -32,7 +32,7 @@ function setup(user: { id: string; role: string; email?: string }, cycles: unkno
     routineExercise: { deleteMany: fn() },
     routineBlock: { deleteMany: fn() },
     sessionBlock: { deleteMany: fn() },
-    exercise: { updateMany: fn() },
+    exercise: { updateMany: fn(), deleteMany: fn() },
     user: { delete: jest.fn(), update: jest.fn() },
     $executeRaw: jest.fn().mockResolvedValue(1),
   };
@@ -76,11 +76,14 @@ describe("AccountService.deleteAccount (atleta)", () => {
 
     expect(tx.trainingCycle.create.mock.calls[0][0].data).toMatchObject({
       coachId: "coach1",
-      name: "Hipertrofia",
+      name: KEPT_TEMPLATE_NAME,
       isTemplate: true,
       templateWeeks: 4,
     });
     expect(tx.trainingCycle.create.mock.calls[0][0].data).not.toHaveProperty("athleteId");
+    // El texto libre del plan podría nombrar al atleta: no se copia.
+    expect(tx.trainingCycle.create.mock.calls[0][0].data).not.toHaveProperty("objective");
+    expect(tx.notification.deleteMany).toHaveBeenCalledWith({ where: { payload: { path: ["athleteId"], equals: "a1" } } });
     expect(tx.exerciseLog.deleteMany).toHaveBeenCalled();
     expect(tx.athleteMax.deleteMany).toHaveBeenCalledWith({ where: { athleteId: "a1" } });
     expect(tx.teamMember.deleteMany).toHaveBeenCalledWith({ where: { athleteId: "a1" } });
@@ -111,6 +114,8 @@ describe("AccountService.deleteAccount (coach)", () => {
 
     expect(tx.coachAthlete.updateMany).toHaveBeenCalledWith({ where: { coachId: "co1" }, data: { status: "inactive" } });
     expect(tx.exercise.updateMany).toHaveBeenCalledWith({ where: { createdBy: "co1" }, data: { isActive: false } });
+    expect(tx.exercise.deleteMany.mock.calls[0][0].where).toMatchObject({ createdBy: "co1", sessionExercises: { none: {} } });
+    expect(tx.notification.deleteMany).toHaveBeenCalledWith({ where: { planId: { in: expect.any(Array) } } });
     expect(tx.user.delete).not.toHaveBeenCalled();
     const data = tx.user.update.mock.calls[0][0].data;
     expect(data).toMatchObject({ name: "Coach eliminado", passwordHash: null });

@@ -10,6 +10,9 @@ import { normalizeEmail } from "../common/validation/normalize-email";
 // Tope de semanas de una plantilla (CreateTemplateDto).
 const MAX_TEMPLATE_WEEKS = 52;
 
+// Nombre de la plantilla que queda al coach cuando un atleta elimina su cuenta.
+export const KEPT_TEMPLATE_NAME = "Plantilla de un ciclo anterior";
+
 export function weeksBetween(start: Date, end: Date): number {
   const days = Math.round((end.getTime() - start.getTime()) / 86_400_000) + 1;
   return Math.min(MAX_TEMPLATE_WEEKS, Math.max(1, Math.ceil(days / 7)));
@@ -94,7 +97,8 @@ export class AccountService {
 
   // Atleta: se borra todo lo suyo (series, cierres, avisos, sesión y la cuenta).
   // Sus planes no se pierden para el coach: cada uno pasa a ser una plantilla de
-  // su Biblioteca, sin atleta ni fechas reales ni rutinas puestas.
+  // su Biblioteca, sin atleta ni fechas reales ni rutinas puestas. El nombre y el
+  // objetivo no se copian: son texto libre y podrían nombrar al atleta (26-11).
   private async deleteAthlete(tx: Prisma.TransactionClient, athleteId: string): Promise<void> {
     const cycles = await tx.trainingCycle.findMany({ where: { athleteId, isTemplate: false } });
 
@@ -107,8 +111,7 @@ export class AccountService {
       await tx.trainingCycle.create({
         data: {
           coachId: cycle.coachId,
-          name: cycle.name,
-          objective: cycle.objective,
+          name: KEPT_TEMPLATE_NAME,
           cycleType: cycle.cycleType,
           sessionsPerWeek: cycle.sessionsPerWeek,
           isTemplate: true,
@@ -145,6 +148,8 @@ export class AccountService {
     // Sus actividades paralelas (con sus excepciones, que caen en cascada) se van con la cuenta.
     await tx.athleteEvent.deleteMany({ where: { athleteId } });
     await this.deleteLoginData(tx, athleteId);
+    // Los avisos de sus coaches que lo nombran (todos guardan su id).
+    await tx.notification.deleteMany({ where: { payload: { path: ["athleteId"], equals: athleteId } } });
     await tx.athleteInvitationToken.deleteMany({ where: { coachAthlete: { athleteId } } });
     // Sale de los equipos de sus coaches (CYC-309); el equipo y sus demás atletas siguen.
     await tx.teamMember.deleteMany({ where: { athleteId } });
@@ -155,8 +160,9 @@ export class AccountService {
   // Coach: sus atletas conservan todo su historial (podrán vincularse a otro
   // coach), así que la fila de la cuenta se queda anonimizada porque los planes
   // y las sesiones de esos atletas apuntan a ella. Se borra su identidad, su
-  // Biblioteca y sus avisos; los ejercicios propios solo se ocultan porque el
-  // historial de los atletas los usa.
+  // Biblioteca, sus avisos y los avisos de otras personas que lo nombran. De sus
+  // ejercicios propios se borran los que nada usa; los demás solo se ocultan
+  // porque el historial de los atletas los necesita.
   private async anonymizeCoach(tx: Prisma.TransactionClient, coachId: string): Promise<void> {
     await tx.coachAthlete.updateMany({ where: { coachId }, data: { status: "inactive" } });
     await tx.athleteInvitationToken.deleteMany({ where: { coachAthlete: { coachId } } });
@@ -174,7 +180,21 @@ export class AccountService {
     await tx.routineExercise.deleteMany({ where: { routineId: { in: routineIds } } });
     await tx.routineBlock.deleteMany({ where: { routineId: { in: routineIds } } });
     await tx.routine.deleteMany({ where: { id: { in: routineIds } } });
+    // Después de borrar sus rutinas y equipos, para que esas no cuenten como uso.
+    await tx.exercise.deleteMany({
+      where: {
+        createdBy: coachId,
+        sessionExercises: { none: {} },
+        routineExercises: { none: {} },
+        teamSessionExercises: { none: {} },
+        athleteMaxes: { none: {} },
+        loadAdjustments: { none: {} },
+      },
+    });
     await tx.exercise.updateMany({ where: { createdBy: coachId }, data: { isActive: false } });
+    // Los avisos de sus atletas llevan su nombre y apuntan a los planes que les hizo.
+    const planIds = (await tx.trainingCycle.findMany({ where: { coachId }, select: { id: true } })).map((c) => c.id);
+    await tx.notification.deleteMany({ where: { planId: { in: planIds } } });
 
     await this.deleteLoginData(tx, coachId);
     await tx.user.update({
