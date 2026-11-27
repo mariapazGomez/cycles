@@ -72,6 +72,35 @@ export interface UserDetail {
   lastLoginAt: string | null;
   athletes: Array<{ name: string; status: string }>;
   coaches: Array<{ name: string; status: string }>;
+  // Respuestas del registro o la encuesta (CYC-295); null si no es un coach real.
+  coachProfile?: CoachProfileSummary | null;
+}
+export interface CoachProfileSummary {
+  status: "complete" | "partial" | "none";
+  completedAt: string | null;
+  answered: number;
+  total: number;
+  questions: Array<{ label: string; answer: string | null }>;
+}
+export type InvitationState = "not_invited" | "queued" | "sending" | "sent" | "expired" | "failed" | "registered" | "has_account";
+export interface InvitationRow {
+  email: string;
+  messages: number;
+  lastMessage: string | null;
+  lastMessageAt: string | null;
+  beforeNewNotice: boolean;
+  state: InvitationState;
+  invitationId: string | null;
+  queuedFor: string | null;
+  sentAt: string | null;
+  expiresAt: string | null;
+  usedAt: string | null;
+}
+export interface InvitationsPage {
+  enabled: boolean;
+  sentToday: number;
+  dailyCap: number;
+  items: InvitationRow[];
 }
 export interface Summary {
   real: { total: number; coaches: number; athletes: number };

@@ -25,6 +25,7 @@ Portal independiente, solo para el equipo de desarrollo, en **`admin.getcycles.a
 | `POST /admin/invitations` con `{email}` | Envía la invitación, o la deja en cola si el cupo del día está tomado. Sirve para enviar, «Enviar de nuevo» y «Reintentar». Apagado responde **409**. |
 | `DELETE /admin/invitations/:id/queue` | Quita de la cola. |
 | `coachProfile` en `GET /admin/users/:id` (CYC-295) | Respuestas del coach: `{status: complete|partial|none, completedAt, answered, total, questions: [{label, answer}]}`; `null` si es atleta o demo. |
+| Pestaña «Invitaciones» y «Perfil de coach» (CYC-295) | La pestaña lista las solicitudes y envía con confirmación; mientras `enabled` sea `false`, los botones de envío quedan desactivados. El perfil aparece al abrir un coach real. |
 | `GET /admin/versions` | Commit de la API, última migración, política vigente y versión de iOS. |
 | `PUT /admin/settings/ios-version` | Versión de la app iOS (a mano; vacío la borra). |
 
