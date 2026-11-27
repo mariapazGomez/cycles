@@ -151,3 +151,70 @@ export function androidAccessEmail(url: string): EmailContent {
     text: `La app de Cycles para Android todavía no está en Google Play. Mientras tanto puedes usar Cycles desde el navegador de tu celular: entra con tu cuenta, agrega la página a tu pantalla de inicio y registra tus entrenamientos como en la app.\n\n${url}\n\nTe avisaremos cuando llegue la app para Android. Si no creaste una cuenta en Cycles, ignora este mensaje.`,
   };
 }
+
+// Invitación del piloto (CYC-295, docs/diseno/invitacion-onboarding/correo.html).
+// Texto fijo: no usa nada de lo que la persona escribió en el formulario. Motivo
+// de proteína con radios de 6 px y botón rectangular; siempre se puede responder,
+// porque sale con su propio Reply-To.
+const PILOT_LETTER = [
+  "Hola:",
+  "Gracias por dejarnos tu correo. Con esta invitación puedes crear tu cuenta antes de que abramos el registro a todo el público.",
+  "En Cycles, el coach arma los ciclos de entrenamiento de sus atletas, y cada atleta ve lo que le toca y registra sus sesiones.",
+  "Si entrenas a otras personas, crea tu cuenta como coach. Si entrenas con un coach, elige atleta: verás tu entrenamiento cuando tu coach te invite con ese mismo correo.",
+  "Estamos construyendo Cycles. Si algo no se entiende o te falta, responde este correo: lo leemos.",
+  "Cycles",
+];
+const PILOT_NOTE =
+  "El enlace es personal, sirve una sola vez y vence en 7 días. Si no dejaste tu correo en getcycles.app, ignora este mensaje: no se crea ninguna cuenta.";
+
+export function pilotInvitationEmail(url: string): EmailContent {
+  const safeUrl = escapeHtml(url);
+  const assets = `${new URL(url).origin}/email`;
+  const font = "Helvetica,Arial,sans-serif";
+  const letter = PILOT_LETTER.slice(0, -1)
+    .map((line) => `<p style="margin:0 0 14px;font-size:16px;line-height:1.55;color:${INK};">${escapeHtml(line)}</p>`)
+    .join("\n");
+  return {
+    subject: "Tu invitación a Cycles",
+    html: `<!doctype html>
+<html lang="es">
+<body style="margin:0;padding:0;background:#f6f7f9;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;mso-hide:all;">Crea tu cuenta. El enlace es personal y dura 7 días.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f7f9;padding:32px 16px;">
+<tr><td align="center">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border:1px solid #dfe2e7;border-radius:6px;overflow:hidden;">
+<tr><td height="6" style="height:6px;line-height:6px;font-size:0;background:${BRAND_FILL};">&nbsp;</td></tr>
+<tr><td bgcolor="#ffffff" background="${assets}/curvas-cycles.png" style="background:#ffffff url('${assets}/curvas-cycles.png') no-repeat center top;background-size:100% auto;padding:28px 28px 32px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr><td style="padding:0 0 32px;"><img src="${assets}/logo-cycles.png" width="132" alt="Cycles" style="display:block;border:0;height:auto;"></td></tr>
+<tr><td style="padding:0 0 24px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${TINT};border:1px solid #d6e4ff;border-radius:6px;">
+<tr><td style="padding:28px 24px;font-family:${font};">
+<h1 style="margin:0 0 18px;font-size:24px;line-height:1.25;color:${INK};">Tu invitación a Cycles</h1>
+${letter}
+<p style="margin:22px 0 0;font-size:16px;line-height:1.55;color:${INK};">Cycles</p>
+</td></tr>
+</table>
+</td></tr>
+<tr><td>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border:1px solid #dfe2e7;border-radius:6px;">
+<tr><td style="padding:24px 24px 4px;font-family:${font};">
+<a href="${safeUrl}" style="display:inline-block;padding:14px 28px;border-radius:6px;background:${BRAND_BLUE};color:#ffffff;font-size:16px;font-weight:600;text-decoration:none;">Crear mi cuenta</a>
+<p style="margin:20px 0;font-size:13px;line-height:1.5;color:${MUTED};">Si el botón no funciona, copia este enlace en tu navegador:<br><a href="${safeUrl}" style="color:${BRAND_BLUE};word-break:break-all;">${safeUrl}</a></p>
+<p style="margin:20px 0;font-size:13px;line-height:1.5;color:${MUTED};">${PILOT_NOTE}</p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</td></tr>
+<tr><td style="padding:16px 28px;background:#f6f7f9;border-top:1px solid #dfe2e7;font-family:${font};font-size:13px;color:${MUTED};">
+<img src="${assets}/isotipo-cycles.png" width="16" height="16" alt="" style="vertical-align:middle;border:0;margin-right:8px;">Enviado por Cycles. ¿Dudas? Responde a este correo.
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>`,
+    text: `${PILOT_LETTER.join("\n\n")}\n\nCrear mi cuenta:\n${url}\n\n${PILOT_NOTE}\n\n¿Dudas? Responde a este correo.`,
+  };
+}

@@ -2,7 +2,11 @@ import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Resend } from "resend";
 import { SecurityAlertService } from "../common/alerts/security-alert.service";
-import { EmailContent, androidAccessEmail, athleteInvitationEmail, passwordResetEmail, verificationEmail } from "./templates";
+import { EmailContent, androidAccessEmail, athleteInvitationEmail, passwordResetEmail, pilotInvitationEmail, verificationEmail } from "./templates";
+
+// A dónde llegan las respuestas de la invitación del piloto: la carta dice que se
+// leen, así que no depende de MAIL_REPLY_TO.
+export const INVITATION_REPLY_TO = "hola@getcycles.app";
 
 // El envío falló (Resend rechazó el pedido o no respondió). Quien llama
 // decide qué hacer: ver docs/deploy/PLAN-Deploy.md, paso 1.5.
@@ -53,6 +57,11 @@ export class MailService {
     await this.deliver(to, athleteInvitationEmail(url, coachName, this.canReply), `[DEV] Invitación de ${coachName} para ${to}: ${url}`);
   }
 
+  async sendPilotInvitationEmail(to: string, token: string): Promise<void> {
+    const url = `${this.config.get<string>("FRONTEND_URL")}/register?invitacion=${encodeURIComponent(token)}`;
+    await this.deliver(to, pilotInvitationEmail(url), `[DEV] Invitación del piloto para ${to}: ${url}`, INVITATION_REPLY_TO);
+  }
+
   async sendAndroidAccessEmail(to: string): Promise<void> {
     const url = this.config.get<string>("FRONTEND_URL") ?? "";
     await this.deliver(to, androidAccessEmail(url), `[DEV] Acceso web para Android enviado a ${to}`);
@@ -67,13 +76,13 @@ export class MailService {
     return `${this.config.get<string>("FRONTEND_URL")}${path}?token=${encodeURIComponent(token)}`;
   }
 
-  private async deliver(to: string, content: EmailContent, devLog: string): Promise<void> {
+  private async deliver(to: string, content: EmailContent, devLog: string, replyToOverride?: string): Promise<void> {
     if (!this.resend) {
       this.logger.log(devLog);
       return;
     }
 
-    const replyTo = this.config.get<string>("MAIL_REPLY_TO");
+    const replyTo = replyToOverride ?? this.config.get<string>("MAIL_REPLY_TO");
     try {
       const { error } = await this.resend.emails.send({
         from: this.config.get<string>("MAIL_FROM") ?? "Cycles <hola@mail.getcycles.app>",

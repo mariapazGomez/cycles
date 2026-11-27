@@ -21,6 +21,7 @@ import type { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
+import { InvitationTokenDto } from "./dto/invitation.dto";
 import { RefreshTokenDto, LogoutDto, GoogleExchangeDto, SocialLoginDto } from "./dto/tokens.dto";
 import { VerifyEmailDto, ResendVerificationDto } from "./dto/email-verification.dto";
 import { RequestPasswordResetDto, ConfirmPasswordResetDto } from "./dto/password-reset.dto";
@@ -46,8 +47,18 @@ export class AuthController {
 
   @Throttle(LIMITS.register)
   @Post("register")
-  register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto);
+  async register(@Body() dto: RegisterDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const { tokens, ...account } = await this.authService.register(dto);
+    // Solo con invitación se entra directo; si no, falta verificar el correo.
+    return tokens ? { ...account, ...deliverTokens(req, res, tokens, this.secureCookies) } : account;
+  }
+
+  // ¿Sirve este enlace de invitación? El enlace va en el cuerpo para que no quede en direcciones ni registros.
+  @Throttle(LIMITS.tokenUse)
+  @Post("invitation/check")
+  @HttpCode(HttpStatus.OK)
+  checkInvitation(@Body() dto: InvitationTokenDto) {
+    return this.authService.checkInvitation(dto.token);
   }
 
   @Throttle(LIMITS.login)

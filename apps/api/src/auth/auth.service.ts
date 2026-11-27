@@ -2,6 +2,7 @@ import { CURRENT_NOVELTY_KEYS } from "../common/novelties";
 import {
   ConflictException,
   ForbiddenException,
+  GoneException,
   Injectable,
   UnauthorizedException,
   Logger,
@@ -25,6 +26,7 @@ import { IdentityTokenVerifier, SocialProvider } from "./identity-token.verifier
 import { SocialLoginDto } from "./dto/tokens.dto";
 import { generateJti, generateRawToken, hashToken } from "./token.util";
 import { normalizeEmail } from "../common/validation/normalize-email";
+import { INVITATION_GONE_MESSAGE, InvitationsService } from "../invitations/invitations.service";
 import { EmailHistoryService } from "../email-history/email-history.service";
 
 const ACCESS_TOKEN_TTL = "15m";
@@ -76,6 +78,7 @@ export class AuthService {
     private readonly identityTokens: IdentityTokenVerifier,
     private readonly testflight: TestflightService,
     private readonly emailHistory: EmailHistoryService,
+    private readonly invitations: InvitationsService,
   ) {}
 
   // Early adopters: el registro está cerrado salvo que REGISTRATION_OPEN=true.
@@ -95,8 +98,18 @@ export class AuthService {
     return timingSafeEqual(digest(code.trim()), digest(expected));
   }
 
-  async register(dto: RegisterDto): Promise<{ id: string; email: string }> {
-    if (!this.registrationOpen && !this.hasValidAccessCode(dto.accessCode)) {
+  // La página de registro pregunta por el enlace antes de mostrar el formulario.
+  async checkInvitation(token: string): Promise<{ email: string }> {
+    return { email: (await this.invitations.findUsable(token)).email };
+  }
+
+  async register(dto: RegisterDto): Promise<{ id: string; email: string; tokens?: AuthTokens }> {
+    // Con invitación el enlace ya probó el correo: vale solo para ese correo.
+    const invitation = dto.invitationToken ? await this.invitations.findUsable(dto.invitationToken) : null;
+    if (invitation && invitation.email !== dto.email) {
+      throw new GoneException(INVITATION_GONE_MESSAGE);
+    }
+    if (!invitation && !this.registrationOpen && !this.hasValidAccessCode(dto.accessCode)) {
       throw new ForbiddenException(dto.accessCode ? ACCESS_CODE_INVALID_MESSAGE : REGISTRATION_CLOSED_MESSAGE);
     }
     const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
@@ -105,26 +118,38 @@ export class AuthService {
     }
 
     const passwordHash = await bcrypt.hash(dto.password, BCRYPT_COST);
-    const user = await this.prisma.user.create({
-      data: {
-        email: dto.email,
-        name: dto.name,
-        passwordHash,
-        role: dto.role,
-        authProvider: "local",
-        tourNewsSeen: CURRENT_NOVELTY_KEYS,
-        dataConsentAt: dto.dataConsent ? new Date() : null,
-        dataConsentVersion: dto.dataConsent ? DATA_CONSENT_VERSION : null,
-        policyAcceptances: { create: policyAcceptanceData("register") },
-      },
-    });
+    const data = {
+      email: dto.email,
+      name: dto.name,
+      passwordHash,
+      role: dto.role,
+      authProvider: "local" as const,
+      tourNewsSeen: CURRENT_NOVELTY_KEYS,
+      dataConsentAt: dto.dataConsent ? new Date() : null,
+      dataConsentVersion: dto.dataConsent ? DATA_CONSENT_VERSION : null,
+      policyAcceptances: { create: policyAcceptanceData("register") },
+    };
+    // La invitación se marca usada en la misma transacción que crea la cuenta.
+    const user = invitation
+      ? await this.prisma.$transaction(async (tx) => {
+          const created = await tx.user.create({ data: { ...data, emailVerifiedAt: new Date() } });
+          await this.invitations.claim(tx, invitation, created.id);
+          return created;
+        })
+      : await this.prisma.user.create({ data });
 
     await this.emailHistory.recordRegistration(user);
     if (dto.role === "athlete") {
       await this.testflight.recordRegistration(user.id, dto.phonePlatform, dto.appleIdEmail ?? user.email);
     }
-    await this.issueEmailVerification(user);
-    return { id: user.id, email: user.email };
+    if (!invitation) {
+      await this.issueEmailVerification(user);
+      return { id: user.id, email: user.email };
+    }
+    // Correo ya verificado: pasa lo mismo que al verificarlo, y entra con la sesión iniciada.
+    this.activity.coachJoined(user.id);
+    this.testflight.onEmailVerified(user.id);
+    return { id: user.id, email: user.email, tokens: await this.issueTokenPair(user) };
   }
 
   // `ip` alimenta las alertas de seguridad (docs/PLAN-Seguridad.md, 1E).
