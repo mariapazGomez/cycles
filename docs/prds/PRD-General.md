@@ -417,16 +417,13 @@ La **tanda 3** de `docs/PLAN-Seguridad.md` (tiempos del login y append-only en l
 Una fase (o un PR grande dentro de ella) no se da por terminada hasta verificar esta lista. Es la forma de no depender de la memoria: se revisa **siempre**, aunque la fase parezca no tocar el tema.
 
 **Seguridad**
-- [ ] El cambio respeta las reglas de §8.1 (detalle en `docs/SEGURIDAD.md` §2).
+- [ ] El cambio respeta las reglas de §8.1.
 - [ ] Cada endpoint nuevo tiene DTO, rol declarado y chequeo de propiedad, y se probaron los casos prohibidos: sin sesión, otro rol, otro dueño, relación inactiva.
-- [ ] `npm audit --omit=dev` sin vulnerabilidades altas ni críticas, o cada excepción anotada en `docs/SEGURIDAD.md`.
+- [ ] `npm audit --omit=dev` sin vulnerabilidades altas ni críticas; cada excepción se explica en el PR.
 - [ ] Ningún secreto nuevo en el repo; las variables nuevas están en el `.env.example` que corresponda y en la lista de validación al arrancar.
-- [ ] `docs/SEGURIDAD.md` actualizado: archivos sensibles nuevos y hallazgos resueltos o nuevos.
 
 **Producto y datos**
-- [ ] El PRD de la funcionalidad tiene su estado al día, y la tabla de §0 también.
-- [ ] Si cambió el esquema: migración nueva (nunca editar una aplicada) y diagrama del modelo de datos actualizado (§6 y `docs/diagrams/modelo-relacional.html`).
-- [ ] `docs/enlaces.md` al día con las rutas y endpoints nuevos.
+- [ ] Si cambió el modelo de datos: migración nueva (nunca editar una aplicada) y diagrama del modelo de datos actualizado.
 - [ ] Si la funcionalidad cambia algo que la persona nota, trae su **ficha de novedad** en `packages/shared/src/novelties.ts` (popup de novedades, ver `docs/diseno/guia-novedades-bloques`) en el mismo PR; una mejora de una novedad ya publicada sube su `version`. Si no hay efecto visible, el PR dice «Sin novedad» y el motivo. También se copia la clave en `apps/api/src/common/novelties.ts` (una prueba las compara).
 
 **Diseño y textos**
@@ -435,8 +432,8 @@ Una fase (o un PR grande dentro de ella) no se da por terminada hasta verificar 
 
 **Calidad y proceso**
 - [ ] Typecheck y build de los workspaces tocados, sin errores.
-- [ ] Probado a mano de punta a punta (y con tests automáticos cuando existan: tanda 2 de seguridad). Lo que quede sin probar se anota en `docs/PRUEBAS-PENDIENTES.md`.
-- [ ] Todo entra a `main` por PR, con una descripción de qué se probó.
+- [ ] Probado a mano de punta a punta (y con tests automáticos cuando existan: tanda 2 de seguridad). Lo que quede sin probar se declara en el PR.
+- [ ] Todo entra a `main` por PR, con una descripción de qué se probó y qué no.
 
 ## 11. Decisiones abiertas
 

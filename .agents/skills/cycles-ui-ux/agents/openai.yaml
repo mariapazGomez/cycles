@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cycles UI/UX"
+  short_description: "Diseña y homogeneiza la experiencia de Cycles"
+  default_prompt: "Usa $cycles-ui-ux para analizar y priorizar la homogeneización UI/UX de Cycles."
