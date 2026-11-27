@@ -185,17 +185,18 @@ const ROWS=[
 const TAB={pend:r=>r.s==='pend'||r.s==='fail',queue:r=>r.s==='queue',done:r=>['sent','used','exp'].includes(r.s),all:()=>true};
 const NAMES={pend:'Por enviar',queue:'En cola',done:'Invitadas',all:'Todas'};
 const clone=()=>ROWS.map(r=>({...r}));
-function stateCell(r){
+function stateCell(r0,off){
+ const r=off&&r0.s==='queue'?{...r0,w:'En espera hasta que se active el envío.'}:r0;
  const T={pend:['muted','Sin invitar'],queue:['warn','En cola'],sending:['muted','Enviando'],sent:['ok','Enviada'],used:['ok','Cuenta creada'],exp:['warn','Vencida'],fail:['err','Error de envío'],acc:['muted','Ya tenía cuenta']}[r.s];
  const extra={queue:r.w,sent:r.w+'<br>'+r.x,used:'El '+String(r.w).split(' el ')[1],exp:r.w,fail:'No salió el correo.'}[r.s]||(r.old?'Escribió antes del aviso nuevo.':'');
  return `<span class="tag ${T[0]}">${T[1]}</span>${extra?`<small>${extra}</small>`:''}`;
 }
 function actCell(r,i,sv){
- const full=sv.sent>=CAP;
+ const full=sv.sent>=CAP&&!sv.off,dis=sv.off?' disabled aria-describedby="off"':'';
  if(sv.confirm===i)return `<div class="confirm"><span>${full?'¿Poner en la cola? Sale sola cuando haya cupo.':r.s==='exp'?'¿Enviar un enlace nuevo? El anterior deja de servir.':'¿Enviar la invitación a este correo?'}</span><button class="btn p sm" data-a="yes" data-i="${i}">${full?'Sí, poner en cola':'Sí, enviar'}</button><button class="btn sm" data-a="no">Cancelar</button></div>`;
- if(r.s==='pend')return `<button class="btn p sm" data-a="ask" data-i="${i}">${full?'Poner en cola':'Enviar invitación'}</button>`;
- if(r.s==='fail')return `<button class="btn sm" data-a="ask" data-i="${i}">${full?'Poner en cola':'Reintentar'}</button>`;
- if(r.s==='exp')return `<button class="btn sm" data-a="ask" data-i="${i}">${full?'Poner en cola':'Enviar de nuevo'}</button>`;
+ if(r.s==='pend')return `<button class="btn p sm" data-a="ask" data-i="${i}"${dis}>${full?'Poner en cola':'Enviar invitación'}</button>`;
+ if(r.s==='fail')return `<button class="btn sm" data-a="ask" data-i="${i}"${dis}>${full?'Poner en cola':'Reintentar'}</button>`;
+ if(r.s==='exp')return `<button class="btn sm" data-a="ask" data-i="${i}"${dis}>${full?'Poner en cola':'Enviar de nuevo'}</button>`;
  if(r.s==='queue')return `<button class="btn sm" data-a="out" data-i="${i}">Quitar de la cola</button>`;
  if(r.s==='sending')return '<button class="btn sm" disabled>Enviando…</button>';
  return '';
@@ -207,9 +208,11 @@ function view(sv){
  <div class="pg"><h1>Administración</h1>
  <div class="tabs">${['Usuarios','Invitaciones','Uso','Correos','Enlaces y versiones'].map(x=>`<button type="button" aria-selected="${x==='Invitaciones'}">${x}</button>`).join('')}</div>
  <div class="tools"><div class="seg" role="group" aria-label="Estado">${Object.keys(NAMES).map(k=>`<button type="button" data-a="tab" data-i="${k}" aria-pressed="${sv.tab===k}">${NAMES[k]} ${sv.rows.filter(TAB[k]).length}</button>`).join('')}</div><span class="cap">Hoy salieron <b>${sv.sent} de ${CAP}</b></span></div>
- ${sv.sent>=CAP?`<div class="banner info" role="status">Ya salieron las ${CAP} invitaciones de hoy. Lo que agregues queda en cola y se envía solo en los días siguientes.</div>`:''}
+ ${sv.off?'<div class="banner info" id="off" role="status">El envío de invitaciones todavía no está activado. Puedes revisar las solicitudes; no sale ninguna invitación.</div>':''}
+ ${sv.err?`<div class="banner err" role="alert">${sv.err}</div>`:''}
+ ${sv.sent>=CAP&&!sv.off?`<div class="banner info" role="status">Ya salieron las ${CAP} invitaciones de hoy. Lo que agregues queda en cola y se envía solo en los días siguientes.</div>`:''}
  ${sv.note?`<div class="banner ok" role="status">${sv.note}</div>`:''}
- ${list.length?`<div class="card"><table class="inv"><thead><tr><th>Solicitud</th><th>Escribió</th><th>Estado</th><th><span class="sr">Acciones</span></th></tr></thead><tbody>${list.map(([r,i])=>`<tr><td><b>${r.m}</b><p class="msg${sv.open===i?' open':''}">${r.t}</p>${r.t.length>100?`<button class="more" data-a="more" data-i="${i}">${sv.open===i?'Ver menos':'Ver todo'}</button>`:''}${r.n?`<small>Escribió ${r.n} veces. Se muestra el último mensaje.</small>`:''}</td><td data-l="Escribió">${r.d}</td><td data-l="Estado">${stateCell(r)}</td><td class="act">${actCell(r,i,sv)}</td></tr>`).join('')}</tbody></table></div>`:`<div class="card empty"><h3>${empty[0]}</h3>${empty[1]}</div>`}
+ ${list.length?`<div class="card"><table class="inv"><thead><tr><th>Solicitud</th><th>Escribió</th><th>Estado</th><th><span class="sr">Acciones</span></th></tr></thead><tbody>${list.map(([r,i])=>`<tr><td><b>${r.m}</b><p class="msg${sv.open===i?' open':''}">${r.t}</p>${r.t.length>100?`<button class="more" data-a="more" data-i="${i}">${sv.open===i?'Ver menos':'Ver todo'}</button>`:''}${r.n?`<small>Escribió ${r.n} veces. Se muestra el último mensaje.</small>`:''}</td><td data-l="Escribió">${r.d}</td><td data-l="Estado">${stateCell(r,sv.off)}</td><td class="act">${actCell(r,i,sv)}</td></tr>`).join('')}</tbody></table></div>`:`<div class="card empty"><h3>${empty[0]}</h3>${empty[1]}</div>`}
  </div>`;
 }
 const S=o=>Object.assign({rows:clone(),tab:'pend',sent:12,confirm:null,open:null,note:''},o);
@@ -223,6 +226,9 @@ document.getElementById('stills').innerHTML=[
  still('invitadas','Invitadas',S({tab:'done'})),
  still('reenviar','Enviar de nuevo una vencida',S({tab:'done',confirm:7})),
  still('vacio','Sin solicitudes',S({rows:[]})),
+ still('apagado','Envío sin activar',S({off:true,sent:0})),
+ still('apagado-cola','Envío sin activar, con algo en cola',S({rows:queued,off:true,sent:0,tab:'queue'})),
+ still('apagado-rechazo','Si se apagó con la página ya abierta',S({off:true,sent:0,err:'El envío de invitaciones todavía no está activado.'})),
  still('tel','En el teléfono',S({}),true)
 ].join('');
 const live=document.getElementById('live');let sv=S({sent:13});
