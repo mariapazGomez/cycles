@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import * as teamCyclesApi from "../services/teamCyclesApi";
 import { ApiError } from "../services/httpClient";
 import { savedMessage } from "../lib/teamCycle";
+import { undoStructure } from "../lib/teamPanel";
 import { athletesCount } from "../lib/teams";
 import { dayOfMonth, weekdayName } from "../lib/weekCalendar";
 import type { BoardToast, SaveStatus } from "./useBoardActions";
@@ -91,7 +92,8 @@ export function useTeamPlanActions(today: string) {
       () => teamCyclesApi.saveTeamSessionStructure(sessionId, next, today),
       (summary) => ({
         message: savedMessage(summary),
-        undo: () => void perform(() => teamCyclesApi.saveTeamSessionStructure(sessionId, previous, today), (s) => ({ message: savedMessage(s) }), "No se pudo deshacer."),
+        // Lo que este guardado quitó se vuelve a crear: sus ids ya no existen.
+        undo: () => void perform(() => teamCyclesApi.saveTeamSessionStructure(sessionId, undoStructure(previous, next), today), (s) => ({ message: savedMessage(s) }), "No se pudo deshacer."),
       }),
       "No se pudo guardar la sesión.",
     );

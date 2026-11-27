@@ -6,6 +6,7 @@ export function ConfirmDialog({
   title,
   children,
   confirmLabel,
+  cancelLabel = "Cancelar",
   busyLabel,
   busy,
   disabled,
@@ -16,6 +17,7 @@ export function ConfirmDialog({
   title: string;
   children: ReactNode;
   confirmLabel: string;
+  cancelLabel?: string;
   busyLabel: string;
   busy: boolean;
   disabled?: boolean;
@@ -41,7 +43,7 @@ export function ConfirmDialog({
           <div id="tmc-confirm-body">{children}</div>
           <footer>
             <button type="button" className="bd-btn" data-autofocus onClick={onClose}>
-              Cancelar
+              {cancelLabel}
             </button>
             <button type="button" className="bd-btn tm-danger" disabled={busy || disabled} onClick={onConfirm}>
               {busy ? busyLabel : confirmLabel}

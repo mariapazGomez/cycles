@@ -6,6 +6,11 @@ export function getTeamCalendar(teamId: string, from: string, to: string) {
   return apiRequest<TeamCalendarResponse>(`/teams/${teamId}/calendar?from=${from}&to=${to}`);
 }
 
+// Solo los eventos del equipo, sin lo que agregó cada atleta.
+export async function listTeamEvents(teamId: string, from: string, to: string) {
+  return (await apiRequest<{ events: TeamCalendarResponse["teamEvents"] }>(`/teams/${teamId}/events?from=${from}&to=${to}`)).events;
+}
+
 export function createTeamEvent(teamId: string, data: CreateTeamEventInput) {
   return apiRequest<TeamEventSeries>(`/teams/${teamId}/events`, { method: "POST", body: data });
 }

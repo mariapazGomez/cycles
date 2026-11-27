@@ -48,7 +48,11 @@ export type NoveltyDemoId =
   | "team-cycle"
   // Eventos del equipo (CYC-319): web del coach.
   | "team-events"
-  | "team-calendar";
+  | "team-calendar"
+  // Panel de la sesión del equipo y calendario solo del equipo: web del coach.
+  | "team-panel-open"
+  | "team-panel-edit"
+  | "team-panel-only";
 
 export interface NoveltySlide {
   title: string;
@@ -384,6 +388,34 @@ export const NOVELTIES: Novelty[] = [
         text: "Crea el ciclo del equipo y arrastra rutinas a sus días: llegan a quienes lo reciben.",
         demoLabel: "Una rutina se arrastra a un día del calendario.",
         demo: "team-calendar",
+      },
+    ],
+  },
+  {
+    key: "coach-team-session-panel",
+    version: 1,
+    since: "2026-11-28",
+    platforms: ["web"],
+    roles: ["coach"],
+    name: "Editar desde el calendario",
+    slides: [
+      {
+        title: "Abre un entrenamiento",
+        text: "Haz clic en un entrenamiento del calendario: su detalle se abre a la derecha.",
+        demoLabel: "Al hacer clic en un entrenamiento, su detalle se abre a la derecha.",
+        demo: "team-panel-open",
+      },
+      {
+        title: "Edítalo sin salir",
+        text: "Cambia ejercicios, series y carga. Antes de guardar ves a quiénes llega el cambio y a quiénes no.",
+        demoLabel: "Cambian las series y el panel dice a cuántos atletas llega.",
+        demo: "team-panel-edit",
+      },
+      {
+        title: "Solo lo del equipo",
+        text: "El calendario muestra entrenamientos y eventos del equipo. Lo de cada atleta sigue en su ficha.",
+        demoLabel: "El calendario deja solo los entrenamientos y eventos del equipo.",
+        demo: "team-panel-only",
       },
     ],
   },

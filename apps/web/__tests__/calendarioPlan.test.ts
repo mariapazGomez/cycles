@@ -1,5 +1,4 @@
-import { activeCycleOn, crossingCycles, cycleReach, dayRule, hasOpenCycle, ownSessions, pickableDays, planBadge, planBlock } from "../src/lib/teamPlanCalendar";
-import type { BoardSession } from "../src/lib/weekBoard";
+import { activeCycleOn, athleteMarks, bandSegments, crossingCycles, dayRule, hasOpenCycle, pickableDays, planBadge, planBlock } from "../src/lib/teamPlanCalendar";
 
 const today = "2026-11-26";
 const cycle = (id: string, startDate: string, endDate: string, status: "active" | "completed" | "archived" = "active") => ({ id, name: id, startDate, endDate, status });
@@ -36,22 +35,41 @@ describe("planificar desde el calendario del equipo", () => {
     expect(planBadge(s("2026-11-19", 0), today).text).toBe("0 de 10");
   });
 
-  it("con filtros que no dejan asignar, dice por qué; en la semana no hay filtros", () => {
-    expect(planBlock({ mode: "month", personId: "a", typeFilter: "all" })).toMatch(/Todas las personas/);
-    expect(planBlock({ mode: "month", personId: "", typeFilter: "events" })).toBe("Muestra las sesiones para asignar rutinas.");
-    expect(planBlock({ mode: "month", personId: "", typeFilter: "sessions" })).toBeNull();
-    expect(planBlock({ mode: "week", personId: "a", typeFilter: "events" })).toBeNull();
+  it("solo con «Eventos del equipo» no se asignan rutinas; en la semana no hay filtro", () => {
+    expect(planBlock({ mode: "month", typeFilter: "team" })).toBe("Muestra las sesiones para asignar rutinas.");
+    expect(planBlock({ mode: "month", typeFilter: "sessions" })).toBeNull();
+    expect(planBlock({ mode: "week", typeFilter: "team" })).toBeNull();
   });
 
-  it("no repite las copias del plan, ajustadas o no, y trata aparte las de otro equipo", () => {
-    const s = (id: string, teamSessionId?: string, teamCycleId?: string): BoardSession => ({ id, name: id, status: "pending", dayIso: today, pain: false, teamSessionId, teamCycleId });
-    const { own, otherTeam } = ownSessions(
-      [{ athleteId: "a", sessions: [s("copia", "m1", "base"), s("propia"), s("suelta-en-copia", undefined, "base"), s("otro-equipo", "z1", "ajeno"), s("quitada-del-plan", "m-borrada", "base")] }],
-      new Set(["m1"]),
-      new Set(["base"]),
-    );
-    expect(own[0].sessions.map((x) => x.id)).toEqual(["propia", "suelta-en-copia", "quitada-del-plan"]);
-    expect(otherTeam[0].sessions.map((x) => x.id)).toEqual(["otro-equipo"]);
+  it("las marcas de la semana son solo del plan del equipo, en el día de cada copia", () => {
+    const copy = (athleteId: string, scheduledDate: string | null, status: "pending" | "completed" = "pending") => ({ sessionId: `${athleteId}-x`, athleteId, status, adjusted: false, scheduledDate, skip: null });
+    const details = [
+      { sessions: [{ name: "Fuerza", scheduledDate: "2026-11-26T00:00:00.000Z", copies: [copy("a", "2026-11-26T00:00:00.000Z", "completed"), copy("b", "2026-11-28T00:00:00.000Z"), copy("c", null)] }] },
+    ] as never;
+    expect(athleteMarks(details, "a", "2026-11-26")).toEqual([{ id: "a-x", name: "Fuerza", status: "completed" }]);
+    // La que movió aparece en su día, no en el del plan.
+    expect(athleteMarks(details, "b", "2026-11-26")).toEqual([]);
+    expect(athleteMarks(details, "b", "2026-11-28")).toHaveLength(1);
+    // Sin día propio, va en el del plan. Quien no tiene copia, queda vacío.
+    expect(athleteMarks(details, "c", "2026-11-26")).toHaveLength(1);
+    expect(athleteMarks(details, "nadie", "2026-11-26")).toEqual([]);
+  });
+
+  it("la barra va un tramo por semana, con borde solo donde el ciclo empieza o termina", () => {
+    const week = (first: number) => Array.from({ length: 7 }, (_, i) => `2026-12-${String(first + i).padStart(2, "0")}`);
+    const brief = (segments: ReturnType<typeof bandSegments<typeof base>>) => segments.map((x) => [x.cycle.id, x.from, x.to, x.starts, x.ends]);
+    // 7–13 dic: termina «base» el domingo 13.
+    expect(brief(bandSegments([next, base], week(7)))).toEqual([["base", 1, 7, false, true]]);
+    expect(bandSegments([base, next], week(14))).toEqual([]);
+    // 21–27 dic: empieza «next» y sigue.
+    expect(brief(bandSegments([base, next], week(21)))).toEqual([["next", 1, 7, true, false]]);
+    // Dos en la misma fila, con hueco; los archivados no salen.
+    const short = cycle("corto", "2026-12-18", "2026-12-20");
+    const done = cycle("terminado", "2026-12-14", "2026-12-15", "completed");
+    expect(brief(bandSegments([short, done, cycle("fuera", "2026-12-14", "2026-12-20", "archived")], week(14)))).toEqual([
+      ["terminado", 1, 2, true, true],
+      ["corto", 5, 7, true, true],
+    ]);
   });
 
   it("sin arrastrar ofrece desde hoy los días de los ciclos abiertos", () => {
@@ -60,10 +78,5 @@ describe("planificar desde el calendario del equipo", () => {
     expect(one[0].days[0]).toBe(today);
     expect(one.flatMap((w) => w.days).at(-1)).toBe("2026-12-13");
     expect(pickableDays([next, base], today).at(-1)!.label).toBe("next, semana 4");
-  });
-
-  it("cuenta cuántos del equipo reciben el ciclo", () => {
-    const athletes = [{ id: "a", status: "active" }, { id: "b", status: "active" }, { id: "p", status: "pending" }, { id: "i", status: "inactive" }];
-    expect(cycleReach({ athletes: [{ athleteId: "a", name: "A", cycleId: "1", status: "active" }, { athleteId: "x", name: "X", cycleId: "2", status: "active" }] }, athletes)).toEqual({ receiving: 1, of: 3 });
   });
 });

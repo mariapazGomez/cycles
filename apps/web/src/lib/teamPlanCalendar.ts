@@ -1,7 +1,7 @@
 // Planificar desde el calendario del equipo (docs/diseno/calendario-equipo-arrastre). Lógica pura.
+import type { SessionStatus } from "@cycles/shared";
 import type { TeamCycleDetail, TeamCycleSummary, TeamSession } from "../services/teamCyclesApi";
 import { teamWeeks, type BadgeInfo } from "./teamCycle";
-import type { MemberSessions } from "./teamCalendar";
 
 const day = (iso: string) => iso.slice(0, 10);
 
@@ -29,10 +29,6 @@ export function dayRule(cycles: Range[], iso: string, today: string): DayRule {
   return activeCycleOn(cycles, iso) ? "ok" : "none";
 }
 
-export function inTeamCycle(cycles: Range[], iso: string): boolean {
-  return cycles.some((c) => c.status !== "archived" && covers(c, iso));
-}
-
 export function hasOpenCycle(cycles: Range[], today: string): boolean {
   return cycles.some((c) => c.status === "active" && day(c.endDate) >= today);
 }
@@ -55,28 +51,55 @@ export function planBadge(session: Pick<TeamSession, "scheduledDate" | "recipien
   return { text: `${session.completed} de ${session.recipients}`, tone: all ? "ok" : "warn" };
 }
 
-// Por qué no se puede planificar con los filtros puestos (solo existen en la vista Mes).
-export function planBlock(view: { mode: "week" | "month"; personId: string; typeFilter: string }): string | null {
+// Por qué no se puede planificar con el filtro puesto (solo existe en la vista Mes).
+export function planBlock(view: { mode: "week" | "month"; typeFilter: string }): string | null {
   if (view.mode !== "month") return null;
-  if (view.personId !== "") {
-    return "Estás viendo a una persona. Para asignar al equipo, elige «Todas las personas». Para cambiar solo lo de esa persona, abre su ficha.";
-  }
-  return view.typeFilter === "all" || view.typeFilter === "sessions" ? null : "Muestra las sesiones para asignar rutinas.";
+  return view.typeFilter === "team" ? "Muestra las sesiones para asignar rutinas." : null;
 }
 
-// Las sesiones de cada atleta que no son del plan que ya se muestra: las propias y las copias de
-// otro equipo (la persona puede estar en dos). Una copia del plan de este equipo, ajustada o no,
-// no se repite. Si la sesión del equipo se quitó y quedó la ajustada, vuelve a mostrarse.
-export function ownSessions(members: MemberSessions[], planIds: Set<string>, teamCycleIds: Set<string>): { own: MemberSessions[]; otherTeam: MemberSessions[] } {
-  const own: MemberSessions[] = [];
-  const otherTeam: MemberSessions[] = [];
-  for (const member of members) {
-    const rest = member.sessions.filter((s) => !(s.teamSessionId && planIds.has(s.teamSessionId)));
-    const foreign = (s: (typeof rest)[number]) => Boolean(s.teamSessionId && s.teamCycleId && !teamCycleIds.has(s.teamCycleId));
-    own.push({ athleteId: member.athleteId, sessions: rest.filter((s) => !foreign(s)) });
-    otherTeam.push({ athleteId: member.athleteId, sessions: rest.filter(foreign) });
-  }
-  return { own, otherTeam };
+export interface TeamMark {
+  id: string;
+  name: string;
+  status: SessionStatus;
+}
+
+// Las marcas de un atleta en un día de la Semana: solo sus copias de sesiones del plan de este
+// equipo, en SU día (la ajustada que movió aparece donde la tiene).
+export function athleteMarks(details: TeamCycleDetail[], athleteId: string, iso: string): TeamMark[] {
+  return details.flatMap((cycle) =>
+    cycle.sessions.flatMap((session) =>
+      session.copies
+        .filter((c) => c.athleteId === athleteId && day(c.scheduledDate ?? session.scheduledDate) === iso)
+        .map((c) => ({ id: c.sessionId, name: session.name, status: c.status })),
+    ),
+  );
+}
+
+export interface BandSegment<T> {
+  cycle: T;
+  // Columnas de la fila (1 a 7), ambas incluidas.
+  from: number;
+  to: number;
+  // ¿Aquí empieza y termina de verdad el ciclo? Si no, el borde es recto y sigue en otra fila.
+  starts: boolean;
+  ends: boolean;
+}
+
+// Los tramos de la barra de cada ciclo en una fila de siete días.
+export function bandSegments<T extends Range>(cycles: T[], week: string[]): BandSegment<T>[] {
+  const first = week[0];
+  const last = week[week.length - 1];
+  return crossingCycles(cycles, first, last).map((cycle) => {
+    const start = day(cycle.startDate);
+    const end = day(cycle.endDate);
+    return {
+      cycle,
+      from: start <= first ? 1 : week.indexOf(start) + 1,
+      to: end >= last ? week.length : week.indexOf(end) + 1,
+      starts: start >= first,
+      ends: end <= last,
+    };
+  });
 }
 
 // Los días que aceptan una rutina sin arrastrar, agrupados por semana de cada ciclo.
@@ -91,11 +114,4 @@ export function pickableDays(cycles: (Range & { name: string })[], today: string
       }))
       .filter((w) => w.days.length > 0),
   );
-}
-
-// Cuántos atletas del equipo reciben el ciclo, sobre los que pueden estar en él.
-export function cycleReach(cycle: Pick<TeamCycleDetail, "athletes">, athletes: { id: string; status: string }[]): { receiving: number; of: number } {
-  const members = athletes.filter((a) => a.status !== "inactive");
-  const receiving = new Set(cycle.athletes.filter((a) => a.status === "active").map((a) => a.athleteId));
-  return { receiving: members.filter((a) => receiving.has(a.id)).length, of: members.length };
 }
