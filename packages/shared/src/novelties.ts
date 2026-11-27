@@ -52,7 +52,8 @@ export type NoveltyDemoId =
   // Panel de la sesión del equipo y calendario solo del equipo: web del coach.
   | "team-panel-open"
   | "team-panel-edit"
-  | "team-panel-only";
+  | "team-panel-only"
+  | "team-cycle-color";
 
 export interface NoveltySlide {
   title: string;
@@ -416,6 +417,12 @@ export const NOVELTIES: Novelty[] = [
         text: "El calendario muestra entrenamientos y eventos del equipo. Lo de cada atleta sigue en su ficha.",
         demoLabel: "El calendario deja solo los entrenamientos y eventos del equipo.",
         demo: "team-panel-only",
+      },
+      {
+        title: "Cada ciclo, su color",
+        text: "Su nombre va en la barra. Si tienes más de un ciclo, tócalo arriba para elegir el color.",
+        demoLabel: "La barra de un ciclo cambia de color junto con su nombre.",
+        demo: "team-cycle-color",
       },
     ],
   },

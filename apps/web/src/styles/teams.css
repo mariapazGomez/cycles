@@ -264,6 +264,17 @@ a.tms-tool:hover { background: var(--color-gray-light); }
 .tcx-cycle { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 0 12px 8px; }
 .tcx-name { max-width: 100%; height: 28px; padding: 0 10px; border: 0; border-radius: 5px; background: var(--tcx-color, #1b66dc); color: #fff; font: inherit; font-size: 0.8125rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
 .tcx-name:hover { text-decoration: underline; }
+.tcx-name { display: inline-flex; align-items: center; gap: 6px; }
+.tcx-name span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.tcx-name i { font-style: normal; line-height: 1; }
+.tcx-colors { display: flex; flex-direction: column; gap: 2px; }
+.tcx-colors p { margin: 0 0 2px; color: var(--color-ink-secondary); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.tcx-colors button { display: grid; grid-template-columns: 14px minmax(0, 1fr) 14px; align-items: center; gap: 10px; min-height: 34px; padding: 4px 8px; border: 0; border-radius: 5px; background: none; color: var(--color-ink); font: inherit; font-size: 0.8125rem; text-align: left; cursor: pointer; }
+.tcx-colors button:hover:not(:disabled), .tcx-colors button[aria-checked="true"] { background: var(--color-gray-light); }
+.tcx-colors button i { width: 14px; height: 14px; border-radius: 4px; }
+.tcx-colors button small { display: block; color: var(--color-ink-secondary); font-size: 0.75rem; overflow-wrap: anywhere; }
+.tcx-colors button b { font-weight: 600; }
+.tcx-colors .tcx-colors-view { display: block; margin-top: 4px; border-top: 1px solid var(--color-gray-border); border-radius: 0 0 5px 5px; }
 /* La barra continua del ciclo: una fila propia sobre los días, un tramo por semana. */
 .tms-month tr.tcx-bandrow td { height: auto; padding: 4px 0 0; }
 .tms-week tr.tcx-bandrow td { padding: 4px 0 0; }

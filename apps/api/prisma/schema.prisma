@@ -586,6 +586,8 @@ model TeamCycle {
   startDate DateTime
   endDate   DateTime
   status    CycleStatus @default(active)
+  // Clave de la paleta de la barra (CYC-325); vacío = azul.
+  color     String?
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 

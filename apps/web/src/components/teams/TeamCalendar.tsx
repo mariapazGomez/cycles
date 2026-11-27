@@ -1,4 +1,6 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState, type CSSProperties } from "react";
+import { colorOf } from "../../lib/teamColors";
+import { CycleName } from "./CycleName";
 import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import type { TeamAthlete } from "../../services/teamsApi";
@@ -53,9 +55,6 @@ function Mark({ marks, isToday }: { marks: TeamMark[]; isToday: boolean }) {
   );
 }
 
-// «del 21 dic al 31 ene 2027»: la fecha no se muestra, pero los lectores de pantalla la oyen.
-const cycleDates = (c: { startDate: string; endDate: string }) => `del ${shortDate(c.startDate.slice(0, 10))} al ${shortDate(c.endDate.slice(0, 10))} ${c.endDate.slice(0, 4)}`;
-
 // La barra de cada ciclo sobre los días de una fila. Informativa: no recibe clics ni tapa el
 // destino al arrastrar; el nombre y las fechas se leen en el encabezado.
 function Band({ cycles, week, lead = 0 }: { cycles: teamCyclesApi.TeamCycleSummary[]; week: string[]; lead?: number }) {
@@ -70,7 +69,7 @@ function Band({ cycles, week, lead = 0 }: { cycles: teamCyclesApi.TeamCycleSumma
             <span
               key={seg.cycle.id}
               className={`tcx-bandseg${seg.starts ? " tcx-bandseg-start" : ""}${seg.ends ? " tcx-bandseg-end" : ""}`}
-              style={{ gridColumn: `${seg.from} / ${seg.to + 1}` }}
+              style={{ gridColumn: `${seg.from} / ${seg.to + 1}`, "--tcx-color": colorOf(seg.cycle).value } as CSSProperties}
               title={seg.cycle.name}
             >
               {seg.cycle.name}
@@ -117,6 +116,7 @@ export function TeamCalendar({
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   // La sesión abierta en el panel lateral.
   const [openId, setOpenId] = useState<string | null>(null);
+  const [colorError, setColorError] = useState<string | null>(null);
   const [drag, setDrag] = useState<Drag>(null);
   const [hover, setHover] = useState<string | null>(null);
   const [pop, setPop] = useState<Pop>(null);
@@ -306,6 +306,14 @@ export function TeamCalendar({
       )}
 
       <div className="bd tmc-board tcx-board">
+        {colorError && (
+          <div className="bd-banner bd-banner-err" role="alert">
+            <span>{colorError}</span>
+            <button type="button" className="bd-ghost" onClick={() => setColorError(null)}>
+              Cerrar
+            </button>
+          </div>
+        )}
         {actions.failure && (
           <div className="bd-banner bd-banner-err" role="alert">
             <span>{actions.failure}</span>
@@ -376,9 +384,7 @@ export function TeamCalendar({
               {visibleCycles.length > 0 && (
                 <div className="tcx-cycle">
                   {visibleCycles.map((cycle) => (
-                    <button key={cycle.id} type="button" className="tcx-name" aria-label={`Ciclo ${cycle.name}, ${cycleDates(cycle)}`} title={cycle.name} onClick={() => onViewCycle(cycle.id)}>
-                      {cycle.name}
-                    </button>
+                    <CycleName key={cycle.id} cycle={cycle} cycles={summaries} onView={() => onViewCycle(cycle.id)} onError={setColorError} />
                   ))}
                 </div>
               )}

@@ -9,6 +9,8 @@ export interface TeamCycleSummary {
   startDate: string;
   endDate: string;
   status: "active" | "completed" | "archived";
+  // Clave de la paleta; null = azul. Ausente si la API todavía no lo conoce.
+  color?: string | null;
 }
 
 export interface TeamSessionExercise {
@@ -89,6 +91,10 @@ export function listTeamCycles(teamId: string) {
 // Los planes de los ciclos que se cruzan con un tramo, en una sola consulta (CYC-325).
 export async function getTeamCycleDetails(teamId: string, from: string, to: string, today: string) {
   return (await apiRequest<{ cycles: TeamCycleDetail[] }>(`/teams/${teamId}/cycle-details?from=${from}&to=${to}&today=${today}`)).cycles;
+}
+
+export function setTeamCycleColor(id: string, color: string) {
+  return apiRequest<TeamCycleDetail>(`/team-cycles/${id}`, { method: "PATCH", body: { color } });
 }
 
 export function getTeamCycle(id: string) {
