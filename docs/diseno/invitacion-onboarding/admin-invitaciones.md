@@ -64,6 +64,19 @@ No cambian el asunto, la vista previa, la carta, el botón, el aviso bajo el bot
 
 Fuera de este diseño: descartar u ocultar mensajes que no piden acceso, enviar varias a la vez y los rebotes posteriores al envío.
 
+## Envío sin activar
+
+**Aprobado por la usuaria (26-11): «Sí, apruebo».** Lo pidió Desarrollo general (a través de Organización, 26-11): el diseño no decía qué mostrar mientras el envío está apagado. La API ya informa si está activo (`enabled` en la lista, `origin/main`). Capturas `capturas/admin-apagado*.png`.
+
+| Caso | Qué se ve |
+|---|---|
+| Al abrir la pestaña | Aviso fijo: «El envío de invitaciones todavía no está activado. Puedes revisar las solicitudes; no sale ninguna invitación.» |
+| Botones | «Enviar invitación», «Reintentar» y «Enviar de nuevo» se ven desactivados y quedan asociados al aviso para lectores de pantalla. Nunca dicen «Poner en cola»: así nada sale por sorpresa al activar |
+| Algo ya en cola (si se apagó después) | «En espera hasta que se active el envío.» en vez de una fecha. «Quitar de la cola» sigue activo. Al activar, lo que quede en cola sale solo, en el horario y con el tope de siempre |
+| Se apagó con la página abierta | Al confirmar, aviso de error con la frase de la API: «El envío de invitaciones todavía no está activado.» La lista se vuelve a cargar y queda como en el primer caso |
+
+El intento rechazado no usa cupo, no entra a la cola y no deja la fila como «Error de envío». El resto de la pestaña funciona igual.
+
 ## Invitaciones vencidas: «Enviar de nuevo»
 
 Decidido por la usuaria en el chat de diseño (26-11): «en cuanto a las preguntas, sigo tus recomendaciones». Así la persona no queda sin salida y la pantalla del enlace puede seguir diciendo «escríbenos y te ayudamos».
