@@ -2,7 +2,7 @@
 
 **Textos aprobados por la usuaria (26-11). Sin revisión legal.** Las condiciones de publicación de abajo siguen vigentes.
 
-**Solo vale cuando el PR #286 esté publicado.** Hoy está abierto. Antes de eso estos textos prometerían borrados que no ocurren. Contrastada el 26-11 con su código y con el PR #285, también abierto, sobre `origin/main` (a9d46b4).
+**Solo vale cuando el PR #286 esté publicado.** Ya está mezclado en `main` (26-11), pero **no se ha verificado que esté en producción**. Antes de eso estos textos prometerían borrados que no ocurren. Contrastada el 26-11 con su código y con el PR #285, sobre `origin/main` (a9d46b4). Después se comprobó en `origin/main` (18f2fb5), con ambos mezclados, que siguen los borrados que describen.
 
 ## Decidido por la usuaria (26-11, trasladado por Organización y descrito en el PR #286)
 
