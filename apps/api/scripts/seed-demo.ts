@@ -19,6 +19,7 @@ import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
 import { policyAcceptanceData } from "../src/common/policy";
 import { cargarEventosDemo } from "./demo-eventos";
+import { cargarEquiposDemo } from "./demo-equipos";
 
 const DEMO_PASSWORD = process.env.DEMO_PASSWORD ?? "";
 const DAY = 24 * 60 * 60 * 1000;
@@ -372,7 +373,10 @@ async function main() {
   // Deporte, actividades paralelas y campeonatos de cada atleta (CYC-273).
   await cargarEventosDemo(prisma);
 
-  console.log(`Demo lista: 1 coach, ${ATHLETES.length} atletas, ${ATHLETES.length} planes.`);
+  // Dos equipos con su ciclo del equipo desde hoy, una sesión ajustada y eventos.
+  const equipos = await cargarEquiposDemo(prisma);
+
+  console.log(`Demo lista: 1 coach, ${ATHLETES.length} atletas, ${ATHLETES.length} planes y ${equipos.equiposNuevos} equipos con su ciclo.`);
 }
 
 main()
