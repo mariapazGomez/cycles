@@ -68,3 +68,7 @@ El estilo de las tarjetas no cambia. En la web y la app, el texto pasa de un pá
 ## Novedad
 
 No lleva ficha: es un cambio de texto legal en Cuenta.
+
+## Estado de la construcción
+
+**Web:** construidos los textos de atleta y coach **sin el párrafo [Huella]** (el historial sigue apagado). **App:** pendiente, le corresponde a App móvil y necesita una versión nueva.
