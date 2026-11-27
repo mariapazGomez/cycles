@@ -47,7 +47,8 @@ export type NoveltyDemoId =
   // Ciclo del equipo (CYC-314): web del coach.
   | "team-cycle"
   // Eventos del equipo (CYC-319): web del coach.
-  | "team-events";
+  | "team-events"
+  | "team-calendar";
 
 export interface NoveltySlide {
   title: string;
@@ -367,6 +368,22 @@ export const NOVELTIES: Novelty[] = [
         text: "Agrega un partido o un viaje una vez y queda en el calendario del equipo.",
         demoLabel: "Un partido se agrega una vez y aparece para todo el equipo.",
         demo: "team-events",
+      },
+    ],
+  },
+  {
+    key: "coach-team-calendar",
+    version: 1,
+    since: "2026-11-27",
+    platforms: ["web"],
+    roles: ["coach"],
+    name: "Calendario del equipo",
+    slides: [
+      {
+        title: "Arma el plan desde el calendario",
+        text: "Crea el ciclo del equipo y arrastra rutinas a sus días: llegan a quienes lo reciben.",
+        demoLabel: "Una rutina se arrastra a un día del calendario.",
+        demo: "team-calendar",
       },
     ],
   },

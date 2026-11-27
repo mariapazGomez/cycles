@@ -10,14 +10,13 @@ import { usePageWide } from "../hooks/usePageWide";
 import { LoadingScreen } from "../components/LoadingScreen";
 import { RowMenu } from "../components/builder/RowMenu";
 import { TeamSidebar, type TeamTool } from "../components/teams/TeamSidebar";
-import { TeamCalendar } from "../components/teams/TeamCalendar";
+import { TeamCalendar, type CreatedCycle } from "../components/teams/TeamCalendar";
 import { TeamCycleView } from "../components/teams/cycle/TeamCycleView";
 import { NewTeamCycleDialog } from "../components/teams/cycle/NewTeamCycleDialog";
 import { JoinTeamCycleDialog, type Joining } from "../components/teams/cycle/JoinTeamCycleDialog";
 import * as teamCyclesApi from "../services/teamCyclesApi";
 import { defaultTeamCycle } from "../lib/teamCycle";
 import { TeamAthletesDialog } from "../components/teams/TeamAthletesDialog";
-import { TeamRoutineFlow } from "../components/teams/TeamRoutineFlow";
 import { CreateTeamDialog } from "../components/teams/CreateTeamDialog";
 import { AddAthletesDialog } from "../components/teams/AddAthletesDialog";
 import { RenameTeamDialog } from "../components/teams/RenameTeamDialog";
@@ -30,7 +29,7 @@ import { addDays, shiftWeek, startOfWeek } from "../lib/eventCalendar";
 import { weekTitle } from "../lib/teamEvents";
 import { athletesCount } from "../lib/teams";
 
-type Dialog = "create" | "athletes" | "add" | "rename" | "delete" | "routine" | "cycle" | "join" | "event" | null;
+type Dialog = "create" | "athletes" | "add" | "rename" | "delete" | "cycle" | "join" | "event" | null;
 
 const COLLAPSED_KEY = "cycles.teams.sidebar-collapsed";
 
@@ -81,7 +80,9 @@ export function TeamsWorkspace() {
   const teamQuery = useQuery({ queryKey: ["teams", id], queryFn: () => teamsApi.getTeam(id as string), enabled: !!id && known });
   const athletesQuery = useQuery({ queryKey: ["athletes"], queryFn: athletesApi.listAthletes });
   const cyclesQuery = useQuery({ queryKey: ["cycles"], queryFn: cyclesApi.listCycles });
-  const teamCyclesQuery = useQuery({ queryKey: ["team-cycles", "of", id], queryFn: () => teamCyclesApi.listTeamCycles(id as string), enabled: !!id && known && tool === "ciclos" });
+  const teamCyclesQuery = useQuery({ queryKey: ["team-cycles", "of", id], queryFn: () => teamCyclesApi.listTeamCycles(id as string), enabled: !!id && known && (tool === "ciclos" || tool === "calendario" || tool === undefined) });
+  // El ciclo recién creado desde el Calendario, para que se mueva a su comienzo.
+  const [createdCycle, setCreatedCycle] = useState<CreatedCycle | null>(null);
   const [pickedCycle, setPickedCycle] = useState<string | null>(null);
   const [joining, setJoining] = useState<Joining | null>(null);
 
@@ -139,8 +140,8 @@ export function TeamsWorkspace() {
               <h1 className="tms-title">{TOOL_TITLE[activeTool]}</h1>
               <div className="tms-head-actions">
                 {activeTool === "calendario" && (
-                  <button type="button" className="tms-primary" disabled={team.athletes.length === 0} onClick={() => setDialog("routine")}>
-                    Agregar rutina
+                  <button type="button" className="tms-primary" disabled={!teamCyclesQuery.data} onClick={() => setDialog("cycle")}>
+                    Agregar ciclo
                   </button>
                 )}
                 {activeTool === "ciclos" && shownCycle && (
@@ -187,7 +188,21 @@ export function TeamsWorkspace() {
             </header>
 
             {activeTool === "calendario" ? (
-              <TeamCalendar key={team.id} teamId={team.id} athletes={team.athletes} cycles={cyclesQuery.data ?? []} todayIso={todayIso} />
+              <TeamCalendar
+                key={team.id}
+                teamId={team.id}
+                athletes={team.athletes}
+                cycles={cyclesQuery.data ?? []}
+                teamCycles={teamCyclesQuery.data}
+                todayIso={todayIso}
+                created={createdCycle}
+                onCreatedSeen={() => setCreatedCycle(null)}
+                onNewCycle={() => setDialog("cycle")}
+                onViewCycle={(cycleId) => {
+                  setPickedCycle(cycleId);
+                  navigate(`/equipos/${team.id}/ciclos`);
+                }}
+              />
             ) : activeTool === "eventos" ? (
               <TeamEventsView key={team.id} team={team} cycles={cyclesQuery.data ?? []} anchor={eventsWeek} />
             ) : activeTool === "rankings" ? (
@@ -232,7 +247,6 @@ export function TeamsWorkspace() {
         />
       )}
       {team && dialog === "join" && joining && <JoinTeamCycleDialog team={team} joining={joining} today={todayIso} onClose={() => setDialog(null)} />}
-      {team && dialog === "routine" && <TeamRoutineFlow teamId={team.id} onClose={() => setDialog(null)} />}
       {team && dialog === "event" && (
         <TeamEventDialog
           team={team}
@@ -253,7 +267,9 @@ export function TeamsWorkspace() {
           onCreated={(created) => {
             setDialog(null);
             setPickedCycle(created.id);
+            if (activeTool === "calendario") setCreatedCycle({ id: created.id, startDate: created.startDate });
             queryClient.invalidateQueries({ queryKey: ["team-cycles"] });
+            queryClient.invalidateQueries({ queryKey: ["cycles"] });
           }}
         />
       )}
