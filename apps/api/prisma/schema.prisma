@@ -134,6 +134,8 @@ model User {
   policyAcceptances       PolicyAcceptance[]
   betaInvite              BetaInvite?
   summaryLayout           CoachSummaryLayout?
+  pilotInvitation         PilotInvitation?
+  coachProfile            CoachProfile?
   athleteEvents           AthleteEvent[]
 }
 
@@ -954,4 +956,75 @@ model AthleteEventException {
   event AthleteEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, date])
+}
+
+// Estado de una invitación del piloto (CYC-295). «Sin invitar», «Vencida» y «Ya
+// tenía cuenta» no se guardan: se calculan.
+enum PilotInvitationStatus {
+  queued
+  sending
+  sent
+  failed
+  used
+}
+
+// Invitación a registrarse que el equipo envía desde admin (CYC-295). Nace con el
+// clic, una por correo; se borra a los 12 meses. Del enlace solo se guarda el hash.
+// Se relaciona con ContactRequest por el correo, sin llave: se purgan aparte.
+model PilotInvitation {
+  id           String                @id @default(uuid())
+  email        String                @unique
+  tokenHash    String?               @unique
+  status       PilotInvitationStatus
+  // Correo de la persona del equipo que hizo el último clic.
+  requestedBy  String
+  queuedAt     DateTime?
+  attemptedAt  DateTime?
+  sentAt       DateTime?
+  expiresAt    DateTime?
+  usedAt       DateTime?
+  usedByUserId String?               @unique
+  createdAt    DateTime              @default(now())
+
+  usedBy User? @relation(fields: [usedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([status, queuedAt])
+  @@index([sentAt])
+  @@index([createdAt])
+}
+
+// Respuestas del coach en el registro por pasos o en la encuesta (CYC-295). Las
+// listas guardan claves que valida la API, para que una opción retirada se siga
+// mostrando. Sin datos de salud. Se borra al eliminar la cuenta.
+model CoachProfile {
+  userId          String    @id
+  places          String[]  @default([])
+  modes           String[]  @default([])
+  sports          String[]  @default([])
+  noSpecificSport Boolean   @default(false)
+  athleteRange    String?
+  tools           String[]  @default([])
+  pains           String[]  @default([])
+  trainingTypes   String[]  @default([])
+  // Lo escrito en «Otro», por pregunta (hasta 60 caracteres cada uno).
+  otherTexts      Json      @default("{}")
+  // "register" (empezó al registrarse) o "survey" (encuesta de una cuenta anterior).
+  origin          String
+  lastStep        Int       @default(0)
+  completedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Historial de correos que tuvieron cuenta (CYC-295). Sobrevive a eliminar la
+// cuenta y a la purga de invitaciones, para que no se pueda volver a obtener el
+// mismo beneficio. Sin llave a User a propósito. Solo la huella HMAC del correo
+// (ver src/email-history) y dos fechas: sin correo legible, nombre ni otros datos.
+// Se conserva mientras existan el plan gratuito o las ofertas, con revisión anual.
+model RegisteredEmail {
+  fingerprint          String    @id
+  firstRegisteredAt    DateTime
+  lastAccountDeletedAt DateTime?
 }
