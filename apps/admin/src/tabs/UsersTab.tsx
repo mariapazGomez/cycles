@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api, type AccessLogRow, type Summary, type UserDetail, type UsersPage } from "../api";
+import { api, type AccessLogRow, type CoachProfileSummary, type Summary, type UserDetail, type UsersPage } from "../api";
 import { useLoad } from "../useLoad";
 import { Empty, ErrorBanner, Skeleton } from "../components/Bits";
 import { Drawer } from "../components/Drawer";
@@ -227,7 +227,35 @@ function UserDrawer({ id, onClose, onSessionEnded }: { id: string; onClose: () =
           </tbody>
         </table>
       )}
+      {d?.coachProfile && <CoachProfile profile={d.coachProfile} />}
     </Drawer>
+  );
+}
+
+// Respuestas del coach (CYC-295, admin-respuestas.md). Solo de lectura; lo escrito
+// en «Otro» va como texto simple.
+function CoachProfile({ profile }: { profile: CoachProfileSummary }) {
+  return (
+    <section className="profile" aria-labelledby="coach-profile-title">
+      <h4 id="coach-profile-title">Perfil de coach</h4>
+      <p className="when">
+        {profile.status === "complete" && profile.completedAt
+          ? `Completada el ${formatDate(profile.completedAt)}`
+          : profile.status === "partial"
+            ? `Respondió ${profile.answered} de ${profile.total} preguntas.`
+            : "Todavía no responde la encuesta."}
+      </p>
+      {profile.status !== "none" && (
+        <dl>
+          {profile.questions.map((q) => (
+            <div key={q.label}>
+              <dt>{q.label}</dt>
+              <dd className={q.answer ? undefined : "no"}>{q.answer ?? "Sin responder"}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+    </section>
   );
 }
 

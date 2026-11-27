@@ -2,11 +2,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { api, ApiError, SessionEnded } from "./api";
 import { UsersTab } from "./tabs/UsersTab";
 import { UsageTab } from "./tabs/UsageTab";
+import { InvitationsTab } from "./tabs/InvitationsTab";
 import { EmailsTab } from "./tabs/EmailsTab";
 import { LinksTab } from "./tabs/LinksTab";
 
 const TABS = [
   { id: "usuarios", label: "Usuarios" },
+  { id: "invitaciones", label: "Invitaciones" },
   { id: "uso", label: "Uso" },
   { id: "correos", label: "Correos" },
   { id: "enlaces", label: "Enlaces y versiones" },
@@ -106,6 +108,7 @@ export function App() {
             </div>
             <div id="panel" role="tabpanel" aria-labelledby={`tab-${tab}`}>
               {tab === "usuarios" && <UsersTab onSessionEnded={onSessionEnded} />}
+              {tab === "invitaciones" && <InvitationsTab onSessionEnded={onSessionEnded} />}
               {tab === "uso" && <UsageTab onSessionEnded={onSessionEnded} />}
               {tab === "correos" && <EmailsTab onSessionEnded={onSessionEnded} />}
               {tab === "enlaces" && <LinksTab onSessionEnded={onSessionEnded} />}

@@ -118,6 +118,33 @@ a.lnk:hover { background: var(--gray); }
 .field .inp { width: 100%; }
 .actions { display: flex; gap: 10px; margin-top: 4px; margin-bottom: 12px; }
 
+/* Invitaciones y perfil del coach (CYC-295, docs/diseno/invitacion-onboarding). */
+.cap { margin-left: auto; font-size: 0.88rem; color: var(--ink2); font-variant-numeric: tabular-nums; }
+.cap b { color: var(--ink); }
+.tag.err { background: var(--pain-bg); color: var(--pain-ink); }
+.tag.muted { background: var(--gray); color: var(--ink2); }
+.inv td { vertical-align: top; }
+.inv .msg { margin: 4px 0 0; max-width: 52ch; color: var(--ink2); font-size: 0.84rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; white-space: pre-line; }
+.inv .msg.open { display: block; }
+.inv .more { border: 0; background: none; padding: 4px 0; font-size: 0.8rem; font-weight: 600; color: var(--blue); text-decoration: underline; }
+.inv .act { width: 230px; }
+.confirm { display: flex; flex-wrap: wrap; gap: 6px; font-size: 0.84rem; }
+.confirm span { flex-basis: 100%; font-weight: 600; }
+.inv tbody tr:hover { background: none; }
+.profile { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 14px; }
+.profile h4 { margin: 0; font-family: var(--font-display); font-size: 1.05rem; }
+.profile .when { margin: 2px 0 4px; font-size: 0.84rem; color: var(--ink2); }
+.profile dl { margin: 0; }
+.profile dl div { border-top: 1px solid var(--line); padding: 9px 0; }
+.profile dt { font-size: 0.76rem; font-weight: 700; color: var(--ink2); }
+.profile dd { margin: 2px 0 0; font-size: 0.9rem; overflow-wrap: anywhere; }
+.profile dd.no { color: var(--ink2); }
+@media (max-width: 900px) {
+  .inv td { display: block; }
+  .inv .act { width: auto; }
+  .cap { margin-left: 0; }
+}
+
 /* Bajo 900 px, las tablas pasan a filas apiladas con la etiqueta de cada celda. */
 @media (max-width: 900px) {
   .app-h { padding: 12px 16px; }
