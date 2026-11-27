@@ -79,6 +79,12 @@ export function validateEnv(config: Record<string, unknown>): Record<string, unk
     errors.push(`INVITATIONS_CRON_SECRET debe tener al menos ${MIN_SECRET_LENGTH} caracteres.`);
   }
 
+  // Desde cuándo el formulario avisa de la invitación (CYC-295): admin distingue lo anterior.
+  const noticeSince = value("CONTACT_NOTICE_SINCE");
+  if (noticeSince && !(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?(Z|[+-]\d{2}:\d{2})$/.test(noticeSince) && !Number.isNaN(Date.parse(noticeSince)))) {
+    errors.push("CONTACT_NOTICE_SINCE debe ser una fecha con hora y zona, como 2026-12-01T10:00:00-03:00.");
+  }
+
   // Historial de correos registrados (CYC-295): para guardarlo hacen falta las dos.
   // La clave no se puede cambiar: el historial guardado dejaría de coincidir.
   const historyKey = value("EMAIL_HISTORY_HMAC_KEY");

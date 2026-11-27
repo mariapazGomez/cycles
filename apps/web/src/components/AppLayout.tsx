@@ -1,3 +1,4 @@
+import { CoachSurveyLayer } from "./onboarding/CoachSurveyLayer";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import logo from "../assets/logo-cycles.png";
@@ -62,6 +63,7 @@ export function AppLayout() {
       </main>
       <TourLayer />
       <NoveltyLayer />
+      <CoachSurveyLayer />
     </div>
   );
 }

@@ -135,6 +135,9 @@ export const emptyAnswers = (): Answers => ({ places: [], modes: [], sports: [],
 export const FINAL_STEP = QUESTIONS.length + 1;
 export const progressOf = (step: number) => (step >= FINAL_STEP ? 100 : Math.round((step / FINAL_STEP) * 100));
 
+// En la encuesta a cuentas anteriores no hay paso de cuenta: el avance cuenta solo las preguntas.
+export const surveyProgressOf = (step: number) => (step >= FINAL_STEP ? 100 : Math.max(0, Math.round(((step - 1) / QUESTIONS.length) * 100)));
+
 // Dónde retomar con lo ya respondido.
 export const resumeAt = (lastStep: number) => Math.min(Math.max(lastStep, 0) + 1, FINAL_STEP);
 

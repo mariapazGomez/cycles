@@ -123,3 +123,23 @@ Apple exige que una app con registro deje **iniciar el borrado de la cuenta dent
 - Las copias de respaldo conservan los datos hasta 90 días (ver §4, punto 3).
 - La descarga de la app usa la hoja de compartir del sistema con el JSON como texto, sin archivo.
 - Probado con datos reales en una base local: borrar a la atleta demo quitó sus 156 series y pasó sus 5 planes a plantillas (con rollback). La pantalla de la app **no se ha probado en un iPhone**.
+
+## 9. Versión 1.6: invitaciones y perfil del coach (CYC-295, 2026-11-27) — BORRADOR SIN REVISIÓN LEGAL
+
+`POLICY_VERSION` pasa a `"1.6"` (esto reemplaza el número que cita §7): al publicarse, **todas las cuentas**, de coach y de atleta, en la web y en la app, vuelven a ver «Antes de seguir» y deben aceptar. Los textos los redactó Desarrollo a partir de los diseños aprobados; **nadie los ha revisado legalmente**. La fecha del encabezado debe ser la del día en que se publique.
+
+**Qué cambia en `/privacidad`:** formulario de contacto (el equipo revisa el mensaje y puede enviar una invitación); bloques nuevos «Invitación para crear tu cuenta» y «Tu perfil de coach»; las invitaciones entre los correos enviados con Resend; qué se conserva al eliminar una cuenta; descargar, eliminar y retirar el consentimiento desde «Mi cuenta» (la 1.5 decía que solo por correo); y la sección de cookies (la sesión usa una cookie técnica y una marca en el navegador, no solo almacenamiento local).
+
+**Qué cambia en `/terminos`:** cómo se crea una cuenta durante el acceso anticipado, y que se puede eliminar desde «Mi cuenta».
+
+**No incluye el historial de correos (§8):** sigue apagado, y describirlo ahora sería decir que se guarda algo que no se guarda. Antes de encender `EMAIL_HISTORY_ENABLED` hace falta publicarlo (otra versión, con otra aceptación), el párrafo [Huella] en «Mi cuenta» y una versión nueva de la app.
+
+**Para la revisión legal:**
+1. Si «ofrecerte lo que te sirva» permite enviar ofertas, o hace falta una casilla aparte y una forma de darse de baja. Hoy no se envían.
+2. La sección 13 promete avisar «antes de que el cambio empiece a valer»: aquí el aviso es la pantalla de aceptar, el mismo día.
+3. La base para pedir las siete respuestas de forma obligatoria (registro y encuesta a cuentas que ya aceptaron la 1.5).
+4. La conservación de las invitaciones (12 meses, con el correo de quien del equipo la envió) y los textos de lo que se conserva al eliminar una cuenta.
+5. Los textos libres de «Otro» (60 caracteres): se pide no escribir datos de salud, pero no se puede impedir.
+6. **Sin auditar en esta versión:** si la política describe todo lo que trata el resto del producto (RM, equipos, eventos y rankings del equipo, ciclos del equipo). Solo se tocó lo de esta tarjeta y lo que se vio que ya no era cierto.
+7. Siguen pendientes los compromisos de la sección 4 y la revisión legal de las versiones anteriores.
+

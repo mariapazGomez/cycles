@@ -11,9 +11,13 @@ export const QUEUE_FROM_HOUR = 10;
 export const QUEUE_UNTIL_HOUR = 20;
 // Un envío que quedó «enviando» más de esto se da por fallido (el proceso se cortó).
 export const STALE_SENDING_MS = 10 * 60 * 1000;
-// Cuándo se publicó el aviso del formulario que anuncia la invitación. Sin fecha,
-// todavía no se publicó: todos los mensajes son anteriores. Se fija al publicarlo.
-export const NEW_CONTACT_NOTICE_SINCE: Date | null = null;
+// Cuándo se publicó el aviso del formulario que anuncia la invitación: se fija con
+// CONTACT_NOTICE_SINCE al publicarlo. Sin fecha (o ilegible), todos los mensajes
+// cuentan como anteriores: es el error que no hace creer que alguien vio el aviso.
+export function contactNoticeSince(raw: string | undefined): Date | null {
+  const date = new Date(raw?.trim() ?? "");
+  return Number.isNaN(date.getTime()) ? null : date;
+}
 
 export function chileHour(t: number): number {
   return Number(new Intl.DateTimeFormat("en-US", { timeZone: CHILE_TZ, hourCycle: "h23", hour: "2-digit" }).format(new Date(t)));

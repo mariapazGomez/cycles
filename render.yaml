@@ -71,6 +71,9 @@ services:
         sync: false
       - key: INVITATIONS_CRON_SECRET
         sync: false
+      # Fecha y hora en que se publicó el aviso nuevo del formulario (CYC-295).
+      - key: CONTACT_NOTICE_SINCE
+        sync: false
       # Encuesta para coaches (CYC-295): apagada sin COACH_SURVEY_ENABLED=true.
       - key: COACH_SURVEY_ENABLED
         sync: false

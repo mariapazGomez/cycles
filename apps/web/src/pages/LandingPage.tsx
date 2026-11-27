@@ -417,14 +417,15 @@ export function LandingPage() {
             <div className="lp-card">
               <h2>Acceso anticipado, gratis mientras lo construimos</h2>
               <p className="lp-card-lead">
-                Estamos armando Cycles junto a los primeros coaches. Déjanos tu correo y cuéntanos cómo trabajas: te
-                damos acceso y tu experiencia nos ayuda a decidir qué sigue. ¿No eres coach pero quieres sumarte a la causa?
-                Cuéntanos igual.
+                Estamos armando Cycles junto a los primeros coaches. Déjanos tu correo y cuéntanos cómo trabajas:
+                revisamos cada mensaje para dar acceso, y tu experiencia nos ayuda a decidir qué sigue. ¿No eres coach
+                pero quieres sumarte a la causa? Cuéntanos igual.
               </p>
 
               {mutation.isSuccess ? (
                 <div className="lp-sent" role="status">
-                  Recibido. Te escribiremos al correo que dejaste.
+                  Recibido. Revisamos cada mensaje: si te damos acceso, la invitación llega a este correo. Si tienes
+                  dudas, escríbenos a hola@getcycles.app.
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} noValidate>
@@ -478,7 +479,8 @@ export function LandingPage() {
                     </p>
                   )}
                   <p className="lp-privacy">
-                    Usaremos tu correo solo para responderte. Más en la <a href="/privacidad">política de privacidad</a>.
+                    Usaremos tu correo para responderte y, si te damos acceso, enviarte una invitación a Cycles. Más en la{" "}
+                    <a href="/privacidad">política de privacidad</a>.
                   </p>
                 </form>
               )}

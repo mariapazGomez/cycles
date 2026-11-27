@@ -12,6 +12,14 @@ Tú trabajas en la web (`app.getcycles.app`, funciona bien en computador). Tu at
 
 Durante la fase de early adopters **el registro está cerrado**: solo entran personas que ya tienen cuenta. Si todavía no tienes la tuya, pide acceso con **Quiero acceso anticipado** en `getcycles.app` y el equipo te avisa.
 
+**Si te llegó el correo «Tu invitación a Cycles»**
+1. Toca **Crear mi cuenta**. El enlace es personal, sirve una sola vez y vence en 7 días.
+2. Elige **Soy coach**, escribe tu nombre y una contraseña, acepta los Términos y la Política, y toca **Crear cuenta y seguir**. Tu correo ya queda verificado.
+3. Responde las siete preguntas sobre cómo entrenas. Se guardan al avanzar: si sales, retomas donde quedaste.
+4. Toca **Entrar a Cycles**.
+
+> Si el enlace dice que ya no sirve y no creaste tu cuenta, escribe a `hola@getcycles.app`.
+
 **Si ya tienes cuenta**
 1. En `getcycles.app` toca **Ya tengo una cuenta**.
 2. Inicia sesión con tu **email y contraseña**, o con **Continuar con Google** (con el mismo email de tu cuenta).

@@ -62,7 +62,7 @@ Brechas observadas al inicio (v0.1) y cómo quedan:
 2. **Primer valor rápido.** El recorrido se mide hasta el primer ciclo con una sesión asignada (coach) y la primera sesión registrada (atleta), no hasta «cuenta creada». [decidido]
 3. **Voz de compañera de entrenamiento** ([[voz-y-tono]]): tuteo, frases cortas, sin dramatizar, sin culpar. [decidido]
 4. **Lo vacío orienta.** Ningún estado vacío es solo «no hay nada»: dice qué hacer o qué se espera. [decidido]
-5. **Se puede saltar y volver.** Nada del onboarding bloquea usar la app. [decidido]
+5. **Se puede saltar y volver.** Nada del onboarding bloquea usar la app. [decidido] **Excepción (2026-11-26, CYC-295):** las siete preguntas del perfil del coach son obligatorias, en el registro con invitación y en la encuesta a quienes ya tienen cuenta. Siempre quedan «Mi cuenta» (al retomar y en la encuesta) y «Cerrar sesión».
 6. **La guía no es una pantalla, es una capa.** La interfaz se ve y funciona tal cual; el halo no bloquea toques ni atenúa el resto. [decidido 2026-11-03]
 
 ## 4. Alcance
@@ -94,6 +94,7 @@ El registro público está cerrado en el piloto: se entra con el **enlace privad
 |---|---|
 | **Coach** | Enlace privado → **Soy coach** → «Revisa tu email» → inicio de sesión → Inicio vacío: **empieza la guía**. |
 | **Atleta que se registra sola** | Enlace privado → **Soy atleta** → elige **iPhone o Android** (y el correo de su Apple ID para TestFlight, CYC-194) → verifica → entra: ve «Falta tu coach» hasta que su coach la invite con el mismo correo. |
+| **Invitación del equipo (CYC-295; apagada hasta activarla)** | Correo «Tu invitación a Cycles» (enlace de un solo uso, 7 días) → «Crea tu cuenta», con el correo ya verificado y la sesión iniciada. **Coach:** siete preguntas, una por paso → «Entrar a Cycles» → guía. **Atleta:** directo al final; recibe además la invitación a TestFlight o el correo de Android. Quien deja las preguntas a medias las retoma al volver; mientras, no salen la guía ni las novedades. |
 | **Atleta invitada sin cuenta** | Correo de invitación → «Activa tu cuenta» (define contraseña) → **traspaso a la app**. |
 | **Atleta invitada con cuenta** | Correo → «Acepta la invitación» → traspaso a la app. |
 
@@ -193,6 +194,7 @@ Se conservó lo que ya existía y se diseñó lo que faltaba (CYC-75 coach, CYC-
 |---|---|---|
 | Verificación de email | Registro de coach o de atleta | [hecho] en producción |
 | Invitación de atleta | La coach invita | [hecho] en producción; el atleta que se registra solo recibe además la invitación a TestFlight (CYC-194) |
+| Invitación para crear la cuenta (CYC-295) | El equipo la envía desde admin | [construido], apagado hasta activarlo |
 | Recuperación de contraseña | «¿Olvidaste tu contraseña?» | [hecho]; fuera de este PRD |
 | Bienvenida a la coach | Primera vez que entra | **[diferido]**: la guía en pantalla cumple esa función; se reevalúa tras el piloto |
 | Recordatorio de invitación sin aceptar | A los 3 días | **[diferido]**: se reevalúa con los datos de aceptación del piloto |

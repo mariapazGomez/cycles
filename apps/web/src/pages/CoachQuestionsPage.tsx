@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../hooks/useAuth";
 import * as coachProfileApi from "../services/coachProfileApi";
@@ -7,11 +7,12 @@ import { resumeAt } from "../lib/coachQuestions";
 import { LoadingScreen } from "../components/LoadingScreen";
 import { AuthCard } from "../components/AuthCard";
 import { CoachSteps } from "../components/onboarding/CoachSteps";
+import { CoachExits } from "../components/onboarding/CoachExits";
 import { useStepTransition } from "../components/onboarding/OnboardingCard";
 
 function Resume({ profile }: { profile: coachProfileApi.CoachProfileView }) {
   const navigate = useNavigate();
-  const { logout, refreshCurrentUser } = useAuth();
+  const { refreshCurrentUser } = useAuth();
   const [step, setStep] = useState(() => resumeAt(profile.lastStep));
   const [entering, setEntering] = useState(false);
   const transition = useStepTransition(setStep);
@@ -27,19 +28,7 @@ function Resume({ profile }: { profile: coachProfileApi.CoachProfileView }) {
           .then(() => navigate("/", { replace: true }))
           .catch(() => setEntering(false));
       }}
-      // Son obligatorias, pero sin dejar a nadie encerrado: desde su cuenta puede descargar sus datos
-      // o eliminarla sin responder.
-      links={
-        <>
-          <Link to="/account">Mi cuenta</Link>
-          <button
-            type="button"
-            onClick={() => void logout().then(() => navigate("/login", { replace: true }))}
-          >
-            Cerrar sesión
-          </button>
-        </>
-      }
+      links={<CoachExits />}
     />
   );
 }
@@ -48,7 +37,16 @@ function Resume({ profile }: { profile: coachProfileApi.CoachProfileView }) {
 export function CoachQuestionsPage() {
   const { user, refreshCurrentUser } = useAuth();
   const pending = user?.coachSurvey === "register";
-  const profile = useQuery({ queryKey: ["coach-profile"], queryFn: coachProfileApi.getCoachProfile, enabled: pending, staleTime: Infinity, gcTime: 0 });
+  // Siempre las respuestas recién pedidas, nunca las guardadas de antes: así retoma donde quedó.
+  const profile = useQuery({
+    queryKey: ["coach-profile", "register"],
+    queryFn: coachProfileApi.getCoachProfile,
+    enabled: pending,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    staleTime: Infinity,
+  });
   // Quien ya no tiene preguntas pendientes no vuelve aquí.
   if (!pending) return <Navigate to="/" replace />;
   if (profile.isError) {
@@ -61,5 +59,5 @@ export function CoachQuestionsPage() {
       </AuthCard>
     );
   }
-  return profile.data ? <Resume profile={profile.data} /> : <LoadingScreen />;
+  return profile.isFetchedAfterMount && profile.data ? <Resume profile={profile.data} /> : <LoadingScreen />;
 }
