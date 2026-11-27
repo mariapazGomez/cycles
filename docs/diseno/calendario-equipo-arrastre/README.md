@@ -1,12 +1,12 @@
 # Ciclo y rutinas desde el calendario del equipo
 
-**Propuesta pendiente de aprobación de la usuaria.** Solo diseño, solo web del coach. Contrastada con `origin/main` (a9d46b4). Maqueta que se puede probar en [calendario.html](calendario.html); capturas en `capturas/`. La maqueta usa los estilos reales de la web; las pantallas existentes conservan su forma actual. El panel y el teléfono son una representación: el panel mantiene el componente actual (`RoutinePanel`).
+**Aprobado por la usuaria (26-11): «Sí, apruebo».** Incluye la ficha de novedad. Los tamaños son los del [sidebar compacto](../equipos-sidebar-compacto/README.md), también elegido por ella; en la maqueta de esta carpeta se ven los anteriores y faltan los íconos y el botón de contraer del sidebar, que **se mantienen**. Solo diseño, solo web del coach. Contrastada con `origin/main` (a9d46b4). Maqueta que se puede probar en [calendario.html](calendario.html); capturas en `capturas/`. La maqueta usa los estilos reales de la web; las pantallas existentes conservan su forma actual. El panel y el teléfono son una representación: el panel mantiene el componente actual (`RoutinePanel`).
 
 ## Pedido de la usuaria (trasladado por Desarrollo general, 26-11)
 
 > «necesito agregar algo que se me paso y es que agregar ciclos debe estar dentro del calendario principal de los equipos, y el panel para asignar sesiones debe ser por arrastre tal cual como esta en el de atletas»
 
-## Propuesta
+## Diseño
 
 **El Calendario sigue siendo el calendario**, con sus vistas Mes y Semana, y suma a la derecha el mismo panel de rutinas arrastrable de la ficha del atleta. No se reemplaza por la pizarra por semanas.
 

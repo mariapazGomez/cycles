@@ -1,6 +1,6 @@
 # Sidebar de Equipos: tamaños y letra
 
-**La usuaria eligió la opción A, compacta (26-11): «la version compacta».** Solo diseño, solo web del coach. Parte de `origin/main` (a9d46b4). Comparación que se puede probar en [comparacion.html](comparacion.html); capturas en `capturas/`. Usa los estilos reales de la web sobre la propuesta del [calendario con arrastre](../calendario-equipo-arrastre/README.md), que sigue pendiente.
+**La usuaria eligió la opción A, compacta (26-11): «la version compacta».** Solo diseño, solo web del coach. Parte de `origin/main` (a9d46b4). Comparación que se puede probar en [comparacion.html](comparacion.html); capturas en `capturas/`. Usa los estilos reales de la web sobre la propuesta del [calendario con arrastre](../calendario-equipo-arrastre/README.md), aprobado el 26-11.
 
 ## Pedido de la usuaria (26-11)
 
