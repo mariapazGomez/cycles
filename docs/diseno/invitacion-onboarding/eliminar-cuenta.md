@@ -42,7 +42,7 @@ La app es solo para atletas (`AuthContext.startSession` rechaza otros roles): no
 | Parte | Condición |
 |---|---|
 | Todo el texto | PR #286 publicado |
-| «y se elimina tu perfil de coach» | PR #285 publicado; antes se quita la frase |
+| «y se elimina tu perfil de coach» | PR #285 publicado; antes se quita la frase. Ya está mezclado (26-11); su publicación en producción **no está verificada** |
 | Párrafo **[Huella]** (la marca no se muestra) | Historial encendido, y `/privacidad` actualizada **antes** de encenderlo. Con el historial apagado no se muestra |
 
 La app instalada tiene el texto en su código («sin tu nombre»): necesita una versión nueva.
@@ -51,7 +51,7 @@ La app instalada tiene el texto en su código («sin tu nombre»): necesita una 
 
 - **No es retroactivo.** Lo que dejaron las cuentas eliminadas antes del PR #286 sigue igual.
 - **No promete «sin tu nombre» ni que se borra toda la Biblioteca del coach.** La plantilla nueva es genérica, pero lo que el coach ya tenía guardado o escribió en otros lugares puede nombrar al atleta.
-- El PR #285 también elimina la invitación de la persona; está por confirmar y los textos no la mencionan.
+- Al eliminar la cuenta también se borra la invitación de la persona (decidido el 26-11, PR #285 mezclado). Los textos no la mencionan.
 
 ## Fuera de la tarjeta, para `/privacidad` 1.6
 
