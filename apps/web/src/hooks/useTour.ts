@@ -16,7 +16,8 @@ import { clearLocal, hasNoData, readLocal, subscribeLocal, tourIsActive, tourPro
 // `force` pide los datos aunque la guía ya no esté pendiente (panel «Cómo usar Cycles»).
 export function useTour(force = false) {
   const { user, refreshCurrentUser } = useAuth();
-  const isCoach = user?.role === "coach";
+  // Con las preguntas del registro pendientes (CYC-295) la guía espera.
+  const isCoach = user?.role === "coach" && user.coachSurvey !== "register";
   const pending = isCoach && user?.tourStatus === "pending";
   const load = pending || (isCoach && force);
   const userId = user?.id ?? "";

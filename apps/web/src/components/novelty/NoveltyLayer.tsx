@@ -16,7 +16,7 @@ export function NoveltyLayer() {
   const { user, refreshCurrentUser } = useAuth();
   const { pathname } = useLocation();
   const tour = useTour();
-  const pending = user?.tourNewsSeen ? pendingNovelty(user.tourNewsSeen, { role: user.role, platform: "web" }) : null;
+  const pending = user?.tourNewsSeen && user.coachSurvey !== "register" ? pendingNovelty(user.tourNewsSeen, { role: user.role, platform: "web" }) : null;
   const { ready, conditions } = useNoveltyConditions(Boolean(pending));
   const [shown, setShown] = useState<Novelty | null>(null);
   const [dismissed, setDismissed] = useState<string | null>(null);
