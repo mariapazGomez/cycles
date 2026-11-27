@@ -1467,3 +1467,8 @@
   .nd-tpanel-row em:last-child { opacity: 1; }
   .nd-tonly .nd-tonly-out { opacity: 0.12; }
 }
+.nd-tcolor { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+.nd-tcolor span { color: #fff; font-size: 13px; font-weight: 500; background: #6d45c4; animation: nd-tcolor 4.8s ease infinite; }
+.nd-tcolor-name { padding: 6px 12px; border-radius: 5px; }
+.nd-tcolor-bar { width: 300px; padding: 2px 8px; border-radius: 4px; text-align: left; }
+@keyframes nd-tcolor { 0%, 30% { background: #1b66dc; } 50%, 100% { background: #6d45c4; } }

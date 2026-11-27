@@ -9,6 +9,7 @@ import { cleanBlocks } from "../common/work-blocks";
 import { earliestAllowedDay, reassignSlots, weekOfDate } from "../sessions/slots";
 import { CYCLE_DATE_MESSAGES, isValidRange, outsideError, renumberForStart, sessionsOutside, startDateError } from "../cycles/cycle-dates";
 import type { SaveSessionStructureDto, SessionStructureExerciseDto } from "../sessions/dto/save-session-structure.dto";
+import { nextColor } from "./colors";
 import { BOARD_LIMITS } from "../coach-board/coach-board.service";
 import { parseRange } from "../events/recurrence";
 import { addToSummary, emptySummary, rangesOverlap, removalFate, skipReason, TEAM_RULES, type CopyState, type PropagationSummary } from "./rules";
@@ -167,7 +168,9 @@ export class TeamCyclesService {
     const athleteIds = await this.assertCanReceive(coachId, teamId, dto.athleteIds);
 
     const id = await this.prisma.$transaction(async (tx) => {
-      const cycle = await tx.teamCycle.create({ data: { teamId, coachId, name: dto.name, objective: dto.objective, ...range } });
+      const color =
+        dto.color ?? nextColor((await tx.teamCycle.findMany({ where: { teamId, status: { not: "archived" } }, select: { color: true } })).map((c) => c.color));
+      const cycle = await tx.teamCycle.create({ data: { teamId, coachId, name: dto.name, objective: dto.objective, color, ...range } });
       for (const athleteId of athleteIds) await this.createCopyCycle(tx, cycle, athleteId);
       return cycle.id;
     });
@@ -241,6 +244,7 @@ export class TeamCyclesService {
       startDate: cycle.startDate,
       endDate: cycle.endDate,
       status: cycle.status,
+      color: cycle.color,
       athletes: copies.map((c) => ({ athleteId: c.athleteId, name: c.athlete?.name ?? "", cycleId: c.id, status: c.status })),
       sessions: sessions.map((s) => {
         const own = counted.filter((c) => c.teamSessionId === s.id);
@@ -595,6 +599,14 @@ export class TeamCyclesService {
 
   async update(coachId: string, teamCycleId: string, dto: UpdateTeamCycleDto) {
     const cycle = await this.ownedCycle(coachId, teamCycleId);
+    // El color es solo del ciclo del equipo: cambiarlo no toca las copias de nadie.
+    if (dto.color !== undefined) {
+      const others = [dto.name, dto.objective, dto.startDate, dto.endDate].some((v) => v !== undefined);
+      if (!others) {
+        await this.prisma.teamCycle.update({ where: { id: teamCycleId }, data: { color: dto.color } });
+        return this.detail(coachId, teamCycleId);
+      }
+    }
     const startDate = startOfUtcDay(dto.startDate ? new Date(dto.startDate) : cycle.startDate);
     const endDate = startOfUtcDay(dto.endDate ? new Date(dto.endDate) : cycle.endDate);
     const startMoved = startDate.getTime() !== startOfUtcDay(cycle.startDate).getTime();
@@ -622,7 +634,7 @@ export class TeamCyclesService {
         const outside = [...mastersOut, ...own.filter((s) => !(s.teamSessionId && s.scheduledDate && counted.get(s.teamSessionId) === startOfUtcDay(s.scheduledDate).getTime()))];
         if (outside.length > 0) throw new ConflictException(outsideError(outside));
       }
-      await tx.teamCycle.update({ where: { id: teamCycleId }, data });
+      await tx.teamCycle.update({ where: { id: teamCycleId }, data: { ...data, ...(dto.color !== undefined ? { color: dto.color } : {}) } });
       for (const copy of copies) {
         const sessions = sessionsByCopy.get(copy.id)!;
         if (startMoved && sessions.length > 0) {

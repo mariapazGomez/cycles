@@ -277,4 +277,46 @@ describe("Ciclo del equipo", () => {
       expect(removed.body).toEqual({ updated: 2, skipped: { adjusted: 0, recorded: 0, past: 0, removed: 0 } });
     });
   });
+
+  describe("color de la barra", () => {
+    const later = { name: "Competencia", athleteIds: [] as string[], startDate: day(28), endDate: day(55), today: day(0) };
+    const patch = (id: string, body: object, token = coach()) => app.http("patch", `/team-cycles/${id}`, token).send(body);
+
+    it("cada ciclo nuevo toma el primer color libre y sale en la lista, el detalle y el tramo", async () => {
+      await reset();
+      const first = (await makeCycle([c.userId.athleteA])).body;
+      const second = (await post(`/teams/${teamId}/cycles`, later)).body;
+      expect([first.color, second.color]).toEqual(["blue", "violet"]);
+      const chosen = (await post(`/teams/${teamId}/cycles`, { ...later, name: "Final", startDate: day(56), endDate: day(83), color: "graphite" })).body;
+      expect(chosen.color).toBe("graphite");
+      const list = (await app.http("get", `/teams/${teamId}/cycles`, coach())).body;
+      expect(Object.fromEntries(list.map((x: any) => [x.name, x.color]))).toEqual({ Pretemporada: "blue", Competencia: "violet", Final: "graphite" });
+      expect((await detail(second.id)).color).toBe("violet");
+      const range = (await app.http("get", `/teams/${teamId}/cycle-details?from=${day(0)}&to=${day(40)}`, coach())).body.cycles;
+      expect(range.map((x: any) => x.color)).toEqual(["blue", "violet"]);
+    });
+
+    it("solo acepta colores de la lista y del coach dueño; cambiarlo no toca las copias", async () => {
+      await reset();
+      const id = (await makeCycle([c.userId.athleteA])).body.id;
+      await addSession(id, 3);
+      const copies = () => app.prisma.trainingCycle.findMany({ where: { teamCycleId: id }, select: { id: true, name: true, updatedAt: true } });
+      const before = await copies();
+      for (const color of ["rojo", "#1b66dc", "", null, 3]) {
+        expect((await patch(id, { color })).status).toBe(400);
+        expect((await post(`/teams/${teamId}/cycles`, { ...later, color: color ?? "x" })).status).toBe(400);
+      }
+      expect((await app.http("patch", `/team-cycles/${id}`).send({ color: "teal" })).status).toBe(401);
+      expect((await patch(id, { color: "teal" }, c.token.athleteA)).status).toBe(403);
+      expect((await patch(id, { color: "teal" }, c.token.coachB)).status).toBe(404);
+      expect((await detail(id)).color).toBe("blue");
+      const res = await patch(id, { color: "teal" });
+      expect(res.status).toBe(200);
+      expect(res.body.color).toBe("teal");
+      expect(await copies()).toEqual(before);
+      // Junto con otro dato también se guarda, y cambiar otro dato lo conserva.
+      expect((await patch(id, { name: "Base", color: "brown" })).body).toMatchObject({ name: "Base", color: "brown" });
+      expect((await patch(id, { name: "Base 2" })).body.color).toBe("brown");
+    });
+  });
 });
