@@ -66,6 +66,12 @@ services:
       # (enlace privado /register?codigo=…). Opcional; mínimo 16 caracteres.
       - key: PILOT_ACCESS_CODE
         sync: false
+      # Historial de correos registrados (CYC-295). Sin EMAIL_HISTORY_ENABLED=true
+      # no guarda nada. La clave no se cambia una vez en uso.
+      - key: EMAIL_HISTORY_ENABLED
+        sync: false
+      - key: EMAIL_HISTORY_HMAC_KEY
+        sync: false
       - key: SLACK_SECURITY_WEBHOOK_URL
         sync: false
       - key: SLACK_ACTIVITY_WEBHOOK_URL

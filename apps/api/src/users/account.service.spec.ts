@@ -3,7 +3,7 @@ import { AccountService, KEPT_TEMPLATE_NAME, weeksBetween } from "./account.serv
 
 const d = (iso: string) => new Date(`${iso}T00:00:00Z`);
 
-function setup(user: { id: string; role: string }, cycles: unknown[] = []) {
+function setup(user: { id: string; role: string; email?: string }, cycles: unknown[] = []) {
   const fn = () => jest.fn().mockResolvedValue({ count: 0 });
   const tx = {
     trainingCycle: { findMany: jest.fn().mockResolvedValue(cycles), create: jest.fn(), deleteMany: fn(), updateMany: fn() },
@@ -23,6 +23,8 @@ function setup(user: { id: string; role: string }, cycles: unknown[] = []) {
     notification: { deleteMany: fn() },
     policyAcceptance: { deleteMany: fn() },
     coachSummaryLayout: { deleteMany: fn() },
+    pilotInvitation: { deleteMany: fn() },
+    coachProfile: { deleteMany: fn() },
     athleteEvent: { deleteMany: fn(), findMany: fn() },
     athleteInvitationToken: { deleteMany: fn() },
     coachAthlete: { deleteMany: fn(), updateMany: fn() },
@@ -35,12 +37,13 @@ function setup(user: { id: string; role: string }, cycles: unknown[] = []) {
     $executeRaw: jest.fn().mockResolvedValue(1),
   };
   const prisma = {
-    user: { findUnique: jest.fn().mockResolvedValue(user), update: jest.fn() },
+    user: { findUnique: jest.fn().mockResolvedValue({ email: "persona@x.cl", ...user }), update: jest.fn() },
     userIdentity: { findFirst: jest.fn().mockResolvedValue(null) },
     $transaction: jest.fn((cb: (t: typeof tx) => Promise<void>) => cb(tx)),
   };
   const revocation = { revoke: jest.fn().mockResolvedValue("revoked") };
-  return { tx, prisma, revocation, service: new AccountService(prisma as never, revocation as never) };
+  const history = { recordDeletion: jest.fn(), datesFor: jest.fn() };
+  return { tx, prisma, revocation, history, service: new AccountService(prisma as never, revocation as never, history as never) };
 }
 
 describe("weeksBetween", () => {

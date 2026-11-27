@@ -4,6 +4,8 @@ import { PrismaService } from "../prisma/prisma.service";
 import { DATA_CONSENT_VERSION } from "../auth/auth.service";
 import { templateDates } from "../cycles/template-dates";
 import { AppleRevocationService } from "./apple-revocation.service";
+import { EmailHistoryService, HistoryAccount } from "../email-history/email-history.service";
+import { normalizeEmail } from "../common/validation/normalize-email";
 
 // Tope de semanas de una plantilla (CreateTemplateDto).
 const MAX_TEMPLATE_WEEKS = 52;
@@ -26,6 +28,7 @@ export class AccountService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly appleRevocation: AppleRevocationService,
+    private readonly emailHistory: EmailHistoryService,
   ) {}
 
   async setDataConsent(userId: string, consent: boolean): Promise<void> {
@@ -44,9 +47,21 @@ export class AccountService {
     }
     await this.revokeApple(userId, appleAuthorizationCode);
     if (user.role === "athlete") {
-      await this.prisma.$transaction((tx) => this.deleteAthlete(tx, userId), { timeout: 60_000 });
+      await this.prisma.$transaction(
+        async (tx) => {
+          await this.deleteSignupData(tx, userId, user);
+          await this.deleteAthlete(tx, userId);
+        },
+        { timeout: 60_000 },
+      );
     } else if (user.role === "coach") {
-      await this.prisma.$transaction((tx) => this.anonymizeCoach(tx, userId), { timeout: 60_000 });
+      await this.prisma.$transaction(
+        async (tx) => {
+          await this.deleteSignupData(tx, userId, user);
+          await this.anonymizeCoach(tx, userId);
+        },
+        { timeout: 60_000 },
+      );
     } else {
       throw new ForbiddenException("Esta cuenta no se puede eliminar desde la app.");
     }
@@ -68,6 +83,16 @@ export class AccountService {
     if ((await this.appleRevocation.revoke(authorizationCode, apple.subject)) === "mismatch") {
       throw new BadRequestException("Confirma con la cuenta de Apple con la que entraste.");
     }
+  }
+
+  // Lo del registro (CYC-295), antes de perder el correo: se anota en el historial
+  // y se borran su invitación y su perfil (decidido el 26-11). El perfil se borra
+  // aquí porque la fila de un coach se conserva anonimizada y la cascada no se
+  // activaría.
+  private async deleteSignupData(tx: Prisma.TransactionClient, userId: string, account: HistoryAccount): Promise<void> {
+    await this.emailHistory.recordDeletion(tx, account);
+    await tx.pilotInvitation.deleteMany({ where: { OR: [{ usedByUserId: userId }, { email: normalizeEmail(account.email) }] } });
+    await tx.coachProfile.deleteMany({ where: { userId } });
   }
 
   // Atleta: se borra todo lo suyo (series, cierres, avisos, sesión y la cuenta).
@@ -221,6 +246,16 @@ export class AccountService {
     }
 
     const exportedAt = new Date().toISOString();
+    // CYC-295: el estado y las fechas de su invitación (sin el enlace ni quién del
+    // equipo la envió) y las fechas del historial de su correo, si las hay.
+    const [pilotInvitation, emailHistory] = await Promise.all([
+      this.prisma.pilotInvitation.findFirst({
+        where: { OR: [{ usedByUserId: userId }, { email: normalizeEmail(user.email) }] },
+        select: { status: true, createdAt: true, queuedAt: true, sentAt: true, expiresAt: true, usedAt: true },
+      }),
+      this.emailHistory.datesFor(user.email),
+    ]);
+    const signup = { pilotInvitation, emailHistory };
     if (user.role === "athlete") {
       const [plans, logs, feedback, events, maxes] = await Promise.all([
         this.prisma.trainingCycle.findMany({
@@ -235,10 +270,10 @@ export class AccountService {
         this.prisma.athleteEvent.findMany({ where: { athleteId: userId }, include: { exceptions: true }, orderBy: { date: "asc" } }),
         this.prisma.athleteMax.findMany({ where: { athleteId: userId }, orderBy: { measuredAt: "asc" } }),
       ]);
-      return { exportedAt, profile: user, plans, setLogs: logs, sessionFeedback: feedback, athleteEvents: events, maxes };
+      return { exportedAt, profile: user, ...signup, plans, setLogs: logs, sessionFeedback: feedback, athleteEvents: events, maxes };
     }
 
-    const [routines, exercises, plans, summaryLayout, teamEvents] = await Promise.all([
+    const [routines, exercises, plans, summaryLayout, teamEvents, coachProfile] = await Promise.all([
       this.prisma.routine.findMany({ where: { coachId: userId }, include: { routineExercises: true, blocks: true } }),
       this.prisma.exercise.findMany({ where: { createdBy: userId } }),
       // Solo la estructura de los planes: lo que los atletas registraron es de ellos.
@@ -249,7 +284,9 @@ export class AccountService {
       this.prisma.coachSummaryLayout.findUnique({ where: { coachId: userId }, select: { charts: true, updatedAt: true } }),
       // Los eventos que creó para sus equipos (CYC-317).
       this.prisma.teamEvent.findMany({ where: { createdById: userId }, orderBy: { date: "asc" } }),
+      // Sus respuestas del registro o de la encuesta (CYC-295).
+      this.prisma.coachProfile.findUnique({ where: { userId } }),
     ]);
-    return { exportedAt, profile: user, routines, exercises, plans, summaryLayout, teamEvents };
+    return { exportedAt, profile: user, ...signup, coachProfile, routines, exercises, plans, summaryLayout, teamEvents };
   }
 }
